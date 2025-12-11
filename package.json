@@ -1,0 +1,24 @@
+{
+  "name": "donate.noisebridge.net",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "bun --watch server.ts",
+    "start": "bun server.ts"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/ejs": "^3.1.5"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "@fastify/static": "^8.3.0",
+    "@fastify/view": "^11.1.1",
+    "dotenv": "^17.2.3",
+    "ejs": "^3.1.10",
+    "fastify": "^5.6.2"
+  }
+}
