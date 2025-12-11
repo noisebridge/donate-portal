@@ -22,9 +22,7 @@ fastify.register(fastifyStatic, {
 });
 
 fastify.register(view, {
-  engine: {
-    ejs: ejs,
-  },
+  engine: { ejs },
   root: path.join(__dirname, "views"),
 });
 
