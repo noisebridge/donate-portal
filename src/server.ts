@@ -4,7 +4,7 @@ import fastifyCookie from "@fastify/cookie";
 import fastifyStatic from "@fastify/static";
 import html from "@kitajs/fastify-html-plugin";
 import Fastify from "fastify";
-import routes from "~/routes.tsx";
+import routes from "~/routes";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -23,7 +23,7 @@ fastify.register(fastifyCookie, {
 });
 
 fastify.register(fastifyStatic, {
-  root: path.join(__dirname, "..", "assets"),
+  root: path.join(__dirname, "assets"),
   prefix: "/assets/",
 });
 

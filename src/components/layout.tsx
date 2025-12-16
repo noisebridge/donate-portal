@@ -4,10 +4,11 @@ import Html from "@kitajs/html";
 
 export type LayoutProps = PropsWithChildren<{
   title: string;
-  script: string;
+  script?: string;
+  styles?: string;
 }>;
 
-export function Layout({ title, script, children }: LayoutProps) {
+export function Layout({ title, script, styles, children }: LayoutProps) {
   return (
     <>
       {"<!DOCTYPE html>"}
@@ -20,8 +21,10 @@ export function Layout({ title, script, children }: LayoutProps) {
           />
           <title>{title}</title>
           <link rel="icon" href="/assets/image/favicon.svg" />
+          <link rel="stylesheet" href="/assets/css/reset.css" />
           <link rel="stylesheet" href="/assets/css/main.css" />
-          <script type="module" src={`/assets/js/${script}`}></script>
+          {styles && <link rel="stylesheet" href={`/assets/css/${styles}`} />}
+          {script && <script type="module" src={`/assets/js/${script}`}></script>}
         </head>
         <body>
           {children}

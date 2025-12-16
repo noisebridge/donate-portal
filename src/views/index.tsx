@@ -1,16 +1,15 @@
 // biome-ignore lint/correctness/noUnusedImports: Html is used by JSX
 import Html from "@kitajs/html";
-import { Layout } from "./layout.tsx";
+import { Layout } from "~/components/layout";
 
 export interface IndexProps {
   title: string;
-  customerEmail: string;
 }
 
-export function IndexPage({ title, customerEmail }: IndexProps) {
+export function IndexPage({ title }: IndexProps) {
   return (
-    <Layout title={title} script="index.mjs">
-      <p>First customer: {customerEmail}</p>
+    <Layout title={title} script="index.mjs" styles="index.css">
+      <p>Hello, world!</p>
     </Layout>
   );
 }

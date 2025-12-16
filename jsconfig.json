@@ -9,10 +9,10 @@
     "module": "ES2020",
     "allowJs": true,
     "checkJs": true,
-    "baseUrl": "./assets/js/"
+    "baseUrl": "./src/assets/js/"
   },
   "include": [
-    "assets/js/**/*.mjs"
+    "src/assets/js/**/*.mjs"
   ],
   "exclude": []
 }
