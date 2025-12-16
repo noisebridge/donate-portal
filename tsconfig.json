@@ -1,39 +1,29 @@
 {
-	"compilerOptions": {
-		"lib": ["ESNext"],
-		"target": "ESNext",
-		"module": "ESNext",
-		"moduleDetection": "force",
-		"allowJs": true,
-		"checkJs": true,
-		"moduleResolution": "bundler",
-		"verbatimModuleSyntax": true,
-		"noEmit": true,
-		"baseUrl": ".",
-		"paths": {
-			"~/*": ["./src/*"]
-		},
-		"strict": true,
-		"noImplicitAny": true,
-		"strictNullChecks": true,
-		"strictFunctionTypes": true,
-		"strictBindCallApply": true,
-		"strictPropertyInitialization": true,
-		"noImplicitThis": true,
-		"alwaysStrict": true,
-		"skipLibCheck": true,
-		"noFallthroughCasesInSwitch": true,
-		"noUncheckedIndexedAccess": true,
-		"noImplicitOverride": true,
-		"noUnusedLocals": true,
-		"noUnusedParameters": true,
-		"noPropertyAccessFromIndexSignature": true,
-		"exactOptionalPropertyTypes": true,
-		"noImplicitReturns": true,
-		"noUncheckedSideEffectImports": true,
-		"allowUnreachableCode": false,
-		"allowUnusedLabels": false
-	},
-	"include": ["**/*.js", "**/*.ts"],
-	"exclude": ["node_modules", "assets"]
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "lib": [
+      "ESNext"
+    ],
+    "allowJs": false,
+    "module": "ESNext",
+    "jsx": "react",
+    "jsxFactory": "Html.createElement",
+    "jsxFragmentFactory": "Html.Fragment",
+    "moduleResolution": "bundler",
+    "baseUrl": ".",
+    "allowImportingTsExtensions": true,
+    "paths": {
+      "~/*": [
+        "./src/*"
+      ]
+    },
+  },
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx"
+  ],
+  "exclude": [
+    "node_modules",
+    "assets"
+  ]
 }

@@ -1,10 +1,18 @@
 {
-	"extends": "./tsconfig.json",
-	"compilerOptions": {
-		"lib": ["ES2020", "DOM"],
-		"target": "ES2020",
-		"module": "ES2020"
-	},
-	"include": ["assets/js/**/*.mjs"],
-	"exclude": []
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "lib": [
+      "ES2020",
+      "DOM"
+    ],
+    "target": "ES2020",
+    "module": "ES2020",
+    "allowJs": true,
+    "checkJs": true,
+    "baseUrl": "./assets/js/"
+  },
+  "include": [
+    "assets/js/**/*.mjs"
+  ],
+  "exclude": []
 }
