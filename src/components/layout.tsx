@@ -31,8 +31,15 @@ export function Layout({ title, script, styles, children }: LayoutProps) {
           <nav class="navbar">
             <div class="container">
               <div class="navbar-content">
-                <img src="/assets/image/logo.svg" alt="Noisebridge" class="logo" />
-                <span class="site-title">Noisebridge Hacker Space</span>
+                <div class="navbar-left">
+                  <a href="/" class="navbar-brand">
+                    <img src="/assets/image/logo.svg" alt="Noisebridge" class="logo" />
+                    <span class="site-title">Noisebridge Hacker Space</span>
+                  </a>
+                </div>
+                <div class="navbar-right">
+                  <a href="/auth" class="btn-sign-in">Sign In</a>
+                </div>
               </div>
             </div>
           </nav>

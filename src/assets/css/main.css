@@ -71,7 +71,26 @@ body {
 .navbar-content {
   display: flex;
   align-items: center;
+  justify-content: space-between;
+}
+
+.navbar-left {
+  display: flex;
+  align-items: center;
   gap: var(--spacing-md);
+}
+
+.navbar-right {
+  display: flex;
+  align-items: center;
+}
+
+.navbar-brand {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  text-decoration: none;
+  color: inherit;
 }
 
 .logo {
@@ -85,6 +104,25 @@ body {
   font-size: 1.25rem;
   font-weight: 700;
   letter-spacing: 0.02em;
+}
+
+.btn-sign-in {
+  display: inline-block;
+  padding: 0.625rem 1.25rem;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  text-decoration: none;
+  color: var(--color-primary);
+  border: 1px solid var(--color-primary);
+  border-radius: 6px;
+  transition: all 0.15s ease;
+}
+
+.btn-sign-in:hover {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(204, 51, 51, 0.2);
 }
 
 
