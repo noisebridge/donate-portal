@@ -22,6 +22,7 @@ const paths = {
     error ? `/?error=${encodeURIComponent(error)}` : `/`,
   signIn: (error?: string) =>
     error ? `/auth?error=${encodeURIComponent(error)}` : `/auth`,
+  waitForEmail: (email: string) => `/auth/email?email=${encodeURIComponent(email)}`,
   signOut: "/auth/signout",
   githubStart: "/auth/github/start",
   googleStart: "/auth/google/start",
@@ -258,7 +259,7 @@ export default async function routes(fastify: FastifyInstance) {
     request.log.info(response);
     fastify.log.info({ email }, "Magic link email sent");
 
-    return reply.redirect(`/auth/email?email=${encodeURIComponent(email)}`);
+    return reply.redirect(paths.waitForEmail(email));
   });
 
   fastify.get<{
