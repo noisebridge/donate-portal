@@ -12,7 +12,7 @@ import googleOAuth, { googleRedirectUri } from "~/services/google";
 import resend from "~/services/resend";
 import stripe from "~/services/stripe";
 import { AuthPage } from "~/views/auth";
-import { AuthEmailPage } from "~/views/auth-email";
+import { AuthEmailPage } from "~/views/auth/email";
 import { IndexPage } from "~/views/index";
 import { ManagePage } from "~/views/manage";
 
