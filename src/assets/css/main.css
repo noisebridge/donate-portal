@@ -127,6 +127,25 @@ body {
 }
 
 
+/* Error Banner */
+.error-banner {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  background-color: #fee;
+  border: 1px solid #fcc;
+  border-radius: 8px;
+  padding: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+  color: #c00;
+}
+
+.error-message {
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  flex: 1;
+}
+
 /* Buttons */
 .btn {
   display: inline-block;

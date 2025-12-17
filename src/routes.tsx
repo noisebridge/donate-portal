@@ -15,9 +15,12 @@ import { AuthPage } from "~/views/auth";
 import { AuthEmailPage } from "~/views/auth/email";
 import { IndexPage } from "~/views/index";
 import { ManagePage } from "~/views/manage";
+import { ThankYouPage } from "~/views/thank-you";
+
+const minimumAmount = 2;
 
 const paths = {
-  index: "/",
+  index: (error?: string) => error ? `/?error=${encodeURIComponent(error)}` : `/`,
   signIn: (error?: string) => error ? `/auth?error=${encodeURIComponent(error)}` : `/auth`,
   signOut: "/auth/signout",
   githubStart: "/auth/github/start",
@@ -34,6 +37,9 @@ export enum ErrorCode {
   EmailInvalid = "Invalid email address",
   InvalidMagicLink = "Invalid magic link",
   MagicLinkExpired = "Magic link has expired. Please request a new one.",
+  InvalidDonationAmount = "Please select a valid donation amount",
+  InvalidCustomAmount = `Please enter a valid custom amount`,
+  StripeSessionError = "Unable to process donation. Please try again.",
 }
 
 function isAuthenticated(
@@ -44,9 +50,17 @@ function isAuthenticated(
 }
 
 export default async function routes(fastify: FastifyInstance) {
-  fastify.get("/", async (request, reply) => {
+  const hostname = process.env["SERVER_HOST"];
+  if (!hostname) {
+    throw new Error("SERVER_HOST env var is not set");
+  }
+
+  fastify.get<{
+    Querystring: { error?: string };
+  }>("/", async (request, reply) => {
+    const error = request.query.error;
     return reply.html(
-      <IndexPage isAuthenticated={isAuthenticated(request, reply)} />
+      <IndexPage isAuthenticated={isAuthenticated(request, reply)} error={error} />,
     );
   });
 
@@ -263,7 +277,7 @@ export default async function routes(fastify: FastifyInstance) {
     const sessionCookie = cookies[CookieName.UserSession](request, reply);
     sessionCookie.clear();
 
-    return reply.redirect(paths.index);
+    return reply.redirect(paths.index());
   });
 
   fastify.get("/manage", async (request, reply) => {
@@ -272,7 +286,7 @@ export default async function routes(fastify: FastifyInstance) {
     if (!sessionData) {
       fastify.log.debug("No valid session found, redirecting to auth");
       sessionCookie.clear();
-      return reply.redirect(paths.index);
+      return reply.redirect(paths.index());
     }
 
     let stripeCustomer: Stripe.Customer | undefined;
@@ -288,6 +302,69 @@ export default async function routes(fastify: FastifyInstance) {
 
     return reply.html(
       <ManagePage stripeCustomer={stripeCustomer} />,
+    );
+  });
+
+  fastify.post<{
+    Body: { amount?: string; "custom-amount"?: string };
+  }>("/donate", async (request, reply) => {
+    const { amount, "custom-amount": customAmount } = request.body || {};
+
+    // Validate and parse the amount
+    let donationAmount: number;
+    if (amount === "custom") {
+      const parsed = Number.parseFloat(customAmount || "");
+      if (!parsed || parsed < minimumAmount) {
+        fastify.log.warn({ customAmount }, "Invalid custom donation amount");
+        return reply.redirect(paths.index(ErrorCode.InvalidCustomAmount));
+      }
+      donationAmount = Math.round(parsed * 100); // Convert to cents
+    } else {
+      const parsed = Number.parseFloat(amount || "");
+      if (!parsed || parsed < minimumAmount) {
+        fastify.log.warn({ amount }, "Invalid donation amount");
+        return reply.redirect(paths.index(ErrorCode.InvalidDonationAmount));
+      }
+      donationAmount = Math.round(parsed * 100); // Convert to cents
+    }
+
+    // Create a Stripe Checkout Session for one-time payment
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ["card"],
+      line_items: [
+        {
+          price_data: {
+            currency: "usd",
+            product_data: {
+              name: "Donation to Noisebridge",
+              description: "Support our hackerspace community",
+            },
+            unit_amount: donationAmount,
+          },
+          quantity: 1,
+        },
+      ],
+      mode: "payment",
+      success_url: `${request.protocol}://${hostname}/thank-you`,
+      cancel_url: `${request.protocol}://${hostname}/`,
+    });
+
+    if (!session.url) {
+      fastify.log.error("Stripe session created but no URL returned");
+      return reply.redirect(paths.index(ErrorCode.StripeSessionError));
+    }
+
+    fastify.log.info(
+      { amount: donationAmount, sessionId: session.id },
+      "Stripe checkout session created for donation",
+    );
+
+    return reply.redirect(session.url);
+  });
+
+  fastify.get("/thank-you", async (request, reply) => {
+    return reply.html(
+      <ThankYouPage isAuthenticated={isAuthenticated(request, reply)} />
     );
   });
 }
