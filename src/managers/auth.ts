@@ -81,7 +81,7 @@ class SignedCookie<T> {
 }
 
 export const cookies = {
-  [CookieName.UserSession]: (request: FastifyRequest, reply: FastifyReply) => new SignedCookie<SessionData>(request, reply, CookieName.UserSession, 60 * 60 * 2),
+  [CookieName.UserSession]: (request: FastifyRequest, reply: FastifyReply) => new SignedCookie<SessionData>(request, reply, CookieName.UserSession, 60 * 60 * 24 * 7),
   [CookieName.GithubOAuthState]: (request: FastifyRequest, reply: FastifyReply) => new SignedCookie<OAuthState>(request, reply, CookieName.GithubOAuthState, 60 * 10),
   [CookieName.GoogleOAuthState]: (request: FastifyRequest, reply: FastifyReply) => new SignedCookie<OAuthState>(request, reply, CookieName.GoogleOAuthState, 60 * 10),
 } as const;
