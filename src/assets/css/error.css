@@ -1,0 +1,79 @@
+.error-page {
+  max-width: var(--container-max-width);
+  margin: 0 auto;
+  padding: 2rem 0;
+}
+
+.error-heading {
+  font-size: 2.5rem;
+  color: #d32f2f;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+/* Production error styles */
+.error-production {
+  text-align: center;
+  padding: 2rem;
+}
+
+.error-description {
+  font-size: 1.2rem;
+  color: #666;
+  margin-bottom: 2rem;
+  line-height: 1.6;
+}
+
+/* Development error styles */
+.error-details {
+  background-color: #f5f5f5;
+  padding: 1.5rem;
+  border-radius: 4px;
+  border-left: 4px solid #d32f2f;
+}
+
+.error-details h2 {
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
+  color: #333;
+}
+
+.error-message,
+.error-stack {
+  margin-bottom: 2rem;
+}
+
+.error-message:last-child,
+.error-stack:last-child {
+  margin-bottom: 0;
+}
+
+.error-details pre {
+  background-color: #fff;
+  padding: 1rem;
+  border-radius: 4px;
+  overflow-x: auto;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: #d32f2f;
+  border: 1px solid #ddd;
+}
+
+@media (max-width: 768px) {
+  .error-heading {
+    font-size: 1.8rem;
+  }
+
+  .error-description {
+    font-size: 1rem;
+  }
+
+  .error-details {
+    padding: 1rem;
+  }
+
+  .error-details pre {
+    font-size: 0.8rem;
+  }
+}

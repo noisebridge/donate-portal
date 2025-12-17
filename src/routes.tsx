@@ -15,6 +15,7 @@ import { AuthEmailPage } from "~/views/auth/email";
 import { IndexPage } from "~/views/index";
 import { ManagePage } from "~/views/manage";
 import { ThankYouPage } from "~/views/thank-you";
+import { ErrorPage } from "./views/error";
 
 const paths = {
   index: (error?: string) =>
@@ -45,6 +46,26 @@ export enum ErrorCode {
   DonationCancelError = "Unable to cancel monthly donation. Please try again.",
   NoActiveDonation = "No active monthly donation found to cancel",
 }
+
+export function errorRoute(fastify: FastifyInstance): Parameters<FastifyInstance["setErrorHandler"]>[0] {
+  return (error, request, reply) => {
+    fastify.log.error(
+      {
+        err: error,
+        url: request.url,
+        method: request.method,
+      },
+      "Unhandled error in route",
+    );
+
+    reply.status(500).html(
+      <ErrorPage
+        isAuthenticated={isAuthenticated(request, reply)}
+        error={error instanceof Error ? error : new Error(`Unknown error: ${error}`)}
+      />
+    );
+  };
+};
 
 function isAuthenticated(
   request: FastifyRequest,
