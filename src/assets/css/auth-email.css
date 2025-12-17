@@ -44,7 +44,7 @@
 .email-waiting-message strong {
   color: var(--color-primary);
   font-weight: 600;
-  word-break: break-all;
+  word-break: keep-all;
 }
 
 .email-waiting-expiry {
@@ -57,7 +57,7 @@
 }
 
 /* Responsive */
-@media (max-width: 640px) {
+@media (max-width: 768px) {
   .email-waiting-container {
     padding: var(--spacing-lg) 0;
   }

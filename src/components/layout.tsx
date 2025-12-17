@@ -1,6 +1,7 @@
 import type { PropsWithChildren } from "@kitajs/html";
 // biome-ignore lint/correctness/noUnusedImports: Html is used by JSX
 import Html from "@kitajs/html";
+import Navbar from "./navbar";
 
 export type LayoutProps = PropsWithChildren<{
   title: string;
@@ -36,42 +37,13 @@ export function Layout({
           )}
         </head>
         <body>
-          <nav class="navbar">
-            <div class="navbar-content">
-              <div class="navbar-left">
-                <a href="/" class="navbar-brand">
-                  <img
-                    src="/assets/image/logo.svg"
-                    alt="Noisebridge"
-                    class="logo"
-                  />
-                  <span class="site-title">Noisebridge Hacker Space</span>
-                </a>
-              </div>
-              <div class="navbar-right">
-                {isAuthenticated ? (
-                  <>
-                    <a href="/manage" class="btn-sign-in">
-                      Manage
-                    </a>
-                    <a href="/auth/signout" class="btn-sign-in">
-                      Sign Out
-                    </a>
-                  </>
-                ) : (
-                  <a href="/auth" class="btn-sign-in">
-                    Sign In
-                  </a>
-                )}
-              </div>
-            </div>
-          </nav>
+          <Navbar isAuthenticated={isAuthenticated} />
           <main class="main-content">
             <div class="container">{children}</div>
           </main>
           <footer>
             <p>
-              Noisebridge is a 501(c)(3) non-profit. Our EIN is 26-3507741
+              Noisebridge is a 501(c)(3) non-profit
             </p>
           </footer>
         </body>

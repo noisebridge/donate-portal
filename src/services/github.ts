@@ -140,8 +140,10 @@ export class GitHubOAuth {
     primaryEmail: string | null;
   }> {
     const accessToken = await this.getAccessToken(code);
-    const user = await this.getUserProfile(accessToken);
-    const primaryEmail = await this.getPrimaryEmail(accessToken);
+    const [user, primaryEmail] = await Promise.all([
+      this.getUserProfile(accessToken),
+      this.getPrimaryEmail(accessToken),
+    ]);
 
     return {
       accessToken,

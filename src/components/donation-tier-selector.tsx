@@ -51,12 +51,12 @@ export function DonationTierSelector({
     checked: tierChecked(tier, existingAmount),
   }));
   const hasCustomAmount = tiers.find((tier) => tier.checked) === undefined;
-  const renewalDate = subscriptionRenewalDate(subscription)?.toLocaleDateString() ?? "unknown";
+  const renewalDate = subscriptionRenewalDate(subscription)?.toLocaleDateString();
 
   return (
     <form method="POST" action="/subscribe" class="donation-tier-form">
       <p class="form-description">
-        {subscription
+        {renewalDate
           ? `Your monthly donation renews on ${renewalDate}`
           : "Choose a monthly donation tier to support Noisebridge"}
       </p>

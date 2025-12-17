@@ -165,21 +165,3 @@ input[type="radio"]:focus+.btn-amount {
     grid-template-columns: repeat(3, 1fr);
   }
 }
-
-@media (max-width: var(--skinny-container-max-width)) {
-  .hero h1 {
-    font-size: 1.875rem;
-  }
-
-  .hero {
-    padding: var(--spacing-lg) 0;
-  }
-
-  .amount-buttons {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .card h2 {
-    font-size: 1.375rem;
-  }
-}

@@ -2,6 +2,7 @@
 import Html from "@kitajs/html";
 import type Stripe from "stripe";
 import { DonationTierSelector } from "~/components/donation-tier-selector";
+import { ErrorBanner } from "~/components/error-banner";
 import { Layout } from "~/components/layout";
 
 export interface ManageProps {
@@ -20,12 +21,9 @@ export function ManagePage({ customer, subscription, error }: ManageProps) {
     >
       <div class="manage-header">
         <h1>{customer ? "Manage your Donation" : "Start a Donation"}</h1>
-        {error && (
-          <div class="error-banner" role="alert">
-            <span class="error-message">{error}</span>
-          </div>
-        )}
       </div>
+
+      <ErrorBanner error={error} />
 
       <DonationTierSelector subscription={subscription} />
 
@@ -36,7 +34,7 @@ export function ManagePage({ customer, subscription, error }: ManageProps) {
           class="card cancel-subscription-form"
         >
           <p class="form-description">
-            Or, if you want to cancel your monthly donation, click the button
+            If you want to cancel your monthly donation double click the button
             below.
           </p>
 

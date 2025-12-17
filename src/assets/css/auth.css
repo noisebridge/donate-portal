@@ -189,7 +189,7 @@
 }
 
 /* Responsive */
-@media (max-width: 640px) {
+@media (max-width: 768px) {
   .auth-container {
     padding: var(--spacing-lg) 0;
   }

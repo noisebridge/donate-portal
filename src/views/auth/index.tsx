@@ -1,5 +1,6 @@
 // biome-ignore lint/correctness/noUnusedImports: Html is used by JSX
 import Html from "@kitajs/html";
+import { ErrorBanner } from "~/components/error-banner";
 import { Layout } from "~/components/layout";
 
 export interface AuthProps {
@@ -10,11 +11,7 @@ export interface AuthProps {
 export function AuthPage({ isAuthenticated, error }: AuthProps) {
   return (
     <Layout title="Sign In" styles="auth.css" isAuthenticated={isAuthenticated}>
-      {error && (
-        <div class="error-banner" role="alert">
-          <span class="error-message">{error}</span>
-        </div>
-      )}
+      <ErrorBanner error={error} />
       <div class="auth-card">
         <h1 class="auth-title">Sign In</h1>
         <p class="auth-subtitle">Sign in to manage your monthly donation</p>

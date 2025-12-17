@@ -1,5 +1,6 @@
 // biome-ignore lint/correctness/noUnusedImports: Html is used by JSX
 import Html from "@kitajs/html";
+import { ErrorBanner } from "~/components/error-banner";
 import { Layout } from "~/components/layout";
 
 export interface IndexProps {
@@ -23,11 +24,7 @@ export function IndexPage({ isAuthenticated, error }: IndexProps) {
         </p>
       </section>
 
-      {error && (
-        <div class="error-banner" role="alert">
-          <span class="error-message">{error}</span>
-        </div>
-      )}
+      <ErrorBanner error={error} />
 
       <div class="card">
         <h2>Monthly Donation</h2>

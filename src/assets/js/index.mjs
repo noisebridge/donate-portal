@@ -32,15 +32,22 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   amountRadios.forEach((radio) => {
-    radio.addEventListener("change", () => {
+    /** @type {(event: Event) => void} */
+    const eventHandler = (event) => {
+      const radio = /** @type {HTMLInputElement} */ (event.target);
+
       if (radio.value === "custom" && radio.checked) {
         customAmountInput.disabled = false;
         customAmountInput.focus();
       } else {
         customAmountInput.disabled = true;
       }
+
       updateDonateButton();
-    });
+    };
+
+    radio.addEventListener("change", eventHandler);
+    radio.addEventListener("click", eventHandler);
   });
 
   customAmountInput.addEventListener("input", updateDonateButton);
