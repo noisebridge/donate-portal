@@ -111,6 +111,10 @@ export default async function routes(fastify: FastifyInstance) {
   fastify.get<{
     Querystring: { error?: string };
   }>("/auth", async (request, reply) => {
+    if (isAuthenticated(request, reply)) {
+      return reply.redirect(paths.manage());
+    }
+
     const error = request.query.error;
     return reply.html(
       <AuthPage
@@ -121,6 +125,10 @@ export default async function routes(fastify: FastifyInstance) {
   });
 
   fastify.get("/auth/github/start", async (request, reply) => {
+    if (isAuthenticated(request, reply)) {
+      return reply.redirect(paths.manage());
+    }
+
     const state = getRandomState();
     const githubCookie = cookies[CookieName.GithubOAuthState](request, reply);
     githubCookie.value = { state };
@@ -172,6 +180,10 @@ export default async function routes(fastify: FastifyInstance) {
   });
 
   fastify.get("/auth/google/start", async (request, reply) => {
+    if (isAuthenticated(request, reply)) {
+      return reply.redirect(paths.manage());
+    }
+
     const state = getRandomState();
     const googleCookie = cookies[CookieName.GoogleOAuthState](request, reply);
     googleCookie.value = { state };
@@ -230,6 +242,10 @@ export default async function routes(fastify: FastifyInstance) {
   fastify.post<{
     Body: { email?: string };
   }>("/auth/email", async (request, reply) => {
+    if (isAuthenticated(request, reply)) {
+      return reply.redirect(paths.manage());
+    }
+
     const email = request.body?.email?.trim();
 
     if (!email) {
@@ -253,6 +269,10 @@ export default async function routes(fastify: FastifyInstance) {
   fastify.get<{
     Querystring: { email?: string };
   }>("/auth/email", async (request, reply) => {
+    if (isAuthenticated(request, reply)) {
+      return reply.redirect(paths.manage());
+    }
+
     const email = request.query.email;
     if (!email) {
       fastify.log.warn("Missing email parameter in /auth/email");
