@@ -11,11 +11,7 @@ export default function Navbar({ isAuthenticated }: NavbarProps) {
       <div class="navbar-content">
         <div class="navbar-left">
           <a href="/" class="navbar-brand">
-            <img
-              src="/assets/image/logo.svg"
-              alt="Noisebridge"
-              class="logo"
-            />
+            <img src="/assets/image/logo.svg" alt="Noisebridge" class="logo" />
             <span class="site-title">Noisebridge</span>
           </a>
         </div>

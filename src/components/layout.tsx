@@ -42,9 +42,7 @@ export function Layout({
             <div class="container">{children}</div>
           </main>
           <footer>
-            <p>
-              Noisebridge is a 501(c)(3) non-profit
-            </p>
+            <p>Noisebridge is a 501(c)(3) non-profit</p>
           </footer>
         </body>
       </html>

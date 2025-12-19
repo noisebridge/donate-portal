@@ -75,13 +75,13 @@
   background-color: var(--color-background);
 }
 
-input[type="radio"]:checked+.btn-amount {
+input[type="radio"]:checked + .btn-amount {
   border-color: var(--color-primary);
   background-color: var(--color-primary);
   color: var(--color-white);
 }
 
-input[type="radio"]:focus+.btn-amount {
+input[type="radio"]:focus + .btn-amount {
   outline: 2px solid var(--color-primary);
   outline-offset: 2px;
 }

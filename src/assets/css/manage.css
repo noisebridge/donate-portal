@@ -250,7 +250,7 @@
   color: var(--primary-color);
 }
 
-.tier-card input[type="radio"]:checked~.tier-checkmark {
+.tier-card input[type="radio"]:checked ~ .tier-checkmark {
   opacity: 1;
 }
 

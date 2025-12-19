@@ -26,9 +26,7 @@ function tierChecked(tier: Tier, existingAmount: number | null): boolean {
   return tier.amount === existingAmount / 100;
 }
 
-function subscriptionRenewalDate(
-  subscription?: Stripe.Subscription,
-) {
+function subscriptionRenewalDate(subscription?: Stripe.Subscription) {
   if (!subscription) {
     return null;
   }
@@ -51,7 +49,8 @@ export function DonationTierSelector({
     checked: tierChecked(tier, existingAmount),
   }));
   const hasCustomAmount = tiers.find((tier) => tier.checked) === undefined;
-  const renewalDate = subscriptionRenewalDate(subscription)?.toLocaleDateString();
+  const renewalDate =
+    subscriptionRenewalDate(subscription)?.toLocaleDateString();
 
   return (
     <form method="POST" action="/subscribe" class="donation-tier-form">
@@ -125,6 +124,6 @@ export function DonationTierSelector({
       <button type="submit" class="btn btn-primary btn-large">
         {subscription ? "Update Monthly Donation" : "Start Monthly Donation"}
       </button>
-    </form >
+    </form>
   );
 }

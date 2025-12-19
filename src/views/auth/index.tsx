@@ -42,9 +42,7 @@ export function AuthPage({ isAuthenticated, error }: AuthProps) {
 
         <div class="magic-link-section">
           <h2 class="magic-link-title">Sign in with Email</h2>
-          <p class="magic-link-description">
-            We'll send you a link to sign in
-          </p>
+          <p class="magic-link-description">We'll send you a link to sign in</p>
 
           <form class="magic-link-form" method="post" action="/auth/email">
             <div class="form-group">

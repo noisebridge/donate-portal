@@ -8,16 +8,9 @@ export type ErrorPageProps = {
   isAuthenticated?: boolean;
 };
 
-export function ErrorPage({
-  error,
-  isAuthenticated = false
-}: ErrorPageProps) {
+export function ErrorPage({ error, isAuthenticated = false }: ErrorPageProps) {
   return (
-    <Layout
-      title="Error"
-      styles="error.css"
-      isAuthenticated={isAuthenticated}
-    >
+    <Layout title="Error" styles="error.css" isAuthenticated={isAuthenticated}>
       <div class="error-page">
         <h1 class="error-heading">Oops! Something went wrong</h1>
 

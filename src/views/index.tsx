@@ -30,8 +30,8 @@ export function IndexPage({ isAuthenticated, error }: IndexProps) {
         <h2>Monthly Donation</h2>
         <p>
           Help keep our hackerspace running and accessible to everyone. Your
-          contribution supports workshops, equipment, and a vibrant community
-          of makers, thinkers, and tinkerers.
+          contribution supports workshops, equipment, and a vibrant community of
+          makers, thinkers, and tinkerers.
         </p>
         <a
           class="btn btn-primary btn-large"

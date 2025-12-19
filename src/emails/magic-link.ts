@@ -7,9 +7,7 @@ export interface MagicLinkEmailProps {
 /**
  * Generate HTML email for magic link authentication
  */
-export function MagicLinkEmail({
-  magicLinkUrl,
-}: MagicLinkEmailProps): string {
+export function MagicLinkEmail({ magicLinkUrl }: MagicLinkEmailProps): string {
   return Layout(`
     <mj-text font-size="24px" font-weight="700" color="#333333" align="center" padding-bottom="20px">
       Sign in to Noisebridge

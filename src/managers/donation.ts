@@ -38,7 +38,11 @@ export class DonationManager {
    * @param name Product name
    * @param description Product description
    */
-  async donate(amountCents: number, name?: string, description?: string): Promise<DonateResult | DonateError> {
+  async donate(
+    amountCents: number,
+    name?: string,
+    description?: string,
+  ): Promise<DonateResult | DonateError> {
     if (amountCents < this.minimumAmountDollars * 100) {
       return { success: false, error: DonationErrorCode.InvalidAmount };
     }

@@ -12,7 +12,12 @@ export interface ManageProps {
   error?: string | undefined;
 }
 
-export function ManagePage({ email, customer, subscription, error }: ManageProps) {
+export function ManagePage({
+  email,
+  customer,
+  subscription,
+  error,
+}: ManageProps) {
   return (
     <Layout
       title={subscription ? "Manage your Donation" : "Set Up your Donation"}
@@ -22,7 +27,9 @@ export function ManagePage({ email, customer, subscription, error }: ManageProps
     >
       <div class="manage-header">
         <h1>{customer ? "Manage your Donation" : "Start a Donation"}</h1>
-        <p>You're signed in as <strong>{email}</strong></p>
+        <p>
+          You're signed in as <strong>{email}</strong>
+        </p>
       </div>
 
       <ErrorBanner error={error} />

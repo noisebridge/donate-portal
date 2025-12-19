@@ -37,11 +37,15 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // Reset if user clicks away
-  cancelForm.addEventListener("blur", () => {
-    if (confirmClicked) {
-      confirmClicked = false;
-      cancelButton.textContent = originalText;
-      cancelButton.classList.remove("btn-warning");
-    }
-  }, true);
+  cancelForm.addEventListener(
+    "blur",
+    () => {
+      if (confirmClicked) {
+        confirmClicked = false;
+        cancelButton.textContent = originalText;
+        cancelButton.classList.remove("btn-warning");
+      }
+    },
+    true,
+  );
 });

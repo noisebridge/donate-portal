@@ -4,7 +4,9 @@ import Html from "@kitajs/html";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import donationManager from "~/managers/donation";
 import magicLinkManager from "~/managers/magic-link";
-import subscriptionManager, { type CustomerSubscriptionInfo } from "~/managers/subscription";
+import subscriptionManager, {
+  type CustomerSubscriptionInfo,
+} from "~/managers/subscription";
 import githubOAuth from "~/services/github";
 import googleOAuth from "~/services/google";
 import { CookieName, cookies } from "~/signed-cookies";
@@ -25,7 +27,8 @@ const paths = {
     error ? `/?error=${encodeURIComponent(error)}` : `/`,
   signIn: (error?: string) =>
     error ? `/auth?error=${encodeURIComponent(error)}` : `/auth`,
-  waitForEmail: (email: string) => `/auth/email?email=${encodeURIComponent(email)}`,
+  waitForEmail: (email: string) =>
+    `/auth/email?email=${encodeURIComponent(email)}`,
   signOut: "/auth/signout",
   githubStart: "/auth/github/start",
   googleStart: "/auth/google/start",
@@ -46,7 +49,9 @@ export enum ErrorCode {
   InvalidMonthlyDonationAmount = "Please select a valid donation amount",
 }
 
-export function errorRoute(fastify: FastifyInstance): Parameters<FastifyInstance["setErrorHandler"]>[0] {
+export function errorRoute(
+  fastify: FastifyInstance,
+): Parameters<FastifyInstance["setErrorHandler"]>[0] {
   return (error, request, reply) => {
     fastify.log.error(
       {
@@ -57,14 +62,20 @@ export function errorRoute(fastify: FastifyInstance): Parameters<FastifyInstance
       "Unhandled error in route",
     );
 
-    reply.status(500).html(
-      <ErrorPage
-        isAuthenticated={isAuthenticated(request, reply)}
-        error={error instanceof Error ? error : new Error(`Unknown error: ${error}`)}
-      />
-    );
+    reply
+      .status(500)
+      .html(
+        <ErrorPage
+          isAuthenticated={isAuthenticated(request, reply)}
+          error={
+            error instanceof Error
+              ? error
+              : new Error(`Unknown error: ${error}`)
+          }
+        />,
+      );
   };
-};
+}
 
 function isAuthenticated(
   request: FastifyRequest,
@@ -362,7 +373,7 @@ export default async function routes(fastify: FastifyInstance) {
   });
 
   fastify.get<{
-    Querystring: { name?: string, description?: string, amount?: string };
+    Querystring: { name?: string; description?: string; amount?: string };
   }>("/qr", async (request, reply) => {
     const { name, description, amount } = request.query;
 
