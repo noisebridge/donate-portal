@@ -8,10 +8,7 @@ class EmailManager {
 
   async sendMagicLinkEmail(email: string) {
     const magicLinkUrl = magicLinkManager.generateMagicLinkUrl(email);
-    const emailHtml = MagicLinkEmail({
-      email,
-      magicLinkUrl,
-    });
+    const emailHtml = MagicLinkEmail({ magicLinkUrl });
 
     return await resend.emails.send({
       from: EmailManager.fromAddress,
@@ -22,9 +19,7 @@ class EmailManager {
   }
 
   async sendSubscriptionCanceledEmail(email: string, amountCents: number) {
-    const emailHtml = SubscriptionCanceledEmail({
-      amountCents,
-    });
+    const emailHtml = SubscriptionCanceledEmail({ amountCents });
 
     return await resend.emails.send({
       from: EmailManager.fromAddress,

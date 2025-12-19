@@ -1,7 +1,6 @@
 import { Layout } from "./layout";
 
 export interface MagicLinkEmailProps {
-  email: string;
   magicLinkUrl: string;
 }
 
@@ -9,18 +8,14 @@ export interface MagicLinkEmailProps {
  * Generate HTML email for magic link authentication
  */
 export function MagicLinkEmail({
-  email,
   magicLinkUrl,
 }: MagicLinkEmailProps): string {
   return Layout(`
     <mj-text font-size="24px" font-weight="700" color="#333333" align="center" padding-bottom="20px">
       Sign in to Noisebridge
     </mj-text>
-    <mj-text align="center" padding-bottom="10px">
+    <mj-text align="center" padding-bottom="30px">
       You requested a magic link to sign in to manage your Noisebridge donation.
-    </mj-text>
-    <mj-text align="center" color="#888888" font-size="13px" padding-bottom="30px">
-      Email: <strong>${email}</strong>
     </mj-text>
     <mj-button href="${magicLinkUrl}" align="center">
       Sign In
