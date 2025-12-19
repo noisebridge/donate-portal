@@ -19,7 +19,7 @@ fastify.register(fastifyCookie, {
   secret: config.cookieSecret,
 });
 
-fastify.register(fastifyFormbody);
+fastify.register(fastifyFormbody, { bodyLimit: 1024 });
 
 fastify.register(fastifyStatic, {
   root: path.join(__dirname, "assets"),

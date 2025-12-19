@@ -313,6 +313,7 @@
 
 .custom-input[type="number"] {
   -moz-appearance: textfield;
+  appearance: textfield;
 }
 
 .tier-card-custom:has(input[type="radio"]:checked) .custom-input {

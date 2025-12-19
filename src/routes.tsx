@@ -1,21 +1,24 @@
+import crypto from "node:crypto";
 // biome-ignore lint/correctness/noUnusedImports: Html is used by JSX
 import Html from "@kitajs/html";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
-import type Stripe from "stripe";
-import config from "~/config";
-import { magicLinkEmail } from "~/emails/magic-link";
-import { CookieName, cookies, getRandomState } from "~/managers/auth";
+import donationManager from "~/managers/donation";
 import magicLinkManager from "~/managers/magic-link";
+import subscriptionManager, { type CustomerSubscriptionInfo } from "~/managers/subscription";
 import githubOAuth from "~/services/github";
 import googleOAuth from "~/services/google";
-import resend from "~/services/resend";
-import stripe from "~/services/stripe";
+import { CookieName, cookies } from "~/signed-cookies";
 import { AuthPage } from "~/views/auth";
 import { AuthEmailPage } from "~/views/auth/email";
 import { IndexPage } from "~/views/index";
 import { ManagePage } from "~/views/manage";
 import { ThankYouPage } from "~/views/thank-you";
+import emailManager from "./managers/email";
 import { ErrorPage } from "./views/error";
+
+export function getRandomState() {
+  return crypto.randomBytes(32).toString("hex");
+}
 
 const paths = {
   index: (error?: string) =>
@@ -40,12 +43,7 @@ export enum ErrorCode {
   InvalidMagicLink = "Invalid magic link",
   MagicLinkExpired = "Magic link has expired. Please request a new one.",
   InvalidDonationAmount = "Please select a valid donation amount",
-  StripeSessionError = "Unable to process donation. Please try again.",
   InvalidMonthlyDonationAmount = "Please select a valid donation amount",
-  SameMontlyDonationAmount = "Select a different donation amount",
-  DonationCreateError = "Unable to create monthly donation. Please try again.",
-  DonationCancelError = "Unable to cancel monthly donation. Please try again.",
-  NoActiveDonation = "No active monthly donation found to cancel",
 }
 
 export function errorRoute(fastify: FastifyInstance): Parameters<FastifyInstance["setErrorHandler"]>[0] {
@@ -73,17 +71,6 @@ function isAuthenticated(
   reply: FastifyReply,
 ): boolean {
   return cookies[CookieName.UserSession](request, reply).valid();
-}
-
-function parseDonationAmount(amount?: string) {
-  const minimumAmount = 2; // dollars
-
-  const parsed = Number.parseFloat(amount || "");
-  if (!parsed || parsed < minimumAmount) {
-    return null;
-  }
-
-  return Math.round(parsed * 100); // Convert to cents
 }
 
 function parseSubscriptionAmount(amount?: string) {
@@ -245,17 +232,7 @@ export default async function routes(fastify: FastifyInstance) {
       return reply.redirect(paths.signIn(ErrorCode.EmailInvalid));
     }
 
-    const magicLinkUrl = magicLinkManager.generateMagicLinkUrl(email);
-    const emailHtml = magicLinkEmail({
-      email,
-      magicLinkUrl,
-    });
-    const response = await resend.emails.send({
-      from: "Noisebridge <onboarding@resend.dev>",
-      to: [email],
-      subject: "Sign in to donate.noisebridge.net",
-      html: emailHtml,
-    });
+    const response = await emailManager.sendMagicLinkEmail(email);
     request.log.info(response);
     fastify.log.info({ email }, "Magic link email sent");
 
@@ -332,49 +309,27 @@ export default async function routes(fastify: FastifyInstance) {
       return reply.redirect(paths.index());
     }
 
-    let stripeCustomer: Stripe.Customer | undefined;
-    let stripeSubscription: Stripe.Subscription | undefined;
-
+    let customerSubscription: CustomerSubscriptionInfo | undefined;
     try {
-      const customers = await stripe.customers.list({
-        email: sessionData.email,
-        limit: 1,
-      });
-      stripeCustomer = customers.data[0];
-
-      if (stripeCustomer) {
-        const subscriptions = await stripe.subscriptions.list({
-          customer: stripeCustomer.id,
-          status: "active",
-          limit: 1,
-        });
-
-        if (subscriptions.data.length > 0) {
-          stripeSubscription = subscriptions.data[0];
-
-          if (subscriptions.data.length > 1) {
-            fastify.log.warn(
-              {
-                customerId: stripeCustomer.id,
-                count: subscriptions.data.length,
-              },
-              "Customer has multiple active subscriptions, using first",
-            );
-          }
-        }
-      }
+      customerSubscription = await subscriptionManager.getCustomerSubscription(
+        sessionData.email,
+      );
     } catch (error) {
       fastify.log.error(
         error,
         "Error fetching Stripe customer/subscription data",
       );
     }
+    if (!customerSubscription) {
+      throw new Error("No customer subscription found");
+    }
 
     const error = request.query.error;
     return reply.html(
       <ManagePage
-        customer={stripeCustomer}
-        subscription={stripeSubscription}
+        email={sessionData.email}
+        customer={customerSubscription.customer}
+        subscription={customerSubscription.subscription}
         error={error}
       />,
     );
@@ -385,46 +340,49 @@ export default async function routes(fastify: FastifyInstance) {
   }>("/donate", async (request, reply) => {
     const { amount, "custom-amount": customAmount } = request.body || {};
 
-    const amountCents = parseDonationAmount(
+    const amountCents = donationManager.parseAmountDollars(
       amount === "custom" ? customAmount : amount,
     );
     if (amountCents === null) {
-      reply.redirect(paths.index(ErrorCode.InvalidDonationAmount));
-      return;
+      return reply.redirect(paths.index(ErrorCode.InvalidDonationAmount));
     }
 
-    // Create a Stripe Checkout Session for one-time payment
-    const session = await stripe.checkout.sessions.create({
-      payment_method_types: ["card"],
-      line_items: [
-        {
-          price_data: {
-            currency: "usd",
-            product_data: {
-              name: "Donation to Noisebridge",
-              description: "Support our hackerspace community",
-            },
-            unit_amount: amountCents,
-          },
-          quantity: 1,
-        },
-      ],
-      mode: "payment",
-      success_url: `${request.protocol}://${config.serverHost}/thank-you`,
-      cancel_url: `${request.protocol}://${config.serverHost}/`,
-    });
-
-    if (!session.url) {
+    const result = await donationManager.donate(amountCents);
+    if (!result.success) {
       fastify.log.error("Stripe session created but no URL returned");
-      return reply.redirect(paths.index(ErrorCode.StripeSessionError));
+      return reply.redirect(paths.index(result.error));
     }
 
     fastify.log.info(
-      { amount: amountCents, sessionId: session.id },
+      { amount: amountCents, sessionId: result.sessionId },
       "Stripe checkout session created for donation",
     );
 
-    return reply.redirect(session.url);
+    return reply.redirect(result.checkoutUrl);
+  });
+
+  fastify.get<{
+    Querystring: { name?: string, description?: string, amount?: string };
+  }>("/qr", async (request, reply) => {
+    const { name, description, amount } = request.query;
+
+    const amountCents = donationManager.parseAmountDollars(amount);
+    if (amountCents === null) {
+      return reply.redirect(paths.index(ErrorCode.InvalidDonationAmount));
+    }
+
+    const result = await donationManager.donate(amountCents, name, description);
+    if (!result.success) {
+      fastify.log.error("Stripe session created but no URL returned");
+      return reply.redirect(paths.index(result.error));
+    }
+
+    fastify.log.info(
+      { amount: amountCents, sessionId: result.sessionId },
+      "Stripe checkout session created for QR donation",
+    );
+
+    return reply.redirect(result.checkoutUrl);
   });
 
   fastify.post<{
@@ -452,108 +410,32 @@ export default async function routes(fastify: FastifyInstance) {
       );
     }
 
-    try {
-      let customerId: string | undefined;
-      let existingSubscription: Stripe.Subscription | undefined;
-
-      const customers = await stripe.customers.list({
-        email: sessionData.email,
-        limit: 1,
-      });
-
-      if (customers.data.length > 0) {
-        const customer = customers.data[0];
-        if (customer) {
-          customerId = customer.id;
-
-          // Check if customer has active subscription
-          const subscriptions = await stripe.subscriptions.list({
-            customer: customerId,
-            status: "active",
-            limit: 1,
-          });
-
-          if (subscriptions.data.length > 0) {
-            existingSubscription = subscriptions.data[0];
-          }
-        }
-      }
-
-      if (existingSubscription) {
-        const existingAmount = existingSubscription.items.data[0]?.price?.unit_amount;
-        if (existingAmount === amountCents) {
-          reply.redirect(paths.manage(ErrorCode.SameMontlyDonationAmount));
-          return;
-        }
-
-        await stripe.subscriptions.cancel(existingSubscription.id);
-        fastify.log.info(
-          {
-            subscriptionId: existingSubscription.id,
-            customerId,
-            email: sessionData.email,
-          },
-          "Canceled existing subscription before creating new one",
-        );
-      }
-
-      const sessionConfig: Stripe.Checkout.SessionCreateParams = {
-        mode: "subscription",
-        payment_method_types: ["card"],
-        line_items: [
-          {
-            price_data: {
-              currency: "usd",
-              product_data: {
-                name: "Monthly Donation to Noisebridge",
-                description: "Support our hackerspace community",
-              },
-              unit_amount: amountCents,
-              recurring: {
-                interval: "month",
-              },
-            },
-            quantity: 1,
-          },
-        ],
-        success_url: `${request.protocol}://${config.serverHost}/manage`,
-        cancel_url: `${request.protocol}://${config.serverHost}/manage`,
-      };
-
-      // Link to existing customer or let Stripe create one
-      if (customerId) {
-        sessionConfig.customer = customerId;
-      } else {
-        sessionConfig.customer_email = sessionData.email;
-      }
-
-      const session = await stripe.checkout.sessions.create(sessionConfig);
-
-      if (!session.url) {
-        fastify.log.error(
-          "Stripe subscription session created but no URL returned",
-        );
-        return reply.redirect(paths.manage(ErrorCode.DonationCreateError));
-      }
-
-      fastify.log.info(
-        {
-          amount: amountCents,
-          email: sessionData.email,
-          sessionId: session.id,
-          existingSubscription: !!existingSubscription,
-        },
-        "Stripe subscription checkout session created",
-      );
-
-      return reply.redirect(session.url);
-    } catch (error) {
-      fastify.log.error(
-        { error, email: sessionData.email, amount: amountCents },
-        "Error creating subscription checkout session",
-      );
-      return reply.redirect(paths.manage(ErrorCode.DonationCreateError));
+    const result = await subscriptionManager.subscribe(
+      sessionData.email,
+      amountCents,
+    );
+    if (!result.success) {
+      return reply.redirect(paths.manage(result.error));
     }
+
+    if (result.canceledExisting) {
+      fastify.log.info(
+        { customerId: result.customerId, email: sessionData.email },
+        "Canceled existing subscription before creating new one",
+      );
+    }
+
+    fastify.log.info(
+      {
+        amount: amountCents,
+        email: sessionData.email,
+        sessionId: result.sessionId,
+        canceledExisting: result.canceledExisting,
+      },
+      "Stripe subscription checkout session created",
+    );
+
+    return reply.redirect(result.checkoutUrl);
   });
 
   fastify.post("/cancel", async (request, reply) => {
@@ -564,74 +446,26 @@ export default async function routes(fastify: FastifyInstance) {
       return reply.redirect(paths.signIn());
     }
 
-    try {
-      const customers = await stripe.customers.list({
-        email: sessionData.email,
-        limit: 1,
-      });
+    const result = await subscriptionManager.cancel(sessionData.email);
 
-      if (customers.data.length === 0) {
-        fastify.log.warn(
-          { email: sessionData.email },
-          "No Stripe customer found for cancel request",
-        );
-        return reply.redirect(paths.manage(ErrorCode.NoActiveDonation));
-      }
-
-      const customer = customers.data[0];
-      if (!customer) {
-        fastify.log.warn(
-          { email: sessionData.email },
-          "No Stripe customer found for cancel request",
-        );
-        return reply.redirect(paths.manage(ErrorCode.NoActiveDonation));
-      }
-
-      const subscriptions = await stripe.subscriptions.list({
-        customer: customer.id,
-        status: "active",
-        limit: 1,
-      });
-
-      if (subscriptions.data.length === 0) {
-        fastify.log.warn(
-          { customerId: customer.id, email: sessionData.email },
-          "No active subscription found for cancel request",
-        );
-        return reply.redirect(paths.manage(ErrorCode.NoActiveDonation));
-      }
-
-      const subscription = subscriptions.data[0];
-      if (!subscription) {
-        fastify.log.warn(
-          { customerId: customer.id, email: sessionData.email },
-          "No active subscription found for cancel request",
-        );
-        return reply.redirect(paths.manage(ErrorCode.NoActiveDonation));
-      }
-
-      await stripe.subscriptions.cancel(subscription.id, {
-        prorate: true,
-        invoice_now: true,
-      });
-
-      fastify.log.info(
-        {
-          subscriptionId: subscription.id,
-          customerId: customer.id,
-          email: sessionData.email,
-        },
-        "Subscription canceled with prorated refund",
+    if (!result.success) {
+      fastify.log.warn(
+        { email: sessionData.email, error: result.error },
+        "Cancel request failed",
       );
-
-      return reply.redirect(paths.manage());
-    } catch (error) {
-      fastify.log.error(
-        { error, email: sessionData.email },
-        "Error canceling subscription",
-      );
-      return reply.redirect(paths.manage(ErrorCode.DonationCancelError));
+      return reply.redirect(paths.manage(result.error));
     }
+
+    fastify.log.info(
+      {
+        subscriptionId: result.subscriptionId,
+        customerId: result.customerId,
+        email: sessionData.email,
+      },
+      "Subscription canceled with prorated refund",
+    );
+
+    return reply.redirect(paths.manage());
   });
 
   fastify.get("/thank-you", async (request, reply) => {

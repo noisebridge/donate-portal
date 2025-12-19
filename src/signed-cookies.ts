@@ -1,4 +1,3 @@
-import crypto from "node:crypto";
 import type { FastifyReply, FastifyRequest } from "fastify";
 
 export interface SessionData {
@@ -6,7 +5,7 @@ export interface SessionData {
   provider: "github" | "google" | "magic_link";
 }
 
-export interface OAuthState {
+export interface OAuthData {
   state: string;
 }
 
@@ -97,7 +96,7 @@ export const cookies = {
     request: FastifyRequest,
     reply: FastifyReply,
   ) =>
-    new SignedCookie<OAuthState>(
+    new SignedCookie<OAuthData>(
       request,
       reply,
       CookieName.GithubOAuthState,
@@ -107,14 +106,10 @@ export const cookies = {
     request: FastifyRequest,
     reply: FastifyReply,
   ) =>
-    new SignedCookie<OAuthState>(
+    new SignedCookie<OAuthData>(
       request,
       reply,
       CookieName.GoogleOAuthState,
       60 * 10,
     ),
 } as const;
-
-export function getRandomState() {
-  return crypto.randomBytes(32).toString("hex");
-}
