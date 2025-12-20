@@ -372,9 +372,7 @@ export default async function routes(fastify: FastifyInstance) {
     );
   });
 
-  fastify.post<{
-    Body: unknown;
-  }>("/donate", async (request, reply) => {
+  fastify.post("/donate", async (request, reply) => {
     const body = request.body;
     if (!validateAmountFormData(body)) {
       return reply.redirect(paths.index(ErrorCode.InvalidRequest));
@@ -426,7 +424,7 @@ export default async function routes(fastify: FastifyInstance) {
     return reply.redirect(result.checkoutUrl);
   });
 
-  fastify.post<{ Body: unknown }>("/subscribe", async (request, reply) => {
+  fastify.post("/subscribe", async (request, reply) => {
     const sessionCookie = cookies[CookieName.UserSession](request, reply);
     const sessionData = sessionCookie.value;
     if (!sessionData) {
