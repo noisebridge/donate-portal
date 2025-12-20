@@ -1,10 +1,11 @@
+import config from "~/config";
 import { MagicLinkEmail } from "~/emails/magic-link";
 import { SubscriptionCanceledEmail } from "~/emails/subscription-canceled";
 import resend from "~/services/resend";
 import magicLinkManager from "./magic-link";
 
 class EmailManager {
-  static fromAddress = "Noisebridge <onboarding@resend.dev>";
+  static fromAddress = `Noisebridge <${config.emailDomain}>`;
 
   async sendMagicLinkEmail(email: string) {
     const magicLinkUrl = magicLinkManager.generateMagicLinkUrl(email);
