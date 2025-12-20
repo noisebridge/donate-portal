@@ -114,7 +114,8 @@ export function IndexPage({ isAuthenticated, error }: IndexProps) {
             <div class="input-group">
               <span class="input-prefix">$</span>
               <input
-                type="number"
+                type="text"
+                inputmode="numeric"
                 id="custom-amount"
                 name="custom-amount"
                 placeholder="0.00"
