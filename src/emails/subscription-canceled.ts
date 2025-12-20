@@ -24,16 +24,18 @@ export function SubscriptionCanceledEmail({
     <mj-text align="center" padding-bottom="20px">
       Your monthly donation to Noisebridge has been successfully canceled.
     </mj-text>
-    <mj-section background-color="#f8f8f8" padding="20px" border-radius="8px">
-      <mj-column>
-        <mj-text align="center" font-size="16px" padding-bottom="10px">
-          Canceled Monthly Amount
-        </mj-text>
-        <mj-text align="center" font-size="36px" font-weight="700" color="#888888" padding="0">
-          ${formatAmount(amountCents)}
-        </mj-text>
-      </mj-column>
-    </mj-section>
+    <mj-table padding="20px" css-class="amount-box">
+      <tr>
+        <td style="background-color: #f8f8f8; padding: 20px; border-radius: 8px; text-align: center;">
+          <div style="font-size: 16px; margin-bottom: 10px; color: #555555;">
+            Canceled Monthly Amount
+          </div>
+          <div style="font-size: 36px; font-weight: 700; color: #888888;">
+            ${formatAmount(amountCents)}
+          </div>
+        </td>
+      </tr>
+    </mj-table>
     <mj-text align="center" padding-top="30px">
       We're sorry to see you go! Your recurring donation has been canceled and you will not be charged again.
     </mj-text>
