@@ -44,6 +44,7 @@ export interface CustomerSubscriptionInfo {
 
 export class SubscriptionManager {
   private readonly minimumAmount: Cents = { cents: 500 };
+  private readonly productId = "monthly_donation";
 
   /**
    * Get customer and their active subscription by email
@@ -105,15 +106,7 @@ export class SubscriptionManager {
         return { success: false, error: SubscriptionErrorCode.NoLineItem };
       }
 
-      // await stripe.subscriptions.update(existingSubscription.id, {
-      //   proration_behavior: "always_invoice",
-      //   items: [
-      //     {
-      //       id: existingItemId,
-      //       ...this.subscriptionItem(amount.cents),
-      //     },
-      //   ],
-      // });
+      // Update subscription with new price for monthly_donation product.
     }
 
     const session = await stripe.checkout.sessions.create({
@@ -136,7 +129,7 @@ export class SubscriptionManager {
           quantity: 1,
         },
       ],
-      success_url: `${config.serverProtocol}://${config.serverHost}/manage?`,
+      success_url: `${config.serverProtocol}://${config.serverHost}/manage`,
       cancel_url: `${config.serverProtocol}://${config.serverHost}/manage`,
     });
 
@@ -188,22 +181,6 @@ export class SubscriptionManager {
       customerId: customer.id,
     };
   }
-
-  // private subscriptionItem(amountCents: number): Stripe.Checkout.SessionCreateParams.LineItem {
-  //   return {
-  //     price_data: {
-  //       currency: "usd",
-  //       product_data: {
-  //         name: "Monthly Donation to Noisebridge",
-  //         description: "Support our hackerspace community",
-  //       },
-  //       unit_amount: amountCents,
-  //       recurring: {
-  //         interval: "month",
-  //       },
-  //     },
-  //   };
-  // }
 }
 
 const subscriptionManager = new SubscriptionManager();
