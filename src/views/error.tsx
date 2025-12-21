@@ -5,10 +5,10 @@ import config from "~/config";
 
 export type ErrorPageProps = {
   error: Error;
-  isAuthenticated?: boolean;
+  isAuthenticated: boolean;
 };
 
-export function ErrorPage({ error, isAuthenticated = false }: ErrorPageProps) {
+export function ErrorPage({ error, isAuthenticated }: ErrorPageProps) {
   return (
     <Layout title="Error" styles="error.css" isAuthenticated={isAuthenticated}>
       <div class="error-page">
