@@ -19,7 +19,6 @@ document.addEventListener("DOMContentLoaded", () => {
       } else {
         customAmountInput.disabled = true;
       }
-
     };
 
     radio.addEventListener("input", eventHandler);

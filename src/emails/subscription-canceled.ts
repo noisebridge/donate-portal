@@ -37,7 +37,8 @@ export function SubscriptionCanceledEmail({
       Your recurring donation has been canceled and you will not be charged again.
     </mj-text>
     <mj-text align="center" padding-top="20px">
-      We hope you'll consider supporting Noisebridge again in the future. You can set up a new donation anytime at donate.noisebridge.net
+      We hope you'll consider supporting Noisebridge again in the future. You can set up a new donation anytime at
+      <a href="https://donate.noisebridge.net">donate.noisebridge.net</a>
     </mj-text>
     <mj-divider border-color="#e0e0e0" padding="30px 0 20px 0" />
     <mj-text align="center" color="#888888" font-size="12px">

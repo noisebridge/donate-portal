@@ -23,7 +23,7 @@ export function ManagePage({
       title={subscription ? "Manage your Donation" : "Set Up your Donation"}
       styles="manage.css"
       script="manage.mjs"
-      isAuthenticated={true}
+      isAuthenticated
     >
       <div class="manage-header">
         <h1>{customer ? "Manage your Donation" : "Start a Donation"}</h1>

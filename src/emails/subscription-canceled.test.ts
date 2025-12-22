@@ -8,7 +8,6 @@ describe("SubscriptionCanceledEmail", () => {
     });
 
     expect(result).toBeTypeOf("string");
-    expect(result.length).toBeGreaterThan(0);
     expect(result).toInclude("$25.00");
   });
 });

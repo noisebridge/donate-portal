@@ -1,7 +1,12 @@
 import crypto from "node:crypto";
 // biome-ignore lint/correctness/noUnusedImports: Html is used by JSX
 import Html from "@kitajs/html";
-import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
+import type {
+  FastifyInstance,
+  FastifyReply,
+  FastifyRequest,
+  RouteShorthandOptions,
+} from "fastify";
 import donationManager from "~/managers/donation";
 import magicLinkManager from "~/managers/magic-link";
 import subscriptionManager, {
@@ -19,7 +24,7 @@ import emailManager from "./managers/email";
 import { parseToCents, validateAmountFormData } from "./money";
 import { ErrorPage } from "./views/error";
 
-const authRateLimit = {
+const authRateLimit: RouteShorthandOptions = {
   config: {
     rateLimit: {
       max: 3,
