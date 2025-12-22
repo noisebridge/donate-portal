@@ -57,9 +57,8 @@ fastify.addHook("onSend", async (_request, reply) => {
   };
 
   const cspHeader = Object.entries(cspDirectives)
-    .map(([directive, values]) => `${directive} ${values.join(" ")}`)
-    .concat("upgrade-insecure-requests")
-    .join("; ");
+    .map(([directive, values]) => `${directive} ${values.join(" ")};`)
+    .join(" ");
 
   reply.header("Content-Security-Policy", cspHeader);
 });
