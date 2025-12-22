@@ -16,6 +16,12 @@ export enum CookieName {
 }
 
 class SignedCookie<T> {
+  static readonly baseOptions = {
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/",
+  } as const;
+
   private readonly request: FastifyRequest;
   private readonly reply: FastifyReply;
   private readonly name: CookieName;
@@ -70,17 +76,15 @@ class SignedCookie<T> {
 
   set value(newValue: T) {
     this.reply.setCookie(this.name, JSON.stringify(newValue), {
+      ...SignedCookie.baseOptions,
       signed: true,
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      path: "/",
       maxAge: this.maxAge,
     });
   }
 
   clear() {
-    this.reply.clearCookie(this.name, { path: "/" });
+    this.reply.clearCookie(this.name, SignedCookie.baseOptions);
   }
 }
 

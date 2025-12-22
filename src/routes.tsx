@@ -160,12 +160,11 @@ export default async function routes(fastify: FastifyInstance) {
 
     const githubCookie = cookies[CookieName.GithubOAuthState](request, reply);
     const cookieValue = githubCookie.value;
+    githubCookie.clear();
     if (cookieValue?.state !== state) {
       fastify.log.warn("Invalid or mismatched state parameter");
       return reply.redirect(paths.signIn(ErrorCode.InvalidState));
     }
-
-    githubCookie.clear();
 
     const { user, primaryEmail } = await githubOAuth.completeOAuthFlow(code);
     const email = primaryEmail || user.email;
@@ -221,14 +220,13 @@ export default async function routes(fastify: FastifyInstance) {
 
     const googleCookie = cookies[CookieName.GoogleOAuthState](request, reply);
     const cookieValue = googleCookie.value;
+    googleCookie.clear();
     if (cookieValue?.state !== state) {
       fastify.log.warn(
         "Invalid or mismatched state parameter for Google OAuth",
       );
       return reply.redirect(paths.signIn(ErrorCode.InvalidState));
     }
-
-    googleCookie.clear();
 
     const { userInfo } = await googleOAuth.completeOAuthFlow(code);
     if (!userInfo.email || !userInfo.verified_email) {
