@@ -64,6 +64,7 @@ jobs:
           RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
         run: |
           render deploys create ${{ secrets.RENDER_SERVICE_ID }} \
+            --commit ${{ github.sha }} \
             --wait \
             --confirm \
             --output json
