@@ -1,0 +1,31 @@
+name: Deploy
+
+on:
+  workflow_run:
+    workflows: ["Test", "Lint"]
+    types:
+      - completed
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    # Only deploy if both test and lint workflows succeeded
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    steps:
+      - name: Install Render CLI
+        run: |
+          curl -fsSL https://cli.render.com/install.sh | bash
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      - name: Trigger and wait for deployment
+        env:
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+        run: |
+          render deploy \
+            --service ${{ secrets.RENDER_SERVICE_ID }} \
+            --wait
+
+      - name: Deployment complete
+        if: success()
+        run: echo "🚀 Deployment is live!"
