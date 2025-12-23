@@ -31,38 +31,6 @@ fastify.register(fastifyStatic, {
 
 fastify.register(html);
 
-/**
- * Add a `Content-Security-Policy` header to all HTML responses.
- */
-fastify.addHook("onSend", async (_request, reply) => {
-  const contentType = reply.getHeader("content-type");
-  if (typeof contentType !== "string") {
-    return;
-  }
-  if (!contentType.startsWith("text/html")) {
-    return;
-  }
-
-  const cspDirectives: Record<string, string[]> = {
-    "default-src": ["'self'"],
-    "script-src": ["'self'"],
-    "style-src": ["'self'"],
-    "img-src": ["'self'", "data:"],
-    "font-src": ["'self'"],
-    "connect-src": ["'self'"],
-    "form-action": ["'self'"],
-    "frame-ancestors": ["'none'"],
-    "base-uri": ["'self'"],
-    "object-src": ["'none'"],
-  };
-
-  const cspHeader = Object.entries(cspDirectives)
-    .map(([directive, values]) => `${directive} ${values.join(" ")};`)
-    .join(" ");
-
-  reply.header("Content-Security-Policy", cspHeader);
-});
-
 fastify.register(routes);
 fastify.setErrorHandler(errorRoute(fastify));
 
