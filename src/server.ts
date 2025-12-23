@@ -7,7 +7,7 @@ import fastifyStatic from "@fastify/static";
 import html from "@kitajs/fastify-html-plugin";
 import Fastify from "fastify";
 import config from "~/config";
-import routes, { errorRoute } from "~/routes";
+import routes, { errorRoute, notFoundRoute } from "~/routes";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -33,6 +33,7 @@ fastify.register(html);
 
 fastify.register(routes);
 fastify.setErrorHandler(errorRoute(fastify));
+fastify.setNotFoundHandler(notFoundRoute(fastify));
 
 const start = async () => {
   try {

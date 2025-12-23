@@ -22,6 +22,7 @@ import { AuthEmailPage } from "~/views/auth/email";
 import { ErrorPage } from "~/views/error";
 import { IndexPage } from "~/views/index";
 import { ManagePage } from "~/views/manage";
+import { NotFoundPage } from "~/views/not-found";
 import { ThankYouPage } from "~/views/thank-you";
 import emailManager from "./managers/email";
 
@@ -68,10 +69,8 @@ export enum ErrorCode {
   InvalidMonthlyDonationAmount = "Please select a valid donation amount",
 }
 
-export function errorRoute(
-  fastify: FastifyInstance,
-): Parameters<FastifyInstance["setErrorHandler"]>[0] {
-  return (error, request, reply) => {
+export function errorRoute(fastify: FastifyInstance) {
+  return (error: unknown, request: FastifyRequest, reply: FastifyReply) => {
     fastify.log.error(
       {
         err: error,
@@ -93,6 +92,22 @@ export function errorRoute(
           }
         />,
       );
+  };
+}
+
+export function notFoundRoute(fastify: FastifyInstance) {
+  return (request: FastifyRequest, reply: FastifyReply) => {
+    fastify.log.warn(
+      {
+        url: request.url,
+        method: request.method,
+      },
+      "Route not found",
+    );
+
+    reply
+      .status(404)
+      .html(<NotFoundPage isAuthenticated={isAuthenticated(request, reply)} />);
   };
 }
 

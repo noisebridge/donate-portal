@@ -11,20 +11,6 @@
   text-align: center;
 }
 
-/* Production error styles */
-.error-production {
-  text-align: center;
-  padding: 2rem;
-}
-
-.error-description {
-  font-size: 1.2rem;
-  color: #666;
-  margin-bottom: 2rem;
-  line-height: 1.6;
-}
-
-/* Development error styles */
 .error-details {
   background-color: #f5f5f5;
   padding: 1.5rem;
@@ -63,10 +49,6 @@
 @media (max-width: 768px) {
   .error-heading {
     font-size: 1.8rem;
-  }
-
-  .error-description {
-    font-size: 1rem;
   }
 
   .error-details {
