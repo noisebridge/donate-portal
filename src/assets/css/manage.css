@@ -1,12 +1,3 @@
-.manage-container {
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 2rem 1rem;
-}
-
 .manage-header {
   text-align: center;
 }
@@ -14,21 +5,6 @@
 .manage-header h1 {
   font-size: 2.5rem;
   color: var(--text-primary);
-}
-
-.user-info {
-  font-size: 1rem;
-  color: var(--text-secondary);
-}
-
-.user-info strong {
-  color: var(--text-primary);
-}
-
-.customer-details {
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
 }
 
 .card {
@@ -44,118 +20,7 @@
   color: var(--text-primary);
 }
 
-.card-empty {
-  text-align: center;
-}
-
-.card-empty h2 {
-  margin-bottom: 1rem;
-}
-
-.card-empty p {
-  color: var(--text-secondary);
-  margin-bottom: 1rem;
-}
-
-.card-empty .btn {
-  margin-top: 1.5rem;
-}
-
-.details-list {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 1rem 2rem;
-}
-
-.details-list dt {
-  font-weight: 600;
-  color: var(--text-secondary);
-}
-
-.details-list dd {
-  color: var(--text-primary);
-  margin: 0;
-}
-
-.monospace {
-  font-family: "Courier New", Courier, monospace;
-  font-size: 0.9em;
-  color: var(--text-secondary);
-}
-
-.subscription-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1.5rem;
-  background: var(--bg-secondary);
-  border-radius: 8px;
-  margin-bottom: 1rem;
-}
-
-.subscription-item:last-child {
-  margin-bottom: 0;
-}
-
-.subscription-details h3 {
-  font-size: 1.5rem;
-  margin-bottom: 0.5rem;
-  color: var(--text-primary);
-}
-
-.subscription-status {
-  margin: 0.5rem 0;
-  color: var(--text-secondary);
-}
-
-.status-active {
-  color: var(--success-color);
-  font-weight: 600;
-  text-transform: capitalize;
-}
-
-.subscription-dates {
-  font-size: 0.9rem;
-  color: var(--text-secondary);
-  margin: 0.25rem 0;
-}
-
-.subscription-id {
-  font-size: 0.8rem;
-  margin-top: 0.5rem;
-}
-
-.subscription-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.card-actions {
-  margin-top: 2rem;
-}
-
-.action-buttons {
-  display: flex;
-  gap: 1rem;
-  justify-content: center;
-}
-
-.btn-danger {
-  background-color: var(--danger-color);
-  color: white;
-}
-
-.btn-danger:hover {
-  background-color: var(--danger-hover);
-}
-
 /* Donation Tier Selector Styles */
-.donation-setup {
-  max-width: 800px;
-  margin: 0 auto;
-}
-
 .donation-tier-form {
   background: var(--card-bg);
   border-radius: 12px;
@@ -316,48 +181,9 @@
   appearance: textfield;
 }
 
-.tier-card-custom:has(input[type="radio"]:checked) .custom-input {
-  border-color: var(--primary-color);
-}
-
 @media (max-width: 768px) {
   .manage-header h1 {
     font-size: 2rem;
-  }
-
-  .subscription-item {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1rem;
-  }
-
-  .subscription-actions {
-    width: 100%;
-  }
-
-  .subscription-actions .btn {
-    width: 100%;
-  }
-
-  .action-buttons {
-    flex-direction: column;
-  }
-
-  .action-buttons .btn {
-    width: 100%;
-  }
-
-  .details-list {
-    grid-template-columns: 1fr;
-    gap: 0.5rem;
-  }
-
-  .details-list dt {
-    margin-top: 1rem;
-  }
-
-  .details-list dt:first-child {
-    margin-top: 0;
   }
 
   .tier-options {

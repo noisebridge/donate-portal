@@ -58,10 +58,6 @@
 
 /* Responsive */
 @media (max-width: 768px) {
-  .email-waiting-container {
-    padding: var(--spacing-lg) 0;
-  }
-
   .email-waiting-card {
     padding: var(--spacing-xl);
     border-radius: 8px;

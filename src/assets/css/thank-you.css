@@ -41,10 +41,6 @@
 
 /* Responsive */
 @media (max-width: 768px) {
-  .thank-you-container {
-    padding: var(--spacing-lg) 0;
-  }
-
   .thank-you-card {
     padding: var(--spacing-xl);
     border-radius: 8px;
@@ -61,9 +57,5 @@
 
   .thank-you-message {
     font-size: 0.9375rem;
-  }
-
-  .thank-you-secondary {
-    font-size: 0.875rem;
   }
 }

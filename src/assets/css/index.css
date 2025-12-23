@@ -152,11 +152,6 @@ input[type="radio"]:focus + .btn-amount {
     font-size: 2.25rem;
   }
 
-  .tax-notice,
-  .description {
-    font-size: 1rem;
-  }
-
   .card {
     padding: var(--spacing-lg);
   }
