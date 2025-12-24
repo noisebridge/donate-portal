@@ -69,34 +69,41 @@ export enum ErrorCode {
   InvalidMonthlyDonationAmount = "Please select a valid donation amount",
 }
 
-export function errorRoute(fastify: FastifyInstance) {
-  return (error: unknown, request: FastifyRequest, reply: FastifyReply) => {
-    fastify.log.error(
-      {
-        err: error,
-        url: request.url,
-        method: request.method,
-      },
-      "Unhandled error in route",
-    );
-
-    reply
-      .status(500)
-      .html(
-        <ErrorPage
-          isAuthenticated={isAuthenticated(request, reply)}
-          error={
-            error instanceof Error
-              ? error
-              : new Error(`Unknown error: ${error}`)
-          }
-        />,
-      );
-  };
+function isAuthenticated(
+  request: FastifyRequest,
+  reply: FastifyReply,
+): boolean {
+  return cookies[CookieName.UserSession](request, reply).valid();
 }
 
-export function notFoundRoute(fastify: FastifyInstance) {
-  return (request: FastifyRequest, reply: FastifyReply) => {
+export default async function routes(fastify: FastifyInstance) {
+  fastify.setErrorHandler(
+    (error: unknown, request: FastifyRequest, reply: FastifyReply) => {
+      fastify.log.error(
+        {
+          err: error,
+          url: request.url,
+          method: request.method,
+        },
+        "Unhandled error in route",
+      );
+
+      reply
+        .status(500)
+        .html(
+          <ErrorPage
+            isAuthenticated={isAuthenticated(request, reply)}
+            error={
+              error instanceof Error
+                ? error
+                : new Error(`Unknown error: ${error}`)
+            }
+          />,
+        );
+    },
+  );
+
+  fastify.setNotFoundHandler((request: FastifyRequest, reply: FastifyReply) => {
     fastify.log.warn(
       {
         url: request.url,
@@ -108,17 +115,8 @@ export function notFoundRoute(fastify: FastifyInstance) {
     reply
       .status(404)
       .html(<NotFoundPage isAuthenticated={isAuthenticated(request, reply)} />);
-  };
-}
+  });
 
-function isAuthenticated(
-  request: FastifyRequest,
-  reply: FastifyReply,
-): boolean {
-  return cookies[CookieName.UserSession](request, reply).valid();
-}
-
-export default async function routes(fastify: FastifyInstance) {
   fastify.get<{
     Querystring: { error?: string };
   }>("/", async (request, reply) => {
