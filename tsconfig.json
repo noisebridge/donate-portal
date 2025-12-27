@@ -4,6 +4,7 @@
     "lib": ["ESNext"],
     "allowJs": false,
     "module": "ESNext",
+    "target": "ESNext",
     "jsx": "react",
     "jsxFactory": "Html.createElement",
     "jsxFragmentFactory": "Html.Fragment",

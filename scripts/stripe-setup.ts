@@ -103,4 +103,4 @@ async function main() {
   await setupBillingPortalConfiguration(stripe);
 }
 
-main().catch((error) => console.error("Setup failed", error));
+await main();
