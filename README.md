@@ -32,6 +32,7 @@ playwright install firefox
 * `SERVER_HOST` - `127.0.0.1:3000` for local dev
 * `TESTING_BACKDOOR` - `enabled` to run e2e tests
 * `STRIPE_SECRET` - Get a Stripe test key for local dev
+* `STRIPE_PORTAL_CONFIG` - ID like `bpc_...` from `./scripts/stripe-setup.ts`
 * `GITHUB_CLIENT_ID` - Create an OAuth app on Github
 * `GITHUB_SECRET` - Create an OAuth app on Github
 * `GOOGLE_CLIENT_ID` - Create an OAuth app in the Google Cloud Console
