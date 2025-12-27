@@ -50,8 +50,8 @@ test.describe("Subscription Flow Tests", () => {
 
     // Submit payment and wait for network to settle
     await page.click('button[type="submit"]:has-text("Subscribe")');
-    await page.waitForLoadState("networkidle");
     await page.waitForTimeout(5000);
+    await page.waitForLoadState("networkidle");
 
     // Should redirect back to /manage after successful subscription
     await expect(page).toHaveURL(/\/manage/);
@@ -114,8 +114,8 @@ test.describe("Subscription Flow Tests", () => {
 
     // Submit payment and wait for network to settle
     await page.click('button[type="submit"]:has-text("Subscribe")');
-    await page.waitForLoadState("networkidle");
     await page.waitForTimeout(5000);
+    await page.waitForLoadState("networkidle");
 
     // Should redirect back to /manage after successful subscription
     await expect(page).toHaveURL(/\/manage/);
@@ -176,8 +176,8 @@ test.describe("Subscription Flow Tests", () => {
 
     // Submit payment and wait for network to settle
     await page.click('button[type="submit"]:has-text("Subscribe")');
-    await page.waitForLoadState("networkidle");
     await page.waitForTimeout(5000);
+    await page.waitForLoadState("networkidle");
 
     // Should redirect back to /manage after successful subscription
     await expect(page).toHaveURL(/\/manage/);

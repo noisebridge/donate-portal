@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import magicLinkManager from "~/managers/magic-link";
 
 test.describe("Auth Flow Tests", () => {
   test("GitHub OAuth button redirects to GitHub authorization page", async ({
@@ -31,5 +32,18 @@ test.describe("Auth Flow Tests", () => {
     // Verify OAuth parameters are present in the URL
     const url = new URL(page.url());
     expect(url.searchParams.has("client_id")).toBe(true);
+  });
+
+  test("Magic link authentication flow", async ({ page }) => {
+    const testEmail = "test@example.com";
+
+    // Generate a magic link using the manager
+    const magicLinkUrl = magicLinkManager.generateMagicLinkUrl(testEmail);
+
+    // Navigate to the magic link
+    await page.goto(magicLinkUrl);
+
+    // Should redirect to the subscription mangement page
+    await expect(page).toHaveURL(/\/manage/);
   });
 });

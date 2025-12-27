@@ -86,9 +86,9 @@ async function setupBillingPortalConfiguration(stripe: Stripe) {
 }
 
 async function main() {
-  const stripe = (await import("../src/services/stripe")).default;
+  const stripe = (await import("~/services/stripe")).default;
   await setupStripeProduct(stripe);
   await setupBillingPortalConfiguration(stripe);
 }
 
-await main();
+main().catch((error) => console.error("Setup failed", error));
