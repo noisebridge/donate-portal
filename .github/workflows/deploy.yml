@@ -72,6 +72,7 @@ jobs:
         env:
           SERVER_HOST: 127.0.0.1:3000
           STRIPE_SECRET: ${{ secrets.STRIPE_SECRET }}
+          STRIPE_PORTAL_CONFIG: ${{ secrets.STRIPE_PORTAL_CONFIG }}
           GITHUB_CLIENT_ID: ${{ secrets._GITHUB_CLIENT_ID }}
           GITHUB_SECRET: ${{ secrets._GITHUB_SECRET }}
           GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
