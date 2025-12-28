@@ -251,6 +251,91 @@ export class SubscriptionManager {
 
     return { cents: unit_amount };
   }
+
+  /**
+   * Process Stripe webhook events for subscriptions.
+   */
+  async processWebhook(event: Stripe.Event): Promise<void> {
+    switch (event.type) {
+      case "invoice.paid":
+        await this.handleInvoicePaid(event.data.object);
+        break;
+      case "customer.subscription.updated":
+        await this.handleSubscriptionUpdated(
+          event.data.object,
+          event.data.previous_attributes,
+        );
+        break;
+    }
+  }
+
+  private async handleInvoicePaid(invoice: Stripe.Invoice): Promise<void> {
+    // Only handle subscription creation invoices
+    if (invoice.billing_reason !== "subscription_create") {
+      return;
+    }
+
+    const email = invoice.customer_email;
+    if (!email) {
+      return;
+    }
+
+    const amountCents = invoice.amount_paid;
+    if (!amountCents) {
+      return;
+    }
+
+    await emailManager.sendSubscriptionWelcomeEmail(email, {
+      cents: amountCents,
+    });
+  }
+
+  private async handleSubscriptionUpdated(
+    subscription: Stripe.Subscription,
+    previousAttributes?: Partial<Stripe.Subscription>,
+  ): Promise<void> {
+    // Get customer email
+    const customerId = subscription.customer;
+    if (typeof customerId !== "string") {
+      return;
+    }
+
+    const customer = await stripe.customers.retrieve(customerId);
+    if (customer.deleted || !customer.email) {
+      return;
+    }
+    const email = customer.email;
+
+    // Check if status changed to past_due
+    if (
+      previousAttributes?.status !== undefined &&
+      previousAttributes.status !== "past_due" &&
+      subscription.status === "past_due"
+    ) {
+      const amount = this.subscriptionAmount(subscription);
+      await emailManager.sendSubscriptionPastDueEmail(email, amount);
+      return;
+    }
+
+    // Check if the price/amount changed
+    const previousItems = previousAttributes?.items?.data;
+    if (previousItems && previousItems.length > 0) {
+      const previousAmount = previousItems[0]?.price?.unit_amount;
+      const currentAmount = subscription.items.data[0]?.price?.unit_amount;
+
+      if (
+        typeof previousAmount === "number" &&
+        typeof currentAmount === "number" &&
+        previousAmount !== currentAmount
+      ) {
+        await emailManager.sendSubscriptionUpdatedEmail(
+          email,
+          { cents: previousAmount },
+          { cents: currentAmount },
+        );
+      }
+    }
+  }
 }
 
 const subscriptionManager = new SubscriptionManager();

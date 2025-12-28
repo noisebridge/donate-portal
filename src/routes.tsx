@@ -1,4 +1,5 @@
 import crypto from "node:crypto";
+import stream from "node:stream";
 // biome-ignore lint/correctness/noUnusedImports: Html is used by JSX
 import Html from "@kitajs/html";
 import type {
@@ -7,6 +8,7 @@ import type {
   FastifyRequest,
   RouteShorthandOptions,
 } from "fastify";
+import type Stripe from "stripe";
 import config from "~/config";
 import donationManager from "~/managers/donation";
 import magicLinkManager from "~/managers/magic-link";
@@ -16,6 +18,7 @@ import subscriptionManager, {
 import { parseToCents, validateAmountFormData } from "~/money";
 import githubOAuth from "~/services/github";
 import googleOAuth from "~/services/google";
+import stripe from "~/services/stripe";
 import { CookieName, cookies } from "~/signed-cookies";
 import { AuthPage } from "~/views/auth";
 import { AuthEmailPage } from "~/views/auth/email";
@@ -74,6 +77,24 @@ function isAuthenticated(
   reply: FastifyReply,
 ): boolean {
   return cookies[CookieName.UserSession](request, reply).valid();
+}
+
+/**
+ * Fastify preParsing hook to capture raw request body for webhook signature verification.
+ */
+async function rawBody(
+  request: FastifyRequest,
+  _reply: FastifyReply,
+  payload: stream.Readable,
+): Promise<stream.Readable> {
+  const chunks: Buffer[] = [];
+  for await (const chunk of payload) {
+    chunks.push(chunk as Buffer);
+  }
+
+  request.rawBody = Buffer.concat(chunks);
+
+  return stream.Readable.from([request.rawBody]);
 }
 
 export default async function routes(fastify: FastifyInstance) {
@@ -559,6 +580,50 @@ export default async function routes(fastify: FastifyInstance) {
     return reply.html(
       <ThankYouPage isAuthenticated={isAuthenticated(request, reply)} />,
     );
+  });
+
+  fastify.post("/webhook", { preParsing: rawBody }, async (request, reply) => {
+    const webhookSecret = config.stripeWebhookSecret;
+    if (!webhookSecret) {
+      fastify.log.error("Stripe webhook secret is not configured");
+      return reply.status(500).send({ error: "Webhook not configured" });
+    }
+
+    const body = request.rawBody;
+    if (!body) {
+      fastify.log.error("Missing request.rawBody");
+      return reply.status(500).send({ error: "Missing raw body data " });
+    }
+
+    const sig = request.headers["stripe-signature"];
+    if (!sig) {
+      fastify.log.warn("Missing Stripe signature header");
+      return reply.status(400).send({ error: "Missing signature header" });
+    }
+
+    let event: Stripe.Event | undefined;
+    try {
+      event = await stripe.webhooks.constructEventAsync(
+        body,
+        sig,
+        webhookSecret,
+      );
+    } catch (err) {
+      fastify.log.warn({ err }, "Webhook signature verification failed");
+      return reply.status(400).send({ error: "Invalid signature" });
+    }
+
+    try {
+      await subscriptionManager.processWebhook(event);
+    } catch (err) {
+      fastify.log.error(
+        { err, eventType: event.type },
+        "Webhook processing error",
+      );
+      // Still return 200 to prevent Stripe retries for processing errors
+    }
+
+    return reply.status(200).send({ received: true });
   });
 
   fastify.get("/healthz", async (_request, reply) => {

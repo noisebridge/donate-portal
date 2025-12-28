@@ -17,6 +17,7 @@ export default {
   serverPort: parseInt(process.env["PORT"] || "3000", 10),
   stripeSecretKey: assertEnvVar("STRIPE_SECRET"),
   stripePortalConfig: assertEnvVar("STRIPE_PORTAL_CONFIG"),
+  stripeWebhookSecret: process.env["STRIPE_WEBHOOK_SECRET"],
   githubClientId: assertEnvVar("GITHUB_CLIENT_ID"),
   githubSecret: assertEnvVar("GITHUB_SECRET"),
   googleClientId: assertEnvVar("GOOGLE_CLIENT_ID"),

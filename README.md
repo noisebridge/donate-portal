@@ -33,6 +33,7 @@ bun run stripe-setup
 * `TESTING_BACKDOOR` - `enabled` to run e2e tests
 * `STRIPE_SECRET` - Get a Stripe test key for local dev
 * `STRIPE_PORTAL_CONFIG` - ID like `bpc_...` from `./scripts/stripe-setup.ts`
+* `STRIPE_WEBHOOK_SECRET` - Get from `stripe listen --forward-to localhost:3000/webhook`
 * `GITHUB_CLIENT_ID` - Create an OAuth app on Github
 * `GITHUB_SECRET` - Create an OAuth app on Github
 * `GOOGLE_CLIENT_ID` - Create an OAuth app in the Google Cloud Console
