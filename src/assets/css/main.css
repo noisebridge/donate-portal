@@ -126,41 +126,40 @@ body {
   letter-spacing: 0.02em;
 }
 
-/* Notifications */
-.notification-container {
+/* Messages */
+.message-container {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-sm);
 }
 
-.notification {
+.message {
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
   border-radius: 8px;
   padding: var(--spacing-md);
-  animation: notification-slide-in 0.3s ease;
 }
 
-.notification-error {
+.message-error {
   background-color: #fee;
   border: 1px solid #fcc;
   color: #c00;
 }
 
-.notification-info {
+.message-info {
   background-color: #e8f5e9;
   border: 1px solid #a5d6a7;
   color: #2e7d32;
 }
 
-.notification-message {
+.message-text {
   font-size: 0.9375rem;
   line-height: 1.5;
   flex: 1;
 }
 
-.notification-dismiss {
+.message-dismiss {
   background: none;
   border: none;
   font-size: 1.5rem;
@@ -171,7 +170,7 @@ body {
   color: inherit;
 }
 
-.notification-dismiss:hover {
+.message-dismiss:hover {
   opacity: 1;
 }
 

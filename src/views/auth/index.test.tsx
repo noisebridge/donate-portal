@@ -1,6 +1,4 @@
 import { describe, expect, test } from "bun:test";
-// biome-ignore lint/correctness/noUnusedImports: Html is used by JSX
-import Html from "@kitajs/html";
 import { AuthPage } from "./index";
 
 describe("AuthPage", () => {
@@ -11,17 +9,17 @@ describe("AuthPage", () => {
     expect(result.length).toBeGreaterThan(0);
   });
 
-  test("should display error notification when provided", async () => {
+  test("should display error message when provided", async () => {
     const errorMessage = "Invalid credentials";
     const result = await (
       <AuthPage
         isAuthenticated={false}
-        notifications={[{ type: "error", message: errorMessage }]}
+        messages={[{ type: "error", text: errorMessage }]}
       />
     );
 
     expect(result).toBeTypeOf("string");
     expect(result).toContain(errorMessage);
-    expect(result).toContain('class="notification notification-error"');
+    expect(result).toContain('class="message message-error"');
   });
 });

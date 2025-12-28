@@ -1,6 +1,4 @@
 import type { PropsWithChildren } from "@kitajs/html";
-// biome-ignore lint/correctness/noUnusedImports: Html is used by JSX
-import Html from "@kitajs/html";
 import config from "~/config";
 import Navbar from "./navbar";
 

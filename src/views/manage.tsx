@@ -1,25 +1,20 @@
-// biome-ignore lint/correctness/noUnusedImports: Html is used by JSX
-import Html from "@kitajs/html";
 import type Stripe from "stripe";
 import { DonationTierSelector } from "~/components/donation-tier-selector";
 import { Layout } from "~/components/layout";
-import {
-  type Notification,
-  NotificationContainer,
-} from "~/components/notification-container";
+import { type Message, MessageContainer } from "~/components/message-container";
 
 export interface ManageProps {
   email: string;
   customer?: Stripe.Customer | undefined;
   subscription?: Stripe.Subscription | undefined;
-  notifications?: Notification[];
+  messages?: Message[];
 }
 
 export function ManagePage({
   email,
   customer,
   subscription,
-  notifications = [],
+  messages = [],
 }: ManageProps) {
   return (
     <Layout
@@ -36,7 +31,7 @@ export function ManagePage({
           </p>
         </div>
 
-        <NotificationContainer notifications={notifications} />
+        <MessageContainer messages={messages} />
 
         <DonationTierSelector subscription={subscription} />
 

@@ -1,6 +1,4 @@
 import { describe, expect, test } from "bun:test";
-// biome-ignore lint/correctness/noUnusedImports: Html is used by JSX
-import Html from "@kitajs/html";
 import { ThankYouPage } from "./thank-you";
 
 describe("ThankYouPage", () => {

@@ -1,6 +1,6 @@
 // @ts-check
 
-import { initNotifications } from "./notifications.mjs";
+import { initMessages } from "./messages.mjs";
 
 function handleCustomInput() {
   const customAmountInput = /** @type {HTMLInputElement} */ (
@@ -28,6 +28,6 @@ function handleCustomInput() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  initNotifications();
+  initMessages();
   handleCustomInput();
 });

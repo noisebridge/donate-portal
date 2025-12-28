@@ -1,7 +1,7 @@
 // @ts-check
 
-import { initNotifications } from "./notifications.mjs";
+import { initMessages } from "./messages.mjs";
 
 document.addEventListener("DOMContentLoaded", () => {
-  initNotifications();
+  initMessages();
 });

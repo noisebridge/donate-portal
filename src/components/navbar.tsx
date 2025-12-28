@@ -1,6 +1,3 @@
-// biome-ignore lint/correctness/noUnusedImports: Html is used by JSX
-import Html from "@kitajs/html";
-
 export interface NavbarProps {
   isAuthenticated: boolean;
 }

@@ -1,7 +1,5 @@
 import crypto from "node:crypto";
 import stream from "node:stream";
-// biome-ignore lint/correctness/noUnusedImports: Html is used by JSX
-import Html from "@kitajs/html";
 import type {
   FastifyInstance,
   FastifyReply,
@@ -9,7 +7,7 @@ import type {
   RouteShorthandOptions,
 } from "fastify";
 import type Stripe from "stripe";
-import type { Notification } from "~/components/notification-container";
+import type { Message } from "~/components/message-container";
 import config from "~/config";
 import donationManager from "~/managers/donation";
 import magicLinkManager from "~/managers/magic-link";
@@ -46,7 +44,7 @@ export function getRandomState() {
   return crypto.randomBytes(32).toString("hex");
 }
 
-type NotificationParams = Partial<Record<Notification["type"], string>>;
+type NotificationParams = Partial<Record<Message["type"], string>>;
 
 /**
  * Format a page path with query params.
@@ -164,13 +162,15 @@ export default async function routes(fastify: FastifyInstance) {
     Querystring: NotificationParams;
   }>("/", async (request, reply) => {
     const error = request.query.error;
-    const notifications: Notification[] = [];
-    if (error) notifications.push({ type: "error", message: error });
+    const messages: Message[] = [];
+    if (error) {
+      messages.push({ type: "error", text: error });
+    }
 
     return reply.html(
       <IndexPage
         isAuthenticated={isAuthenticated(request, reply)}
-        notifications={notifications}
+        messages={messages}
       />,
     );
   });
@@ -183,13 +183,15 @@ export default async function routes(fastify: FastifyInstance) {
     }
 
     const error = request.query.error;
-    const notifications: Notification[] = [];
-    if (error) notifications.push({ type: "error", message: error });
+    const messages: Message[] = [];
+    if (error) {
+      messages.push({ type: "error", text: error });
+    }
 
     return reply.html(
       <AuthPage
         isAuthenticated={isAuthenticated(request, reply)}
-        notifications={notifications}
+        messages={messages}
       />,
     );
   });
@@ -452,15 +454,15 @@ export default async function routes(fastify: FastifyInstance) {
 
     const { error, info } = request.query;
 
-    const notifications: Notification[] = [];
+    const messages: Message[] = [];
     if (error) {
-      notifications.push({ type: "error", message: error });
+      messages.push({ type: "error", text: error });
     }
     if (customerSubscription.subscription?.status === "past_due") {
-      notifications.push({ type: "error", message: ErrorCode.PastDue });
+      messages.push({ type: "error", text: ErrorCode.PastDue });
     }
     if (info) {
-      notifications.push({ type: "info", message: info });
+      messages.push({ type: "info", text: info });
     }
 
     return reply.html(
@@ -468,7 +470,7 @@ export default async function routes(fastify: FastifyInstance) {
         email={sessionData.email}
         customer={customerSubscription.customer}
         subscription={customerSubscription.subscription}
-        notifications={notifications}
+        messages={messages}
       />,
     );
   });

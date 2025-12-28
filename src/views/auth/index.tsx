@@ -1,17 +1,12 @@
-// biome-ignore lint/correctness/noUnusedImports: Html is used by JSX
-import Html from "@kitajs/html";
 import { Layout } from "~/components/layout";
-import {
-  type Notification,
-  NotificationContainer,
-} from "~/components/notification-container";
+import { type Message, MessageContainer } from "~/components/message-container";
 
 export interface AuthProps {
   isAuthenticated: boolean;
-  notifications?: Notification[];
+  messages?: Message[];
 }
 
-export function AuthPage({ isAuthenticated, notifications = [] }: AuthProps) {
+export function AuthPage({ isAuthenticated, messages = [] }: AuthProps) {
   return (
     <Layout
       title="Sign In"
@@ -20,7 +15,8 @@ export function AuthPage({ isAuthenticated, notifications = [] }: AuthProps) {
       isAuthenticated={isAuthenticated}
     >
       <div class="container-narrow">
-        <NotificationContainer notifications={notifications} />
+        <MessageContainer messages={messages} />
+
         <div class="card">
           <h1 class="auth-title">Sign In</h1>
           <p class="auth-subtitle">Sign in to manage your monthly donation</p>

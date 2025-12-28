@@ -1,5 +1,3 @@
-// biome-ignore lint/correctness/noUnusedImports: Html is used by JSX
-import Html from "@kitajs/html";
 import type Stripe from "stripe";
 
 interface Tier {

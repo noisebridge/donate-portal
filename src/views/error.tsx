@@ -1,5 +1,3 @@
-// biome-ignore lint/correctness/noUnusedImports: Html is used by JSX
-import Html from "@kitajs/html";
 import { Layout } from "~/components/layout";
 
 export type ErrorPageProps = {
