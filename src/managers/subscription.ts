@@ -83,7 +83,7 @@ export class SubscriptionManager {
     return { customer, subscription };
   }
 
-  private validateSubscription(subscription: Stripe.Subscription): boolean {
+  private validateSubscription(subscription: Stripe.Subscription) {
     const items = subscription.items.data;
     if (items.length !== 1) {
       return false;
@@ -247,7 +247,7 @@ export class SubscriptionManager {
     const unit_amount =
       subscription.items.data[0]?.price?.unit_amount ?? undefined;
     if (!unit_amount) {
-      return undefined;
+      return;
     }
 
     return { cents: unit_amount };
@@ -256,7 +256,7 @@ export class SubscriptionManager {
   /**
    * Process Stripe webhook events for subscriptions.
    */
-  async processWebhook(event: Stripe.Event): Promise<void> {
+  async processWebhook(event: Stripe.Event) {
     switch (event.type) {
       case "invoice.paid":
         await this.handleInvoicePaid(event.data.object);
@@ -270,7 +270,7 @@ export class SubscriptionManager {
     }
   }
 
-  private async handleInvoicePaid(invoice: Stripe.Invoice): Promise<void> {
+  private async handleInvoicePaid(invoice: Stripe.Invoice) {
     // Only handle subscription creation invoices
     if (invoice.billing_reason !== "subscription_create") {
       return;
@@ -294,7 +294,7 @@ export class SubscriptionManager {
   private async handleSubscriptionUpdated(
     subscription: Stripe.Subscription,
     previousAttributes?: Partial<Stripe.Subscription>,
-  ): Promise<void> {
+  ) {
     // Get customer email
     const customerId = subscription.customer;
     if (typeof customerId !== "string") {

@@ -37,7 +37,7 @@ export class GitHubOAuth {
    * @param state - CSRF protection state parameter
    * @param scopes - Array of OAuth scopes to request (defaults to user:email)
    */
-  getAuthorizationUrl(state: string, scopes: string[]): string {
+  getAuthorizationUrl(state: string, scopes: string[]) {
     const params = new URLSearchParams({
       client_id: config.githubClientId,
       redirect_uri: GitHubOAuth.redirectUri,
@@ -52,7 +52,7 @@ export class GitHubOAuth {
    * Exchange an authorization code for an access token
    * @param code - The authorization code from GitHub
    */
-  async getAccessToken(code: string): Promise<string> {
+  async getAccessToken(code: string) {
     const response = await fetch(
       "https://github.com/login/oauth/access_token",
       {
@@ -86,7 +86,7 @@ export class GitHubOAuth {
    * Get the authenticated user's profile information
    * @param accessToken - The GitHub access token
    */
-  async getUserProfile(accessToken: string): Promise<GitHubUser> {
+  async getUserProfile(accessToken: string) {
     const response = await fetch("https://api.github.com/user", {
       headers: {
         Authorization: `Bearer ${accessToken}`,
@@ -105,7 +105,7 @@ export class GitHubOAuth {
    * Get the authenticated user's email addresses
    * @param accessToken - The GitHub access token
    */
-  async getUserEmails(accessToken: string): Promise<GitHubEmail[] | null> {
+  async getUserEmails(accessToken: string) {
     const response = await fetch("https://api.github.com/user/emails", {
       headers: {
         Authorization: `Bearer ${accessToken}`,
@@ -127,7 +127,7 @@ export class GitHubOAuth {
    * Get the primary verified email address for a user
    * @param accessToken - The GitHub access token
    */
-  async getPrimaryEmail(accessToken: string): Promise<string | null> {
+  async getPrimaryEmail(accessToken: string) {
     const emails = await this.getUserEmails(accessToken);
     if (!emails) {
       return null;
@@ -144,11 +144,7 @@ export class GitHubOAuth {
    * @param code - The authorization code from GitHub
    * @returns Object containing access token, user profile, and primary email
    */
-  async completeOAuthFlow(code: string): Promise<{
-    accessToken: string;
-    user: GitHubUser;
-    primaryEmail: string | null;
-  }> {
+  async completeOAuthFlow(code: string) {
     const accessToken = await this.getAccessToken(code);
     const [user, primaryEmail] = await Promise.all([
       this.getUserProfile(accessToken),

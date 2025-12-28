@@ -33,7 +33,7 @@ export class GoogleOAuth {
    * @param state - CSRF protection state parameter
    * @param scopes - Array of OAuth scopes to request
    */
-  getAuthorizationUrl(state: string, scopes: string[]): string {
+  getAuthorizationUrl(state: string, scopes: string[]) {
     const params = new URLSearchParams({
       client_id: config.googleClientId,
       redirect_uri: GoogleOAuth.redirectUri,
@@ -51,7 +51,7 @@ export class GoogleOAuth {
    * Exchange an authorization code for an access token
    * @param code - The authorization code from Google
    */
-  async getAccessToken(code: string): Promise<string> {
+  async getAccessToken(code: string) {
     const response = await fetch("https://oauth2.googleapis.com/token", {
       method: "POST",
       headers: {
@@ -85,7 +85,7 @@ export class GoogleOAuth {
    * Get the authenticated user's profile information
    * @param accessToken - The Google access token
    */
-  async getUserInfo(accessToken: string): Promise<GoogleUserInfo> {
+  async getUserInfo(accessToken: string) {
     const response = await fetch(
       "https://www.googleapis.com/oauth2/v2/userinfo",
       {
@@ -110,10 +110,7 @@ export class GoogleOAuth {
    * @param code - The authorization code from Google
    * @returns Object containing access token and user info
    */
-  async completeOAuthFlow(code: string): Promise<{
-    accessToken: string;
-    userInfo: GoogleUserInfo;
-  }> {
+  async completeOAuthFlow(code: string) {
     const accessToken = await this.getAccessToken(code);
     const userInfo = await this.getUserInfo(accessToken);
 

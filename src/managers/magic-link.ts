@@ -20,7 +20,7 @@ export class MagicLinkManager {
     email: string,
     code: string,
     timestamp: number = Date.now(),
-  ): boolean {
+  ) {
     // Check 1 past, current, and 1 future time window
     for (let offset = -1; offset <= 1; offset++) {
       const checkTimestamp = timestamp + offset * totpWindow;
@@ -37,7 +37,7 @@ export class MagicLinkManager {
   /**
    * Generate a complete magic link URL with encoded state.
    */
-  generateMagicLinkUrl(email: string): string {
+  generateMagicLinkUrl(email: string) {
     const code = this.generateMagicLinkCode(email);
     const state: MagicLinkState = { email, code };
     const encodedState = Buffer.from(JSON.stringify(state)).toString("base64");
@@ -49,7 +49,7 @@ export class MagicLinkManager {
   /**
    * Decode and verify magic link state parameter.
    */
-  decodeMagicLinkState(encodedState: string): MagicLinkState | null {
+  decodeMagicLinkState(encodedState: string) {
     const decoded = Buffer.from(encodedState, "base64").toString("utf-8");
 
     let state: unknown;
@@ -84,10 +84,7 @@ export class MagicLinkManager {
   /**
    * Generate HMAC-based code for magic link authentication
    */
-  private generateMagicLinkCode(
-    email: string,
-    timestamp: number = Date.now(),
-  ): string {
+  private generateMagicLinkCode(email: string, timestamp: number = Date.now()) {
     const timeWindow = Math.floor(timestamp / totpWindow);
 
     const hmac = crypto.createHmac("sha256", config.totpSecret);

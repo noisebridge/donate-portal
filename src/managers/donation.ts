@@ -7,16 +7,9 @@ export enum DonationErrorCode {
   SessionError = "Unable to process donation. Please try again.",
 }
 
-export interface DonateResult {
-  success: true;
-  checkoutUrl: string;
-  sessionId: string;
-}
-
-export interface DonateError {
-  success: false;
-  error: DonationErrorCode;
-}
+export type DonateResult =
+  | { success: true; checkoutUrl: string; sessionId: string }
+  | { success: false; error: DonationErrorCode };
 
 export class DonationManager {
   static readonly minimumAmount: Cents = { cents: 200 };
@@ -31,7 +24,7 @@ export class DonationManager {
     amount: Cents,
     name?: string,
     description?: string,
-  ): Promise<DonateResult | DonateError> {
+  ): Promise<DonateResult> {
     if (amount.cents < DonationManager.minimumAmount.cents) {
       return { success: false, error: DonationErrorCode.InvalidAmount };
     }
