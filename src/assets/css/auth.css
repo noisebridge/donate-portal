@@ -1,23 +1,5 @@
 /* Auth Page Styles */
 
-.error-banner {
-  /* biome-ignore lint/complexity/noImportantStyles: Gotta do what I gotta do */
-  max-width: var(--skinny-container-max-width) !important;
-  width: 100%;
-  margin: 0 auto;
-}
-
-.auth-card {
-  background-color: var(--color-white);
-  border: 1px solid var(--color-border);
-  border-radius: 12px;
-  padding: var(--spacing-xl);
-  max-width: var(--skinny-container-max-width);
-  width: 100%;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-  margin: 0 auto;
-}
-
 .auth-title {
   font-size: 2rem;
   font-weight: 700;
@@ -147,11 +129,6 @@
 
 /* Responsive */
 @media (max-width: 768px) {
-  .auth-card {
-    padding: var(--spacing-lg);
-    border-radius: 8px;
-  }
-
   .auth-title {
     font-size: 1.75rem;
   }

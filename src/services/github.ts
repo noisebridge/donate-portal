@@ -60,6 +60,7 @@ export class GitHubOAuth {
         headers: {
           "Content-Type": "application/json",
           Accept: "application/json",
+          "User-Agent": userAgent,
         },
         body: JSON.stringify({
           client_id: config.githubClientId,

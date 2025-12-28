@@ -15,19 +15,6 @@
   line-height: 1.2;
 }
 
-.card {
-  background-color: var(--color-white);
-  border: 1px solid var(--color-border);
-  border-radius: 12px;
-  padding: var(--spacing-xl);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-  transition: box-shadow 0.2s ease;
-}
-
-.card:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-}
-
 .card h2 {
   font-size: 1.5rem;
   font-weight: 600;
@@ -150,10 +137,6 @@ input[type="radio"]:focus + .btn-amount {
 @media (max-width: 768px) {
   .hero h1 {
     font-size: 2.25rem;
-  }
-
-  .card {
-    padding: var(--spacing-lg);
   }
 
   .amount-buttons {

@@ -1,17 +1,5 @@
 /* Auth Email Waiting Page Styles */
 
-.email-waiting-card {
-  background-color: var(--color-white);
-  border: 1px solid var(--color-border);
-  border-radius: 12px;
-  padding: var(--spacing-xxl);
-  max-width: var(--skinny-container-max-width);
-  width: 100%;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-  text-align: center;
-  margin: 0 auto;
-}
-
 .email-icon-wrapper {
   display: flex;
   justify-content: center;
@@ -58,11 +46,6 @@
 
 /* Responsive */
 @media (max-width: 768px) {
-  .email-waiting-card {
-    padding: var(--spacing-xl);
-    border-radius: 8px;
-  }
-
   .email-icon {
     width: 64px;
     height: 64px;
