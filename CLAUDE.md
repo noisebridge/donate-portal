@@ -2,6 +2,14 @@
 
 This site is a basic donation portal for the Noisebridge hackerspace.
 
+# Scripts
+
+* `bun run dev` - Start dev server
+* `bun run lint:fix` - Lint and automatically apply fixes
+* `bun run check` - Run TypeScript compiler
+* `bun run test` - Run unit tests
+* `bun run test:e2e` - Run integration tests
+
 # Database
 
 This site does not have its own database. All persistence comes from Stripe. You
