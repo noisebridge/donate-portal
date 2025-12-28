@@ -13,8 +13,10 @@ export function NotFoundPage({ isAuthenticated }: NotFoundProps) {
       styles="error.css"
       isAuthenticated={isAuthenticated}
     >
-      <div class="error-page">
-        <h1 class="error-heading">Page Not Found</h1>
+      <div class="container">
+        <div class="error-page">
+          <h1 class="error-heading">Page Not Found</h1>
+        </div>
       </div>
     </Layout>
   );

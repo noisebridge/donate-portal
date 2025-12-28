@@ -44,9 +44,7 @@ export function Layout({
         </head>
         <body>
           <Navbar isAuthenticated={isAuthenticated} />
-          <main class="main-content">
-            <div class="container">{children}</div>
-          </main>
+          <main class="main-content">{children}</main>
           <footer>
             <p>
               Noisebridge is a 501(c)(3) non-profit

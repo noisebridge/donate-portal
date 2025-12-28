@@ -28,33 +28,35 @@ export function ManagePage({
       script="manage.mjs"
       isAuthenticated
     >
-      <div class="manage-header">
-        <h1>{customer ? "Manage your Donation" : "Start a Donation"}</h1>
-        <p>
-          You're signed in as <strong>{email}</strong>
-        </p>
-      </div>
-
-      <NotificationContainer notifications={notifications} />
-
-      <DonationTierSelector subscription={subscription} />
-
-      {subscription && (
-        <form
-          method="POST"
-          action="/cancel"
-          class="card cancel-subscription-form"
-        >
-          <p class="form-description">
-            If you want to cancel your monthly donation double click the button
-            below.
+      <div class="container">
+        <div class="manage-header">
+          <h1>{customer ? "Manage your Donation" : "Start a Donation"}</h1>
+          <p>
+            You're signed in as <strong>{email}</strong>
           </p>
+        </div>
 
-          <button type="submit" class="btn btn-secondary btn-large">
-            Cancel Monthly Donation
-          </button>
-        </form>
-      )}
+        <NotificationContainer notifications={notifications} />
+
+        <DonationTierSelector subscription={subscription} />
+
+        {subscription && (
+          <form
+            method="POST"
+            action="/cancel"
+            class="card cancel-subscription-form"
+          >
+            <p class="form-description">
+              If you want to cancel your monthly donation double click the
+              button below.
+            </p>
+
+            <button type="submit" class="btn btn-secondary btn-large">
+              Cancel Monthly Donation
+            </button>
+          </form>
+        )}
+      </div>
     </Layout>
   );
 }
