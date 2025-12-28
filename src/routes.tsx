@@ -107,7 +107,11 @@ async function rawBody(
 ): Promise<stream.Readable> {
   const chunks: Buffer[] = [];
   for await (const chunk of payload) {
-    chunks.push(chunk as Buffer);
+    if (!Buffer.isBuffer(chunk)) {
+      throw new Error("Expected chunk to be a Buffer");
+    }
+
+    chunks.push(chunk);
   }
 
   request.rawBody = Buffer.concat(chunks);
