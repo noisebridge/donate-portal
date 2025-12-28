@@ -1,14 +1,17 @@
 // biome-ignore lint/correctness/noUnusedImports: Html is used by JSX
 import Html from "@kitajs/html";
-import { ErrorBanner } from "~/components/error-banner";
 import { Layout } from "~/components/layout";
+import {
+  type Notification,
+  NotificationContainer,
+} from "~/components/notification-container";
 
 export interface IndexProps {
   isAuthenticated: boolean;
-  error?: string | undefined;
+  notifications?: Notification[];
 }
 
-export function IndexPage({ isAuthenticated, error }: IndexProps) {
+export function IndexPage({ isAuthenticated, notifications = [] }: IndexProps) {
   return (
     <Layout
       title="Donate to Noisebridge!"
@@ -24,7 +27,7 @@ export function IndexPage({ isAuthenticated, error }: IndexProps) {
         </p>
       </section>
 
-      <ErrorBanner error={error} />
+      <NotificationContainer notifications={notifications} />
 
       <div class="card">
         <h2>Monthly Donation</h2>

@@ -2,21 +2,24 @@
 import Html from "@kitajs/html";
 import type Stripe from "stripe";
 import { DonationTierSelector } from "~/components/donation-tier-selector";
-import { ErrorBanner } from "~/components/error-banner";
 import { Layout } from "~/components/layout";
+import {
+  type Notification,
+  NotificationContainer,
+} from "~/components/notification-container";
 
 export interface ManageProps {
   email: string;
   customer?: Stripe.Customer | undefined;
   subscription?: Stripe.Subscription | undefined;
-  error?: string | undefined;
+  notifications?: Notification[];
 }
 
 export function ManagePage({
   email,
   customer,
   subscription,
-  error,
+  notifications = [],
 }: ManageProps) {
   return (
     <Layout
@@ -32,11 +35,7 @@ export function ManagePage({
         </p>
       </div>
 
-      <ErrorBanner error={error} />
-
-      {subscription?.status === "past_due" && (
-        <ErrorBanner error="Your subcription is past due! Click the Payment Methods button to fix it." />
-      )}
+      <NotificationContainer notifications={notifications} />
 
       <DonationTierSelector subscription={subscription} />
 

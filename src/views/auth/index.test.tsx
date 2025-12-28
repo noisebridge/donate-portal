@@ -11,13 +11,17 @@ describe("AuthPage", () => {
     expect(result.length).toBeGreaterThan(0);
   });
 
-  test("should display error message when provided", async () => {
+  test("should display error notification when provided", async () => {
     const errorMessage = "Invalid credentials";
     const result = await (
-      <AuthPage isAuthenticated={false} error={errorMessage} />
+      <AuthPage
+        isAuthenticated={false}
+        notifications={[{ type: "error", message: errorMessage }]}
+      />
     );
 
     expect(result).toBeTypeOf("string");
     expect(result).toContain(errorMessage);
+    expect(result).toContain('class="notification notification-error"');
   });
 });

@@ -12,21 +12,39 @@ describe("ManagePage", () => {
     expect(result).toContain("test@example.com");
   });
 
-  test("should display error message when provided", async () => {
+  test("should display error notification when provided", async () => {
     const errorMessage = "Failed to update subscription";
     const result = await (
-      <ManagePage email="test@example.com" error={errorMessage} />
+      <ManagePage
+        email="test@example.com"
+        notifications={[{ type: "error", message: errorMessage }]}
+      />
     );
 
     expect(result).toBeTypeOf("string");
     expect(result).toContain(errorMessage);
+    expect(result).toContain('class="notification notification-error"');
   });
 
-  test("should not display error banner when no error provided", async () => {
+  test("should display info notification when provided", async () => {
+    const infoMessage = "Your donation amount has been updated.";
+    const result = await (
+      <ManagePage
+        email="test@example.com"
+        notifications={[{ type: "info", message: infoMessage }]}
+      />
+    );
+
+    expect(result).toBeTypeOf("string");
+    expect(result).toContain(infoMessage);
+    expect(result).toContain('class="notification notification-info"');
+  });
+
+  test("should not display notification when no notifications provided", async () => {
     const result = await (<ManagePage email="test@example.com" />);
 
     expect(result).toBeTypeOf("string");
-    expect(result).not.toContain('class="error-banner"');
+    expect(result).not.toContain('class="notification ');
   });
 
   test("should display cancel form when subscription exists", async () => {

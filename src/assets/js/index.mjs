@@ -1,6 +1,8 @@
 // @ts-check
 
-document.addEventListener("DOMContentLoaded", () => {
+import { initNotifications } from "./notifications.mjs";
+
+function handleCustomInput() {
   const customAmountInput = /** @type {HTMLInputElement} */ (
     document.getElementById("custom-amount")
   );
@@ -23,4 +25,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     radio.addEventListener("input", eventHandler);
   });
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  initNotifications();
+  handleCustomInput();
 });

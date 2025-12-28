@@ -1,5 +1,7 @@
 // @ts-check
 
+import { initNotifications } from "./notifications.mjs";
+
 function customAmountHandler() {
   const customTierRadio = /** @type {HTMLInputElement} */ (
     document.getElementById("tier-custom")
@@ -58,6 +60,7 @@ function cancelFormHandler() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+  initNotifications();
   customAmountHandler();
   cancelFormHandler();
 });

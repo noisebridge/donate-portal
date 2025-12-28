@@ -1,6 +1,7 @@
 import type Stripe from "stripe";
 import config from "~/config";
 import type { Cents } from "~/money";
+import { InfoCode } from "~/routes";
 import stripe from "~/services/stripe";
 import emailManager from "./email";
 
@@ -138,7 +139,7 @@ export class SubscriptionManager {
           quantity: 1,
         },
       ],
-      success_url: `${config.serverProtocol}://${config.serverHost}/manage`,
+      success_url: `${config.serverProtocol}://${config.serverHost}/manage?info=${encodeURIComponent(InfoCode.SubscriptionCreated)}`,
       cancel_url: `${config.serverProtocol}://${config.serverHost}/manage`,
     });
 
