@@ -11,9 +11,7 @@ import type { Message } from "~/components/message-container";
 import config from "~/config";
 import donationManager from "~/managers/donation";
 import magicLinkManager from "~/managers/magic-link";
-import subscriptionManager, {
-  type SubscriptionInfo,
-} from "~/managers/subscription";
+import subscriptionManager from "~/managers/subscription";
 import { parseToCents, validateAmountFormData } from "~/money";
 import githubOAuth from "~/services/github";
 import googleOAuth from "~/services/google";
@@ -437,20 +435,9 @@ export default async function routes(fastify: FastifyInstance) {
       return reply.redirect(paths.index());
     }
 
-    let customerSubscription: SubscriptionInfo | undefined;
-    try {
-      customerSubscription = await subscriptionManager.getSubscription(
-        sessionData.email,
-      );
-    } catch (error) {
-      fastify.log.error(
-        error,
-        "Error fetching Stripe customer/subscription data",
-      );
-    }
-    if (!customerSubscription) {
-      throw new Error("No customer subscription found");
-    }
+    const customerSubscription = await subscriptionManager.getSubscription(
+      sessionData.email,
+    );
 
     const { error, info } = request.query;
 

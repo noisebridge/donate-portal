@@ -1,5 +1,6 @@
 import type Stripe from "stripe";
 import config from "~/config";
+import { baseLogger } from "~/logger";
 import type { Cents } from "~/money";
 import { InfoCode } from "~/routes";
 import stripe from "~/services/stripe";
@@ -31,9 +32,11 @@ export type PortalResult =
 export interface SubscriptionInfo {
   customer?: Stripe.Customer | undefined;
   subscription?: Stripe.Subscription | undefined;
+  migrated?: boolean;
 }
 
 export class SubscriptionManager {
+  static readonly log = baseLogger.child({ class: "SubscriptionManager" });
   static readonly minimumAmount: Cents = { cents: 500 };
   static readonly productId = "monthly_donation";
 
@@ -76,14 +79,17 @@ export class SubscriptionManager {
     if (!subscription) {
       return { customer };
     }
-    if (!this.validateSubscription(subscription)) {
-      throw new Error("Subscription is not valid");
-    }
 
-    return { customer, subscription };
+    const migrated = this.migratedSubscription(subscription);
+
+    return { customer, subscription, migrated };
   }
 
-  private validateSubscription(subscription: Stripe.Subscription) {
+  /**
+   * Whether a subscription has been migrated from ones made by the previous
+   * Python app.
+   */
+  private migratedSubscription(subscription: Stripe.Subscription) {
     const items = subscription.items.data;
     if (items.length !== 1) {
       return false;
@@ -168,23 +174,27 @@ export class SubscriptionManager {
       return { success: false, error: SubscriptionErrorCode.NoLineItem };
     }
 
-    // Update subscription with new price - no checkout needed since payment method exists
-    await stripe.subscriptions.update(subscription.id, {
-      items: [
-        {
-          id: existingItemId,
-          price_data: {
-            currency: "usd",
-            product: SubscriptionManager.productId,
-            unit_amount: amount.cents,
-            recurring: {
-              interval: "month",
+    try {
+      await stripe.subscriptions.update(subscription.id, {
+        items: [
+          {
+            id: existingItemId,
+            price_data: {
+              currency: "usd",
+              product: SubscriptionManager.productId,
+              unit_amount: amount.cents,
+              recurring: {
+                interval: "month",
+              },
             },
           },
-        },
-      ],
-      proration_behavior: "create_prorations",
-    });
+        ],
+        proration_behavior: "none",
+      });
+    } catch (error) {
+      SubscriptionManager.log.error({ error }, "Failed to update subscription");
+      return { success: false, error: SubscriptionErrorCode.UpdateError };
+    }
 
     return { success: true };
   }
