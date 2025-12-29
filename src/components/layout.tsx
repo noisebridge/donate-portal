@@ -32,7 +32,7 @@ export function Layout({
             content="width=device-width, initial-scale=1.0"
           />
           <title>{title} | Noisebridge</title>
-          <link rel="icon" href="/assets/image/favicon.ico" />
+          <link rel="icon" href="/assets/image/favicon.svg" />
           <link rel="stylesheet" href="/assets/css/reset.css" />
           <link rel="stylesheet" href="/assets/css/main.css" />
           {styles && <link rel="stylesheet" href={`/assets/css/${styles}`} />}
