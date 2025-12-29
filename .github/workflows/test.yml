@@ -1,0 +1,89 @@
+name: Test
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Run TypeScript check
+        run: bun x tsc --noEmit
+
+      - name: Run tests
+        run: bun test
+        env:
+          SERVER_HOST: 127.0.0.1:3000
+          STRIPE_SECRET: ${{ secrets.STRIPE_SECRET }}
+          STRIPE_PORTAL_CONFIG: ${{ secrets.STRIPE_PORTAL_CONFIG }}
+          GITHUB_CLIENT_ID: ${{ secrets._GITHUB_CLIENT_ID }}
+          GITHUB_SECRET: ${{ secrets._GITHUB_SECRET }}
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_SECRET: ${{ secrets.GOOGLE_SECRET }}
+          COOKIE_SECRET: insecure!
+          RESEND_KEY: ${{ secrets.RESEND_KEY }}
+          TOTP_SECRET: insecure!
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Run linter
+        run: bun run lint
+
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Install Playwright browsers
+        run: bunx playwright install firefox --with-deps
+
+      - name: Run E2E tests
+        run: bun run test:e2e || bun run clean-up-test-data
+        env:
+          SERVER_HOST: 127.0.0.1:3000
+          STRIPE_SECRET: ${{ secrets.STRIPE_SECRET }}
+          STRIPE_PORTAL_CONFIG: ${{ secrets.STRIPE_PORTAL_CONFIG }}
+          GITHUB_CLIENT_ID: ${{ secrets._GITHUB_CLIENT_ID }}
+          GITHUB_SECRET: ${{ secrets._GITHUB_SECRET }}
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_SECRET: ${{ secrets.GOOGLE_SECRET }}
+          COOKIE_SECRET: insecure!
+          RESEND_KEY: ${{ secrets.RESEND_KEY }}
+          TOTP_SECRET: insecure!
+
+      - uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7
