@@ -42,7 +42,7 @@ export function getRandomState() {
   return crypto.randomBytes(32).toString("hex");
 }
 
-type NotificationParams = Partial<Record<Message["type"], string>>;
+type MessageParams = Partial<Record<Message["type"], string>>;
 
 /**
  * Format a page path with query params.
@@ -57,13 +57,13 @@ function formatPath(path: string, params?: Record<string, string>) {
 }
 
 const paths = {
-  index: (params?: NotificationParams) => formatPath("/", params),
-  signIn: (params?: NotificationParams) => formatPath("/auth", params),
+  index: (params?: MessageParams) => formatPath("/", params),
+  signIn: (params?: MessageParams) => formatPath("/auth", params),
   waitForEmail: (email: string) => formatPath("/auth/email", { email }),
   signOut: "/auth/signout",
   githubStart: "/auth/github/start",
   googleStart: "/auth/google/start",
-  manage: (params?: NotificationParams) => formatPath("/manage", params),
+  manage: (params?: MessageParams) => formatPath("/manage", params),
 } as const;
 
 export enum ErrorCode {
@@ -157,7 +157,7 @@ export default async function routes(fastify: FastifyInstance) {
   });
 
   fastify.get<{
-    Querystring: NotificationParams;
+    Querystring: MessageParams;
   }>("/", async (request, reply) => {
     const error = request.query.error;
     const messages: Message[] = [];
@@ -174,7 +174,7 @@ export default async function routes(fastify: FastifyInstance) {
   });
 
   fastify.get<{
-    Querystring: NotificationParams;
+    Querystring: MessageParams;
   }>("/auth", async (request, reply) => {
     if (isAuthenticated(request, reply)) {
       return reply.redirect(paths.manage());
@@ -208,7 +208,7 @@ export default async function routes(fastify: FastifyInstance) {
   });
 
   fastify.get<{
-    Querystring: { code?: string; state?: string } & NotificationParams;
+    Querystring: { code?: string; state?: string } & MessageParams;
   }>("/auth/github/callback", async (request, reply) => {
     if (request.query.error) {
       fastify.log.warn({ error: request.query.error }, "GitHub OAuth error");
@@ -268,7 +268,7 @@ export default async function routes(fastify: FastifyInstance) {
   });
 
   fastify.get<{
-    Querystring: { code?: string; state?: string } & NotificationParams;
+    Querystring: { code?: string; state?: string } & MessageParams;
   }>("/auth/google/callback", async (request, reply) => {
     if (request.query.error) {
       fastify.log.warn({ error: request.query.error }, "Google OAuth error");
@@ -425,7 +425,7 @@ export default async function routes(fastify: FastifyInstance) {
   });
 
   fastify.get<{
-    Querystring: NotificationParams;
+    Querystring: MessageParams;
   }>("/manage", async (request, reply) => {
     const sessionCookie = cookies[CookieName.UserSession](request, reply);
     const sessionData = sessionCookie.value;
