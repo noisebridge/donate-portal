@@ -4,18 +4,12 @@
 
 .manage-header h1 {
   font-size: 2.5rem;
-  color: var(--text-primary);
-}
-
-.card h2 {
-  font-size: 1.5rem;
-  margin-bottom: 1.5rem;
-  color: var(--text-primary);
+  color: var(--color-text);
 }
 
 /* Donation Tier Selector Styles */
 .donation-tier-form {
-  background: var(--card-bg);
+  background: var(--color-white);
   border-radius: 12px;
   padding: 2rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -24,13 +18,13 @@
 .donation-tier-form h2 {
   font-size: 1.75rem;
   margin-bottom: 0.5rem;
-  color: var(--text-primary);
+  color: var(--color-text);
   text-align: center;
 }
 
 .form-description {
   text-align: center;
-  color: var(--text-secondary);
+  color: var(--color-text-light);
   margin-bottom: 2rem;
 }
 
@@ -45,15 +39,15 @@
   position: relative;
   display: block;
   padding: 1.5rem;
-  background: var(--bg-secondary);
-  border: 2px solid var(--border-color, #e0e0e0);
+  background: var(--color-background);
+  border: 2px solid var(--color-border);
   border-radius: 12px;
   cursor: pointer;
   transition: all 0.3s ease;
 }
 
 .tier-card:hover {
-  border-color: var(--primary-color);
+  border-color: var(--color-primary);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
@@ -73,13 +67,13 @@
   font-size: 1.25rem;
   font-weight: 600;
   margin-bottom: 1rem;
-  color: var(--text-primary);
+  color: var(--color-text);
 }
 
 .tier-amount {
   font-size: 2rem;
   font-weight: 700;
-  color: var(--text-primary);
+  color: var(--color-text);
   display: flex;
   align-items: baseline;
   justify-content: center;
@@ -94,7 +88,7 @@
 .tier-amount .period {
   font-size: 1rem;
   font-weight: 400;
-  color: var(--text-secondary);
+  color: var(--color-text-light);
 }
 
 .tier-checkmark {
@@ -105,7 +99,7 @@
   height: 24px;
   opacity: 0;
   transition: opacity 0.3s ease;
-  color: var(--primary-color);
+  color: var(--color-primary);
 }
 
 .tier-card input[type="radio"]:checked ~ .tier-checkmark {
@@ -113,9 +107,9 @@
 }
 
 .tier-card:has(input[type="radio"]:checked) {
-  border-color: var(--primary-color);
-  background: var(--primary-light, rgba(99, 102, 241, 0.05));
-  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+  border-color: var(--color-primary);
+  background: rgba(204, 51, 51, 0.05);
+  box-shadow: 0 4px 12px rgba(204, 51, 51, 0.2);
 }
 
 .custom-amount-input {
@@ -129,13 +123,13 @@
 .custom-amount-input .currency {
   font-size: 1.25rem;
   font-weight: 600;
-  color: var(--text-primary);
+  color: var(--color-text);
 }
 
 .custom-amount-input .period {
   font-size: 0.875rem;
   font-weight: 400;
-  color: var(--text-secondary);
+  color: var(--color-text-light);
 }
 
 .custom-input {
@@ -144,34 +138,23 @@
   font-size: 1.5rem;
   font-weight: 700;
   text-align: center;
-  border: 1px solid var(--border-color, #e0e0e0);
+  border: 1px solid var(--color-border);
   border-radius: 6px;
-  background: var(--card-bg);
-  color: var(--text-primary);
+  background: var(--color-white);
+  color: var(--color-text);
   transition: border-color 0.3s ease;
 }
 
 .custom-input:focus {
   outline: none;
-  border-color: var(--primary-color);
+  border-color: var(--color-primary);
 }
 
 .custom-input::placeholder {
-  color: var(--text-secondary);
+  color: var(--color-text-light);
   opacity: 0.5;
   font-size: 1.5rem;
   font-weight: 400;
-}
-
-.custom-input::-webkit-outer-spin-button,
-.custom-input::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
-
-.custom-input[type="number"] {
-  -moz-appearance: textfield;
-  appearance: textfield;
 }
 
 @media (max-width: 768px) {

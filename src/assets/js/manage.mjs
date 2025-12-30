@@ -41,7 +41,6 @@ function cancelFormHandler() {
       event.preventDefault();
       confirmClicked = true;
       cancelButton.textContent = "Press again to confirm";
-      cancelButton.classList.add("btn-warning");
     }
   });
 

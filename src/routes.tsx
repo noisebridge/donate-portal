@@ -324,7 +324,7 @@ export default async function routes(fastify: FastifyInstance) {
 
     const email = request.query.email;
     if (!email) {
-      fastify.log.warn("Missing email parameter in /auth/email");
+      fastify.log.warn("Missing email parameter");
       return reply.redirect(paths.signIn({ error: ErrorCode.InvalidRequest }));
     }
 

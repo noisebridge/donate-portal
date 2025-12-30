@@ -6,22 +6,22 @@
 
 .error-heading {
   font-size: 2.5rem;
-  color: #d32f2f;
+  color: var(--color-error);
   margin-bottom: 2rem;
   text-align: center;
 }
 
 .error-details {
-  background-color: #f5f5f5;
+  background-color: var(--color-background);
   padding: 1.5rem;
   border-radius: 4px;
-  border-left: 4px solid #d32f2f;
+  border-left: 4px solid var(--color-error);
 }
 
 .error-details h2 {
   font-size: 1.2rem;
   margin-bottom: 1rem;
-  color: #333;
+  color: var(--color-text);
 }
 
 .error-message,
@@ -35,15 +35,15 @@
 }
 
 .error-details pre {
-  background-color: #fff;
+  background-color: var(--color-white);
   padding: 1rem;
   border-radius: 4px;
   overflow-x: auto;
   font-family: "Courier New", Courier, monospace;
   font-size: 0.9rem;
   line-height: 1.5;
-  color: #d32f2f;
-  border: 1px solid #ddd;
+  color: var(--color-error);
+  border: 1px solid var(--color-border);
 }
 
 @media (max-width: 768px) {

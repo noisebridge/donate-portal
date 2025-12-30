@@ -126,11 +126,7 @@ export function DonationTierSelector({
       </button>
 
       {subscription && (
-        <a
-          href={paths.stripePortal()}
-          class="btn btn-outline btn-large"
-          style="margin-top: 1rem;"
-        >
+        <a href={paths.stripePortal()} class="btn btn-outline btn-large mt-md">
           Past Invoices and Payment Methods
         </a>
       )}

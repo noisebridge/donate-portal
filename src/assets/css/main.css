@@ -17,6 +17,7 @@
 
 :root {
   --color-primary: #cc3333;
+  --color-error: #d32f2f;
   --color-text: #1a1a1a;
   --color-text-light: #666666;
   --color-white: #ffffff;
@@ -187,6 +188,48 @@ body {
   text-align: center;
 }
 
+.mt-md {
+  margin-top: var(--spacing-sm);
+}
+
+.page-icon-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: var(--spacing-lg);
+}
+
+.page-icon {
+  width: 80px;
+  height: 80px;
+  color: var(--color-primary);
+  opacity: 0.9;
+}
+
+.page-title {
+  font-family: var(--font-eurostile);
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0 0 var(--spacing-md) 0;
+  color: var(--color-text);
+}
+
+.page-message {
+  color: var(--color-text);
+  font-size: 1rem;
+  line-height: 1.6;
+  margin: 0 0 var(--spacing-md) 0;
+}
+
+.page-message-muted {
+  color: var(--color-text-light);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  margin: 0;
+  padding-top: var(--spacing-md);
+  border-top: 1px solid var(--color-border);
+}
+
 .btn {
   display: inline-block;
   padding: 0.875rem 1.75rem;
@@ -326,5 +369,22 @@ footer p {
   .logo {
     width: 40px;
     height: 40px;
+  }
+
+  .page-icon {
+    width: 64px;
+    height: 64px;
+  }
+
+  .page-title {
+    font-size: 1.75rem;
+  }
+
+  .page-message {
+    font-size: 0.9375rem;
+  }
+
+  .page-message-muted {
+    font-size: 0.875rem;
   }
 }

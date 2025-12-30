@@ -7,24 +7,20 @@ export interface ThankYouProps {
 
 export function ThankYouPage({ isAuthenticated }: ThankYouProps) {
   return (
-    <Layout
-      title="Thank You!"
-      styles="thank-you.css"
-      isAuthenticated={isAuthenticated}
-    >
+    <Layout title="Thank You!" isAuthenticated={isAuthenticated}>
       <div class="container-narrow">
         <div class="card text-center">
-          <div class="thank-you-icon-wrapper">
+          <div class="page-icon-wrapper">
             <img
-              class="thank-you-icon"
+              class="page-icon"
               src="/assets/image/checkmark.svg"
               alt="Success checkmark"
             />
           </div>
 
-          <h1 class="thank-you-title">Thank you for your donation!</h1>
+          <h1 class="page-title">Thank you for your donation!</h1>
 
-          <p class="thank-you-message">
+          <p class="page-message">
             Your support helps keep Noisebridge running and accessible to
             everyone.
           </p>
