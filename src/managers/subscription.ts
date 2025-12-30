@@ -81,27 +81,7 @@ export class SubscriptionManager {
       return { customer };
     }
 
-    const migrated = this.migratedSubscription(subscription);
-
-    return { customer, subscription, migrated };
-  }
-
-  /**
-   * Whether a subscription has been migrated from ones made by the previous
-   * Python app.
-   */
-  private migratedSubscription(subscription: Stripe.Subscription) {
-    const items = subscription.items.data;
-    if (items.length !== 1) {
-      return false;
-    }
-
-    const item = items[0];
-    if (item?.price?.product !== SubscriptionManager.productId) {
-      return false;
-    }
-
-    return true;
+    return { customer, subscription };
   }
 
   /**
