@@ -1,4 +1,5 @@
 import { Layout } from "~/components/layout";
+import paths from "~/paths";
 
 export interface ThankYouProps {
   isAuthenticated: boolean;
@@ -28,7 +29,7 @@ export function ThankYouPage({ isAuthenticated }: ThankYouProps) {
             everyone.
           </p>
 
-          <a href="/" class="btn btn-primary btn-large">
+          <a href={paths.index()} class="btn btn-primary btn-large">
             Return to Home
           </a>
         </div>

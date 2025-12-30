@@ -2,6 +2,7 @@ import type Stripe from "stripe";
 import config from "~/config";
 import { baseLogger } from "~/logger";
 import type { Cents } from "~/money";
+import paths from "~/paths";
 import { InfoCode } from "~/routes";
 import stripe from "~/services/stripe";
 import emailManager from "./email";
@@ -145,8 +146,8 @@ export class SubscriptionManager {
           quantity: 1,
         },
       ],
-      success_url: `${config.serverProtocol}://${config.serverHost}/manage?info=${encodeURIComponent(InfoCode.SubscriptionCreated)}`,
-      cancel_url: `${config.serverProtocol}://${config.serverHost}/manage`,
+      success_url: `${config.baseUrl}${paths.manage({ info: InfoCode.SubscriptionCreated })}`,
+      cancel_url: `${config.baseUrl}${paths.manage()}`,
     });
 
     const checkoutUrl = session.url;
@@ -236,7 +237,7 @@ export class SubscriptionManager {
     const session = await stripe.billingPortal.sessions.create({
       configuration: config.stripePortalConfig,
       customer: customer.id,
-      return_url: `${config.serverProtocol}://${config.serverHost}/manage`,
+      return_url: `${config.baseUrl}${paths.manage()}`,
     });
 
     if (!session.url) {

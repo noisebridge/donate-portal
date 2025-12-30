@@ -1,4 +1,5 @@
 import type Stripe from "stripe";
+import paths from "~/paths";
 
 interface Tier {
   id: string;
@@ -51,7 +52,7 @@ export function DonationTierSelector({
     subscriptionRenewalDate(subscription)?.toLocaleDateString();
 
   return (
-    <form method="POST" action="/subscribe" class="donation-tier-form">
+    <form method="POST" action={paths.subscribe()} class="donation-tier-form">
       <p class="form-description">
         {renewalDate
           ? `Your monthly donation renews on ${renewalDate}`
@@ -126,7 +127,7 @@ export function DonationTierSelector({
 
       {subscription && (
         <a
-          href="/subscribe/portal"
+          href={paths.stripePortal()}
           class="btn btn-outline btn-large"
           style="margin-top: 1rem;"
         >

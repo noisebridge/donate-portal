@@ -71,6 +71,25 @@ export function HomePage() {
 }
 ```
 
+## Path Definitions
+
+All paths are defined in `src/paths` and are exported as the default export in a
+object keyed by a name with corresponding values as functions that return the
+path with optional parameters.
+
+Every reference to a path for this system should be made using one of these path
+functions, ex:
+
+```tsx
+<a
+  href={paths.stripePortal()}
+  class="btn btn-outline btn-large"
+  style="margin-top: 1rem;"
+>
+  Past Invoices and Payment Methods
+</a>
+````
+
 ## Client-Side JavaScript
 
 - Put page-specific JS in `src/assets/js/{page}.mjs`

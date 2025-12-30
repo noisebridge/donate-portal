@@ -1,5 +1,6 @@
 import config from "~/config";
 import type { Cents } from "~/money";
+import paths from "~/paths";
 import stripe from "~/services/stripe";
 
 export enum DonationErrorCode {
@@ -29,8 +30,6 @@ export class DonationManager {
       return { success: false, error: DonationErrorCode.InvalidAmount };
     }
 
-    const baseUrl = `${config.serverProtocol}://${config.serverHost}`;
-
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       line_items: [
@@ -47,8 +46,8 @@ export class DonationManager {
         },
       ],
       mode: "payment",
-      success_url: `${baseUrl}/thank-you`,
-      cancel_url: `${baseUrl}/`,
+      success_url: `${config.baseUrl}${paths.thankYou()}`,
+      cancel_url: `${config.baseUrl}${paths.index()}`,
     });
 
     if (!session.url) {

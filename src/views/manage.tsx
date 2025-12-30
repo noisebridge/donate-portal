@@ -2,6 +2,7 @@ import type Stripe from "stripe";
 import { DonationTierSelector } from "~/components/donation-tier-selector";
 import { Layout } from "~/components/layout";
 import { type Message, MessageContainer } from "~/components/message-container";
+import paths from "~/paths";
 
 export interface ManageProps {
   email: string;
@@ -38,7 +39,7 @@ export function ManagePage({
         {subscription && (
           <form
             method="POST"
-            action="/cancel"
+            action={paths.cancel()}
             class="card cancel-subscription-form"
           >
             <p class="form-description">

@@ -1,3 +1,4 @@
+import config from "~/config";
 import { type Cents, formatAmount } from "~/money";
 import { Layout } from "./layout";
 
@@ -11,7 +12,9 @@ export interface SubscriptionCanceledEmailProps {
 export function SubscriptionCanceledEmail({
   amount,
 }: SubscriptionCanceledEmailProps): string {
-  return Layout(`
+  return Layout(
+    "Your Donation Has Been Canceled",
+    `
     <mj-text font-size="24px" font-weight="700" color="#333333" align="center" padding-bottom="20px">
       Your Donation Has Been Canceled
     </mj-text>
@@ -38,11 +41,12 @@ export function SubscriptionCanceledEmail({
     </mj-text>
     <mj-text align="center" padding-top="20px">
       We hope you'll consider supporting Noisebridge again in the future. You can set up a new donation anytime at
-      <a href="https://donate.noisebridge.net">donate.noisebridge.net</a>
+      <a href="${config.baseUrl}">${config.baseUrl}</a>
     </mj-text>
     <mj-divider border-color="#e0e0e0" padding="30px 0 20px 0" />
     <mj-text align="center" color="#888888" font-size="12px">
       Thank you for your past support of Noisebridge!
     </mj-text>
-  `);
+  `,
+  );
 }

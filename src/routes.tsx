@@ -10,9 +10,11 @@ import type Stripe from "stripe";
 import type { Message } from "~/components/message-container";
 import config from "~/config";
 import donationManager from "~/managers/donation";
+import emailManager from "~/managers/email";
 import magicLinkManager from "~/managers/magic-link";
 import subscriptionManager from "~/managers/subscription";
 import { parseToCents, validateAmountFormData } from "~/money";
+import paths, { type MessageParams } from "~/paths";
 import githubOAuth from "~/services/github";
 import googleOAuth from "~/services/google";
 import stripe from "~/services/stripe";
@@ -24,7 +26,6 @@ import { IndexPage } from "~/views/index";
 import { ManagePage } from "~/views/manage";
 import { NotFoundPage } from "~/views/not-found";
 import { ThankYouPage } from "~/views/thank-you";
-import emailManager from "./managers/email";
 
 const authRateLimit: RouteShorthandOptions = {
   config: {
@@ -41,30 +42,6 @@ const authRateLimit: RouteShorthandOptions = {
 export function getRandomState() {
   return crypto.randomBytes(32).toString("hex");
 }
-
-type MessageParams = Partial<Record<Message["type"], string>>;
-
-/**
- * Format a page path with query params.
- */
-function formatPath(path: string, params?: Record<string, string>) {
-  if (!params || Object.keys(params).length === 0) {
-    return path;
-  }
-
-  const urlSearchParams = new URLSearchParams(params);
-  return `${path}?${urlSearchParams}`;
-}
-
-const paths = {
-  index: (params?: MessageParams) => formatPath("/", params),
-  signIn: (params?: MessageParams) => formatPath("/auth", params),
-  waitForEmail: (email: string) => formatPath("/auth/email", { email }),
-  signOut: "/auth/signout",
-  githubStart: "/auth/github/start",
-  googleStart: "/auth/google/start",
-  manage: (params?: MessageParams) => formatPath("/manage", params),
-} as const;
 
 export enum ErrorCode {
   InvalidState = "Invalid OAuth state parameter",
@@ -158,7 +135,7 @@ export default async function routes(fastify: FastifyInstance) {
 
   fastify.get<{
     Querystring: MessageParams;
-  }>("/", async (request, reply) => {
+  }>(paths.index(), async (request, reply) => {
     const error = request.query.error;
     const messages: Message[] = [];
     if (error) {
@@ -175,7 +152,7 @@ export default async function routes(fastify: FastifyInstance) {
 
   fastify.get<{
     Querystring: MessageParams;
-  }>("/auth", async (request, reply) => {
+  }>(paths.signIn(), async (request, reply) => {
     if (isAuthenticated(request, reply)) {
       return reply.redirect(paths.manage());
     }
@@ -194,7 +171,7 @@ export default async function routes(fastify: FastifyInstance) {
     );
   });
 
-  fastify.get("/auth/github/start", authRateLimit, async (request, reply) => {
+  fastify.get(paths.githubStart(), authRateLimit, async (request, reply) => {
     if (isAuthenticated(request, reply)) {
       return reply.redirect(paths.manage());
     }
@@ -209,7 +186,7 @@ export default async function routes(fastify: FastifyInstance) {
 
   fastify.get<{
     Querystring: { code?: string; state?: string } & MessageParams;
-  }>("/auth/github/callback", async (request, reply) => {
+  }>(paths.githubCallback(), async (request, reply) => {
     if (request.query.error) {
       fastify.log.warn({ error: request.query.error }, "GitHub OAuth error");
       return reply.redirect(paths.signIn({ error: ErrorCode.GithubError }));
@@ -250,7 +227,7 @@ export default async function routes(fastify: FastifyInstance) {
     return reply.redirect(paths.manage());
   });
 
-  fastify.get("/auth/google/start", authRateLimit, async (request, reply) => {
+  fastify.get(paths.googleStart(), authRateLimit, async (request, reply) => {
     if (isAuthenticated(request, reply)) {
       return reply.redirect(paths.manage());
     }
@@ -269,7 +246,7 @@ export default async function routes(fastify: FastifyInstance) {
 
   fastify.get<{
     Querystring: { code?: string; state?: string } & MessageParams;
-  }>("/auth/google/callback", async (request, reply) => {
+  }>(paths.googleCallback(), async (request, reply) => {
     if (request.query.error) {
       fastify.log.warn({ error: request.query.error }, "Google OAuth error");
       return reply.redirect(paths.signIn({ error: ErrorCode.GoogleError }));
@@ -313,7 +290,7 @@ export default async function routes(fastify: FastifyInstance) {
 
   fastify.post<{
     Body: { email?: string };
-  }>("/auth/email", authRateLimit, async (request, reply) => {
+  }>(paths.emailAuth(), authRateLimit, async (request, reply) => {
     if (isAuthenticated(request, reply)) {
       return reply.redirect(paths.manage());
     }
@@ -335,12 +312,12 @@ export default async function routes(fastify: FastifyInstance) {
     request.log.info(response);
     fastify.log.info({ email }, "Magic link email sent");
 
-    return reply.redirect(paths.waitForEmail(email));
+    return reply.redirect(paths.emailAuth(email));
   });
 
   fastify.get<{
     Querystring: { email?: string };
-  }>("/auth/email", async (request, reply) => {
+  }>(paths.emailAuth(), async (request, reply) => {
     if (isAuthenticated(request, reply)) {
       return reply.redirect(paths.manage());
     }
@@ -361,7 +338,7 @@ export default async function routes(fastify: FastifyInstance) {
 
   fastify.get<{
     Querystring: { state?: string };
-  }>("/auth/magic-link/callback", async (request, reply) => {
+  }>(paths.emailCallback(), async (request, reply) => {
     const { state } = request.query;
 
     if (!state) {
@@ -398,7 +375,7 @@ export default async function routes(fastify: FastifyInstance) {
   if (config.testingBackdoor) {
     fastify.get<{
       Querystring: { email?: string };
-    }>("/auth/backdoor", async (request, reply) => {
+    }>(paths.authBackdoor(), async (request, reply) => {
       const { email } = request.query;
 
       if (!email) {
@@ -417,7 +394,7 @@ export default async function routes(fastify: FastifyInstance) {
     });
   }
 
-  fastify.get("/auth/signout", async (request, reply) => {
+  fastify.get(paths.signOut(), async (request, reply) => {
     const sessionCookie = cookies[CookieName.UserSession](request, reply);
     sessionCookie.clear();
 
@@ -426,7 +403,7 @@ export default async function routes(fastify: FastifyInstance) {
 
   fastify.get<{
     Querystring: MessageParams;
-  }>("/manage", async (request, reply) => {
+  }>(paths.manage(), async (request, reply) => {
     const sessionCookie = cookies[CookieName.UserSession](request, reply);
     const sessionData = sessionCookie.value;
     if (!sessionData) {
@@ -466,7 +443,7 @@ export default async function routes(fastify: FastifyInstance) {
     );
   });
 
-  fastify.post("/donate", async (request, reply) => {
+  fastify.post(paths.donate(), async (request, reply) => {
     const body = request.body;
     if (!validateAmountFormData(body)) {
       return reply.redirect(paths.index({ error: ErrorCode.InvalidRequest }));
@@ -496,7 +473,7 @@ export default async function routes(fastify: FastifyInstance) {
 
   fastify.get<{
     Querystring: { name?: string; description?: string; amount?: string };
-  }>("/qr", async (request, reply) => {
+  }>(paths.qr(), async (request, reply) => {
     const { name, description, amount } = request.query;
 
     const amountCents = parseToCents(amount ?? "");
@@ -520,34 +497,7 @@ export default async function routes(fastify: FastifyInstance) {
     return reply.redirect(result.checkoutUrl);
   });
 
-  fastify.get("/subscribe/portal", async (request, reply) => {
-    const sessionCookie = cookies[CookieName.UserSession](request, reply);
-    const sessionData = sessionCookie.value;
-    if (!sessionData) {
-      fastify.log.warn("Unauthenticated portal access attempt");
-      return reply.redirect(paths.signIn());
-    }
-
-    const result = await subscriptionManager.createPortalSession(
-      sessionData.email,
-    );
-    if (!result.success) {
-      fastify.log.error(
-        { email: sessionData.email, error: result.error },
-        "Failed to create billing portal session",
-      );
-      return reply.redirect(paths.manage({ error: result.error }));
-    }
-
-    fastify.log.info(
-      { email: sessionData.email },
-      "Billing portal session created",
-    );
-
-    return reply.redirect(result.portalUrl);
-  });
-
-  fastify.post("/subscribe", async (request, reply) => {
+  fastify.post(paths.subscribe(), async (request, reply) => {
     const sessionCookie = cookies[CookieName.UserSession](request, reply);
     const sessionData = sessionCookie.value;
     if (!sessionData) {
@@ -596,7 +546,34 @@ export default async function routes(fastify: FastifyInstance) {
     return reply.redirect(result.checkoutUrl);
   });
 
-  fastify.post("/cancel", async (request, reply) => {
+  fastify.get(paths.stripePortal(), async (request, reply) => {
+    const sessionCookie = cookies[CookieName.UserSession](request, reply);
+    const sessionData = sessionCookie.value;
+    if (!sessionData) {
+      fastify.log.warn("Unauthenticated portal access attempt");
+      return reply.redirect(paths.signIn());
+    }
+
+    const result = await subscriptionManager.createPortalSession(
+      sessionData.email,
+    );
+    if (!result.success) {
+      fastify.log.error(
+        { email: sessionData.email, error: result.error },
+        "Failed to create billing portal session",
+      );
+      return reply.redirect(paths.manage({ error: result.error }));
+    }
+
+    fastify.log.info(
+      { email: sessionData.email },
+      "Billing portal session created",
+    );
+
+    return reply.redirect(result.portalUrl);
+  });
+
+  fastify.post(paths.cancel(), async (request, reply) => {
     const sessionCookie = cookies[CookieName.UserSession](request, reply);
     const sessionData = sessionCookie.value;
     if (!sessionData) {
@@ -621,57 +598,61 @@ export default async function routes(fastify: FastifyInstance) {
     );
   });
 
-  fastify.get("/thank-you", async (request, reply) => {
+  fastify.get(paths.thankYou(), async (request, reply) => {
     return reply.html(
       <ThankYouPage isAuthenticated={isAuthenticated(request, reply)} />,
     );
   });
 
-  fastify.post("/webhook", { preParsing: rawBody }, async (request, reply) => {
-    const webhookSecret = config.stripeWebhookSecret;
-    if (!webhookSecret) {
-      fastify.log.error("Stripe webhook secret is not configured");
-      return reply.status(500).send({ error: "Webhook not configured" });
-    }
+  fastify.post(
+    paths.webhook(),
+    { preParsing: rawBody },
+    async (request, reply) => {
+      const webhookSecret = config.stripeWebhookSecret;
+      if (!webhookSecret) {
+        fastify.log.error("Stripe webhook secret is not configured");
+        return reply.status(500).send({ error: "Webhook not configured" });
+      }
 
-    const body = request.rawBody;
-    if (!body) {
-      fastify.log.error("Missing request.rawBody");
-      return reply.status(500).send({ error: "Missing raw body data " });
-    }
+      const body = request.rawBody;
+      if (!body) {
+        fastify.log.error("Missing request.rawBody");
+        return reply.status(500).send({ error: "Missing raw body data " });
+      }
 
-    const sig = request.headers["stripe-signature"];
-    if (!sig) {
-      fastify.log.warn("Missing Stripe signature header");
-      return reply.status(400).send({ error: "Missing signature header" });
-    }
+      const sig = request.headers["stripe-signature"];
+      if (!sig) {
+        fastify.log.warn("Missing Stripe signature header");
+        return reply.status(400).send({ error: "Missing signature header" });
+      }
 
-    let event: Stripe.Event | undefined;
-    try {
-      event = await stripe.webhooks.constructEventAsync(
-        body,
-        sig,
-        webhookSecret,
-      );
-    } catch (err) {
-      fastify.log.warn({ err }, "Webhook signature verification failed");
-      return reply.status(400).send({ error: "Invalid signature" });
-    }
+      let event: Stripe.Event | undefined;
+      try {
+        event = await stripe.webhooks.constructEventAsync(
+          body,
+          sig,
+          webhookSecret,
+        );
+      } catch (err) {
+        fastify.log.warn({ err }, "Webhook signature verification failed");
+        return reply.status(400).send({ error: "Invalid signature" });
+      }
 
-    try {
-      await subscriptionManager.processWebhook(event);
-    } catch (err) {
-      fastify.log.error(
-        { err, eventType: event.type },
-        "Webhook processing error",
-      );
-      // Still return 200 to prevent Stripe retries for processing errors
-    }
+      try {
+        await subscriptionManager.processWebhook(event);
+      } catch (err) {
+        fastify.log.error(
+          { err, eventType: event.type },
+          "Webhook processing error",
+        );
+        // Still return 200 to prevent Stripe retries for processing errors
+      }
 
-    return reply.status(200).send({ received: true });
-  });
+      return reply.status(200).send({ received: true });
+    },
+  );
 
-  fastify.get("/healthz", async (_request, reply) => {
+  fastify.get(paths.healthz(), async (_request, reply) => {
     return reply.status(200).send({ status: "ok" });
   });
 }

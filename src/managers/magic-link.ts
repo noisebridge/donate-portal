@@ -1,6 +1,7 @@
 import crypto from "node:crypto";
 import config from "~/config";
 import { baseLogger } from "~/logger";
+import paths from "~/paths";
 
 interface MagicLinkState {
   email: string;
@@ -42,8 +43,7 @@ export class MagicLinkManager {
     const state: MagicLinkState = { email, code };
     const encodedState = Buffer.from(JSON.stringify(state)).toString("base64");
 
-    const protocol = config.production ? "https" : "http";
-    return `${protocol}://${config.serverHost}/auth/magic-link/callback?state=${encodedState}`;
+    return `${config.baseUrl}${paths.emailCallback(encodedState)}`;
   }
 
   /**

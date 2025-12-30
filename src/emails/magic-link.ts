@@ -8,7 +8,9 @@ export interface MagicLinkEmailProps {
  * Generate HTML email for magic link authentication
  */
 export function MagicLinkEmail({ magicLinkUrl }: MagicLinkEmailProps): string {
-  return Layout(`
+  return Layout(
+    "Sign in to donate.noisebridge.net",
+    `
     <mj-text font-size="24px" font-weight="700" color="#333333" align="center" padding-bottom="20px">
       Sign in to Noisebridge
     </mj-text>
@@ -31,5 +33,6 @@ export function MagicLinkEmail({ magicLinkUrl }: MagicLinkEmailProps): string {
     <mj-text align="center" color="#0066cc" font-size="11px" padding-top="10px">
       ${magicLinkUrl}
     </mj-text>
-  `);
+  `,
+  );
 }

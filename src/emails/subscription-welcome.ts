@@ -1,4 +1,6 @@
+import config from "~/config";
 import { type Cents, formatAmount } from "~/money";
+import paths from "~/paths";
 import { Layout } from "./layout";
 
 export interface SubscriptionWelcomeEmailProps {
@@ -11,7 +13,9 @@ export interface SubscriptionWelcomeEmailProps {
 export function SubscriptionWelcomeEmail({
   amount,
 }: SubscriptionWelcomeEmailProps): string {
-  return Layout(`
+  return Layout(
+    "Thank You for Your Support!",
+    `
     <mj-text font-size="24px" font-weight="700" color="#333333" align="center" padding-bottom="20px">
       Thank You for Your Support!
     </mj-text>
@@ -36,11 +40,12 @@ export function SubscriptionWelcomeEmail({
     </mj-text>
     <mj-text align="center" padding-top="20px">
       Sign in to manage your donation
-      <a href="https://donate.noisebridge.net/auth">donate.noisebridge.net/auth</a>
+      <a href="${config.baseUrl}${paths.signIn()}">${config.baseUrl}${paths.signIn()}</a>
     </mj-text>
     <mj-divider border-color="#e0e0e0" padding="30px 0 20px 0" />
     <mj-text align="center" color="#888888" font-size="12px">
       Thank you for supporting Noisebridge!
     </mj-text>
-  `);
+  `,
+  );
 }

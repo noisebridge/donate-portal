@@ -1,5 +1,6 @@
 import { Layout } from "~/components/layout";
 import { type Message, MessageContainer } from "~/components/message-container";
+import paths from "~/paths";
 
 export interface AuthProps {
   isAuthenticated: boolean;
@@ -22,7 +23,7 @@ export function AuthPage({ isAuthenticated, messages = [] }: AuthProps) {
           <p class="auth-subtitle">Sign in to manage your monthly donation</p>
 
           <div class="oauth-buttons">
-            <a href="/auth/github/start" class="btn btn-outline btn-github">
+            <a href={paths.githubStart()} class="btn btn-outline btn-github">
               <img
                 class="oauth-icon"
                 src="/assets/image/github.svg"
@@ -31,7 +32,7 @@ export function AuthPage({ isAuthenticated, messages = [] }: AuthProps) {
               Continue with GitHub
             </a>
 
-            <a href="/auth/google/start" class="btn btn-outline btn-google">
+            <a href={paths.googleStart()} class="btn btn-outline btn-google">
               <img
                 class="oauth-icon"
                 src="/assets/image/google.svg"
@@ -51,7 +52,11 @@ export function AuthPage({ isAuthenticated, messages = [] }: AuthProps) {
               We'll send you a link to sign in
             </p>
 
-            <form class="magic-link-form" method="post" action="/auth/email">
+            <form
+              class="magic-link-form"
+              method="post"
+              action={paths.emailAuth()}
+            >
               <div class="form-group">
                 <input
                   type="email"

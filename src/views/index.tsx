@@ -1,5 +1,6 @@
 import { Layout } from "~/components/layout";
 import { type Message, MessageContainer } from "~/components/message-container";
+import paths from "~/paths";
 
 export interface IndexProps {
   isAuthenticated: boolean;
@@ -34,7 +35,7 @@ export function IndexPage({ isAuthenticated, messages = [] }: IndexProps) {
           </p>
           <a
             class="btn btn-primary btn-large"
-            href={isAuthenticated ? "/manage" : "/auth"}
+            href={isAuthenticated ? paths.manage() : paths.signIn()}
           >
             {isAuthenticated
               ? "Manage Your Donation"
@@ -46,7 +47,7 @@ export function IndexPage({ isAuthenticated, messages = [] }: IndexProps) {
           <h2>One-Time Donation</h2>
           <p>Make a single contribution to support Noisebridge.</p>
 
-          <form method="POST" action="/donate">
+          <form method="POST" action={paths.donate()}>
             <div class="amount-buttons">
               <input
                 type="radio"

@@ -1,5 +1,6 @@
 import config from "~/config";
 import { baseLogger } from "~/logger";
+import paths from "~/paths";
 
 const userAgent = "NoisebridgeDonorPortal";
 
@@ -29,8 +30,6 @@ interface GitHubEmail {
  */
 export class GitHubOAuth {
   static readonly log = baseLogger.child({ class: "GitHubOAuth" });
-  static readonly redirectUri =
-    `${config.serverProtocol}://${config.serverHost}/auth/github/callback`;
 
   /**
    * Build the GitHub OAuth authorization URL
@@ -40,7 +39,7 @@ export class GitHubOAuth {
   getAuthorizationUrl(state: string, scopes: string[]) {
     const params = new URLSearchParams({
       client_id: config.githubClientId,
-      redirect_uri: GitHubOAuth.redirectUri,
+      redirect_uri: `${config.baseUrl}${paths.githubCallback()}`,
       state: state,
       scope: scopes.join(" "),
     });
@@ -66,7 +65,7 @@ export class GitHubOAuth {
           client_id: config.githubClientId,
           client_secret: config.githubSecret,
           code: code,
-          redirect_uri: GitHubOAuth.redirectUri,
+          redirect_uri: `${config.baseUrl}${paths.githubCallback()}`,
         }),
       },
     );

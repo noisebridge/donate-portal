@@ -1,11 +1,11 @@
 import mjml2html from "mjml";
 import { baseLogger } from "~/logger";
 
-export function Layout(contents: string): string {
+export function Layout(title: string, contents: string): string {
   const mjml = `
     <mjml>
       <mj-head>
-        <mj-title>Sign in to Noisebridge Donations</mj-title>
+        <mj-title>${title}</mj-title>
         <mj-attributes>
           <mj-all font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" />
           <mj-text font-size="14px" color="#555555" line-height="1.6" />

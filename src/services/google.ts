@@ -1,4 +1,5 @@
 import config from "~/config";
+import paths from "~/paths";
 
 const userAgent = "NoisebridgeDonorPortal";
 
@@ -25,9 +26,6 @@ interface GoogleUserInfo {
  * GoogleOAuth service for handling Google OAuth 2.0 authentication
  */
 export class GoogleOAuth {
-  static readonly redirectUri =
-    `${config.serverProtocol}://${config.serverHost}/auth/google/callback`;
-
   /**
    * Build the Google OAuth authorization URL
    * @param state - CSRF protection state parameter
@@ -36,7 +34,7 @@ export class GoogleOAuth {
   getAuthorizationUrl(state: string, scopes: string[]) {
     const params = new URLSearchParams({
       client_id: config.googleClientId,
-      redirect_uri: GoogleOAuth.redirectUri,
+      redirect_uri: `${config.baseUrl}${paths.googleCallback()}`,
       response_type: "code",
       scope: scopes.join(" "),
       state: state,
@@ -62,7 +60,7 @@ export class GoogleOAuth {
         client_id: config.googleClientId,
         client_secret: config.googleSecret,
         code: code,
-        redirect_uri: GoogleOAuth.redirectUri,
+        redirect_uri: `${config.baseUrl}${paths.googleCallback()}`,
         grant_type: "authorization_code",
       }),
     });

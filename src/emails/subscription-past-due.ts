@@ -1,4 +1,6 @@
+import config from "~/config";
 import { type Cents, formatAmount } from "~/money";
+import paths from "~/paths";
 import { Layout } from "./layout";
 
 export interface SubscriptionPastDueEmailProps {
@@ -11,7 +13,9 @@ export interface SubscriptionPastDueEmailProps {
 export function SubscriptionPastDueEmail({
   amount,
 }: SubscriptionPastDueEmailProps): string {
-  return Layout(`
+  return Layout(
+    "Payment Issue with Your Donation",
+    `
     <mj-text font-size="24px" font-weight="700" color="#333333" align="center" padding-bottom="20px">
       Payment Issue with Your Donation
     </mj-text>
@@ -37,7 +41,7 @@ export function SubscriptionPastDueEmail({
     <mj-text align="center" padding-top="30px">
       Please update your payment method to continue supporting Noisebridge.
     </mj-text>
-    <mj-button href="https://donate.noisebridge.net/auth" padding-top="20px">
+    <mj-button href="${config.baseUrl}${paths.signIn()}" padding-top="20px">
       Sign In
     </mj-button>
     <mj-text align="center" padding-top="20px" color="#888888" font-size="12px">
@@ -47,5 +51,6 @@ export function SubscriptionPastDueEmail({
     <mj-text align="center" color="#888888" font-size="12px">
       Thank you for your continued support of Noisebridge!
     </mj-text>
-  `);
+  `,
+  );
 }
