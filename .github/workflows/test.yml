@@ -31,7 +31,7 @@ jobs:
         run: bun install
 
       - name: Run TypeScript check
-        run: bun x tsc --noEmit
+        run: bun run check
 
       - name: Run tests
         run: bun test
