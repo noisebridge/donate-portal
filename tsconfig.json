@@ -6,11 +6,7 @@
     "module": "ESNext",
     "target": "ESNext",
     "moduleResolution": "bundler",
-    "baseUrl": ".",
-    "allowImportingTsExtensions": true,
-    "paths": {
-      "~/*": ["./src/*"]
-    }
+    "allowImportingTsExtensions": true
   },
   "include": ["src/**/*.ts", "src/**/*.tsx", "e2e/**/*.ts", "scripts/**/*.ts"],
   "exclude": ["node_modules", "src/assets"]

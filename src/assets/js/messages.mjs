@@ -1,7 +1,7 @@
 // @ts-check
 
 /**
- * @typedef {import("../../components/message-container").Message} Message
+ * @typedef {import("~/components/message-container").Message} Message
  */
 
 /**

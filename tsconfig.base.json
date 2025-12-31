@@ -26,6 +26,10 @@
     "jsx": "preserve",
     "jsxFactory": "Html.createElement",
     "jsxFragmentFactory": "Html.Fragment",
-    "jsxImportSource": "@kitajs/html"
+    "jsxImportSource": "@kitajs/html",
+    "baseUrl": ".",
+    "paths": {
+      "~/*": ["./src/*"]
+    }
   }
 }
