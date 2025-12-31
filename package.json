@@ -5,6 +5,7 @@
   "private": true,
   "scripts": {
     "dev": "bun --watch src/server.ts",
+    "dev:stripe": "stripe listen --forward-to localhost:3000/webhook",
     "start": "bun src/server.ts",
     "lint": "biome check .",
     "lint:fix": "biome check --write .",
