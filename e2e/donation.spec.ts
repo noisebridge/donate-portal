@@ -15,7 +15,7 @@ test.describe("Donation Validation Tests", () => {
     await page.fill('input[name="custom-amount"]', "1.50");
 
     // Submit the form
-    await page.click('button[type="submit"]:has-text("Donate Now")');
+    await page.click("#donate-now");
 
     // Should stay on the same page with an error message (URL will have query params)
     expect(page.url()).toMatch(/^http:\/\/127\.0\.0\.1:3000\/\?/);
@@ -35,7 +35,7 @@ test.describe("Donation Validation Tests", () => {
     await page.fill('input[name="custom-amount"]', "2.00");
 
     // Submit the form
-    await page.click('button[type="submit"]:has-text("Donate Now")');
+    await page.click("#donate-now");
 
     // Should redirect to Stripe checkout
     await expect(page).toHaveURL(/checkout\.stripe\.com/);
@@ -55,7 +55,7 @@ test.describe("Donation Flow Tests", () => {
     await page.click('label[for="amount-10"]');
 
     // Submit the form
-    await page.click('button[type="submit"]:has-text("Donate Now")');
+    await page.click("#donate-now");
 
     // Should redirect to Stripe checkout
     await expect(page).toHaveURL(/checkout\.stripe\.com/);
@@ -74,7 +74,7 @@ test.describe("Donation Flow Tests", () => {
     });
 
     // Submit payment
-    await page.click('button[type="submit"]:has-text("Pay")');
+    await page.click('button:has-text("Pay")');
 
     // Wait for redirect to complete (Stripe processes payment and redirects)
     await page.waitForTimeout(5000);
@@ -96,7 +96,7 @@ test.describe("Donation Flow Tests", () => {
     await page.fill('input[name="custom-amount"]', "13.37");
 
     // Submit the form
-    await page.click('button[type="submit"]:has-text("Donate Now")');
+    await page.click("#donate-now");
 
     // Should redirect to Stripe checkout
     await expect(page).toHaveURL(/checkout\.stripe\.com/);
@@ -115,7 +115,7 @@ test.describe("Donation Flow Tests", () => {
     });
 
     // Submit payment
-    await page.click('button[type="submit"]:has-text("Pay")');
+    await page.click('button:has-text("Pay")');
 
     // Wait for redirect to complete (Stripe processes payment and redirects)
     await page.waitForTimeout(5000);

@@ -41,7 +41,7 @@ async function createSubscription(
   tierSelector: string,
 ): Promise<void> {
   await page.click(tierSelector);
-  await page.click('button[type="submit"]:has-text("Start Monthly Donation")');
+  await page.click('button:has-text("Start Monthly Donation")');
 
   // Wait for redirect to Stripe checkout
   await page.waitForURL(/checkout\.stripe\.com/, { timeout: 10000 });
@@ -54,7 +54,7 @@ async function createSubscription(
     zip: "94110",
   });
 
-  await page.click('button[type="submit"]:has-text("Subscribe")');
+  await page.click('button:has-text("Subscribe")');
 
   // Wait for redirect back to /manage after successful payment
   await page.waitForURL(/\/manage/, { timeout: 15000 });
@@ -68,9 +68,7 @@ async function createSubscription(
  * Cancel the current subscription
  */
 async function cancelSubscription(page: Page): Promise<void> {
-  await page.dblclick(
-    'button[type="submit"]:has-text("Cancel Monthly Donation")',
-  );
+  await page.dblclick('button:has-text("Cancel Monthly Donation")');
   await expect(
     page.locator('button:has-text("Cancel Monthly Donation")'),
   ).not.toBeVisible();
@@ -98,9 +96,7 @@ test.describe("Subscription Flow Tests", () => {
     await page.click('label[for="tier-custom"]');
     await page.fill("input#custom-amount", "1337");
 
-    await page.click(
-      'button[type="submit"]:has-text("Start Monthly Donation")',
-    );
+    await page.click('button:has-text("Start Monthly Donation")');
     await page.waitForLoadState("networkidle");
 
     await expect(page).toHaveURL(/checkout\.stripe\.com/);
@@ -114,7 +110,7 @@ test.describe("Subscription Flow Tests", () => {
       zip: "94110",
     });
 
-    await page.click('button[type="submit"]:has-text("Subscribe")');
+    await page.click('button:has-text("Subscribe")');
     await page.waitForTimeout(5000);
     await page.waitForLoadState("networkidle");
 
@@ -157,9 +153,7 @@ test.describe("Subscription Flow Tests", () => {
 
     // Update to the $100 tier
     await page.click('label[for="tier-employed"]');
-    await page.click(
-      'button[type="submit"]:has-text("Update Monthly Donation")',
-    );
+    await page.click('button:has-text("Update Monthly Donation")');
 
     // Wait for redirect back to /manage
     await page.waitForURL(/\/manage/, { timeout: 10000 });
@@ -180,9 +174,7 @@ test.describe("Subscription Flow Tests", () => {
 
     // Try to "update" to the same $50 tier
     await page.click('label[for="tier-starving"]');
-    await page.click(
-      'button[type="submit"]:has-text("Update Monthly Donation")',
-    );
+    await page.click('button:has-text("Update Monthly Donation")');
     await page.waitForLoadState("networkidle");
 
     // Should stay on /manage with an error message about same amount
@@ -216,7 +208,7 @@ test.describe("Subscription Flow Tests", () => {
 
     // Verify "Start Monthly Donation" button is present (not "Update")
     await expect(
-      page.locator('button[type="submit"]:has-text("Start Monthly Donation")'),
+      page.locator('button:has-text("Start Monthly Donation")'),
     ).toBeVisible();
   });
 });
