@@ -158,6 +158,10 @@ export default async function routes(fastify: FastifyInstance) {
       return reply.redirect(paths.manage());
     }
 
+    // Clear all OAuth cookies
+    cookies[CookieName.GithubOAuthState](request, reply).clear();
+    cookies[CookieName.GoogleOAuthState](request, reply).clear();
+
     const error = request.query.error;
     const messages: Message[] = [];
     if (error) {
