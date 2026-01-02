@@ -19,6 +19,10 @@ bun install
 playwright install firefox
 ```
 
+### Set up `.env` file
+
+See below.
+
 ### Run setup script
 
 ```shell
@@ -28,6 +32,8 @@ bun run stripe-setup
 ## Development
 
 ### Set up environment variables
+
+Create a `.env` file in the root of the repository with the following variables:
 
 * `SERVER_HOST` - `127.0.0.1:3000` for local dev
 * `TESTING_BACKDOOR` - `enabled` for local dev and e2e tests

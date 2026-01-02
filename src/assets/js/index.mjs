@@ -14,7 +14,6 @@ function initCustomAmount() {
   const amountRadios = /** @type {NodeListOf<HTMLInputElement>} */ (
     document.querySelectorAll('input[name="amount-dollars"]')
   );
-
   const customAmountRadio = /** @type {HTMLInputElement} */ (
     document.getElementById("amount-custom")
   );

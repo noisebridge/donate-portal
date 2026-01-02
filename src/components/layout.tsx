@@ -42,7 +42,7 @@ export function Layout({
           <link rel="stylesheet" href="/assets/css/main.css" />
           {styles && <link rel="stylesheet" href={`/assets/css/${styles}`} />}
           {script && (
-            <script type="module" src={`/assets/js/${script}`}></script>
+            <script type="module" src={`/assets/js/${script}`} async></script>
           )}
         </head>
         <body>
@@ -53,13 +53,15 @@ export function Layout({
           <footer>
             <p>
               Noisebridge is a 501(c)(3) non-profit
-              {githubUrl && (
+              {githubUrl ? (
                 <>
                   {" &mdash; "}
                   <a href={githubUrl} target="_blank" rel="noopener noreferrer">
                     Source Code
                   </a>
                 </>
+              ) : (
+                ""
               )}
             </p>
           </footer>

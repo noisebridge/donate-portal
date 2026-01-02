@@ -11,11 +11,9 @@ function initCustomAmount() {
   const customTierRadio = /** @type {HTMLInputElement} */ (
     document.getElementById("tier-custom")
   );
-
   const customAmountInput = /** @type {HTMLInputElement} */ (
     document.getElementById("custom-amount")
   );
-
   const radioButtons = /** @type {NodeListOf<HTMLInputElement>} */ (
     document.querySelectorAll(".tier-options input[type=radio]")
   );

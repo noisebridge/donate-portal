@@ -49,7 +49,7 @@ function dismissMessage(message, type) {
 
   // Remove container if empty
   const container = document.querySelector(".message-container");
-  if (container && container.children.length === 0) {
+  if (container?.children?.length === 0) {
     container.remove();
   }
 }
