@@ -1,11 +1,11 @@
 // @ts-check
 
-import { initMessages } from "./messages.mjs";
+import { initMessages } from "./util/messages.mjs";
 import {
   activateCustomOnClick,
   activateCustomOnRadio,
-} from "./money-forms.mjs";
-import { enforcePattern, validateMinAmount } from "./validate.mjs";
+} from "./util/money-forms.mjs";
+import { enforcePattern, validateMinAmount } from "./util/validate.mjs";
 
 function initCustomAmount() {
   const customTierRadio = /** @type {HTMLInputElement} */ (
@@ -29,7 +29,7 @@ function initCustomAmount() {
   activateCustomOnRadio(radioButtons, customAmountInput);
 }
 
-function cancelFormHandler() {
+function initCancelForm() {
   const cancelForm = /** @type {HTMLFormElement} */ (
     document.querySelector(".cancel-subscription-form")
   );
@@ -64,5 +64,5 @@ function cancelFormHandler() {
 document.addEventListener("DOMContentLoaded", () => {
   initMessages();
   initCustomAmount();
-  cancelFormHandler();
+  initCancelForm();
 });

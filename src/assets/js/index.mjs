@@ -1,11 +1,11 @@
 // @ts-check
 
-import { initMessages } from "./messages.mjs";
+import { initMessages } from "./util/messages.mjs";
 import {
   activateCustomOnClick,
   activateCustomOnRadio,
-} from "./money-forms.mjs";
-import { enforcePattern, validateMinAmount } from "./validate.mjs";
+} from "./util/money-forms.mjs";
+import { enforcePattern, validateMinAmount } from "./util/validate.mjs";
 
 function initCustomAmount() {
   const customAmountInput = /** @type {HTMLInputElement} */ (
