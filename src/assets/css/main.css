@@ -325,19 +325,38 @@ body {
   font-size: 0.9375rem;
   font-weight: 500;
   text-decoration: none;
-  color: var(--color-primary);
   border: 1px solid var(--color-primary);
   border-radius: 6px;
   transition:
     color 0.15s ease,
     background-color 0.15s ease,
+    border-color 0.15s ease,
     box-shadow 0.15s ease,
     transform 0.15s ease;
+  color: var(--color-primary);
 }
 
-.btn-nav:hover {
-  background-color: var(--color-primary);
+.btn-nav-subtle {
+  color: var(--color-text);
+  border-color: var(--color-border);
+}
+
+.btn-nav-subtle:hover {
+  background-color: var(--color-background);
+  border-color: var(--color-text-light);
+  transform: translateY(-1px);
+  box-shadow: none;
+}
+
+.btn-nav-filled {
   color: var(--color-white);
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.btn-nav-filled:hover {
+  background-color: #b82e2e;
+  border-color: #b82e2e;
   transform: translateY(-1px);
   box-shadow: 0 2px 8px rgba(204, 51, 51, 0.2);
 }

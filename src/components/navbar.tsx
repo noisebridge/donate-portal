@@ -17,10 +17,13 @@ export default function Navbar({ isAuthenticated }: NavbarProps) {
         <div class="navbar-right">
           {isAuthenticated ? (
             <>
-              <a href={paths.manage()} class="btn-nav mobile-hidden">
+              <a
+                href={paths.manage()}
+                class="btn-nav btn-nav-subtle mobile-hidden"
+              >
                 Manage
               </a>
-              <a href={paths.signOut()} class="btn-nav">
+              <a href={paths.signOut()} class="btn-nav btn-nav-filled">
                 Sign Out
               </a>
             </>
