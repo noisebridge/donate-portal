@@ -51,7 +51,9 @@
   font-size: 0.9375rem;
   font-weight: 600;
   border-radius: 6px;
-  transition: all 0.15s ease;
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease;
   cursor: pointer;
   text-align: center;
   display: block;
@@ -108,7 +110,9 @@ input[type="radio"]:focus + .btn-amount {
   border: 1px solid var(--color-border);
   border-radius: 6px;
   background-color: var(--color-white);
-  transition: all 0.15s ease;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
   color: var(--color-text);
 }
 

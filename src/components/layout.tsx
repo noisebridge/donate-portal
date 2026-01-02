@@ -33,6 +33,11 @@ export function Layout({
           />
           <title>{title} | Noisebridge</title>
           <link rel="icon" href="/assets/image/favicon.svg" />
+          {/**
+           * Hide all content initially. This style is reset at the end of
+           * main.css to prevent a flash-of-unstyled-content.
+           */}
+          <style>{"html { visibility: hidden; opacity: 0; }"}</style>
           <link rel="stylesheet" href="/assets/css/reset.css" />
           <link rel="stylesheet" href="/assets/css/main.css" />
           {styles && <link rel="stylesheet" href={`/assets/css/${styles}`} />}

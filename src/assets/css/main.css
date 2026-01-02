@@ -239,7 +239,11 @@ body {
   border: 1px solid transparent;
   border-radius: 6px;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition:
+    color 0.15s ease,
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    transform 0.15s ease;
   background: none;
 }
 
@@ -290,7 +294,11 @@ body {
   background-color: var(--color-white);
   color: var(--color-text);
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition:
+    box-shadow 0.15s ease,
+    background-color 0.15s ease,
+    box-shadow 0.15s ease,
+    transform 0.15s ease;
   width: 100%;
 }
 
@@ -320,7 +328,11 @@ body {
   color: var(--color-primary);
   border: 1px solid var(--color-primary);
   border-radius: 6px;
-  transition: all 0.15s ease;
+  transition:
+    color 0.15s ease,
+    background-color 0.15s ease,
+    box-shadow 0.15s ease,
+    transform 0.15s ease;
 }
 
 .btn-nav:hover {
@@ -386,4 +398,9 @@ footer p {
   .page-message-muted {
     font-size: 0.875rem;
   }
+}
+
+html {
+  visibility: visible;
+  opacity: 1;
 }

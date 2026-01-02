@@ -43,7 +43,9 @@
   border: 2px solid var(--color-border);
   border-radius: 12px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
 }
 
 .tier-card:hover {
@@ -60,7 +62,7 @@
 
 .tier-content {
   text-align: center;
-  transition: color 0.3s ease;
+  transition: color 0.15s ease;
 }
 
 .tier-name {
@@ -98,7 +100,7 @@
   width: 24px;
   height: 24px;
   opacity: 0;
-  transition: opacity 0.3s ease;
+  transition: opacity 0.15s ease;
 }
 
 .tier-card input[type="radio"]:checked ~ .tier-checkmark {
@@ -141,7 +143,7 @@
   border-radius: 6px;
   background: var(--color-white);
   color: var(--color-text);
-  transition: border-color 0.3s ease;
+  transition: border-color 0.15s ease;
 }
 
 .custom-input:focus {
