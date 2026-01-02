@@ -42,7 +42,7 @@ export function Layout({
           <link rel="stylesheet" href="/assets/css/main.css" />
           {styles && <link rel="stylesheet" href={`/assets/css/${styles}`} />}
           {script && (
-            <script type="module" src={`/assets/js/${script}`} async></script>
+            <script type="module" src={`/assets/js/${script}`}></script>
           )}
         </head>
         <body>

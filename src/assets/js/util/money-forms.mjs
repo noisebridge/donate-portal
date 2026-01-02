@@ -51,6 +51,6 @@ export function activateCustomOnRadio(radioButtons, customInputField) {
   };
 
   radioButtons.forEach((radio) => {
-    radio.addEventListener("input", eventHandler);
+    radio.addEventListener("change", eventHandler);
   });
 }
