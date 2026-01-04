@@ -4,8 +4,8 @@ import { baseLogger } from "~/logger";
 import type { Cents } from "~/money";
 import paths from "~/paths";
 import { InfoCode } from "~/routes";
+import emailManager from "~/services/email";
 import stripe from "~/services/stripe";
-import emailManager from "./email";
 
 export enum SubscriptionErrorCode {
   InvalidAmount = "Please select a valid donation amount",
