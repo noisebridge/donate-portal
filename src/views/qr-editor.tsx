@@ -24,7 +24,7 @@ export function QrEditorPage({ isAuthenticated, baseUrl }: QrEditorProps) {
         <div class="card">
           <h2>Parameters</h2>
 
-          <form id="qr-form" action={paths.qrSvg()}>
+          <form id="qr-form" action={paths.qrSvg()} method="GET">
             <div class="form-group">
               <label for="amount">Amount (USD)</label>
               <div class="input-group">

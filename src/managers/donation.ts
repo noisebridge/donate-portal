@@ -162,15 +162,7 @@ export class DonationManager {
     description?: string,
     useLogo = true,
   ) {
-    const params = new URLSearchParams({ amount: amount.cents.toString() });
-    if (name) {
-      params.set("name", name);
-    }
-    if (description) {
-      params.set("description", description);
-    }
-
-    const url = `${config.baseUrl}${paths.qr()}?${params.toString()}`;
+    const url = `${config.baseUrl}${paths.qr(amount, name, description)}`;
     const qrCode = new QRCode({
       content: url,
       padding: 0,

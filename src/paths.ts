@@ -1,22 +1,29 @@
 import type { Message } from "./components/message-container";
+import type { Cents } from "./money";
 
 export type MessageParams = Partial<Record<Message["type"], string>>;
 
 /**
  * Format a page path with query params.
  */
-function formatPath(path: string, params?: Record<string, string | undefined>) {
+function formatPath(
+  path: string,
+  params?: Record<string, string | number | undefined>,
+) {
   if (!params || Object.keys(params).length === 0) {
     return path;
   }
 
   const urlSearchParams = new URLSearchParams();
   for (const [key, value] of Object.entries(params)) {
-    if (typeof value !== "string") {
-      continue;
+    switch (typeof value) {
+      case "number":
+        urlSearchParams.set(key, value.toString());
+        break;
+      case "string":
+        urlSearchParams.set(key, value);
+        break;
     }
-
-    urlSearchParams.set(key, value);
   }
 
   const queryString = urlSearchParams.toString();
@@ -52,7 +59,12 @@ const paths = {
   /**
    * `/qr`
    */
-  qr: () => "/qr",
+  qr: (amount?: Cents, name?: string, description?: string) =>
+    formatPath("/qr", {
+      amount: (amount?.cents ?? 0) / 100,
+      name,
+      description,
+    }),
   /**
    * `/qr.svg`
    */
