@@ -16,7 +16,7 @@
     "clean-up-test-data": "bun ./scripts/clean-up-test-data.ts"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.3.8",
+    "@biomejs/biome": "2.3.11",
     "@playwright/test": "^1.57.0",
     "@types/bmp-js": "^0.1.2",
     "@types/bun": "latest",
