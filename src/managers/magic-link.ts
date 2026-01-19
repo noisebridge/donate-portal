@@ -25,9 +25,8 @@ export class MagicLinkManager {
     // Check 1 past, current, and 1 future time window
     for (let offset = -1; offset <= 1; offset++) {
       const checkTimestamp = timestamp + offset * totpWindow;
-      const checkCode = this.generateMagicLinkCode(email, checkTimestamp);
-
-      if (checkCode === code) {
+      const windowCode = this.generateMagicLinkCode(email, checkTimestamp);
+      if (windowCode === code) {
         return true;
       }
     }

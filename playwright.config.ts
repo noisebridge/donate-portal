@@ -13,7 +13,7 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   reporter: "html",
   use: {
-    baseURL: "http://127.0.0.1:3000",
+    baseURL: config.baseUrl,
     trace: "on-first-retry",
   },
   projects: [
@@ -24,7 +24,7 @@ export default defineConfig({
   ],
   webServer: {
     command: "bun run start",
-    url: "http://127.0.0.1:3000",
+    url: config.baseUrl,
     reuseExistingServer: !process.env.CI,
     env: {
       TESTING_BACKDOOR: "enabled",

@@ -17,6 +17,8 @@ function formatPath(
   const urlSearchParams = new URLSearchParams();
   for (const [key, value] of Object.entries(params)) {
     switch (typeof value) {
+      case "undefined":
+        break;
       case "number":
         urlSearchParams.set(key, value.toString());
         break;
@@ -61,7 +63,7 @@ const paths = {
    */
   qr: (amount?: Cents, name?: string, description?: string) =>
     formatPath("/qr", {
-      amount: (amount?.cents ?? 0) / 100,
+      amount: amount && amount.cents / 100,
       name,
       description,
     }),

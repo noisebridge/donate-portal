@@ -74,9 +74,9 @@ declare module "qrcode-svg" {
   export interface SvgOptions {
     /**
      * Wrapping element.
-     * - "svg" - SVG document with width and height attribute
-     * - "svg-viewbox" - SVG document with viewBox attribute
-     * - "g" - put squares in g element
+     * - "svg" - SVG document with width and height attribute (recommended for raster/PDF conversion)
+     * - "svg-viewbox" - SVG document with viewBox attribute (recommended for responsive web pages)
+     * - "g" - put squares in g element (useful for multiple QR codes in single SVG)
      * - "none" - no wrapper
      * @default "svg"
      */
@@ -94,8 +94,8 @@ declare module "qrcode-svg" {
   export interface QRCodeModel {
     /**
      * 2D array of modules (the individual squares in a QR code).
-     * Each boolean indicates whether the module is dark (true) or light (false).
-     * Access as modules[x][y].
+     * Each boolean indicates whether the module is foreground (true) or
+     * background (false). Access as modules[x][y].
      */
     modules: boolean[][];
     /** The number of modules along each side of the QR code grid */

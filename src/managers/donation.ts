@@ -71,13 +71,13 @@ function decodeBMP(filePath: string): BMPColor[][] {
   return result;
 }
 
-function bmpToQRCode(bmp: BMPColor[][]): QRCode {
+function bmpToQRCode(data: string, bmp: BMPColor[][]): QRCode {
   const model: QRCodeModel = {
     moduleCount: bmp.length,
     modules: bmp.map((row) => row.map((cell) => cell === "black")),
   };
 
-  const qrCode = new QRCode("Error");
+  const qrCode = new QRCode(data);
   qrCode.qrcode = model;
 
   return qrCode;
@@ -101,8 +101,13 @@ export class DonationManager {
    * Fake QR code shown for error states.
    */
   static readonly errorQrCode = bmpToQRCode(
+    "Error",
     decodeBMP(`${__dirname}/qr-error.bmp`),
   );
+  /**
+   * Pattern shown in the center of QR codes.
+   */
+  static readonly qrInsert = decodeBMP(`${__dirname}/qr-insert.bmp`);
 
   /**
    * Create a one-time donation checkout session.
@@ -162,14 +167,17 @@ export class DonationManager {
     description?: string,
     useLogo = true,
   ) {
-    const url = `${config.baseUrl}${paths.qr(amount, name, description)}`;
+    const baseUrl = "https://donate.noisebridge.net";
+    const url = `${baseUrl}${paths.qr(amount, name, description)}`;
     const qrCode = new QRCode({
       content: url,
       padding: 0,
-      join: true,
-      ecl: url.length > 35 ? "Q" : "H",
+      // join: true,
+      ecl: "H",
       background: "transparent",
     });
+
+    console.log({ moduleCount: qrCode.qrcode.moduleCount });
 
     if (!useLogo) {
       return qrCode;
@@ -196,11 +204,9 @@ export class DonationManager {
       return null;
     }
 
-    const insert = decodeBMP(`${__dirname}/qr-insert.bmp`);
-
     // insert is indexed as [x][y], so insert.length is width (columns)
-    const width = insert.length;
-    const height = insert[0]?.length;
+    const width = DonationManager.qrInsert.length;
+    const height = DonationManager.qrInsert[0]?.length;
     if (!width || !height) {
       DonationManager.log.error("Invalid dimensions");
       return null;
@@ -216,7 +222,7 @@ export class DonationManager {
     for (let y = 0; y < height; y++) {
       for (let x = 0; x < width; x++) {
         // biome-ignore lint/style/noNonNullAssertion: YOLO
-        const color = insert[x]![y]!;
+        const color = DonationManager.qrInsert[x]![y]!;
 
         switch (color) {
           case "transparent":
