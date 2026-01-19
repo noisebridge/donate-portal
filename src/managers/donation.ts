@@ -167,17 +167,14 @@ export class DonationManager {
     description?: string,
     useLogo = true,
   ) {
-    const baseUrl = "https://donate.noisebridge.net";
-    const url = `${baseUrl}${paths.qr(amount, name, description)}`;
+    const url = `${config.baseUrl}${paths.qr(amount, name, description)}`;
     const qrCode = new QRCode({
       content: url,
       padding: 0,
-      // join: true,
+      join: true,
       ecl: "H",
       background: "transparent",
     });
-
-    console.log({ moduleCount: qrCode.qrcode.moduleCount });
 
     if (!useLogo) {
       return qrCode;
