@@ -6,9 +6,11 @@ WORKDIR /app
 COPY package.json bun.lock ./
 RUN bun install --frozen-lockfile --production
 
-# Copy source code and config
+# Copy files into the container
 COPY src ./src
-COPY tsconfig.json tsconfig.base.json ./
+COPY types ./types
+COPY scripts ./scripts
+COPY tsconfig.json jsconfig.json tsconfig.base.json ./
 
 # Set production environment
 ENV NODE_ENV=production
