@@ -11,7 +11,7 @@ interface Tier {
 const TIERS: Tier[] = [
   { id: "starving", name: "Starving Hacker", amount: 50 },
   { id: "employed", name: "Employed Hacker", amount: 100 },
-  { id: "rich", name: "Rich Hacker", amount: 200 },
+  { id: "rich", name: "Comfortable Hacker", amount: 200 },
 ];
 
 interface DonationTierSelectorProps {
