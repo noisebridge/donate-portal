@@ -130,3 +130,19 @@ test.describe("Donation Flow Tests", () => {
     await expect(page).toHaveURL(/\/thank-you/);
   });
 });
+
+test.describe("QR Donation Endpoint", () => {
+  test("redirects to Stripe checkout", async ({ page }) => {
+    const response = await page.goto(
+      "/qr?amount=5.00&name=Test%20Donation&description=Test%20Description",
+    );
+
+    // The endpoint should redirect to Stripe checkout
+    expect(response?.status()).toBe(200);
+    expect(page.url()).toContain("checkout.stripe.com");
+
+    // Verify the name and description appear on the Stripe checkout page
+    await expect(page.locator("text=Test Donation")).toBeVisible();
+    await expect(page.locator("text=Test Description")).toBeVisible();
+  });
+});
