@@ -544,10 +544,7 @@ export default async function routes(fastify: FastifyInstance) {
 
   fastify.get(paths.qrEditor(), async (request, reply) => {
     return reply.html(
-      <QrEditorPage
-        isAuthenticated={isAuthenticated(request, reply)}
-        baseUrl={config.baseUrl}
-      />,
+      <QrEditorPage isAuthenticated={isAuthenticated(request, reply)} />,
     );
   });
 

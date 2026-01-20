@@ -1,14 +1,14 @@
 import { Layout } from "~/components/layout";
+import config from "~/config";
 import { DonationManager } from "~/managers/donation";
 import { formatAmount } from "~/money";
 import paths from "~/paths";
 
 export interface QrEditorProps {
   isAuthenticated: boolean;
-  baseUrl: string;
 }
 
-export function QrEditorPage({ isAuthenticated, baseUrl }: QrEditorProps) {
+export function QrEditorPage({ isAuthenticated }: QrEditorProps) {
   return (
     <Layout
       title="QR Code Creator"
@@ -96,7 +96,7 @@ export function QrEditorPage({ isAuthenticated, baseUrl }: QrEditorProps) {
               type="text"
               id="qr-url"
               name="qr-url"
-              value={`${baseUrl}${paths.qr()}`}
+              value={`${config.baseUrl}${paths.qr()}`}
               readonly
             />
           </div>
