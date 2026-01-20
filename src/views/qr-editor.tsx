@@ -1,5 +1,6 @@
 import { Layout } from "~/components/layout";
 import { DonationManager } from "~/managers/donation";
+import { formatAmount } from "~/money";
 import paths from "~/paths";
 
 export interface QrEditorProps {
@@ -36,12 +37,14 @@ export function QrEditorPage({ isAuthenticated, baseUrl }: QrEditorProps) {
                   inputmode="numeric"
                   id="amount"
                   name="amount"
-                  placeholder="2.00"
-                  data-min="2"
+                  placeholder="0.00"
+                  data-min={DonationManager.minimumAmount.cents / 100}
                   required
                 />
               </div>
-              <span class="form-hint">Minimum $2.00</span>
+              <span class="form-hint">
+                Minimum {formatAmount(DonationManager.minimumAmount)}
+              </span>
             </div>
 
             <div class="form-group">
