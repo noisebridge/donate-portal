@@ -131,8 +131,8 @@ export class DonationManager {
           price_data: {
             currency: "usd",
             product_data: {
-              name: name ?? DonationManager.defaultName,
-              description: description ?? DonationManager.defaultDescription,
+              name: name || DonationManager.defaultName,
+              description: description || DonationManager.defaultDescription,
             },
             unit_amount: amount.cents,
           },
