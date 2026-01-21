@@ -27,7 +27,7 @@ test.describe("Donation Validation Tests", () => {
     const validationMessage = await customAmountInput.evaluate(
       (el) => el.validationMessage,
     );
-    expect(validationMessage).toContain("Minimum donation");
+    expect(validationMessage).toContain("below the minimum");
   });
 
   test("Custom amount of exactly $2 is accepted", async ({ page }) => {
