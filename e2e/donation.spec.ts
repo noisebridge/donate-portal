@@ -132,17 +132,62 @@ test.describe("Donation Flow Tests", () => {
 });
 
 test.describe("QR Donation Endpoint", () => {
-  test("redirects to Stripe checkout", async ({ page }) => {
-    const response = await page.goto(
+  test("displays donation page with slider and redirects to Stripe on submit", async ({
+    page,
+  }) => {
+    await page.goto(
       "/qr?amount=5.00&name=Test%20Donation&description=Test%20Description",
     );
 
-    // The endpoint should redirect to Stripe checkout
-    expect(response?.status()).toBe(200);
-    expect(page.url()).toContain("checkout.stripe.com");
-
-    // Verify the name and description appear on the Stripe checkout page
+    // Verify the name and description appear on the QR donation page
     await expect(page.locator("text=Test Donation")).toBeVisible();
     await expect(page.locator("text=Test Description")).toBeVisible();
+
+    // Verify the amount is displayed
+    await expect(page.locator("#current-amount")).toHaveText("$5.00");
+
+    // Verify the slider is present with correct values
+    const slider = page.locator("#amount-slider");
+    await expect(slider).toBeVisible();
+    await expect(slider).toHaveAttribute("min", "2");
+    await expect(slider).toHaveAttribute("max", "10");
+    await expect(slider).toHaveValue("5");
+
+    // Click the Donate button
+    await page.click('button:has-text("Donate")');
+
+    // Should redirect to Stripe checkout
+    await expect(page).toHaveURL(/checkout\.stripe\.com/);
+
+    // Verify the amount appears on the Stripe checkout page
+    await expect(page.getByText("$5.00")).toBeVisible();
+  });
+
+  test("slider updates displayed amount", async ({ page }) => {
+    await page.goto("/qr?amount=10.00");
+
+    // Verify initial amount
+    await expect(page.locator("#current-amount")).toHaveText("$10.00");
+
+    // Move the slider to a different value
+    const slider = page.locator("#amount-slider");
+    await slider.fill("15");
+
+    // Verify the displayed amount updated
+    await expect(page.locator("#current-amount")).toHaveText("$15.00");
+
+    // Click the Donate button
+    await page.click('button:has-text("Donate")');
+
+    // Should redirect to Stripe checkout with new amount
+    await expect(page).toHaveURL(/checkout\.stripe\.com/);
+    await expect(page.getByText("$15.00")).toBeVisible();
+  });
+
+  test("redirects to index with error for invalid amount", async ({ page }) => {
+    await page.goto("/qr?amount=invalid");
+
+    // Should redirect to index with error message
+    await expect(page).toHaveURL(/\/\?error=/);
   });
 });

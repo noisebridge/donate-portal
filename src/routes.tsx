@@ -25,6 +25,7 @@ import { ErrorPage } from "~/views/error";
 import { IndexPage } from "~/views/index";
 import { ManagePage } from "~/views/manage";
 import { NotFoundPage } from "~/views/not-found";
+import { QrPage } from "~/views/qr";
 import { QrEditorPage } from "~/views/qr-editor";
 import { ThankYouPage } from "~/views/thank-you";
 
@@ -459,7 +460,9 @@ export default async function routes(fastify: FastifyInstance) {
     );
   });
 
-  fastify.post(paths.donate(), async (request, reply) => {
+  fastify.post<{
+    Body: { name?: string; description?: string };
+  }>(paths.donate(), async (request, reply) => {
     const body = request.body;
     if (!validateAmountFormData(body)) {
       return reply.redirect(paths.index({ error: ErrorCode.InvalidRequest }));
@@ -473,7 +476,8 @@ export default async function routes(fastify: FastifyInstance) {
       );
     }
 
-    const result = await donationManager.donate(amountCents);
+    const { name, description } = body;
+    const result = await donationManager.donate(amountCents, name, description);
     if (!result.success) {
       fastify.log.error(`Couldn't initiate Stripe donation: ${result.error}`);
       return reply.redirect(paths.index({ error: result.error }));
@@ -499,18 +503,9 @@ export default async function routes(fastify: FastifyInstance) {
       );
     }
 
-    const result = await donationManager.donate(amountCents, name, description);
-    if (!result.success) {
-      fastify.log.error(`Couldn't initiate Stripe donation: ${result.error}`);
-      return reply.redirect(paths.index({ error: result.error }));
-    }
-
-    fastify.log.info(
-      { amount: amountCents, sessionId: result.sessionId },
-      "Stripe checkout session created for QR donation",
+    return reply.html(
+      <QrPage amount={amountCents} name={name} description={description} />,
     );
-
-    return reply.redirect(result.checkoutUrl);
   });
 
   fastify.get<{
