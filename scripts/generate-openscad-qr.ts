@@ -125,13 +125,7 @@ function renderStl(
 ): void {
   const textLinesScad = `[${textLines.map(escapeScadString).join(",")}]`;
   execSync(
-    `
-      openscad
-        -o "${stlPath}"
-        -D 'render_color="${color}"'
-        -D 'text_lines=${textLinesScad}'
-        "${wrapperPath}"
-    `,
+    `openscad -o "${stlPath}" -D 'render_color="${color}"' -D 'text_lines=${textLinesScad}' "${wrapperPath}"`,
     { cwd, stdio: ["inherit", "inherit", "inherit"] },
   );
 }
@@ -144,6 +138,7 @@ function usage(): never {
     `Usage: bun scripts/${script} --amount <dollars> --text-lines <json> [--name <name>] [--description <desc>]`,
   );
   console.error("");
+  console.error("  -h, --help         Show usage intructions");
   console.error(
     "  -a, --amount       Donation amount in dollars (e.g. 5, 10.50)",
   );
