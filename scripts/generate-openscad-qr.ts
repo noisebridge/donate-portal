@@ -203,9 +203,22 @@ function parseCliArgs() {
   };
 }
 
+function checkOpenscad(): void {
+  try {
+    execSync("openscad --version", { stdio: "ignore" });
+  } catch {
+    console.error("openscad CLI not found. Please install OpenSCAD:");
+    console.error("  brew install openscad        # macOS");
+    console.error("  sudo apt install openscad    # Debian/Ubuntu");
+    console.error("  https://openscad.org/downloads.html");
+    process.exit(1);
+  }
+}
+
 // --- Main ---
 
 function main() {
+  checkOpenscad();
   const args = parseCliArgs();
 
   const manager = new DonationManager();
