@@ -1,10 +1,10 @@
 node_modules/
 
-.env
-
 .zed/
+**/.DS_Store
 
+.env
 test-results/
 playwright-report/
-
-**/.DS_Store
+scripts/openscad/qrs/*.scad
+scripts/openscad/qrs/*.stl

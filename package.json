@@ -13,7 +13,8 @@
     "test": "bun test",
     "test:e2e": "playwright test",
     "stripe-setup": "bun ./scripts/stripe-setup.ts",
-    "clean-up-test-data": "bun ./scripts/clean-up-test-data.ts"
+    "clean-up-test-data": "bun ./scripts/clean-up-test-data.ts",
+    "generate-openscad-qr": "bun ./scripts/generate-openscad-qr.ts"
   },
   "devDependencies": {
     "@biomejs/biome": "2.3.8",
