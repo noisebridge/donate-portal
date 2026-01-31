@@ -8,3 +8,4 @@ test-results/
 playwright-report/
 scripts/openscad/qrs/*.scad
 scripts/openscad/qrs/*.stl
+scripts/openscad/qrs/*.3mf

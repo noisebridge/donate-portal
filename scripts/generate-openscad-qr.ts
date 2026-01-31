@@ -153,12 +153,27 @@ function usage(): never {
 function parseTextLines(raw: string): string[] {
   try {
     const parsed = JSON.parse(raw);
+
     if (
       !Array.isArray(parsed) ||
       !parsed.every((item) => typeof item === "string")
     ) {
-      throw new Error("must be an array of strings");
+      throw new Error("text lines be an array of strings");
     }
+
+    if (parsed.length !== 3) {
+      throw new Error("text-lines must be an array of three strings");
+    }
+
+    for (let i = 0; i < parsed.length; i++) {
+      // biome-ignore lint/style/noNonNullAssertion: YOLO
+      if (parsed[i]!.length > 9) {
+        throw new Error(
+          `text-lines[${i}] is too long. Keep below 9 characters.`,
+        );
+      }
+    }
+
     return parsed;
   } catch (e) {
     console.error(`Invalid text_lines_json: ${(e as Error).message}`);
