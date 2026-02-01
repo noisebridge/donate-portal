@@ -240,7 +240,7 @@ function main() {
 
   const { modules: qrData, moduleCount } = qrCode.qrcode;
   if (moduleCount !== 53) {
-    console.error("QR code should be 53 pixels wide but is ", moduleCount);
+    console.error("QR code should be 53 pixels wide but is", moduleCount);
     console.error("All QR codes are expected to be this size");
     if (moduleCount < 53) {
       console.error("Add more text to name/description");
