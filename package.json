@@ -17,7 +17,7 @@
     "generate-openscad-qr": "bun ./scripts/generate-openscad-qr.ts"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.3.8",
+    "@biomejs/biome": "2.3.13",
     "@playwright/test": "^1.58.1",
     "@types/bmp-js": "^0.1.2",
     "@types/bun": "~1",
