@@ -450,6 +450,8 @@ export default async function routes(fastify: FastifyInstance) {
       messages.push({ type: "info", text: info });
     }
 
+    reply.header("Cache-Control", "no-store");
+
     return reply.html(
       <ManagePage
         email={sessionData.email}
