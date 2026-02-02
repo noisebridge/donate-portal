@@ -140,7 +140,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("use-logo")
   );
 
-  enforcePattern(amountInput, /^(\d+(.\d{0,2})?)?$/);
+  enforcePattern(amountInput, /^(\d+(\.\d{0,2})?)?$/);
 
   validateMinAmount(amountInput);
 
