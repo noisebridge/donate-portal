@@ -1,3 +1,5 @@
+// @ts-check
+
 /**
  * Sets up event listeners to activate the "Custom" amount radio button when the
  * associated free-form input field is interacted with.
