@@ -89,10 +89,6 @@ const paths = {
   emailCallback: (state?: string) =>
     formatPath("/auth/email/callback", { state }),
   /**
-   * `/auth/backdoor`
-   */
-  authBackdoor: () => "/auth/backdoor",
-  /**
    * `/auth/signout`
    */
   signOut: () => "/auth/signout",

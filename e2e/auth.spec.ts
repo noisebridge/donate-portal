@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test";
 import magicLinkManager from "~/managers/magic-link";
+import { setAuthCookie } from "./auth-utils";
 
 test.describe("Auth Flow Tests", () => {
   test("GitHub OAuth button redirects to GitHub authorization page", async ({
@@ -50,12 +51,11 @@ test.describe("Auth Flow Tests", () => {
   test("Signout flow clears authentication", async ({ page }) => {
     const testEmail = "signout-test@example.com";
 
-    // Login via backdoor
-    await page.goto(`/auth/backdoor?email=${encodeURIComponent(testEmail)}`, {
-      waitUntil: "networkidle",
-    });
+    // Set auth cookie and navigate to manage page
+    await setAuthCookie(page.context(), testEmail, "magic_link");
+    await page.goto("/manage", { waitUntil: "networkidle" });
 
-    // Verify redirected and authenticated (on /manage page)
+    // Verify authenticated (on /manage page)
     await expect(page).toHaveURL(/\/manage/);
 
     // Click the Sign Out button

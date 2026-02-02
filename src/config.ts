@@ -11,7 +11,7 @@ const serverProtocol = process.env.NODE_ENV === "production" ? "https" : "http";
 const serverHost = assertEnvVar("SERVER_HOST");
 
 export default {
-  testingBackdoor: process.env["TESTING_BACKDOOR"] === "enabled",
+  disableRateLimit: process.env["DISABLE_RATE_LIMIT"] === "true",
   production: process.env.NODE_ENV === "production",
   gitRepo: process.env["RENDER_GIT_REPO_SLUG"],
   gitCommit: process.env["RENDER_GIT_COMMIT"],

@@ -15,6 +15,7 @@ env:
   COOKIE_SECRET: insecure!
   RESEND_KEY: ${{ secrets.RESEND_KEY }}
   TOTP_SECRET: insecure!
+  DISABLE_RATE_LIMITING: true
 
 jobs:
   test:

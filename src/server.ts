@@ -29,8 +29,7 @@ fastify.register(fastifyHelmet, {
 
 fastify.register(fastifyFormbody, { bodyLimit: 1024 });
 
-// Disable rate limiting in test mode to avoid issues with parallel tests
-if (!config.testingBackdoor) {
+if (!config.disableRateLimit) {
   fastify.register(fastifyRateLimit, { max: 256, timeWindow: "1 minute" });
 }
 

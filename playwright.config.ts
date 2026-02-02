@@ -27,7 +27,7 @@ export default defineConfig({
     url: config.baseUrl,
     reuseExistingServer: !process.env.CI,
     env: {
-      TESTING_BACKDOOR: "enabled",
+      DISABLE_RATE_LIMIT: "true",
       SERVER_HOST: config.serverHost,
       STRIPE_SECRET: config.stripeSecretKey,
       STRIPE_PORTAL_CONFIG: config.stripePortalConfig,

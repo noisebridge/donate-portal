@@ -389,28 +389,6 @@ export default async function routes(fastify: FastifyInstance) {
     return reply.redirect(paths.manage());
   });
 
-  if (config.testingBackdoor) {
-    fastify.get<{
-      Querystring: { email?: string };
-    }>(paths.authBackdoor(), async (request, reply) => {
-      const { email } = request.query;
-
-      if (!email) {
-        fastify.log.warn("Missing email parameter");
-        return reply.redirect(
-          paths.signIn({ error: ErrorCode.InvalidRequest }),
-        );
-      }
-
-      const sessionCookie = cookies[CookieName.UserSession](request, reply);
-      sessionCookie.value = { email, provider: "magic_link" };
-
-      fastify.log.info({ email }, "User authenticated via backdoor");
-
-      return reply.redirect(paths.manage());
-    });
-  }
-
   fastify.post(paths.signOut(), async (request, reply) => {
     const sessionCookie = cookies[CookieName.UserSession](request, reply);
     sessionCookie.clear();

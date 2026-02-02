@@ -1,4 +1,5 @@
 import { expect, type Page, test } from "@playwright/test";
+import { setAuthCookie } from "./auth-utils";
 import {
   fillStripeCheckoutForm,
   getExpiryOneYearFromNow,
@@ -13,23 +14,11 @@ function generateTestEmail(): string {
 }
 
 /**
- * Login via backdoor and navigate to /manage
+ * Set auth cookie and navigate to /manage
  */
-async function loginViaBackdoor(page: Page, email: string): Promise<void> {
-  // Start navigation to backdoor
-  await page.goto(`/auth/backdoor?email=${encodeURIComponent(email)}`);
-
-  // Explicitly wait for URL to contain /manage (the redirect target)
-  try {
-    await page.waitForURL(/\/manage/, { timeout: 10000 });
-  } catch (_error) {
-    // If timeout, throw a more helpful error with current URL
-    throw new Error(
-      `Backdoor did not redirect to /manage. Current URL: ${page.url()}`,
-    );
-  }
-
-  // Wait for page to be fully loaded
+async function loginAndNavigate(page: Page, email: string): Promise<void> {
+  await setAuthCookie(page.context(), email, "magic_link");
+  await page.goto("/manage");
   await page.waitForLoadState("networkidle");
 }
 
@@ -78,7 +67,7 @@ test.describe("Subscription Flow Tests", () => {
   test("Lowest tier subscription: sign up, verify on /manage, then cancel", async ({
     page,
   }) => {
-    await loginViaBackdoor(page, generateTestEmail());
+    await loginAndNavigate(page, generateTestEmail());
     await createSubscription(page, 'label[for="tier-starving"]');
 
     // Verify the lowest tier ($50) is selected on the manage page
@@ -90,7 +79,7 @@ test.describe("Subscription Flow Tests", () => {
   test("Custom tier subscription: $1337/month, verify on /manage, then cancel", async ({
     page,
   }) => {
-    await loginViaBackdoor(page, generateTestEmail());
+    await loginAndNavigate(page, generateTestEmail());
 
     // Select the custom tier and fill in amount
     await page.click('label[for="tier-custom"]');
@@ -126,7 +115,7 @@ test.describe("Subscription Flow Tests", () => {
   test("Stripe portal can be accessed with active subscription", async ({
     page,
   }) => {
-    await loginViaBackdoor(page, generateTestEmail());
+    await loginAndNavigate(page, generateTestEmail());
     await createSubscription(page, 'label[for="tier-employed"]');
 
     // Verify the portal button is visible and click it
@@ -147,7 +136,7 @@ test.describe("Subscription Flow Tests", () => {
   test("Subscription update: change from $50 to $100 tier", async ({
     page,
   }) => {
-    await loginViaBackdoor(page, generateTestEmail());
+    await loginAndNavigate(page, generateTestEmail());
     await createSubscription(page, 'label[for="tier-starving"]');
 
     // Verify the lowest tier ($50) is selected (radio inputs are typically hidden via CSS)
@@ -171,7 +160,7 @@ test.describe("Subscription Flow Tests", () => {
   test("Same amount rejection: cannot update to same tier", async ({
     page,
   }) => {
-    await loginViaBackdoor(page, generateTestEmail());
+    await loginAndNavigate(page, generateTestEmail());
     await createSubscription(page, 'label[for="tier-starving"]');
 
     // Try to "update" to the same $50 tier
@@ -192,7 +181,7 @@ test.describe("Subscription Flow Tests", () => {
   test("Manage page without subscription shows tier selector but no cancel button", async ({
     page,
   }) => {
-    await loginViaBackdoor(page, generateTestEmail());
+    await loginAndNavigate(page, generateTestEmail());
 
     // Verify no cancel button is present
     await expect(
