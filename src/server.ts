@@ -2,6 +2,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import fastifyCookie from "@fastify/cookie";
 import fastifyFormbody from "@fastify/formbody";
+import fastifyHelmet from "@fastify/helmet";
 import fastifyRateLimit from "@fastify/rate-limit";
 import fastifyStatic from "@fastify/static";
 import html from "@kitajs/fastify-html-plugin";
@@ -19,6 +20,11 @@ const fastify = Fastify({
 
 fastify.register(fastifyCookie, {
   secret: config.cookieSecret,
+});
+
+fastify.register(fastifyHelmet, {
+  // Disabled because of strange iOS Safari bugs when redirecting to Stripe
+  contentSecurityPolicy: false,
 });
 
 fastify.register(fastifyFormbody, { bodyLimit: 1024 });
