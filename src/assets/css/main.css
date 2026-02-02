@@ -369,6 +369,17 @@ body {
   border-color: var(--color-primary);
 }
 
+.sign-out-form {
+  display: inline-block;
+  margin: 0;
+  padding: 0;
+}
+
+.sign-out-form .btn-nav-filled {
+  font-family: inherit;
+  cursor: pointer;
+}
+
 .btn-nav-filled:hover {
   background-color: #b82e2e;
   border-color: #b82e2e;

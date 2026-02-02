@@ -30,9 +30,15 @@ export default function Navbar({ isAuthenticated }: NavbarProps) {
               >
                 Manage
               </a>
-              <a href={paths.signOut()} class="btn-nav btn-nav-filled">
-                Sign Out
-              </a>
+              <form
+                method="post"
+                action={paths.signOut()}
+                class="sign-out-form"
+              >
+                <button type="submit" class="btn-nav btn-nav-filled">
+                  Sign Out
+                </button>
+              </form>
             </>
           ) : (
             <a href={paths.signIn()} class="btn-nav">

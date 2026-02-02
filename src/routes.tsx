@@ -411,7 +411,7 @@ export default async function routes(fastify: FastifyInstance) {
     });
   }
 
-  fastify.get(paths.signOut(), async (request, reply) => {
+  fastify.post(paths.signOut(), async (request, reply) => {
     const sessionCookie = cookies[CookieName.UserSession](request, reply);
     sessionCookie.clear();
 

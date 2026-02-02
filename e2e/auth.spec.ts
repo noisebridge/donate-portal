@@ -58,8 +58,8 @@ test.describe("Auth Flow Tests", () => {
     // Verify redirected and authenticated (on /manage page)
     await expect(page).toHaveURL(/\/manage/);
 
-    // Navigate to signout
-    await page.goto("/auth/signout");
+    // Click the Sign Out button
+    await page.locator('.sign-out-form button[type="submit"]').click();
 
     // Verify redirected to home page
     await expect(page).toHaveURL("/");
