@@ -130,7 +130,9 @@ test.describe("Subscription Flow Tests", () => {
     await createSubscription(page, 'label[for="tier-employed"]');
 
     // Verify the portal button is visible and click it
-    const portalButton = page.locator('a[href="/subscribe/portal"]');
+    const portalButton = page.locator(
+      'form[action="/subscribe/portal"] button[type="submit"]',
+    );
     await expect(portalButton).toBeVisible();
     await portalButton.click();
 
@@ -198,7 +200,9 @@ test.describe("Subscription Flow Tests", () => {
     ).not.toBeVisible();
 
     // Verify no portal button is present
-    await expect(page.locator('a[href="/subscribe/portal"]')).not.toBeVisible();
+    await expect(
+      page.locator('form[action="/subscribe/portal"]'),
+    ).not.toBeVisible();
 
     // Verify subscription tier selector is present
     await expect(page.locator('label[for="tier-starving"]')).toBeVisible();

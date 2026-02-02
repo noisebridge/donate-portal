@@ -196,19 +196,19 @@ describe("DonationTierSelector", () => {
     expect(result).not.toContain("Start Monthly Donation");
   });
 
-  test("with subscription: portal link is visible", async () => {
+  test("with subscription: portal button is visible", async () => {
     const subscription = createMockSubscription(5000);
     const result = await (<DonationTierSelector subscription={subscription} />);
 
     expect(result).toBeTypeOf("string");
-    expect(result).toContain('href="/subscribe/portal"');
+    expect(result).toContain('action="/subscribe/portal"');
     expect(result).toContain("Past Invoices and Payment Methods");
   });
 
-  test("without subscription: portal link is not visible", async () => {
+  test("without subscription: portal button is not visible", async () => {
     const result = await (<DonationTierSelector />);
 
     expect(result).toBeTypeOf("string");
-    expect(result).not.toContain('href="/subscribe/portal"');
+    expect(result).not.toContain('action="/subscribe/portal"');
   });
 });

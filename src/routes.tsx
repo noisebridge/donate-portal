@@ -592,7 +592,7 @@ export default async function routes(fastify: FastifyInstance) {
     return reply.redirect(result.checkoutUrl);
   });
 
-  fastify.get(paths.stripePortal(), async (request, reply) => {
+  fastify.post(paths.stripePortal(), async (request, reply) => {
     const sessionCookie = cookies[CookieName.UserSession](request, reply);
     const sessionData = sessionCookie.value;
     if (!sessionData) {
