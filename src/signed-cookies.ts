@@ -1,3 +1,4 @@
+import type { CookieSerializeOptions } from "@fastify/cookie";
 import type { FastifyReply, FastifyRequest } from "fastify";
 import config from "~/config";
 
@@ -17,11 +18,13 @@ export enum CookieName {
 }
 
 class SignedCookie<T> {
-  static readonly baseOptions = {
+  static readonly baseOptions: CookieSerializeOptions = {
     secure: config.serverProtocol === "https",
     sameSite: "lax",
     path: "/",
-  } as const;
+    signed: true,
+    httpOnly: true,
+  };
 
   private readonly request: FastifyRequest;
   private readonly reply: FastifyReply;
@@ -78,8 +81,6 @@ class SignedCookie<T> {
   set value(newValue: T) {
     this.reply.setCookie(this.name, JSON.stringify(newValue), {
       ...SignedCookie.baseOptions,
-      signed: true,
-      httpOnly: true,
       maxAge: this.maxAge,
     });
   }
