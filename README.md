@@ -1,4 +1,4 @@
-my# donate.noisebridge.net
+# donate.noisebridge.net
 
 Donation portal for Noisebridge hackerspace.
 
