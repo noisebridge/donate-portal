@@ -3,6 +3,7 @@ import { baseLogger } from "~/logger";
 import paths from "~/paths";
 
 const userAgent = "NoisebridgeDonorPortal";
+const fetchTimeoutMs = 10_000;
 
 interface GoogleTokenResponse {
   access_token: string;
@@ -67,6 +68,7 @@ export class GoogleOAuth {
         redirect_uri: GoogleOAuth.redirectUri,
         grant_type: "authorization_code",
       }),
+      signal: AbortSignal.timeout(fetchTimeoutMs),
     });
     if (!response.ok) {
       const errorText = await response.text();
@@ -98,6 +100,7 @@ export class GoogleOAuth {
           Authorization: `Bearer ${accessToken}`,
           "User-Agent": userAgent,
         },
+        signal: AbortSignal.timeout(fetchTimeoutMs),
       },
     );
     if (!response.ok) {

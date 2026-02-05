@@ -3,6 +3,7 @@ import { baseLogger } from "~/logger";
 import paths from "~/paths";
 
 const userAgent = "NoisebridgeDonorPortal";
+const fetchTimeoutMs = 10_000;
 
 interface GitHubTokenResponse {
   access_token: string;
@@ -68,6 +69,7 @@ export class GitHubOAuth {
           code: code,
           redirect_uri: GitHubOAuth.redirectUri,
         }),
+        signal: AbortSignal.timeout(fetchTimeoutMs),
       },
     );
     if (!response.ok) {
@@ -97,6 +99,7 @@ export class GitHubOAuth {
         Accept: "application/vnd.github.v3+json",
         "User-Agent": userAgent,
       },
+      signal: AbortSignal.timeout(fetchTimeoutMs),
     });
     if (!response.ok) {
       GitHubOAuth.log.error(
@@ -119,6 +122,7 @@ export class GitHubOAuth {
         Accept: "application/vnd.github.v3+json",
         "User-Agent": userAgent,
       },
+      signal: AbortSignal.timeout(fetchTimeoutMs),
     });
     if (!response.ok) {
       GitHubOAuth.log.error(
