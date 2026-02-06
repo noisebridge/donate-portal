@@ -29,6 +29,7 @@ module qr_code(data) {
 module black(qr_data, text_lines) {
     color([0.2, 0.2, 0.2])
     union() {
+        // QR Code
         translate([
             qr_margin,
             height - (qr_margin + 1),
@@ -37,17 +38,19 @@ module black(qr_data, text_lines) {
             scale([1, 1, qr_depth])
                 qr_code(qr_data);
 
+        // Text
         translate([
             0,
             height - 72,
             back_depth - overlap
         ])
-            scale([1, 1, 2])
+            scale([1, 1, qr_depth])
                 render_text_lines(
                     text_lines,
                     width
                 );
 
+        // Borders
         translate([0, 0, back_depth - overlap])
             difference() {
                 cube([width, height, qr_depth]);
@@ -55,10 +58,11 @@ module black(qr_data, text_lines) {
                     cube([
                         width - border_width * 2,
                         height - border_width * 2,
-                        qr_depth + 2*overlap
+                        qr_depth + overlap * 2
                     ]);
             };
 
+        // Back
         cube([width, height, back_depth]);
     }
 };
@@ -73,6 +77,7 @@ module red(qr_insert) {
 module white(qr_data, qr_insert, text_lines) {
     color([1.0, 1.0, 1.0])
     difference() {
+        // Base rectangular prism
         translate([border_width, border_width, back_depth])
             cube([
                 width - border_width * 2,
@@ -80,6 +85,7 @@ module white(qr_data, qr_insert, text_lines) {
                 qr_depth - overlap
             ]);
 
+        // Subtract all other geometry
         union() {
             black(qr_data, text_lines);
 
