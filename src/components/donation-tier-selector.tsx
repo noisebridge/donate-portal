@@ -74,15 +74,8 @@ export function DonationTierSelector({
                 value={tier.amount.toString()}
                 required
                 checked={tier.checked}
-              />
-              <div class="tier-content">
-                <h3 class="tier-name">{tier.name}</h3>
-                <div class="tier-amount" aria-hidden="true">
-                  <span class="currency">$</span>
-                  <span class="amount">{tier.amount}</span>
-                  <span class="period">/month</span>
-                </div>
-              </div>
+              />{" "}
+              {tier.name} - ${tier.amount}/month
             </label>
           ))}
 
@@ -94,41 +87,26 @@ export function DonationTierSelector({
               value="custom"
               required
               checked={hasCustomAmount}
+            />{" "}
+            Custom Amount - $
+            <input
+              type="text"
+              inputmode="numeric"
+              name="custom-amount"
+              id="custom-amount"
+              data-min={SubscriptionManager.minimumAmount.cents / 100}
+              class="custom-input"
+              placeholder="0.00"
+              value={
+                hasCustomAmount
+                  ? ((existingAmount ?? 0) / 100).toFixed(2)
+                  : undefined
+              }
+              required
+              readonly={!hasCustomAmount}
+              style="width: 60px;"
             />
-            <div class="tier-content">
-              <h3 class="tier-name">Custom Amount</h3>
-              <div class="custom-amount-input">
-                <span class="currency" aria-hidden="true">
-                  $
-                </span>
-                <label for="custom-amount" class="visually-hidden">
-                  Custom monthly donation amount in dollars
-                </label>
-                <input
-                  type="text"
-                  inputmode="numeric"
-                  name="custom-amount"
-                  id="custom-amount"
-                  data-min={SubscriptionManager.minimumAmount.cents / 100}
-                  class="custom-input"
-                  placeholder="0.00"
-                  aria-describedby="custom-amount-monthly-hint"
-                  value={
-                    hasCustomAmount
-                      ? ((existingAmount ?? 0) / 100).toFixed(2)
-                      : undefined
-                  }
-                  required
-                  readonly={!hasCustomAmount}
-                />
-                <span class="period" aria-hidden="true">
-                  /month
-                </span>
-                <span id="custom-amount-monthly-hint" class="visually-hidden">
-                  Enter a custom dollar amount for your monthly donation
-                </span>
-              </div>
-            </div>
+            /month
           </label>
         </fieldset>
 

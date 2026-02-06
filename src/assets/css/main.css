@@ -1,7 +1,9 @@
 /* Early 2000s raw HTML style */
 
 body {
-  font-family: Times New Roman, serif;
+  font-family:
+    Times New Roman,
+    serif;
   font-size: 16px;
 }
 

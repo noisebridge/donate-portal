@@ -408,8 +408,8 @@ export default async function routes(fastify: FastifyInstance) {
       return reply.html(
         <ManagePage
           email="mock@example.com"
-          customer={null}
-          subscription={null}
+          customer={undefined}
+          subscription={undefined}
           messages={[]}
         />,
       );
