@@ -83,9 +83,6 @@ export function DonationTierSelector({
                   <span class="period">/month</span>
                 </div>
               </div>
-              <div class="tier-checkmark" aria-hidden="true">
-                <img src="/assets/image/checkmark.svg" alt="" />
-              </div>
             </label>
           ))}
 
@@ -131,9 +128,6 @@ export function DonationTierSelector({
                   Enter a custom dollar amount for your monthly donation
                 </span>
               </div>
-            </div>
-            <div class="tier-checkmark" aria-hidden="true">
-              <img src="/assets/image/checkmark.svg" alt="" />
             </div>
           </label>
         </fieldset>

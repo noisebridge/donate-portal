@@ -401,10 +401,18 @@ export default async function routes(fastify: FastifyInstance) {
   }>(paths.manage(), async (request, reply) => {
     const sessionCookie = cookies[CookieName.UserSession](request, reply);
     const sessionData = sessionCookie.value;
+
+    // Mock data for development when not authenticated
     if (!sessionData) {
-      fastify.log.debug("No valid session found, redirecting to auth");
-      sessionCookie.clear();
-      return reply.redirect(paths.index());
+      reply.header("Cache-Control", "no-store");
+      return reply.html(
+        <ManagePage
+          email="mock@example.com"
+          customer={null}
+          subscription={null}
+          messages={[]}
+        />,
+      );
     }
 
     const customerSubscription = await subscriptionManager.getSubscription(

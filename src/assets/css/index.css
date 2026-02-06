@@ -1,149 +1,28 @@
-/* Hero Section */
-.hero {
-  text-align: center;
-  width: 100%;
-  margin-left: auto;
-  margin-right: auto;
-}
+/* Index page styles */
 
-.hero h1 {
-  font-size: 2.75rem;
-  font-weight: 600;
-  color: var(--color-text);
-  margin-bottom: var(--spacing-sm);
-  letter-spacing: -0.02em;
-  line-height: 1.2;
-}
-
-.card h2 {
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: var(--color-text);
-  margin-bottom: var(--spacing-sm);
-}
-
-.card p {
-  font-size: 0.9375rem;
-  color: var(--color-text-light);
-  margin-bottom: var(--spacing-lg);
-  line-height: 1.6;
-}
-
-/* Amount Buttons */
 .amount-buttons {
-  display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 0.625rem;
-  margin-bottom: var(--spacing-lg);
+  margin-bottom: 20px;
+  border: none;
 }
 
 .amount-buttons input[type="radio"] {
-  position: absolute;
-  opacity: 0;
-  pointer-events: none;
+  margin-right: 5px;
 }
 
-.btn-amount {
-  background-color: var(--color-white);
-  color: var(--color-text);
-  border: 1px solid var(--color-border);
-  padding: 0.875rem 0.5rem;
-  font-size: 0.9375rem;
-  font-weight: 600;
-  border-radius: 6px;
-  transition:
-    border-color 0.15s ease,
-    background-color 0.15s ease;
-  cursor: pointer;
-  text-align: center;
-  display: block;
+.amount-buttons label {
+  margin-right: 15px;
 }
 
-.btn-amount:hover {
-  border-color: var(--color-text-light);
-  background-color: var(--color-background);
-}
-
-input[type="radio"]:checked + .btn-amount {
-  border-color: var(--color-primary);
-  background-color: var(--color-primary);
-  color: var(--color-white);
-}
-
-input[type="radio"]:focus + .btn-amount {
-  outline: 2px solid var(--color-primary);
-  outline-offset: 2px;
-}
-
-/* Custom Amount Input */
 .custom-amount {
-  margin-bottom: var(--spacing-lg);
+  margin-top: 20px;
+  margin-bottom: 20px;
+  display: none;
 }
 
-.custom-amount label {
+.custom-amount.visible {
   display: block;
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--color-text);
-  margin-bottom: var(--spacing-xs);
 }
 
-.input-group {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.input-prefix {
-  position: absolute;
-  left: 1rem;
-  font-size: 1.125rem;
-  font-weight: 500;
-  color: var(--color-text-light);
-  pointer-events: none;
-}
-
-.custom-amount input {
-  width: 100%;
-  padding: 0.875rem 1rem 0.875rem 2rem;
-  font-size: 1rem;
-  border: 1px solid var(--color-border);
-  border-radius: 6px;
-  background-color: var(--color-white);
-  transition:
-    border-color 0.15s ease,
-    box-shadow 0.15s ease;
-  color: var(--color-text);
-}
-
-.custom-amount input:hover:not(:read-only) {
-  border-color: var(--color-text-light);
-}
-
-.custom-amount input:focus {
-  outline: none;
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(204, 51, 51, 0.1);
-}
-
-.custom-amount input::placeholder {
-  color: var(--color-text-light);
-  opacity: 0.5;
-}
-
-.custom-amount input:read-only {
-  background-color: var(--color-background);
-  cursor: text;
-  opacity: 0.6;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-  .hero h1 {
-    font-size: 2.25rem;
-  }
-
-  .amount-buttons {
-    grid-template-columns: repeat(3, 1fr);
-  }
+#donate-now {
+  margin-top: 20px;
 }
