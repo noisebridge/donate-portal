@@ -60,15 +60,6 @@ declare module "qrcode-svg" {
      * @default true
      */
     xmlDeclaration?: boolean;
-    /**
-     * Wrapping element.
-     * - "svg" - SVG document with width and height attribute (recommended for raster/PDF conversion)
-     * - "svg-viewbox" - SVG document with viewBox attribute (recommended for responsive web pages)
-     * - "g" - put squares in g element (useful for multiple QR codes in single SVG)
-     * - "none" - no wrapper
-     * @default "svg"
-     */
-    container?: "svg" | "svg-viewbox" | "g" | "none";
   }
 
   export interface SvgOptions {
@@ -103,14 +94,14 @@ declare module "qrcode-svg" {
   }
 
   class QRCode {
-    options: Required<QRCodeOptions>;
+    options: Required<QRCodeOptions & SvgOptions>;
     qrcode: QRCodeModel;
 
     /**
      * Create a new QRCode instance
      * @param options - QR Code options or content string
      */
-    constructor(options: QRCodeOptions | string);
+    constructor(options: (QRCodeOptions & SvgOptions) | string);
 
     /**
      * Generates QR Code as SVG image
