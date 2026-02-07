@@ -16,7 +16,7 @@ curl -fsSL https://bun.sh/install | bash
 
 ```bash
 bun install
-playwright install firefox
+bunx playwright install firefox
 ```
 
 ### Set up `.env` file
