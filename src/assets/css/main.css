@@ -103,7 +103,7 @@ input::placeholder {
 
 /* TUI navbar - top status bar */
 nav {
-  border: 1px solid #0a0;
+  border: 3px dashed #0a0;
   margin: 8px 20px;
   padding: 10px 20px;
   background-color: #0a0a0a;
@@ -112,7 +112,7 @@ nav {
 
 /* TUI card panels */
 .card {
-  border: 1px solid #0a0;
+  border: 3px dashed #0a0;
   padding: 16px 20px;
   margin-bottom: 12px;
   position: relative;
@@ -224,7 +224,7 @@ hr {
 
 /* TUI footer - status bar */
 footer {
-  border: 1px solid #0a0;
+  border: 3px dashed #0a0;
   margin: 8px 20px;
   padding: 6px 20px;
   color: #555;
@@ -256,7 +256,7 @@ footer a:hover {
 
 /* TUI fieldset */
 fieldset {
-  border: 1px solid #0a0;
+  border: 3px dashed #0a0;
   padding: 12px;
   margin-bottom: 12px;
 }

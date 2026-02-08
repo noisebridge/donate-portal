@@ -18,7 +18,7 @@
 
 .qr-preview {
   margin-bottom: 16px;
-  border: 1px solid #0a0;
+  border: 3px dashed #0a0;
   padding: 12px;
 }
 

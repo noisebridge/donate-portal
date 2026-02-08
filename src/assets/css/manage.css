@@ -1,7 +1,7 @@
 /* Manage page styles */
 
 .tier-options {
-  border: 1px solid #0a0;
+  border: 3px dashed #0a0;
   padding: 12px;
   margin-bottom: 16px;
 }
@@ -30,7 +30,7 @@
 }
 
 .donation-tier-form {
-  border: 1px solid #0a0;
+  border: 3px dashed #0a0;
   padding: 16px 20px;
   margin-bottom: 12px;
 }
