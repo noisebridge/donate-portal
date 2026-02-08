@@ -150,6 +150,87 @@ function usage(): never {
   process.exit(1);
 }
 
+// Valid characters supported by font.scad
+const VALID_CHARS = new Set([
+  "A",
+  "B",
+  "C",
+  "D",
+  "E",
+  "F",
+  "G",
+  "H",
+  "I",
+  "J",
+  "K",
+  "L",
+  "M",
+  "N",
+  "O",
+  "P",
+  "Q",
+  "R",
+  "S",
+  "T",
+  "U",
+  "V",
+  "W",
+  "X",
+  "Y",
+  "Z",
+  "a",
+  "b",
+  "c",
+  "d",
+  "e",
+  "f",
+  "g",
+  "h",
+  "i",
+  "j",
+  "k",
+  "l",
+  "m",
+  "n",
+  "o",
+  "p",
+  "q",
+  "r",
+  "s",
+  "t",
+  "u",
+  "v",
+  "w",
+  "x",
+  "y",
+  "z",
+  "0",
+  "1",
+  "2",
+  "3",
+  "4",
+  "5",
+  "6",
+  "7",
+  "8",
+  "9",
+  " ",
+  ".",
+  "/",
+  ":",
+  "$",
+]);
+
+function validateCharacters(text: string): string | null {
+  for (let i = 0; i < text.length; i++) {
+    const char = text[i];
+    if (char && !VALID_CHARS.has(char)) {
+      return char;
+    }
+  }
+  return null;
+}
+
 function parseTextLines(raw: string): string[] {
   try {
     const parsed = JSON.parse(raw);
@@ -167,9 +248,18 @@ function parseTextLines(raw: string): string[] {
 
     for (let i = 0; i < parsed.length; i++) {
       // biome-ignore lint/style/noNonNullAssertion: YOLO
-      if (parsed[i]!.length > 9) {
+      const line = parsed[i]!;
+
+      if (line.length > 9) {
         throw new Error(
           `text-lines[${i}] is too long. Keep below 9 characters.`,
+        );
+      }
+
+      const invalidChar = validateCharacters(line);
+      if (invalidChar) {
+        throw new Error(
+          `text-lines[${i}] contains invalid character '${invalidChar}'. Valid characters are: A-Z, a-z, 0-9, space, period (.), slash (/), colon (:), dollar sign ($)`,
         );
       }
     }

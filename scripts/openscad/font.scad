@@ -810,37 +810,38 @@ function lookup_char(char) =
 
 overlap = 0.001;
 
+function calc_x_offsets(str, i=0, offset=0) =
+  i >= len(str) ? [] :
+  let(char_data = lookup_char(str[i]))
+  let(char_width = char_data != undef ? len(char_data[0]) : 0)
+  concat([offset], calc_x_offsets(str, i+1, offset + char_width + 1));
+
 module render_centered_text(text, width) {
-  // Calculate x offset for each character
-  function calc_x_offsets(str, i=0, offset=0) =
-    i >= len(str) ? [] :
-    let(char_data = lookup_char(str[i]))
-    let(char_width = char_data != undef ? len(char_data[0]) : 0)
-    concat([offset], calc_x_offsets(str, i+1, offset + char_width + 1));
+  // Handle empty text lines by only rendering if text has content
+  if (len(text) > 0) {
+    x_offsets = calc_x_offsets(text);
 
-  x_offsets = calc_x_offsets(text);
+    // Calculate total text width
+    last_char = lookup_char(text[len(text)-1]);
+    total_width = x_offsets[len(text)-1] + (last_char != undef ? len(last_char[0]) : 0);
 
-  // Calculate total text width
-  last_char = lookup_char(text[len(text)-1]);
-  total_width = len(text) > 0 ?
-    x_offsets[len(text)-1] + (last_char != undef ? len(last_char[0]) : 0) : 0;
+    // Calculate centering offset
+    center_offset = (width - total_width) / 2;
 
-  // Calculate centering offset
-  center_offset = (width - total_width) / 2;
+    // Render each character
+    for (i = [0:len(text)-1]) {
+      char_data = lookup_char(text[i]);
 
-  // Render each character
-  for (i = [0:len(text)-1]) {
-    char_data = lookup_char(text[i]);
+      if (char_data != undef) {
+        x_offset = x_offsets[i] + center_offset;
 
-    if (char_data != undef) {
-      x_offset = x_offsets[i] + center_offset;
-
-      // Render pixels for this character
-      for (row = [0:len(char_data)-1]) {
-        for (col = [0:len(char_data[row])-1]) {
-          if (char_data[row][col] == 1) {
-            translate([x_offset + col, 7 - row, 0])
-              cube(1 + overlap);
+        // Render pixels for this character
+        for (row = [0:len(char_data)-1]) {
+          for (col = [0:len(char_data[row])-1]) {
+            if (char_data[row][col] == 1) {
+              translate([x_offset + col, 7 - row, 0])
+                cube(1 + overlap);
+            }
           }
         }
       }
