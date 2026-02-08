@@ -88,7 +88,7 @@ export function DonationTierSelector({
               required
               checked={hasCustomAmount}
             />{" "}
-            Custom Amount - $
+            Custom Amount - ${" "}
             <input
               type="text"
               inputmode="numeric"
@@ -104,7 +104,7 @@ export function DonationTierSelector({
               }
               required
               readonly={!hasCustomAmount}
-              style="width: 60px;"
+              style="width: 60px; margin: 0 4px;"
             />
             /month
           </label>

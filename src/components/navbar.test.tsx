@@ -23,11 +23,11 @@ describe("Navbar", () => {
     expect(result).not.toContain('action="/auth/signout"');
   });
 
-  test("when authenticated: shows 'Manage' link", async () => {
+  test("when authenticated: does not show 'Manage' link (removed from navbar)", async () => {
     const result = await (<Navbar isAuthenticated={true} />);
 
     expect(result).toBeTypeOf("string");
-    expect(result).toContain('href="/manage"');
+    expect(result).not.toContain('href="/manage"');
   });
 
   test("when authenticated: shows 'Sign Out' form", async () => {

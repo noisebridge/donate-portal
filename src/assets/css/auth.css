@@ -6,9 +6,24 @@
 
 .oauth-buttons a {
   display: block;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
 .form-group {
-  margin-bottom: 20px;
+  margin-bottom: 16px;
+}
+
+.auth-subtitle {
+  color: #777;
+  margin-bottom: 16px;
+}
+
+.divider {
+  color: #555;
+  margin: 16px 0;
+}
+
+.magic-link-description {
+  color: #777;
+  margin-bottom: 12px;
 }

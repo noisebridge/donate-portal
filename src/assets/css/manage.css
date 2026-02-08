@@ -1,13 +1,14 @@
 /* Manage page styles */
 
 .tier-options {
-  border: none;
-  margin-bottom: 20px;
+  border: 1px solid #0a0;
+  padding: 12px;
+  margin-bottom: 16px;
 }
 
 .tier-card {
   display: block;
-  margin-bottom: 10px;
+  margin-bottom: 6px;
 }
 
 .tier-content {
@@ -15,13 +16,21 @@
 }
 
 .form-description {
-  margin-bottom: 15px;
+  color: #777;
+  margin-bottom: 12px;
 }
 
 .manage-header {
-  margin-bottom: 20px;
+  margin-bottom: 16px;
 }
 
 .manage-header p {
-  margin-top: 10px;
+  margin-top: 6px;
+  color: #999;
+}
+
+.donation-tier-form {
+  border: 1px solid #0a0;
+  padding: 16px 20px;
+  margin-bottom: 12px;
 }

@@ -16,7 +16,7 @@ export default function Navbar({ isAuthenticated }: NavbarProps) {
               style="width: 48px; height: 48px;"
             />
           </a>
-          <h1 style="display: inline; margin-left: 10px; font-size: 2.5rem;">
+          <h1 style="display: inline; margin-left: 10px; font-size: 2.5rem; margin-top: 0; margin-bottom: 0;">
             Noisebridge
           </h1>
         </div>
@@ -32,7 +32,7 @@ export default function Navbar({ isAuthenticated }: NavbarProps) {
               </button>
             </form>
           ) : (
-            <a href={paths.signIn()} style="font-size: 1.25rem; color: blue;">
+            <a href={paths.signIn()} style="font-size: 1.25rem;">
               Sign In
             </a>
           )}

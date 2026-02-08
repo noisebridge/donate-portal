@@ -37,7 +37,6 @@ export function IndexPage({ isAuthenticated, messages = [] }: IndexProps) {
           <a
             class="btn btn-primary btn-large"
             href={isAuthenticated ? paths.manage() : paths.signIn()}
-            style="color: blue;"
           >
             {isAuthenticated
               ? "Manage Your Donation"

@@ -1,8 +1,16 @@
 /* Index page styles */
 
+.hero {
+  margin-bottom: 12px;
+}
+
+.hero p {
+  color: #777;
+  margin-top: 4px;
+}
+
 .amount-buttons {
   margin-bottom: 20px;
-  border: none;
 }
 
 .amount-buttons input[type="radio"] {
@@ -10,12 +18,13 @@
 }
 
 .amount-buttons label {
-  margin-right: 15px;
+  margin-right: 8px;
+  margin-bottom: 4px;
 }
 
 .custom-amount {
-  margin-top: 20px;
-  margin-bottom: 20px;
+  margin-top: 16px;
+  margin-bottom: 16px;
   display: none;
 }
 
@@ -24,5 +33,10 @@
 }
 
 #donate-now {
-  margin-top: 20px;
+  margin-top: 16px;
+}
+
+.card p {
+  color: #999;
+  margin-bottom: 12px;
 }

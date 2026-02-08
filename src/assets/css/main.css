@@ -1,19 +1,90 @@
-/* Early 2000s raw HTML style */
+/* TUI / Terminal UI theme */
+
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
 
 body {
-  font-family:
-    Times New Roman,
-    serif;
-  font-size: 16px;
+  font-family: "Courier New", Courier, monospace;
+  font-size: 14px;
+  background-color: #0a0a0a;
+  color: #ccc;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+#main-content {
+  flex: 1;
+}
+
+/* TUI selection - no native blue highlight */
+::selection {
+  background: #0f0;
+  color: #000;
 }
 
 a {
-  color: blue;
-  text-decoration: underline;
+  color: #0f0;
+  text-decoration: none;
 }
 
 a:visited {
-  color: purple;
+  color: #0f0;
+}
+
+a:hover {
+  background-color: #0f0;
+  color: #000;
+}
+
+h1 {
+  color: #fff;
+  font-weight: bold;
+}
+
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: #0f0;
+  font-weight: bold;
+}
+
+p {
+  line-height: 1.6;
+}
+
+input,
+select,
+textarea {
+  background-color: #111;
+  color: #ccc;
+  border: 1px solid #333;
+  font-family: "Courier New", Courier, monospace;
+  padding: 4px 8px;
+  font-size: 14px;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: #0f0;
+  box-shadow: 0 0 4px rgba(0, 255, 0, 0.3);
+}
+
+input::placeholder {
+  color: #444;
 }
 
 /* Logo in header */
@@ -30,7 +101,33 @@ a:visited {
   vertical-align: middle;
 }
 
-/* Make all buttons look like blue underlined links */
+/* TUI navbar - top status bar */
+nav {
+  border: 1px solid #0a0;
+  margin: 8px 20px;
+  padding: 10px 20px;
+  background-color: #0a0a0a;
+  position: relative;
+}
+
+/* TUI card panels */
+.card {
+  border: 1px solid #0a0;
+  padding: 16px 20px;
+  margin-bottom: 12px;
+  position: relative;
+}
+
+.card h2 {
+  margin-bottom: 12px;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border-bottom: 1px solid #222;
+  padding-bottom: 8px;
+}
+
+/* TUI buttons */
 .btn,
 .btn-primary,
 .btn-secondary,
@@ -42,14 +139,14 @@ a:visited {
 .btn-nav-icon,
 button[type="submit"] {
   background: none;
-  border: none;
-  color: blue;
-  text-decoration: underline;
+  border: 1px solid #0f0;
+  color: #0f0;
+  text-decoration: none;
   cursor: pointer;
   font-family: inherit;
   font-size: inherit;
-  padding: 0;
-  display: inline;
+  padding: 4px 12px;
+  display: inline-block;
 }
 
 .btn:hover,
@@ -59,7 +156,20 @@ button[type="submit"] {
 .btn-large:hover,
 .btn-nav:hover,
 button[type="submit"]:hover {
-  color: purple;
+  background-color: #0f0;
+  color: #000;
+}
+
+/* Prompt prefix on buttons */
+.btn::before,
+button[type="submit"]::before {
+  content: "> ";
+  color: #0a0;
+}
+
+.btn:hover::before,
+button[type="submit"]:hover::before {
+  color: #000;
 }
 
 /* Visually hidden but accessible to screen readers */
@@ -78,20 +188,91 @@ button[type="submit"]:hover {
 /* Basic spacing */
 .container,
 .container-narrow {
-  padding: 20px;
+  padding: 16px 20px;
+  max-width: 720px;
 }
 
-/* Messages */
+/* TUI messages */
 .message-error {
-  color: red;
+  color: #f55;
+  padding: 4px 8px;
+  border: 1px solid #f55;
+}
+
+.message-error::before {
+  content: "ERROR: ";
+  font-weight: bold;
 }
 
 .message-info {
-  color: green;
+  color: #0f0;
+  padding: 4px 8px;
+  border: 1px solid #0f0;
 }
 
+.message-info::before {
+  content: "INFO: ";
+  font-weight: bold;
+}
+
+/* TUI dividers */
 hr {
-  margin: 10px 0;
+  margin: 12px 0;
+  border: none;
+  border-top: 1px solid #222;
+}
+
+/* TUI footer - status bar */
+footer {
+  border: 1px solid #0a0;
+  margin: 8px 20px;
+  padding: 6px 20px;
+  color: #555;
+  font-size: 12px;
+  display: flex;
+  justify-content: space-between;
+}
+
+footer::after {
+  content: "donate-portal v1.0";
+  color: #333;
+}
+
+footer a {
+  color: #555;
+}
+
+footer a:hover {
+  color: #0f0;
+  background: none;
+}
+
+/* Dimmed/muted text */
+.form-description,
+.auth-subtitle,
+.page-message-muted {
+  color: #666;
+}
+
+/* TUI fieldset */
+fieldset {
+  border: 1px solid #0a0;
+  padding: 12px;
+  margin-bottom: 12px;
+}
+
+/* TUI selection cursor */
+input[type="radio"] {
+  accent-color: #0f0;
+}
+
+/* Blinking cursor after page title */
+.hero h1::after {
+  content: "\2588";
+  color: #0f0;
+  animation: blink 1s step-end infinite;
+  margin-left: 4px;
+  font-weight: normal;
 }
 
 html {
