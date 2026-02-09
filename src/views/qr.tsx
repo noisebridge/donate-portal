@@ -61,6 +61,14 @@ export function QrPage({ amount, name, description }: QrPageProps) {
               Donate
             </button>
           </form>
+
+          <div class="divider">
+            <span class="divider-text">or</span>
+          </div>
+
+          <a href={`${paths.index()}#donate`} class="btn btn-outline">
+            Make a general donation
+          </a>
         </div>
       </div>
     </Layout>

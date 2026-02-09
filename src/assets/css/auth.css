@@ -43,33 +43,6 @@
   flex-shrink: 0;
 }
 
-/* Divider */
-.divider {
-  position: relative;
-  text-align: center;
-  margin: var(--spacing-lg) 0;
-}
-
-.divider::before {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background-color: var(--color-border);
-}
-
-.divider-text {
-  position: relative;
-  display: inline-block;
-  padding: 0 var(--spacing-sm);
-  background-color: var(--color-white);
-  color: var(--color-text-light);
-  font-size: 0.875rem;
-  font-weight: 500;
-}
-
 /* Magic Link Section */
 .magic-link-section {
   margin-top: var(--spacing-lg);

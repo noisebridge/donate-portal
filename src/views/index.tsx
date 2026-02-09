@@ -44,7 +44,7 @@ export function IndexPage({ isAuthenticated, messages = [] }: IndexProps) {
           </a>
         </div>
 
-        <div class="card">
+        <div id="donate" class="card">
           <h2>One-Time Donation</h2>
           <p>Make a single contribution to support Noisebridge.</p>
 

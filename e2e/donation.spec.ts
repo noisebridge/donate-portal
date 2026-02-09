@@ -203,6 +203,23 @@ test.describe("QR Donation Endpoint", () => {
     expect(response?.status()).toBe(400);
   });
 
+  test("general donation link is visible and links to index donate section", async ({
+    page,
+  }) => {
+    await page.goto("/qr?amount=5.00");
+
+    const generalDonateLink = page.locator(
+      'a:has-text("Make a general donation")',
+    );
+    await expect(generalDonateLink).toBeVisible();
+    await expect(generalDonateLink).toHaveAttribute("href", "/#donate");
+
+    await generalDonateLink.click();
+
+    await expect(page).toHaveURL("/#donate");
+    await expect(page.locator("#donate")).toBeVisible();
+  });
+
   test("redirects to index with error for invalid amount", async ({ page }) => {
     await page.goto("/qr?amount=invalid");
 
