@@ -517,7 +517,12 @@ export default async function routes(fastify: FastifyInstance) {
     }
 
     return reply.html(
-      <QrPage amount={amountCents} name={name} description={description} />,
+      <QrPage
+        amount={amountCents}
+        name={name}
+        description={description}
+        isAuthenticated={isAuthenticated(request, reply)}
+      />,
     );
   });
 

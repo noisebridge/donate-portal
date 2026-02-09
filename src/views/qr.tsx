@@ -7,9 +7,15 @@ export interface QrPageProps {
   amount: Cents;
   name?: string | undefined;
   description?: string | undefined;
+  isAuthenticated: boolean;
 }
 
-export function QrPage({ amount, name, description }: QrPageProps) {
+export function QrPage({
+  amount,
+  name,
+  description,
+  isAuthenticated,
+}: QrPageProps) {
   const minDollars = DonationManager.minimumAmount.cents / 100;
   const maxDollars = (amount.cents * 2) / 100;
   const initialDollars = amount.cents / 100;
@@ -19,7 +25,7 @@ export function QrPage({ amount, name, description }: QrPageProps) {
       title="Donate to Noisebridge"
       script="qr.mjs"
       styles="qr.css"
-      isAuthenticated={false}
+      isAuthenticated={isAuthenticated}
     >
       <div class="container-narrow">
         <div class="card text-center">
