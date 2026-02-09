@@ -1,6 +1,7 @@
 node_modules/
 
 .zed/
+.playwright-mcp/
 **/.claude/
 **/.DS_Store
 
