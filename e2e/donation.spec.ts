@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { DonationManager } from "~/managers/donation";
 import {
   fillStripeCheckoutForm,
   getExpiryOneYearFromNow,
@@ -182,6 +183,24 @@ test.describe("QR Donation Endpoint", () => {
     // Should redirect to Stripe checkout with new amount
     await expect(page).toHaveURL(/checkout\.stripe\.com/);
     await expect(page.getByText("$15.00")).toBeVisible();
+  });
+
+  test("returns 400 when name exceeds max length", async ({ page }) => {
+    const longName = "a".repeat(DonationManager.maxNameLength + 1);
+    const response = await page.goto(`/qr?amount=5.00&name=${longName}`);
+
+    expect(response?.status()).toBe(400);
+  });
+
+  test("returns 400 when description exceeds max length", async ({ page }) => {
+    const longDescription = "a".repeat(
+      DonationManager.maxDescriptionLength + 1,
+    );
+    const response = await page.goto(
+      `/qr?amount=5.00&description=${longDescription}`,
+    );
+
+    expect(response?.status()).toBe(400);
   });
 
   test("redirects to index with error for invalid amount", async ({ page }) => {

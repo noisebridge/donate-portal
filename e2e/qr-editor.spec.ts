@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { DonationManager } from "~/managers/donation";
 
 test.describe("QR Editor Page", () => {
   test.beforeEach(async ({ page }) => {
@@ -150,26 +151,32 @@ test.describe("QR Editor Navigation", () => {
 
 test.describe("QR SVG Endpoint", () => {
   test("returns SVG for valid amount", async ({ page }) => {
-    const response = await page.goto("/qr.svg?amount=5.00");
+    const response = await page.goto("/qr.svg?amount=5.00", {
+      waitUntil: "commit",
+    });
 
     expect(response?.status()).toBe(200);
     expect(response?.headers()["content-type"]).toContain("image/svg+xml");
   });
 
   test("returns 400 for missing amount", async ({ page }) => {
-    const response = await page.goto("/qr.svg");
+    const response = await page.goto("/qr.svg", { waitUntil: "commit" });
 
     expect(response?.status()).toBe(400);
   });
 
   test("returns 400 for invalid amount", async ({ page }) => {
-    const response = await page.goto("/qr.svg?amount=invalid");
+    const response = await page.goto("/qr.svg?amount=invalid", {
+      waitUntil: "commit",
+    });
 
     expect(response?.status()).toBe(400);
   });
 
   test("accepts optional name parameter", async ({ page }) => {
-    const response = await page.goto("/qr.svg?amount=5.00&name=TestDonation");
+    const response = await page.goto("/qr.svg?amount=5.00&name=TestDonation", {
+      waitUntil: "commit",
+    });
 
     expect(response?.status()).toBe(200);
   });
@@ -177,6 +184,47 @@ test.describe("QR SVG Endpoint", () => {
   test("accepts optional description parameter", async ({ page }) => {
     const response = await page.goto(
       "/qr.svg?amount=5.00&description=TestDescription",
+      { waitUntil: "commit" },
+    );
+
+    expect(response?.status()).toBe(200);
+  });
+
+  test("returns 400 when name exceeds max length", async ({ page }) => {
+    const longName = "a".repeat(DonationManager.maxNameLength + 1);
+    const response = await page.goto(`/qr.svg?amount=5.00&name=${longName}`, {
+      waitUntil: "commit",
+    });
+
+    expect(response?.status()).toBe(400);
+  });
+
+  test("accepts name at exactly max length", async ({ page }) => {
+    const name = "a".repeat(DonationManager.maxNameLength);
+    const response = await page.goto(`/qr.svg?amount=5.00&name=${name}`, {
+      waitUntil: "commit",
+    });
+
+    expect(response?.status()).toBe(200);
+  });
+
+  test("returns 400 when description exceeds max length", async ({ page }) => {
+    const longDescription = "a".repeat(
+      DonationManager.maxDescriptionLength + 1,
+    );
+    const response = await page.goto(
+      `/qr.svg?amount=5.00&description=${longDescription}`,
+      { waitUntil: "commit" },
+    );
+
+    expect(response?.status()).toBe(400);
+  });
+
+  test("accepts description at exactly max length", async ({ page }) => {
+    const description = "a".repeat(DonationManager.maxDescriptionLength);
+    const response = await page.goto(
+      `/qr.svg?amount=5.00&description=${description}`,
+      { waitUntil: "commit" },
     );
 
     expect(response?.status()).toBe(200);
@@ -185,11 +233,13 @@ test.describe("QR SVG Endpoint", () => {
   test("accepts use-logo parameter", async ({ page }) => {
     const responseWithLogo = await page.goto(
       "/qr.svg?amount=5.00&use-logo=true",
+      { waitUntil: "commit" },
     );
     expect(responseWithLogo?.status()).toBe(200);
 
     const responseWithoutLogo = await page.goto(
       "/qr.svg?amount=5.00&use-logo=false",
+      { waitUntil: "commit" },
     );
     expect(responseWithoutLogo?.status()).toBe(200);
   });

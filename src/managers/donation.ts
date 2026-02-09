@@ -96,7 +96,10 @@ export class DonationManager {
   static readonly log = baseLogger.child({ class: "DonationManager" });
   static readonly minimumAmount: Cents = { cents: 200 };
   static readonly defaultName = "Donation to Noisebridge";
+  static readonly maxNameLength = 40;
   static readonly defaultDescription = "Support our hackerspace community";
+  static readonly maxDescriptionLength = 80;
+
   /**
    * Fake QR code shown for error states.
    */

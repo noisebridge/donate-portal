@@ -54,7 +54,7 @@ export function QrEditorPage({ isAuthenticated }: QrEditorProps) {
                 id="name"
                 name="name"
                 placeholder={DonationManager.defaultName}
-                maxlength={40}
+                maxlength={DonationManager.maxNameLength}
               />
             </div>
 
@@ -65,7 +65,7 @@ export function QrEditorPage({ isAuthenticated }: QrEditorProps) {
                 id="description"
                 name="description"
                 placeholder={DonationManager.defaultDescription}
-                maxlength={80}
+                maxlength={DonationManager.maxDescriptionLength}
               />
             </div>
 

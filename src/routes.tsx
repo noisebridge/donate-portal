@@ -9,7 +9,7 @@ import type {
 import type Stripe from "stripe";
 import type { Message } from "~/components/message-container";
 import config from "~/config";
-import donationManager from "~/managers/donation";
+import donationManager, { DonationManager } from "~/managers/donation";
 import magicLinkManager from "~/managers/magic-link";
 import subscriptionManager from "~/managers/subscription";
 import { parseToCents, validateAmountFormData } from "~/money";
@@ -457,6 +457,22 @@ export default async function routes(fastify: FastifyInstance) {
     }
 
     const { name, description } = body;
+    if (name && name.length > DonationManager.maxNameLength) {
+      return reply
+        .status(400)
+        .send(`Name length must be less than ${DonationManager.maxNameLength}`);
+    }
+    if (
+      description &&
+      description.length > DonationManager.maxDescriptionLength
+    ) {
+      return reply
+        .status(400)
+        .send(
+          `Description length must be less than ${DonationManager.maxDescriptionLength}`,
+        );
+    }
+
     const result = await donationManager.donate(amountCents, name, description);
     if (!result.success) {
       fastify.log.error(`Couldn't initiate Stripe donation: ${result.error}`);
@@ -483,6 +499,23 @@ export default async function routes(fastify: FastifyInstance) {
       );
     }
 
+    if (name && name.length > DonationManager.maxNameLength) {
+      return reply
+        .status(400)
+        .send(`Name length must be less than ${DonationManager.maxNameLength}`);
+    }
+
+    if (
+      description &&
+      description.length > DonationManager.maxDescriptionLength
+    ) {
+      return reply
+        .status(400)
+        .send(
+          `Description length must be less than ${DonationManager.maxDescriptionLength}`,
+        );
+    }
+
     return reply.html(
       <QrPage amount={amountCents} name={name} description={description} />,
     );
@@ -501,6 +534,23 @@ export default async function routes(fastify: FastifyInstance) {
     const amountCents = parseToCents(amount ?? "");
     if (amountCents === null) {
       return reply.status(400).send("Invalid amount");
+    }
+
+    if (name && name.length > DonationManager.maxNameLength) {
+      return reply
+        .status(400)
+        .send(`Name length must be less than ${DonationManager.maxNameLength}`);
+    }
+
+    if (
+      description &&
+      description.length > DonationManager.maxDescriptionLength
+    ) {
+      return reply
+        .status(400)
+        .send(
+          `Description length must be less than ${DonationManager.maxDescriptionLength}`,
+        );
     }
 
     const includelogo = useLogo !== "false";

@@ -1,4 +1,5 @@
 import { describe, expect, test } from "bun:test";
+import { DonationManager } from "~/managers/donation";
 import { QrEditorPage } from "./qr-editor";
 
 describe("QrEditorPage", () => {
@@ -63,5 +64,19 @@ describe("QrEditorPage", () => {
     const result = await (<QrEditorPage isAuthenticated={false} />);
 
     expect(result).toContain('id="qr-url"');
+  });
+
+  test("should set name maxlength from DonationManager.maxNameLength", async () => {
+    const result = await (<QrEditorPage isAuthenticated={false} />);
+
+    expect(result).toContain(`maxlength="${DonationManager.maxNameLength}"`);
+  });
+
+  test("should set description maxlength from DonationManager.maxDescriptionLength", async () => {
+    const result = await (<QrEditorPage isAuthenticated={false} />);
+
+    expect(result).toContain(
+      `maxlength="${DonationManager.maxDescriptionLength}"`,
+    );
   });
 });

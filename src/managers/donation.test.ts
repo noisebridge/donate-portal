@@ -4,6 +4,26 @@ import { DonationManager } from "./donation";
 describe("DonationManager", () => {
   const manager = new DonationManager();
 
+  describe("maxNameLength", () => {
+    test("is defined as a positive number", () => {
+      expect(DonationManager.maxNameLength).toBeGreaterThan(0);
+    });
+
+    test("equals 40", () => {
+      expect(DonationManager.maxNameLength).toBe(40);
+    });
+  });
+
+  describe("maxDescriptionLength", () => {
+    test("is defined as a positive number", () => {
+      expect(DonationManager.maxDescriptionLength).toBeGreaterThan(0);
+    });
+
+    test("equals 80", () => {
+      expect(DonationManager.maxDescriptionLength).toBe(80);
+    });
+  });
+
   describe("createQRCode", () => {
     test("generates valid SVG output", () => {
       const qrCode = manager.createQRCode({ cents: 1000 });
