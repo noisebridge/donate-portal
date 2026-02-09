@@ -145,7 +145,7 @@ export function DonationTierSelector({
 
       {subscription && (
         <form method="post" action={paths.stripePortal()}>
-          <button type="submit" class="btn btn-outline btn-large mt-md">
+          <button type="submit" class="btn btn-outline btn-large mt-sm">
             Past Invoices and Payment Methods
           </button>
         </form>

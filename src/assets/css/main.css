@@ -201,7 +201,7 @@ body {
   border: 0;
 }
 
-.mt-md {
+.mt-sm {
   margin-top: var(--spacing-sm);
 }
 
@@ -308,8 +308,8 @@ body {
   color: var(--color-text);
   cursor: pointer;
   transition:
-    box-shadow 0.15s ease,
     background-color 0.15s ease,
+    border-color 0.15s ease,
     box-shadow 0.15s ease,
     transform 0.15s ease;
   width: 100%;
@@ -450,10 +450,6 @@ footer p {
 
 /* Responsive */
 @media (max-width: 768px) {
-  :root {
-    --container-padding: 1rem;
-  }
-
   .mobile-hidden {
     display: none;
   }
