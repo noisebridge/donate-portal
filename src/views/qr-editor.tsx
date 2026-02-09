@@ -108,6 +108,17 @@ export function QrEditorPage({ isAuthenticated }: QrEditorProps) {
               Download SVG
             </button>
           </div>
+          <div class="info-3d">
+            For information on creating a 3D-printable QR code go&nbsp;
+            <a
+              href="https://www.noisebridge.net/wiki/Donation_QR_Codes#3D"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              here
+            </a>
+            .
+          </div>
         </div>
       </div>
     </Layout>

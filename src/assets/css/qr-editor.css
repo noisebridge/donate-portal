@@ -150,7 +150,7 @@
 
 /* QR URL Display */
 .qr-url-display {
-  margin-top: var(--spacing-md);
+  margin-top: var(--spacing-sm);
 }
 
 .qr-url-display label {
@@ -170,6 +170,13 @@
   background-color: var(--color-background);
   color: var(--color-text);
   cursor: text;
+}
+
+.info-3d {
+  padding-top: var(--spacing-md);
+  width: 100%;
+  text-align: center;
+  font-size: 0.875rem;
 }
 
 /* Responsive */
