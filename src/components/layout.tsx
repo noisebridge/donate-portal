@@ -1,6 +1,6 @@
 import type { PropsWithChildren } from "@kitajs/html";
 import config from "~/config";
-import Navbar from "./navbar";
+import { Navbar } from "./navbar";
 
 const githubUrl =
   config.gitRepo &&

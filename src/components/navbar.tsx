@@ -4,7 +4,7 @@ export interface NavbarProps {
   isAuthenticated: boolean;
 }
 
-export default function Navbar({ isAuthenticated }: NavbarProps) {
+export function Navbar({ isAuthenticated }: NavbarProps) {
   return (
     <nav class="navbar" aria-label="Main navigation">
       <div class="navbar-content">

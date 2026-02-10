@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import Navbar from "./navbar";
+import { Navbar } from "./navbar";
 
 describe("Navbar", () => {
   test("when not authenticated: shows 'Sign In' link", async () => {
