@@ -13,7 +13,7 @@ This site is a basic donation portal for the Noisebridge hackerspace.
 # Database
 
 This site does not have its own database. All persistence comes from Stripe. You
-can access a `Stripe` instance as the default export of `src/services/stripe.tsx`.
+can access a `Stripe` instance as the default export of `src/services/stripe.ts`.
 
 # Auth
 
