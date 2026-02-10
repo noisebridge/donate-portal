@@ -11,7 +11,7 @@ import type { Cents } from "~/money";
 const resend = new Resend(config.resendKey);
 
 class EmailService {
-  static readonly fromAddress = `Noisebridge <${config.emailDomain}>`;
+  static readonly fromAddress = `Noisebridge <${config.emailSender}>`;
 
   async sendMagicLinkEmail(email: string) {
     const magicLinkUrl = magicLinkManager.generateMagicLinkUrl(email);

@@ -28,6 +28,6 @@ export default {
   googleSecret: assertEnvVar("GOOGLE_SECRET"),
   cookieSecret: assertEnvVar("COOKIE_SECRET"),
   resendKey: assertEnvVar("RESEND_KEY"),
-  emailDomain: process.env["EMAIL_DOMAIN"] || "onboarding@resend.dev",
+  emailSender: process.env["EMAIL_SENDER"] || "onboarding@resend.dev",
   totpSecret: assertEnvVar("TOTP_SECRET"),
 };

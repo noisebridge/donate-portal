@@ -33,7 +33,7 @@ Create a `.env` file in the root of the repository with the following variables:
 * `GOOGLE_CLIENT_ID` - Create an OAuth app in the Google Cloud Console
 * `GOOGLE_SECRET` - Create an OAuth app in the Google Cloud Console
 * `RESEND_KEY` - From https://resend.com
-* `EMAIL_DOMAIN` - Where to send emails from (defaults to `onboarding@resend.dev`)
+* `EMAIL_SENDER` - Where to send emails from (defaults to `onboarding@resend.dev`)
 * `COOKIE_SECRET` - Randomly generated string
 * `TOTP_SECRET` - Randomly generated string
 
