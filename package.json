@@ -1,6 +1,5 @@
 {
   "name": "donate.noisebridge.net",
-  "module": "src/index.ts",
   "type": "module",
   "private": true,
   "scripts": {
