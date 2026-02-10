@@ -38,6 +38,15 @@ const authRateLimit: RouteShorthandOptions = {
   },
 } as const;
 
+const donationRateLimit: RouteShorthandOptions = {
+  config: {
+    rateLimit: {
+      max: 3,
+      timeWindow: "1 minute",
+    },
+  },
+} as const;
+
 /**
  * Cryptographically secure random string for use with OAuth.
  */
@@ -449,7 +458,7 @@ export default async function routes(fastify: FastifyInstance) {
 
   fastify.post<{
     Body: { name?: string; description?: string };
-  }>(paths.donate(), async (request, reply) => {
+  }>(paths.donate(), donationRateLimit, async (request, reply) => {
     const body = request.body;
     if (!validateAmountFormData(body)) {
       return reply.redirect(paths.index({ error: ErrorCode.InvalidRequest }));
@@ -585,7 +594,7 @@ export default async function routes(fastify: FastifyInstance) {
     );
   });
 
-  fastify.post(paths.subscribe(), async (request, reply) => {
+  fastify.post(paths.subscribe(), donationRateLimit, async (request, reply) => {
     const sessionCookie = cookies[CookieName.UserSession](request, reply);
     const sessionData = sessionCookie.value;
     if (!sessionData) {
