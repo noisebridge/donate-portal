@@ -44,8 +44,12 @@ function updateQrCode(
   const name = nameInput.value;
   const description = descriptionInput.value;
 
-  // Convert dollars to cents
-  if (Number.isNaN(amount) || amount < 2) {
+  const minAmount = parseFloat(amountInput.dataset["min"] ?? "");
+  if (Number.isNaN(minAmount)) {
+    return;
+  }
+
+  if (Number.isNaN(amount) || amount < minAmount) {
     qrImage.style.display = "none";
     qrPlaceholder.style.display = "block";
     qrUrlInput.value = donationUrl;
