@@ -46,26 +46,6 @@ describe("ManagePage", () => {
   });
 
   test("should display cancel form when subscription exists", async () => {
-    const mockCustomer: Stripe.Customer = {
-      id: "cus_123",
-      object: "customer",
-      balance: 0,
-      created: 1234567890,
-      default_source: null,
-      delinquent: false,
-      description: null,
-      email: "test@example.com",
-      invoice_settings: {
-        custom_fields: null,
-        default_payment_method: null,
-        footer: null,
-        rendering_options: null,
-      },
-      livemode: false,
-      metadata: {},
-      shipping: null,
-    };
-
     const mockSubscription: Stripe.Subscription = {
       id: "sub_123",
       object: "subscription",
@@ -129,11 +109,7 @@ describe("ManagePage", () => {
     };
 
     const result = await (
-      <ManagePage
-        email="test@example.com"
-        customer={mockCustomer}
-        subscription={mockSubscription}
-      />
+      <ManagePage email="test@example.com" subscription={mockSubscription} />
     );
 
     expect(result).toBeTypeOf("string");

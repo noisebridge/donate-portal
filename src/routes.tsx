@@ -449,7 +449,6 @@ export default async function routes(fastify: FastifyInstance) {
     return reply.html(
       <ManagePage
         email={sessionData.email}
-        customer={customerSubscription.customer}
         subscription={customerSubscription.subscription}
         messages={messages}
       />,

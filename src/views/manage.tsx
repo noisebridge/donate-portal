@@ -6,14 +6,12 @@ import paths from "~/paths";
 
 export interface ManageProps {
   email: string;
-  customer?: Stripe.Customer | undefined;
   subscription?: Stripe.Subscription | undefined;
   messages?: Message[];
 }
 
 export function ManagePage({
   email,
-  customer,
   subscription,
   messages = [],
 }: ManageProps) {
@@ -26,7 +24,7 @@ export function ManagePage({
     >
       <div class="container">
         <div class="manage-header">
-          <h1>{customer ? "Manage your Donation" : "Start a Donation"}</h1>
+          <h1>{subscription ? "Manage your Donation" : "Start a Donation"}</h1>
           <p>
             You're signed in as <strong>{email}</strong>
           </p>
