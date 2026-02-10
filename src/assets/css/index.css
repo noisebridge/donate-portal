@@ -1,20 +1,3 @@
-/* Hero Section */
-.hero {
-  text-align: center;
-  width: 100%;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.hero h1 {
-  font-size: 2.75rem;
-  font-weight: 600;
-  color: var(--color-text);
-  margin-bottom: var(--spacing-sm);
-  letter-spacing: -0.02em;
-  line-height: 1.2;
-}
-
 .card h2 {
   font-size: 1.5rem;
   font-weight: 600;
@@ -88,21 +71,6 @@ input[type="radio"]:focus + .btn-amount {
   margin-bottom: var(--spacing-xs);
 }
 
-.input-group {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.input-prefix {
-  position: absolute;
-  left: 1rem;
-  font-size: 1.125rem;
-  font-weight: 500;
-  color: var(--color-text-light);
-  pointer-events: none;
-}
-
 .custom-amount input {
   width: 100%;
   padding: 0.875rem 1rem 0.875rem 2rem;
@@ -133,16 +101,12 @@ input[type="radio"]:focus + .btn-amount {
 
 .custom-amount input:read-only {
   background-color: var(--color-background);
-  cursor: text;
+  cursor: default;
   opacity: 0.6;
 }
 
 /* Responsive */
 @media (max-width: 768px) {
-  .hero h1 {
-    font-size: 2.25rem;
-  }
-
   .amount-buttons {
     grid-template-columns: repeat(3, 1fr);
   }
