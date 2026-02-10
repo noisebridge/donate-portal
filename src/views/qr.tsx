@@ -75,6 +75,10 @@ export function QrPage({
           <a href={`${paths.index()}#donate`} class="btn btn-outline">
             Make a general donation
           </a>
+
+          <a href={paths.signIn()} class="btn btn-outline mt-sm">
+            Give monthly
+          </a>
         </div>
       </div>
     </Layout>

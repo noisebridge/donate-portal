@@ -57,17 +57,15 @@ export function AuthPage({ isAuthenticated, messages = [] }: AuthProps) {
               method="post"
               action={paths.emailAuth()}
             >
-              <div class="form-group">
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  class="form-input"
-                  placeholder="you@example.com"
-                  minlength="5"
-                  required
-                />
-              </div>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                class="form-input"
+                placeholder="you@example.com"
+                minlength="5"
+                required
+              />
 
               <button class="btn btn-outline btn-block" type="submit">
                 Send Magic Link
