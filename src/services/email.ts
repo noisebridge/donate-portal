@@ -74,5 +74,5 @@ class EmailService {
   }
 }
 
-const emailManager = new EmailService();
-export default emailManager;
+const emailService = new EmailService();
+export default emailService;

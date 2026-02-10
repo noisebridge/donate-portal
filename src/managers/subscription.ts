@@ -4,7 +4,7 @@ import { baseLogger } from "~/logger";
 import type { Cents } from "~/money";
 import paths from "~/paths";
 import { InfoCode } from "~/routes";
-import emailManager from "~/services/email";
+import emailService from "~/services/email";
 import stripe from "~/services/stripe";
 
 export enum SubscriptionErrorCode {
@@ -210,7 +210,16 @@ export class SubscriptionManager {
     }
 
     const amountCents = this.subscriptionAmount(subscription);
-    await emailManager.sendSubscriptionCanceledEmail(email, amountCents);
+    const emailResult = await emailService.sendSubscriptionCanceledEmail(
+      email,
+      amountCents,
+    );
+    if (!emailResult.success) {
+      SubscriptionManager.log.error(
+        { error: emailResult.error, email },
+        "Failed to send subscription canceled email",
+      );
+    }
 
     return { success: true };
   }
@@ -293,9 +302,15 @@ export class SubscriptionManager {
       return;
     }
 
-    await emailManager.sendSubscriptionWelcomeEmail(email, {
+    const emailResult = await emailService.sendSubscriptionWelcomeEmail(email, {
       cents: amountCents,
     });
+    if (!emailResult.success) {
+      SubscriptionManager.log.error(
+        { error: emailResult.error, email },
+        "Failed to send subscription welcome email",
+      );
+    }
   }
 
   private async handleSubscriptionUpdated(
@@ -313,7 +328,16 @@ export class SubscriptionManager {
     if (this.changedToPastDue(subscription, previousAttributes)) {
       // Handle subscription becoming past due
       const amount = this.subscriptionAmount(subscription);
-      await emailManager.sendSubscriptionPastDueEmail(customer.email, amount);
+      const emailResult = await emailService.sendSubscriptionPastDueEmail(
+        customer.email,
+        amount,
+      );
+      if (!emailResult.success) {
+        SubscriptionManager.log.error(
+          { error: emailResult.error, email: customer.email },
+          "Failed to send subscription past due email",
+        );
+      }
     } else {
       // Handle subscription amount changes
       const previousAmount = this.subscriptionAmount(previousAttributes);
@@ -327,11 +351,17 @@ export class SubscriptionManager {
       }
 
       if (previousAmount.cents !== currentAmount.cents) {
-        await emailManager.sendSubscriptionUpdatedEmail(
+        const emailResult = await emailService.sendSubscriptionUpdatedEmail(
           customer.email,
           previousAmount,
           currentAmount,
         );
+        if (!emailResult.success) {
+          SubscriptionManager.log.error(
+            { error: emailResult.error, email: customer.email },
+            "Failed to send subscription updated email",
+          );
+        }
       }
     }
   }

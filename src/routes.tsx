@@ -14,7 +14,7 @@ import magicLinkManager from "~/managers/magic-link";
 import subscriptionManager from "~/managers/subscription";
 import { parseToCents, validateAmountFormData } from "~/money";
 import paths, { type MessageParams } from "~/paths";
-import emailManager from "~/services/email";
+import emailService from "~/services/email";
 import githubOAuth from "~/services/github";
 import googleOAuth from "~/services/google";
 import stripe from "~/services/stripe";
@@ -53,6 +53,7 @@ export enum ErrorCode {
   OAuthFailed = "Failed to perform OAuth",
   NoEmail = "Could not find an email address for you",
   EmailInvalid = "Invalid email address",
+  EmailSendFailed = "Failed to send email. Please try again.",
   InvalidMagicLink = "Invalid magic link",
   MagicLinkExpired = "Magic link has expired. Please request a new one.",
   InvalidDonationAmount = "Please select a valid donation amount",
@@ -320,14 +321,20 @@ export default async function routes(fastify: FastifyInstance) {
     }
 
     // Basic email validation
-    if (!email.includes("@") || email.length < 5) {
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 254) {
       fastify.log.warn({ email }, "Invalid email format");
       return reply.redirect(paths.signIn({ error: ErrorCode.EmailInvalid }));
     }
 
-    const response = await emailManager.sendMagicLinkEmail(email);
-    request.log.info(response);
-    fastify.log.info({ email }, "Magic link email sent");
+    const response = await emailService.sendMagicLinkEmail(email);
+    if (!response.success) {
+      fastify.log.error(
+        { email, error: response.error },
+        "Failed to send magic link email",
+      );
+      return reply.redirect(paths.signIn({ error: ErrorCode.EmailSendFailed }));
+    }
+    fastify.log.info({ email, id: response.id }, "Magic link email sent");
 
     return reply.redirect(paths.emailAuth(email));
   });
