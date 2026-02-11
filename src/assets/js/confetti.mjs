@@ -109,7 +109,7 @@ export function launchConfetti(dollars) {
   particles = [];
   rockets = [];
 
-  const rocketCount = Math.max(1, Math.round(dollars / 10));
+  const rocketCount = Math.ceil(Math.floor(dollars / 10) + 0.001);
 
   for (let i = 0; i < rocketCount; i++) {
     const delay = i * 300 + Math.random() * 200;
