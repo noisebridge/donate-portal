@@ -11,6 +11,8 @@
  * @property {number} rotation
  * @property {number} rotationSpeed
  * @property {number} opacity
+ * @property {boolean} settled
+ * @property {number} fadeStart
  */
 
 /**
@@ -46,14 +48,19 @@ const COLORS = [
 const PARTICLES_PER_EXPLOSION = 80;
 const GRAVITY = 0.15;
 const DRAG = 0.98;
-const FADE_RATE = 0.008;
 const TRAIL_FADE_RATE = 0.03;
 const ROCKET_SPEED = 3;
+const BOUNCE_DAMPING = 0.3;
+const FRICTION = 0.95;
+const SETTLED_THRESHOLD = 0.3;
+const FADE_AFTER_MIN = 60000;
+const FADE_AFTER_MAX = 90000;
+const FADE_DURATION = 2000;
 
 /** @type {ConfettiParticle[]} */
 let particles = [];
 /** @type {Rocket[]} */
-let rockets = [];
+const rockets = [];
 let animating = false;
 
 /** @type {HTMLCanvasElement} */
@@ -79,10 +86,61 @@ export function initConfetti(canvasEl) {
 }
 
 /**
+ * Get the collision radius for a particle (treat as circle).
+ * @param {ConfettiParticle} p
+ * @returns {number}
+ */
+function particleRadius(p) {
+  return p.size * 0.4;
+}
+
+/**
+ * Resolve collision between two circular particles.
+ * @param {ConfettiParticle} a
+ * @param {ConfettiParticle} b
+ */
+function resolveCollision(a, b) {
+  const dx = b.x - a.x;
+  const dy = b.y - a.y;
+  const dist = Math.sqrt(dx * dx + dy * dy);
+  const rA = particleRadius(a);
+  const rB = particleRadius(b);
+  const minDist = rA + rB;
+
+  if (dist < minDist && dist > 0.01) {
+    const nx = dx / dist;
+    const ny = dy / dist;
+    const overlap = minDist - dist;
+
+    // Push apart (half each)
+    a.x -= nx * overlap * 0.5;
+    a.y -= ny * overlap * 0.5;
+    b.x += nx * overlap * 0.5;
+    b.y += ny * overlap * 0.5;
+
+    // Relative velocity along collision normal
+    const dvx = a.vx - b.vx;
+    const dvy = a.vy - b.vy;
+    const relVel = dvx * nx + dvy * ny;
+
+    // Only resolve if particles are moving toward each other
+    if (relVel > 0) {
+      const restitution = 0.3;
+      const impulse = relVel * restitution;
+      a.vx -= impulse * nx;
+      a.vy -= impulse * ny;
+      b.vx += impulse * nx;
+      b.vy += impulse * ny;
+    }
+  }
+}
+
+/**
  * @param {number} x
  * @param {number} y
  */
 function spawnExplosion(x, y) {
+  const now = performance.now();
   for (let i = 0; i < PARTICLES_PER_EXPLOSION; i++) {
     const angle = Math.random() * Math.PI * 2;
     const speed = 2 + Math.random() * 8;
@@ -98,6 +156,11 @@ function spawnExplosion(x, y) {
       rotation: Math.random() * Math.PI * 2,
       rotationSpeed: (Math.random() - 0.5) * 0.2,
       opacity: 1,
+      settled: false,
+      fadeStart:
+        now +
+        FADE_AFTER_MIN +
+        Math.random() * (FADE_AFTER_MAX - FADE_AFTER_MIN),
     });
   }
 }
@@ -106,10 +169,7 @@ function spawnExplosion(x, y) {
  * @param {number} dollars
  */
 export function launchConfetti(dollars) {
-  particles = [];
-  rockets = [];
-
-  const rocketCount = Math.ceil(Math.floor(dollars / 10) + 0.001);
+  const rocketCount = Math.min(10, Math.ceil(Math.floor(dollars / 10) + 0.001));
 
   for (let i = 0; i < rocketCount; i++) {
     const delay = i * 300 + Math.random() * 200;
@@ -177,6 +237,7 @@ function animate() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   let alive = false;
+  const floor = canvas.height;
 
   // Update and draw rockets
   for (const r of rockets) {
@@ -217,23 +278,86 @@ function animate() {
     }
   }
 
+  // Particle-to-particle collision (rough pass — check nearby pairs)
+  for (let i = 0; i < particles.length; i++) {
+    const a = /** @type {ConfettiParticle} */ (particles[i]);
+    for (let j = i + 1; j < particles.length; j++) {
+      const b = /** @type {ConfettiParticle} */ (particles[j]);
+      const dx = b.x - a.x;
+      const dy = b.y - a.y;
+      const maxDist = particleRadius(a) + particleRadius(b);
+      // Quick distance check to skip far-away pairs
+      if (Math.abs(dx) > maxDist || Math.abs(dy) > maxDist) continue;
+      resolveCollision(a, b);
+    }
+  }
+
+  // Remove offscreen and fully faded particles
+  const margin = 100;
+  particles = particles.filter(
+    (p) =>
+      p.opacity > 0 &&
+      p.x > -margin &&
+      p.x < canvas.width + margin &&
+      p.y > -margin &&
+      p.y < floor + margin,
+  );
+
+  const now = performance.now();
+
   // Update and draw confetti particles
   for (const p of particles) {
-    if (p.opacity <= 0) continue;
     alive = true;
 
-    p.vy += GRAVITY;
-    p.vx *= DRAG;
-    p.vy *= DRAG;
-    p.x += p.vx;
-    p.y += p.vy;
-    p.rotation += p.rotationSpeed;
-    p.opacity -= FADE_RATE;
+    // Fade out after the particle's random lifetime
+    if (now >= p.fadeStart) {
+      p.opacity = Math.max(0, 1 - (now - p.fadeStart) / FADE_DURATION);
+      if (p.opacity <= 0) continue;
+    }
 
+    if (!p.settled) {
+      p.vy += GRAVITY;
+      p.vx *= DRAG;
+      p.vy *= DRAG;
+      p.x += p.vx;
+      p.y += p.vy;
+      p.rotation += p.rotationSpeed;
+
+      const r = particleRadius(p);
+
+      // Floor collision
+      if (p.y + r > floor) {
+        p.y = floor - r;
+        p.vy = -p.vy * BOUNCE_DAMPING;
+        p.vx *= FRICTION;
+
+        // If barely moving, settle
+        if (
+          Math.abs(p.vy) < SETTLED_THRESHOLD &&
+          Math.abs(p.vx) < SETTLED_THRESHOLD
+        ) {
+          p.vx = 0;
+          p.vy = 0;
+          p.rotationSpeed = 0;
+          p.settled = true;
+        }
+      }
+
+      // Wall collisions (left/right)
+      if (p.x - r < 0) {
+        p.x = r;
+        p.vx = -p.vx * BOUNCE_DAMPING;
+      } else if (p.x + r > canvas.width) {
+        p.x = canvas.width - r;
+        p.vx = -p.vx * BOUNCE_DAMPING;
+      }
+    }
+
+    // Draw particle
     ctx.save();
     ctx.translate(p.x, p.y);
     ctx.rotate(p.rotation);
-    ctx.globalAlpha = Math.max(0, p.opacity);
+    ctx.globalAlpha = p.opacity;
     ctx.fillStyle = p.color;
     ctx.fillRect(-p.size / 2, -p.size / 4, p.size, p.size / 2);
     ctx.restore();
