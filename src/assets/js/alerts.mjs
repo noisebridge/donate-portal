@@ -43,6 +43,19 @@ function formatAmount(amount) {
 }
 
 /**
+ * Format cents as a dollar amount split into two spans for decimal alignment.
+ * @param {Cents} amount
+ * @returns {string}
+ */
+function formatAmountAligned(amount) {
+  const [dollars, cents] = (amount.cents / 100).toFixed(2).split(".");
+  return (
+    `<span class="history-amount-dollars">$${dollars}.</span>` +
+    `<span class="history-amount-cents">${cents}</span>`
+  );
+}
+
+/**
  * Format an ISO date string for display.
  * @param {string} isoDate
  * @returns {string}
@@ -65,8 +78,8 @@ function addToHistory(alert) {
   const item = document.createElement("div");
   item.className = "history-item";
   item.innerHTML =
-    `<span class="history-product">${alert.productName}</span> ` +
-    `<span class="history-amount">${formatAmount(alert.amount)}</span> ` +
+    `<span class="history-product">${alert.productName}</span>` +
+    `<span class="history-amount">${formatAmountAligned(alert.amount)}</span>` +
     `<span class="history-date">${formatDate(alert.date)}</span>`;
 
   historyList.prepend(item);
