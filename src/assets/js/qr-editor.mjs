@@ -46,6 +46,11 @@ function updateQrCode(
 
   const minAmount = parseFloat(amountInput.dataset["min"] ?? "");
   if (Number.isNaN(minAmount)) {
+    console.error(
+      amountInput.dataset["min"],
+      " as data-min attribute is invalid for ",
+      amountInput,
+    );
     return;
   }
 

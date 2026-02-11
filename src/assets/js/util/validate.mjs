@@ -39,18 +39,15 @@ export function validateMinAmount(input) {
     }
 
     const value = parseFloat(input.value);
-
     if (Number.isNaN(value)) {
       input.setCustomValidity("Please enter a number");
       return;
     }
-
     if (value < min) {
       input.setCustomValidity("This value is below the minimum");
       return;
     }
 
     input.setCustomValidity("");
-    return;
   });
 }
