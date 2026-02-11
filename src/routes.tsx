@@ -700,8 +700,8 @@ export default async function routes(fastify: FastifyInstance) {
     return reply.html(<AlertsPage />);
   });
 
-  fastify.get(paths.alertsWs(), { websocket: true }, (socket) => {
-    chargeAlertManager.addConnection(socket);
+  fastify.get(paths.alertsWs(), { websocket: true }, async (socket) => {
+    await chargeAlertManager.addConnection(socket);
   });
 
   fastify.get(paths.thankYou(), async (request, reply) => {
