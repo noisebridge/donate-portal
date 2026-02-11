@@ -9,6 +9,7 @@ import type {
 import type Stripe from "stripe";
 import type { Message } from "~/components/message-container";
 import config from "~/config";
+import chargeAlertManager from "~/managers/charge-alert";
 import donationManager, { DonationManager } from "~/managers/donation";
 import magicLinkManager from "~/managers/magic-link";
 import subscriptionManager from "~/managers/subscription";
@@ -19,6 +20,7 @@ import githubOAuth from "~/services/github";
 import googleOAuth from "~/services/google";
 import stripe from "~/services/stripe";
 import { CookieName, cookies } from "~/signed-cookies";
+import { AlertsPage } from "~/views/alerts";
 import { AuthPage } from "~/views/auth";
 import { AuthEmailPage } from "~/views/auth/email";
 import { ErrorPage } from "~/views/error";
@@ -694,6 +696,14 @@ export default async function routes(fastify: FastifyInstance) {
     );
   });
 
+  fastify.get(paths.alerts(), async (_request, reply) => {
+    return reply.html(<AlertsPage />);
+  });
+
+  fastify.get(paths.alertsWs(), { websocket: true }, (socket) => {
+    chargeAlertManager.addConnection(socket);
+  });
+
   fastify.get(paths.thankYou(), async (request, reply) => {
     return reply.html(
       <ThankYouPage isAuthenticated={isAuthenticated(request, reply)} />,
@@ -735,7 +745,14 @@ export default async function routes(fastify: FastifyInstance) {
       }
 
       try {
-        await subscriptionManager.processWebhook(event);
+        if (
+          event.type === "checkout.session.completed" &&
+          (event.data.object as { mode?: string }).mode === "payment"
+        ) {
+          await chargeAlertManager.processWebhook(event);
+        } else {
+          await subscriptionManager.processWebhook(event);
+        }
       } catch (err) {
         fastify.log.error(
           { err, eventType: event.type },

@@ -1,0 +1,144 @@
+@font-face {
+  font-family: "Eurostile";
+  src: url("/assets/font/eurostile/eurostile.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Eurostile";
+  src: url("/assets/font/eurostile/eurostile-bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --font-eurostile: "Eurostile", sans-serif;
+  --font-sans:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu",
+    "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+}
+
+body {
+  background: #0a0a0a;
+  color: #ffffff;
+  margin: 0;
+  overflow: hidden;
+}
+
+.alerts-layout {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: start;
+}
+
+.alerts-spacer {
+  flex: 1;
+}
+
+.alerts-container {
+  text-align: center;
+  padding: 2rem;
+  flex-shrink: 0;
+}
+
+.alert-label {
+  font-family: var(--font-sans);
+  font-size: 2.25rem;
+  color: rgba(255, 255, 255, 0.5);
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.alert-amount {
+  font-family: var(--font-eurostile);
+  font-weight: 700;
+  font-size: 9rem;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.5rem;
+}
+
+.alert-product {
+  font-family: var(--font-sans);
+  font-size: 2.25rem;
+  color: rgba(255, 255, 255, 0.7);
+  margin-bottom: 1rem;
+}
+
+.alert-date {
+  font-family: var(--font-sans);
+  font-size: 1.5rem;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0.1;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.alert-animate {
+  animation: fade-in 1.5s ease-out;
+}
+
+/* History list */
+
+.history-wrapper {
+  flex: 1;
+  width: 30rem;
+  overflow: hidden;
+  position: relative;
+  mask-image: linear-gradient(to bottom, #000 0%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, transparent 100%);
+}
+
+.history-list {
+  text-align: center;
+  padding: 1rem 2rem;
+  font-family: var(--font-sans);
+}
+
+.history-item {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  padding: 0.35rem 0;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.history-product {
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.history-amount {
+  color: rgba(255, 255, 255, 0.5);
+  font-weight: 600;
+  align-self: end;
+}
+
+.history-date {
+  color: rgba(255, 255, 255, 0.25);
+  font-size: 0.8rem;
+}
+
+/* Confetti canvas */
+
+#confetti-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 10;
+}

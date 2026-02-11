@@ -125,6 +125,14 @@ const paths = {
    */
   cancel: () => "/cancel",
   /**
+   * `/alerts`
+   */
+  alerts: () => "/alerts",
+  /**
+   * `/alerts/ws`
+   */
+  alertsWs: () => "/alerts/ws",
+  /**
    * `/webhook`
    */
   webhook: () => "/webhook",

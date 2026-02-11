@@ -5,6 +5,7 @@ import fastifyFormbody from "@fastify/formbody";
 import fastifyHelmet from "@fastify/helmet";
 import fastifyRateLimit from "@fastify/rate-limit";
 import fastifyStatic from "@fastify/static";
+import fastifyWebsocket from "@fastify/websocket";
 import html from "@kitajs/fastify-html-plugin";
 import Fastify from "fastify";
 import config from "~/config";
@@ -37,6 +38,8 @@ fastify.register(fastifyStatic, {
   root: path.join(__dirname, "assets"),
   prefix: "/assets/",
 });
+
+fastify.register(fastifyWebsocket);
 
 fastify.register(html);
 
