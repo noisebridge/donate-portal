@@ -27,6 +27,8 @@ export default defineConfig({
     url: config.baseUrl,
     reuseExistingServer: !process.env.CI,
     env: {
+      ALERTS_PASSWORD: config.alertsPassword,
+      ALERTS_USERNAME: config.alertsUsername,
       DISABLE_RATE_LIMIT: "true",
       SERVER_HOST: config.serverHost,
       STRIPE_SECRET: config.stripeSecretKey,
