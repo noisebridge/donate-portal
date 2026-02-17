@@ -32,6 +32,17 @@ export function AlertsPage() {
               <div id="history-list" class="history-list"></div>
             </div>
           </div>
+          <div class="qr-corner">
+            <img
+              src={paths.qrSvg(
+                { cents: 10000 },
+                "Digital Fireworks",
+                "Get a high score!",
+              )}
+              alt="Scan to donate $100"
+              class="qr-code"
+            />
+          </div>
           <canvas id="confetti-canvas"></canvas>
           <input type="hidden" id="alerts-ws-path" value={paths.alertsWs()} />
         </body>

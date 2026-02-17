@@ -99,7 +99,12 @@ body {
   overflow: hidden;
   position: relative;
   mask-image: linear-gradient(to bottom, #000 0%, #000 25%, transparent 100%);
-  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 25%, transparent 100%);
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    #000 0%,
+    #000 25%,
+    transparent 100%
+  );
 }
 
 .history-list {
@@ -139,6 +144,23 @@ body {
 .history-date {
   color: rgba(255, 255, 255, 0.25);
   font-size: 0.8rem;
+}
+
+/* QR code */
+
+.qr-corner {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 5;
+}
+
+.qr-code {
+  width: 15rem;
+  height: 15rem;
+  background: #fff;
+  border-radius: 0.5rem;
+  padding: 0.5rem;
 }
 
 /* Confetti canvas */

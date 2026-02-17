@@ -70,7 +70,12 @@ const paths = {
   /**
    * `/qr.svg`
    */
-  qrSvg: () => "/qr.svg",
+  qrSvg: (amount?: Cents, name?: string, description?: string) =>
+    formatPath("/qr.svg", {
+      amount: amount && amount.cents / 100,
+      name,
+      description,
+    }),
   /**
    * `/qr-editor`
    */
