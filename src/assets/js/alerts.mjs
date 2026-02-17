@@ -29,7 +29,7 @@ const wsPath = /** @type {HTMLInputElement} */ (
 
 const MAX_RECONNECT_DELAY = 30000;
 const DEFAULT_RECONNECT_DELAY = 1000;
-const MAX_HISTORY = 20;
+const MAX_HISTORY = 30;
 
 let reconnectDelay = DEFAULT_RECONNECT_DELAY;
 
