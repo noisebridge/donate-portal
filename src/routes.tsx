@@ -85,6 +85,33 @@ function isAuthenticated(
   return cookies[CookieName.UserSession](request, reply).valid();
 }
 
+function verifyBasicAuth(request: FastifyRequest) {
+  const auth = request.headers.authorization;
+  if (!auth || !auth.startsWith("Basic ")) {
+    return false;
+  }
+
+  const decoded = Buffer.from(auth.slice(6), "base64").toString();
+  const [username, password] = decoded.split(":", 2) as [
+    string,
+    string | undefined,
+  ];
+  if (
+    !crypto.timingSafeEqual(
+      Buffer.from(username),
+      Buffer.from(config.alertsUsername),
+    ) ||
+    !crypto.timingSafeEqual(
+      Buffer.from(password ?? ""),
+      Buffer.from(config.alertsPassword),
+    )
+  ) {
+    return false;
+  }
+
+  return true;
+}
+
 /**
  * Fastify preParsing hook to capture raw request body for webhook signature verification.
  */
@@ -696,13 +723,28 @@ export default async function routes(fastify: FastifyInstance) {
     );
   });
 
-  fastify.get(paths.alerts(), async (_request, reply) => {
+  fastify.get(paths.alerts(), async (request, reply) => {
+    if (!verifyBasicAuth(request)) {
+      return reply
+        .status(401)
+        .header("WWW-Authenticate", 'Basic realm="Alerts"')
+        .send("Unauthorized");
+    }
+
     return reply.html(<AlertsPage />);
   });
 
-  fastify.get(paths.alertsWs(), { websocket: true }, async (socket) => {
-    await chargeAlertManager.addConnection(socket);
-  });
+  fastify.get(
+    paths.alertsWs(),
+    { websocket: true },
+    async (socket, request) => {
+      if (!verifyBasicAuth(request)) {
+        return;
+      }
+
+      await chargeAlertManager.addConnection(socket);
+    },
+  );
 
   fastify.get(paths.thankYou(), async (request, reply) => {
     return reply.html(

@@ -13,6 +13,7 @@
  * @property {number} opacity
  * @property {boolean} settled
  * @property {number} fadeStart
+ * @property {number} contactStart
  */
 
 /**
@@ -52,10 +53,18 @@ const TRAIL_FADE_RATE = 0.03;
 const ROCKET_SPEED = 3;
 const BOUNCE_DAMPING = 0.3;
 const FRICTION = 0.95;
-const SETTLED_THRESHOLD = 0.3;
+const SETTLED_THRESHOLD = 0.5;
 const FADE_AFTER_MIN = 60000;
 const FADE_AFTER_MAX = 90000;
 const FADE_DURATION = 2000;
+const MAX_PARTICLE_SIZE = 10;
+const CELL_SIZE = MAX_PARTICLE_SIZE * 0.4 * 2;
+
+/** @type {Map<number, ConfettiParticle[]>} */
+const spatialGrid = new Map();
+
+/** @type {Set<ConfettiParticle>} */
+const contactedThisFrame = new Set();
 
 /** @type {ConfettiParticle[]} */
 let particles = [];
@@ -95,11 +104,90 @@ function particleRadius(p) {
 }
 
 /**
+ * Hash a cell coordinate pair into a single numeric key.
+ * @param {number} cx
+ * @param {number} cy
+ * @returns {number}
+ */
+function cellKey(cx, cy) {
+  // Cantor-style pairing that handles negatives via offset
+  const a = cx + 0x8000;
+  const b = cy + 0x8000;
+  return (a << 16) | b;
+}
+
+/**
+ * Build the spatial hash grid from the current unsettled particles.
+ */
+function buildSpatialGrid() {
+  spatialGrid.clear();
+  for (const p of particles) {
+    const cx = Math.floor(p.x / CELL_SIZE);
+    const cy = Math.floor(p.y / CELL_SIZE);
+    const key = cellKey(cx, cy);
+    const bucket = spatialGrid.get(key);
+
+    if (bucket) {
+      bucket.push(p);
+    } else {
+      spatialGrid.set(key, [p]);
+    }
+  }
+}
+
+/**
+ * Run collision detection using the spatial grid.
+ * Only iterates neighbor cells with higher keys to avoid duplicate pair checks.
+ */
+function collideViaSpatialGrid() {
+  for (const [key, bucket] of spatialGrid) {
+    // Intra-cell: all pairs within this cell
+    for (let i = 0; i < bucket.length; i++) {
+      for (let j = i + 1; j < bucket.length; j++) {
+        resolveCollision(
+          /** @type {ConfettiParticle} */ (bucket[i]),
+          /** @type {ConfettiParticle} */ (bucket[j]),
+        );
+      }
+    }
+
+    // Inter-cell: only check 4 of 8 neighbors to avoid duplicate pairs
+    const cx = (key >> 16) - 0x8000;
+    const cy = (key & 0xffff) - 0x8000;
+    const neighborOffsets = /** @type {[number, number][]} */ ([
+      [1, 0],
+      [1, 1],
+      [0, 1],
+      [-1, 1],
+    ]);
+
+    for (const [ndx, ndy] of neighborOffsets) {
+      const neighborKey = cellKey(cx + ndx, cy + ndy);
+      const neighbor = spatialGrid.get(neighborKey);
+      if (!neighbor) continue;
+
+      for (let i = 0; i < bucket.length; i++) {
+        for (let j = 0; j < neighbor.length; j++) {
+          resolveCollision(
+            /** @type {ConfettiParticle} */ (bucket[i]),
+            /** @type {ConfettiParticle} */ (neighbor[j]),
+          );
+        }
+      }
+    }
+  }
+}
+
+/**
  * Resolve collision between two circular particles.
  * @param {ConfettiParticle} a
  * @param {ConfettiParticle} b
  */
 function resolveCollision(a, b) {
+  if (a.settled && b.settled) {
+    return;
+  }
+
   const dx = b.x - a.x;
   const dy = b.y - a.y;
   const dist = Math.sqrt(dx * dx + dy * dy);
@@ -112,11 +200,48 @@ function resolveCollision(a, b) {
     const ny = dy / dist;
     const overlap = minDist - dist;
 
-    // Push apart (half each)
-    a.x -= nx * overlap * 0.5;
-    a.y -= ny * overlap * 0.5;
-    b.x += nx * overlap * 0.5;
-    b.y += ny * overlap * 0.5;
+    if (a.settled) {
+      // Only push the moving particle out
+      b.x += nx * overlap;
+      b.y += ny * overlap;
+    } else if (b.settled) {
+      a.x -= nx * overlap;
+      a.y -= ny * overlap;
+    } else {
+      a.x -= nx * overlap * 0.5;
+      a.y -= ny * overlap * 0.5;
+      b.x += nx * overlap * 0.5;
+      b.y += ny * overlap * 0.5;
+    }
+
+    // Settle a slow-moving particle that lands on a settled one
+    if (a.settled && !b.settled) {
+      if (
+        Math.abs(b.vx) < SETTLED_THRESHOLD &&
+        Math.abs(b.vy) < SETTLED_THRESHOLD
+      ) {
+        b.vx = 0;
+        b.vy = 0;
+        b.rotationSpeed = 0;
+        b.settled = true;
+        return;
+      }
+    } else if (b.settled && !a.settled) {
+      if (
+        Math.abs(a.vx) < SETTLED_THRESHOLD &&
+        Math.abs(a.vy) < SETTLED_THRESHOLD
+      ) {
+        a.vx = 0;
+        a.vy = 0;
+        a.rotationSpeed = 0;
+        a.settled = true;
+        return;
+      }
+    }
+
+    // Mark particles as in contact this frame
+    if (!a.settled) contactedThisFrame.add(a);
+    if (!b.settled) contactedThisFrame.add(b);
 
     // Relative velocity along collision normal
     const dvx = a.vx - b.vx;
@@ -161,6 +286,7 @@ function spawnExplosion(x, y) {
         now +
         FADE_AFTER_MIN +
         Math.random() * (FADE_AFTER_MAX - FADE_AFTER_MIN),
+      contactStart: 0,
     });
   }
 }
@@ -169,10 +295,11 @@ function spawnExplosion(x, y) {
  * @param {number} dollars
  */
 export function launchConfetti(dollars) {
-  const rocketCount = Math.min(10, Math.ceil(Math.floor(dollars / 10) + 0.001));
+  const rocketCount = Math.min(25, Math.ceil(Math.floor(dollars / 10) + 0.001));
 
   for (let i = 0; i < rocketCount; i++) {
     const delay = i * 300 + Math.random() * 200;
+
     setTimeout(() => {
       rockets.push({
         x: Math.random() * canvas.width * 0.8 + canvas.width * 0.1,
@@ -241,7 +368,10 @@ function animate() {
 
   // Update and draw rockets
   for (const r of rockets) {
-    if (r.exploded) continue;
+    if (r.exploded) {
+      continue;
+    }
+
     alive = true;
 
     // Add trail point
@@ -278,20 +408,6 @@ function animate() {
     }
   }
 
-  // Particle-to-particle collision (rough pass — check nearby pairs)
-  for (let i = 0; i < particles.length; i++) {
-    const a = /** @type {ConfettiParticle} */ (particles[i]);
-    for (let j = i + 1; j < particles.length; j++) {
-      const b = /** @type {ConfettiParticle} */ (particles[j]);
-      const dx = b.x - a.x;
-      const dy = b.y - a.y;
-      const maxDist = particleRadius(a) + particleRadius(b);
-      // Quick distance check to skip far-away pairs
-      if (Math.abs(dx) > maxDist || Math.abs(dy) > maxDist) continue;
-      resolveCollision(a, b);
-    }
-  }
-
   // Remove offscreen and fully faded particles
   const margin = 100;
   particles = particles.filter(
@@ -305,55 +421,88 @@ function animate() {
 
   const now = performance.now();
 
-  // Update and draw confetti particles
+  // Update physics for confetti particles
+  for (const p of particles) {
+    if (p.settled) {
+      continue;
+    }
+
+    // Force-settle if in contact with other particles for over 1 second
+    if (p.contactStart > 0 && now - p.contactStart > 1000) {
+      p.vx = 0;
+      p.vy = 0;
+      p.rotationSpeed = 0;
+      p.settled = true;
+      continue;
+    }
+
+    p.vy += GRAVITY;
+    p.vx *= DRAG;
+    p.vy *= DRAG;
+    p.x += p.vx;
+    p.y += p.vy;
+    p.rotation += p.rotationSpeed;
+
+    const r = particleRadius(p);
+
+    // Floor collision
+    if (p.y + r > floor) {
+      p.y = floor - r;
+      p.vy = -p.vy * BOUNCE_DAMPING;
+      p.vx *= FRICTION;
+
+      // If barely moving, settle
+      if (
+        Math.abs(p.vy) < SETTLED_THRESHOLD &&
+        Math.abs(p.vx) < SETTLED_THRESHOLD
+      ) {
+        p.vx = 0;
+        p.vy = 0;
+        p.rotationSpeed = 0;
+        p.settled = true;
+      }
+    }
+
+    // Wall collisions (left/right)
+    if (p.x - r < 0) {
+      p.x = r;
+      p.vx = -p.vx * BOUNCE_DAMPING;
+    } else if (p.x + r > canvas.width) {
+      p.x = canvas.width - r;
+      p.vx = -p.vx * BOUNCE_DAMPING;
+    }
+  }
+
+  // Particle-to-particle collision via spatial hash grid (after movement)
+  contactedThisFrame.clear();
+  buildSpatialGrid();
+  collideViaSpatialGrid();
+
+  // Update contact timers: stamp new contacts, reset particles with no contact
+  for (const p of particles) {
+    if (p.settled) {
+      continue;
+    }
+
+    if (contactedThisFrame.has(p)) {
+      if (p.contactStart === 0) p.contactStart = now;
+    } else {
+      p.contactStart = 0;
+    }
+  }
+
+  // Draw confetti particles
   for (const p of particles) {
     alive = true;
 
     // Fade out after the particle's random lifetime
     if (now >= p.fadeStart) {
       p.opacity = Math.max(0, 1 - (now - p.fadeStart) / FADE_DURATION);
-      if (p.opacity <= 0) continue;
-    }
-
-    if (!p.settled) {
-      p.vy += GRAVITY;
-      p.vx *= DRAG;
-      p.vy *= DRAG;
-      p.x += p.vx;
-      p.y += p.vy;
-      p.rotation += p.rotationSpeed;
-
-      const r = particleRadius(p);
-
-      // Floor collision
-      if (p.y + r > floor) {
-        p.y = floor - r;
-        p.vy = -p.vy * BOUNCE_DAMPING;
-        p.vx *= FRICTION;
-
-        // If barely moving, settle
-        if (
-          Math.abs(p.vy) < SETTLED_THRESHOLD &&
-          Math.abs(p.vx) < SETTLED_THRESHOLD
-        ) {
-          p.vx = 0;
-          p.vy = 0;
-          p.rotationSpeed = 0;
-          p.settled = true;
-        }
-      }
-
-      // Wall collisions (left/right)
-      if (p.x - r < 0) {
-        p.x = r;
-        p.vx = -p.vx * BOUNCE_DAMPING;
-      } else if (p.x + r > canvas.width) {
-        p.x = canvas.width - r;
-        p.vx = -p.vx * BOUNCE_DAMPING;
+      if (p.opacity <= 0) {
+        continue;
       }
     }
 
-    // Draw particle
     ctx.save();
     ctx.translate(p.x, p.y);
     ctx.rotate(p.rotation);
@@ -365,7 +514,9 @@ function animate() {
 
   // Check for lingering trails on exploded rockets
   for (const r of rockets) {
-    if (!r.exploded) continue;
+    if (!r.exploded) {
+      continue;
+    }
 
     for (let i = r.trail.length - 1; i >= 0; i--) {
       const t = /** @type {TrailPoint} */ (r.trail[i]);

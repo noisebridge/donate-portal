@@ -30,4 +30,6 @@ export default {
   resendKey: assertEnvVar("RESEND_KEY"),
   emailSender: process.env["EMAIL_SENDER"] || "onboarding@resend.dev",
   totpSecret: assertEnvVar("TOTP_SECRET"),
+  alertsUsername: assertEnvVar("ALERTS_USERNAME"),
+  alertsPassword: assertEnvVar("ALERTS_PASSWORD"),
 };

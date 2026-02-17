@@ -8,7 +8,7 @@ export interface ChargeAlert {
   date: string;
   amount: Cents;
   productName: string;
-};
+}
 
 export class ChargeAlertManager {
   static readonly log = baseLogger.child({ class: "ChargeAlertManager" });
