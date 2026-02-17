@@ -10,6 +10,12 @@ export interface ChargeAlert {
   productName: string;
 }
 
+const generalDonationName = "General Donation";
+const nameRemap: Record<string, string> = {
+  "Donation to Noisebridge": generalDonationName,
+  "Support Us": generalDonationName,
+};
+
 export class ChargeAlertManager {
   static readonly log = baseLogger.child({ class: "ChargeAlertManager" });
 
@@ -43,12 +49,10 @@ export class ChargeAlertManager {
     }
 
     const lineItems = await stripe.checkout.sessions.listLineItems(session.id);
-    const productName = lineItems.data[0]?.description ?? "One-time donation";
-
     const alert: ChargeAlert = {
       date: new Date(session.created * 1000).toISOString(),
       amount: { cents: session.amount_total ?? 0 },
-      productName,
+      productName: this.getProductName(lineItems),
     };
 
     this.lastPayment = alert;
@@ -74,13 +78,27 @@ export class ChargeAlertManager {
     }
 
     const lineItems = await stripe.checkout.sessions.listLineItems(session.id);
-    const productName = lineItems.data[0]?.description ?? "One-time donation";
-
     return {
       date: new Date(session.created * 1000).toISOString(),
       amount: { cents: session.amount_total ?? 0 },
-      productName,
+      productName: this.getProductName(lineItems),
     };
+  }
+
+  private getProductName(
+    lineItems: Stripe.Response<Stripe.ApiList<Stripe.LineItem>>,
+  ) {
+    const productName = lineItems.data[0]?.description;
+    if (!productName) {
+      return generalDonationName;
+    }
+
+    const remappedName = nameRemap[productName];
+    if (!remappedName) {
+      return productName;
+    }
+
+    return remappedName;
   }
 }
 
