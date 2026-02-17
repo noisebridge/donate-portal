@@ -1,6 +1,6 @@
 // @ts-check
 
-import { initConfetti, launchConfetti } from "./confetti.mjs";
+import { initConfetti, launchConfetti } from "./util/confetti.mjs";
 
 /** @typedef {import("~/managers/charge-alert").ChargeAlert} ChargeAlert */
 /** @typedef {import("~/money").Cents} Cents */
@@ -75,7 +75,7 @@ function formatDate(isoDate) {
  * @param {string} id
  * @returns {boolean}
  */
-function hasAlertId(id) {
+function seenAlert(id) {
   return (
     currentAlert?.id === id ||
     historyList.querySelector(`[data-alert-id="${CSS.escape(id)}"]`) !== null
@@ -110,7 +110,7 @@ let currentAlert = null;
  * @param {ChargeAlert} alert
  */
 function displayAlert(alert) {
-  if (hasAlertId(alert.id)) {
+  if (seenAlert(alert.id)) {
     return;
   }
 
