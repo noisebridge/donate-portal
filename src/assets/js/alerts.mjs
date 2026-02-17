@@ -71,12 +71,25 @@ function formatDate(isoDate) {
 }
 
 /**
+ * Check whether an alert ID is already displayed.
+ * @param {string} id
+ * @returns {boolean}
+ */
+function hasAlertId(id) {
+  return (
+    currentAlert?.id === id ||
+    historyList.querySelector(`[data-alert-id="${CSS.escape(id)}"]`) !== null
+  );
+}
+
+/**
  * Push the current alert into the history list.
  * @param {ChargeAlert} alert
  */
 function addToHistory(alert) {
   const item = document.createElement("div");
   item.className = "history-item";
+  item.dataset["alertId"] = alert.id;
   item.innerHTML =
     `<span class="history-product">${alert.productName}</span>` +
     `<span class="history-amount">${formatAmountAligned(alert.amount)}</span>` +
@@ -97,6 +110,10 @@ let currentAlert = null;
  * @param {ChargeAlert} alert
  */
 function displayAlert(alert) {
+  if (hasAlertId(alert.id)) {
+    return;
+  }
+
   if (currentAlert) {
     addToHistory(currentAlert);
   }

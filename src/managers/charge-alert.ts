@@ -1,3 +1,4 @@
+import crypto from "node:crypto";
 import type { WebSocket } from "@fastify/websocket";
 import type Stripe from "stripe";
 import { baseLogger } from "~/logger";
@@ -5,6 +6,7 @@ import type { Cents } from "~/money";
 import stripe from "~/services/stripe";
 
 export interface ChargeAlert {
+  id: string;
   date: string;
   amount: Cents;
   productName: string;
@@ -21,6 +23,10 @@ export class ChargeAlertManager {
 
   private connections = new Set<WebSocket>();
   private lastPayment: ChargeAlert | null = null;
+
+  private static hashSessionId(sessionId: string): string {
+    return crypto.createHash("sha256").update(sessionId).digest("hex");
+  }
 
   async addConnection(socket: WebSocket) {
     this.connections.add(socket);
@@ -43,13 +49,14 @@ export class ChargeAlertManager {
       return;
     }
 
-    const session = event.data.object as Stripe.Checkout.Session;
+    const session = event.data.object;
     if (session.mode !== "payment") {
       return;
     }
 
     const lineItems = await stripe.checkout.sessions.listLineItems(session.id);
     const alert: ChargeAlert = {
+      id: ChargeAlertManager.hashSessionId(session.id),
       date: new Date(session.created * 1000).toISOString(),
       amount: { cents: session.amount_total ?? 0 },
       productName: this.getProductName(lineItems),
@@ -79,6 +86,7 @@ export class ChargeAlertManager {
 
     const lineItems = await stripe.checkout.sessions.listLineItems(session.id);
     return {
+      id: ChargeAlertManager.hashSessionId(session.id),
       date: new Date(session.created * 1000).toISOString(),
       amount: { cents: session.amount_total ?? 0 },
       productName: this.getProductName(lineItems),
