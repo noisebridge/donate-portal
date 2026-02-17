@@ -9,7 +9,7 @@ export function AlertsPage() {
           <meta charset="UTF-8" />
           <meta
             name="viewport"
-            content="width=device-width, initial-scale=1.0"
+            content="width=device-width, initial-scale=1.5"
           />
           <title>Donation Alerts | Noisebridge</title>
           <link rel="icon" href="/assets/image/favicon.svg" />
