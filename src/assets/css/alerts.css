@@ -150,9 +150,18 @@ body {
 
 .qr-corner {
   position: fixed;
+  display: flex;
+  flex-direction: column;
   bottom: 1.5rem;
   right: 1.5rem;
   z-index: 5;
+}
+
+.qr-label {
+  font-family: "Eurostile", sans-serif;
+  font-size: 1.5rem;
+  font-weight: bold;
+  align-self: center;
 }
 
 .qr-code {

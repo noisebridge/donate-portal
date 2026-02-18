@@ -33,6 +33,7 @@ export function AlertsPage() {
             </div>
           </div>
           <div class="qr-corner">
+            <span class="qr-label">Scan to show fireworks!</span>
             <img
               src={paths.qrSvg(
                 { cents: 10000 },
