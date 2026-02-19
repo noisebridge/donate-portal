@@ -1,12 +1,17 @@
 // @ts-check
 
-import { initConfetti, launchConfetti } from "./util/confetti.mjs";
+import {
+  initConfetti,
+  launchConfetti,
+  stopConfetti,
+} from "./util/confetti.mjs";
+import { initMatrix, showMatrix, stopMatrix } from "./util/matrix.mjs";
 
 /** @typedef {import("~/managers/charge-alert").ChargeAlert} ChargeAlert */
 /** @typedef {import("~/money").Cents} Cents */
 
-const confettiCanvas = /** @type {HTMLCanvasElement} */ (
-  document.getElementById("confetti-canvas")
+const effectCanvas = /** @type {HTMLCanvasElement} */ (
+  document.getElementById("effect-canvas")
 );
 const amountEl = /** @type {HTMLElement} */ (
   document.getElementById("alert-amount")
@@ -29,7 +34,8 @@ const wsPath = /** @type {HTMLInputElement} */ (
 
 const MAX_RECONNECT_DELAY = 30000;
 const DEFAULT_RECONNECT_DELAY = 1000;
-const MAX_HISTORY = 30;
+const MAX_HISTORY = 20;
+const HACKER_AMOUNTS = [1337, 13370, 133700];
 
 let reconnectDelay = DEFAULT_RECONNECT_DELAY;
 
@@ -125,6 +131,16 @@ function addToHistory(alert) {
   }
 }
 
+/**
+ * @param {ChargeAlert} alert
+ */
+function setBodyClass(alert) {
+  document.body.classList.toggle(
+    "hacker",
+    HACKER_AMOUNTS.includes(alert.amount.cents),
+  );
+}
+
 /** @type {ChargeAlert | null} */
 let currentCharge = null;
 
@@ -136,6 +152,8 @@ function displayAlert(alert) {
   if (seenAlert(alert.id)) {
     return;
   }
+
+  setBodyClass(alert);
 
   if (currentCharge) {
     addToHistory(currentCharge);
@@ -156,7 +174,13 @@ function displayAlert(alert) {
     el.classList.add("alert-animate");
   }
 
-  launchConfetti(alert.amount.cents / 100);
+  if (HACKER_AMOUNTS.includes(alert.amount.cents)) {
+    stopConfetti();
+    showMatrix();
+  } else {
+    stopMatrix();
+    launchConfetti(alert.amount.cents / 100);
+  }
 }
 
 function connect() {
@@ -179,12 +203,36 @@ function connect() {
   });
 }
 
+/**
+ * Initialize a full-screen canvas element with auto-resize.
+ * @param {HTMLCanvasElement} canvasEl
+ * @returns {HTMLCanvasElement}
+ */
+function initCanvas(canvasEl) {
+  function resize() {
+    canvasEl.width = window.innerWidth;
+    canvasEl.height = window.innerHeight;
+  }
+
+  window.addEventListener("resize", resize);
+  resize();
+
+  return canvasEl;
+}
+
 document.addEventListener("DOMContentLoaded", () => {
-  initConfetti(confettiCanvas);
+  const canvas = initCanvas(effectCanvas);
+  initConfetti(canvas);
+  initMatrix(canvas);
   const currentChargeJson =
     document.getElementById("current-charge")?.textContent;
   currentCharge = currentChargeJson
     ? /** @type {ChargeAlert} */ (JSON.parse(currentChargeJson))
     : null;
+
+  if (currentCharge) {
+    setBodyClass(currentCharge);
+  }
+
   connect();
 });

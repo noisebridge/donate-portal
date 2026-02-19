@@ -1,3 +1,30 @@
+/* latin-ext */
+@font-face {
+  font-family: "Bitcount";
+  src: url("/assets/font/bitcount/bitcount-latin-ext.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  unicode-range:
+    U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7,
+    U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F,
+    U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F,
+    U+A720-A7FF;
+}
+
+/* latin */
+@font-face {
+  font-family: "Bitcount";
+  src: url("/assets/font/bitcount/bitcount-latin.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6,
+    U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122,
+    U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
 @font-face {
   font-family: "Eurostile";
   src: url("/assets/font/eurostile/eurostile.woff2") format("woff2");
@@ -15,6 +42,7 @@
 }
 
 :root {
+  --font-bitcount: "Bitcount", monospace;
   --font-eurostile: "Eurostile", sans-serif;
   --font-sans:
     -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu",
@@ -27,6 +55,10 @@ body {
   margin: 0;
   overflow: hidden;
   zoom: 0.7;
+}
+
+body.hacker {
+  background-color: #222;
 }
 
 .alerts-layout {
@@ -55,6 +87,11 @@ body {
   letter-spacing: 0.1em;
 }
 
+body.hacker .alert-label {
+  font-family: var(--font-bitcount);
+  color: #0c0;
+}
+
 .alert-amount {
   font-family: var(--font-eurostile);
   font-weight: 700;
@@ -64,6 +101,12 @@ body {
   margin-bottom: 0.5rem;
 }
 
+body.hacker .alert-amount {
+  font-family: var(--font-bitcount);
+  color: #0c0;
+  font-weight: 400;
+}
+
 .alert-product {
   font-family: var(--font-sans);
   font-size: 4rem;
@@ -71,10 +114,20 @@ body {
   margin-bottom: 1rem;
 }
 
+body.hacker .alert-product {
+  font-family: var(--font-bitcount);
+  color: #0c0;
+}
+
 .alert-date {
   font-family: var(--font-sans);
   font-size: 2.5rem;
   color: #ffffff;
+}
+
+body.hacker .alert-date {
+  font-family: var(--font-bitcount);
+  color: #0c0;
 }
 
 @keyframes fade-in {
@@ -114,6 +167,12 @@ body {
   padding: 1rem 2rem;
   font-family: var(--font-sans);
   font-size: 3rem;
+  color: #ffffff;
+}
+
+body.hacker .history-list {
+  font-family: var(--font-bitcount);
+  color: #0c0;
 }
 
 .history-item {
@@ -122,20 +181,21 @@ body {
   align-items: center;
   padding: 0.75rem 0;
   font-size: 3rem;
-  color: #ffffff;
 }
 
 .history-product {
-  color: #ffffff;
   text-wrap: nowrap;
   text-overflow: ellipsis;
   overflow: hidden;
 }
 
 .history-amount {
-  color: rgba(255, 255, 255, 1);
   font-weight: 600;
   display: flex;
+}
+
+body.hacker .history-amount {
+  font-weight: 400;
 }
 
 .history-amount-dollars {
@@ -149,7 +209,6 @@ body {
 }
 
 .history-date {
-  color: #ffffff;
   font-size: 2rem;
 }
 
@@ -165,10 +224,16 @@ body {
 }
 
 .qr-label {
-  font-family: "Eurostile", sans-serif;
+  font-family: var(--font-eurostile);
   font-size: 1.5rem;
   font-weight: bold;
   align-self: center;
+}
+
+body.hacker .qr-label {
+  font-family: var(--font-bitcount);
+  font-weight: normal;
+  color: #0c0;
 }
 
 .qr-code {
@@ -179,9 +244,13 @@ body {
   padding: 0.5rem;
 }
 
+body.hacker .qr-code {
+  background: #0b0;
+}
+
 /* Confetti canvas */
 
-#confetti-canvas {
+#effect-canvas {
   position: fixed;
   top: 0;
   left: 0;
@@ -189,4 +258,8 @@ body {
   height: 100%;
   pointer-events: none;
   z-index: 10;
+}
+
+body.hacker #effect-canvas {
+  mix-blend-mode: screen;
 }

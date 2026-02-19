@@ -12,7 +12,7 @@ export interface ChargeAlert {
   productName: string;
 }
 
-const MAX_RECENT_CHARGES = 30;
+const MAX_RECENT_CHARGES = 20;
 const GENERAL_DONATION = "General Donation";
 const NAME_REMAP: Record<string, string> = {
   "Donation to Noisebridge": GENERAL_DONATION,

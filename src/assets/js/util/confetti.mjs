@@ -83,8 +83,10 @@ const contactedThisFrame = new Set();
 /** @type {ConfettiParticle[]} */
 let particles = [];
 /** @type {Rocket[]} */
-const rockets = [];
+let rockets = [];
 let animating = false;
+/** @type {number[]} */
+let pendingTimers = [];
 
 /** @type {HTMLCanvasElement} */
 let canvas;
@@ -98,14 +100,6 @@ let ctx;
 export function initConfetti(canvasEl) {
   canvas = canvasEl;
   ctx = /** @type {CanvasRenderingContext2D} */ (canvas.getContext("2d"));
-
-  function resize() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-  }
-
-  window.addEventListener("resize", resize);
-  resize();
 }
 
 /**
@@ -335,28 +329,47 @@ export function launchConfetti(dollars) {
   for (let i = 0; i < rocketCount; i++) {
     const delay = i * 300 + Math.random() * 200;
 
-    setTimeout(() => {
-      rockets.push({
-        x: Math.random() * canvas.width * 0.8 + canvas.width * 0.1,
-        y: canvas.height + 10,
-        targetY: Math.random() * canvas.height * 0.35 + canvas.height * 0.1,
-        vy: -(ROCKET_SPEED + Math.random() * 1.5),
-        sparklePhase: Math.random() * Math.PI * 2,
-        exploded: false,
-        trail: [],
-        dollars,
-      });
+    pendingTimers.push(
+      window.setTimeout(() => {
+        rockets.push({
+          x: Math.random() * canvas.width * 0.8 + canvas.width * 0.1,
+          y: canvas.height + 10,
+          targetY: Math.random() * canvas.height * 0.35 + canvas.height * 0.1,
+          vy: -(ROCKET_SPEED + Math.random() * 1.5),
+          sparklePhase: Math.random() * Math.PI * 2,
+          exploded: false,
+          trail: [],
+          dollars,
+        });
 
-      if (!animating) {
-        animating = true;
-        requestAnimationFrame(animate);
-      }
-    }, delay);
+        if (!animating) {
+          animating = true;
+          requestAnimationFrame(animate);
+        }
+      }, delay),
+    );
   }
 
   if (!animating) {
     animating = true;
     requestAnimationFrame(animate);
+  }
+}
+
+/**
+ * Stop all confetti animations and clear the canvas.
+ */
+export function stopConfetti() {
+  for (const id of pendingTimers) {
+    clearTimeout(id);
+  }
+
+  pendingTimers = [];
+  particles = [];
+  rockets = [];
+  animating = false;
+  if (ctx && canvas) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
   }
 }
 
@@ -544,6 +557,7 @@ function animate() {
     ctx.rotate(p.rotation);
     ctx.globalAlpha = p.opacity;
     if (p.emoji) {
+      ctx.fillStyle = "#ffffff";
       ctx.font = `${p.size * 3}px serif`;
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
