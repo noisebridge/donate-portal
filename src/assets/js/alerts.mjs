@@ -43,16 +43,37 @@ function formatAmount(amount) {
 }
 
 /**
- * Format cents as a dollar amount split into two spans for decimal alignment.
- * @param {Cents} amount
- * @returns {string}
+ * Create a span element with the given class and text content.
+ * @param {string} className
+ * @param {string} text
+ * @returns {HTMLSpanElement}
  */
-function formatAmountAligned(amount) {
-  const [dollars, cents] = (amount.cents / 100).toFixed(2).split(".");
-  return (
-    `<span class="history-amount-dollars">$${dollars}.</span>` +
-    `<span class="history-amount-cents">${cents}</span>`
+function span(className, text) {
+  const el = document.createElement("span");
+  el.className = className;
+  el.textContent = text;
+
+  return el;
+}
+
+/**
+ * Build an amount element with aligned dollar/cent spans.
+ * @param {Cents} amount
+ * @returns {HTMLSpanElement}
+ */
+function buildAmountAligned(amount) {
+  const parts = (amount.cents / 100).toFixed(2).split(".");
+  const dollars = /** @type {string} */ (parts[0]);
+  const cents = /** @type {string} */ (parts[1]);
+
+  const wrapper = document.createElement("span");
+  wrapper.className = "history-amount";
+  wrapper.append(
+    span("history-amount-dollars", `$${dollars}.`),
+    span("history-amount-cents", cents),
   );
+
+  return wrapper;
 }
 
 /**
@@ -91,10 +112,11 @@ function addToHistory(alert) {
   const item = document.createElement("div");
   item.className = "history-item";
   item.dataset["alertId"] = alert.id;
-  item.innerHTML =
-    `<span class="history-product">${alert.productName}</span>` +
-    `<span class="history-amount">${formatAmountAligned(alert.amount)}</span>` +
-    `<span class="history-date">${formatDate(alert.date)}</span>`;
+  item.append(
+    span("history-product", alert.productName),
+    buildAmountAligned(alert.amount),
+    span("history-date", formatDate(alert.date)),
+  );
 
   historyList.prepend(item);
 
