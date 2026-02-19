@@ -47,8 +47,8 @@ body {
 
 .alert-label {
   font-family: var(--font-sans);
-  font-size: 2.25rem;
-  color: rgba(255, 255, 255, 0.5);
+  font-size: 3rem;
+  color: #ffffff;
   margin-bottom: 0.5rem;
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -57,7 +57,7 @@ body {
 .alert-amount {
   font-family: var(--font-eurostile);
   font-weight: 700;
-  font-size: 9rem;
+  font-size: 15rem;
   line-height: 1.1;
   letter-spacing: -0.02em;
   margin-bottom: 0.5rem;
@@ -65,15 +65,15 @@ body {
 
 .alert-product {
   font-family: var(--font-sans);
-  font-size: 2.25rem;
-  color: rgba(255, 255, 255, 0.7);
+  font-size: 4rem;
+  color: #ffffff;
   margin-bottom: 1rem;
 }
 
 .alert-date {
   font-family: var(--font-sans);
-  font-size: 1.5rem;
-  color: rgba(255, 255, 255, 0.4);
+  font-size: 2.5rem;
+  color: #ffffff;
 }
 
 @keyframes fade-in {
@@ -81,6 +81,7 @@ body {
     opacity: 0.1;
     transform: translateY(-10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -95,7 +96,7 @@ body {
 
 .history-wrapper {
   flex: 1;
-  width: 30rem;
+  width: 80rem;
   overflow: hidden;
   position: relative;
   mask-image: linear-gradient(to bottom, #000 0%, #000 25%, transparent 100%);
@@ -111,22 +112,27 @@ body {
   text-align: center;
   padding: 1rem 2rem;
   font-family: var(--font-sans);
+  padding: 1rem 2rem;
+  font-family: var(--font-sans);
+  font-size: 3rem;
 }
 
 .history-item {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
-  padding: 0.35rem 0;
-  font-size: 0.9rem;
-  color: rgba(255, 255, 255, 0.35);
+  padding: 0.75rem 0;
+  grid-template-columns: 1fr 1fr 1fr;
+  padding: 0.75rem 0;
+  font-size: 3rem;
+  color: #ffffff;
 }
 
 .history-product {
-  color: rgba(255, 255, 255, 0.45);
+  color: #ffffff;
 }
 
 .history-amount {
-  color: rgba(255, 255, 255, 0.5);
+  color: rgba(255, 255, 255, 1);
   font-weight: 600;
   display: flex;
 }
@@ -142,8 +148,8 @@ body {
 }
 
 .history-date {
-  color: rgba(255, 255, 255, 0.25);
-  font-size: 0.8rem;
+  color: #ffffff;
+  font-size: 2rem;
 }
 
 /* QR code */
