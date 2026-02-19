@@ -91,7 +91,7 @@ export function AlertsPage({ charges }: { charges: ChargeAlert[] }) {
               class="qr-code"
             />
           </div>
-          <canvas id="confetti-canvas"></canvas>
+          <canvas id="effect-canvas"></canvas>
           <input type="hidden" id="alerts-ws-path" value={paths.alertsWs()} />
         </body>
       </html>
