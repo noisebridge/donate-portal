@@ -160,7 +160,7 @@ function connect() {
 document.addEventListener("DOMContentLoaded", () => {
   initConfetti(confettiCanvas);
   const currentChargeJson =
-    document.getElementById("latest-charge")?.textContent;
+    document.getElementById("current-charge")?.textContent;
   currentCharge = currentChargeJson
     ? /** @type {ChargeAlert} */ (JSON.parse(currentChargeJson))
     : null;
