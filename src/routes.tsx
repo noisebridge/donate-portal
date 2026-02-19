@@ -31,23 +31,33 @@ import { QrPage } from "~/views/qr";
 import { QrEditorPage } from "~/views/qr-editor";
 import { ThankYouPage } from "~/views/thank-you";
 
-const authRateLimit: RouteShorthandOptions = {
-  config: {
-    rateLimit: {
-      max: 3,
-      timeWindow: "1 minute",
-    },
-  },
-} as const;
+function conditionalRateLimit(
+  rateLimitConfig: RouteShorthandOptions,
+): RouteShorthandOptions {
+  if (config.disableRateLimit) {
+    return {};
+  }
 
-const donationRateLimit: RouteShorthandOptions = {
+  return rateLimitConfig;
+}
+
+const authRateLimit = conditionalRateLimit({
   config: {
     rateLimit: {
       max: 3,
       timeWindow: "1 minute",
     },
   },
-} as const;
+});
+
+const donationRateLimit = conditionalRateLimit({
+  config: {
+    rateLimit: {
+      max: 3,
+      timeWindow: "1 minute",
+    },
+  },
+});
 
 /**
  * Cryptographically secure random string for use with OAuth.
