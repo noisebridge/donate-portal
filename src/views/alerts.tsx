@@ -63,7 +63,9 @@ export function AlertsPage({ charges }: { charges: ChargeAlert[] }) {
                 {latest ? formatAmount(latest.amount) : ""}
               </p>
               <p id="alert-product" class="alert-product">
-                {latest ? latest.productName : "Waiting for donations\u2026"}
+                {latest
+                  ? escapeHtml(latest.productName)
+                  : "Waiting for donations\u2026"}
               </p>
               <p id="alert-date" class="alert-date">
                 {latest ? formatDate(latest.date) : ""}
