@@ -106,6 +106,14 @@ function verifyBasicAuth(request: FastifyRequest) {
     string,
     string | undefined,
   ];
+
+  if (
+    username.length !== config.alertsUsername.length ||
+    password?.length !== config.alertsPassword.length
+  ) {
+    return false;
+  }
+
   if (
     !crypto.timingSafeEqual(
       Buffer.from(username),
