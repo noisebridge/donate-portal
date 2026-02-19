@@ -26,6 +26,7 @@ body {
   color: #ffffff;
   margin: 0;
   overflow: hidden;
+  zoom: 0.7;
 }
 
 .alerts-layout {
@@ -162,14 +163,14 @@ body {
 
 .qr-label {
   font-family: "Eurostile", sans-serif;
-  font-size: 1.25rem;
+  font-size: 1.5rem;
   font-weight: bold;
   align-self: center;
 }
 
 .qr-code {
-  width: 15rem;
-  height: 15rem;
+  width: 20rem;
+  height: 20rem;
   background: #fff;
   border-radius: 0.5rem;
   padding: 0.5rem;
