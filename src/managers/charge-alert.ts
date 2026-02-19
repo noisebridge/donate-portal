@@ -12,6 +12,8 @@ export interface ChargeAlert {
   productName: string;
 }
 
+const MAX_RECENT_CHARGES = 30;
+
 const generalDonationName = "General Donation";
 const nameRemap: Record<string, string> = {
   "Donation to Noisebridge": generalDonationName,
@@ -22,22 +24,13 @@ export class ChargeAlertManager {
   static readonly log = baseLogger.child({ class: "ChargeAlertManager" });
 
   private connections = new Set<WebSocket>();
-  private lastPayment: ChargeAlert | null = null;
 
   private static hashSessionId(sessionId: string): string {
     return crypto.createHash("sha256").update(sessionId).digest("hex");
   }
 
-  async addConnection(socket: WebSocket) {
+  addConnection(socket: WebSocket) {
     this.connections.add(socket);
-
-    if (!this.lastPayment) {
-      this.lastPayment = await this.fetchLastPayment();
-    }
-
-    if (this.lastPayment) {
-      this.broadcast(this.lastPayment);
-    }
 
     socket.on("close", () => {
       this.connections.delete(socket);
@@ -54,16 +47,45 @@ export class ChargeAlertManager {
       return;
     }
 
-    const lineItems = await stripe.checkout.sessions.listLineItems(session.id);
-    const alert: ChargeAlert = {
+    this.broadcast(await this.formatChargeAlert(session));
+  }
+
+  /**
+   * Fetch the most recent completed one-time payment sessions from Stripe.
+   */
+  async fetchRecentCharges(): Promise<ChargeAlert[]> {
+    const sessions = await stripe.checkout.sessions.list({
+      status: "complete",
+      limit: 100,
+      expand: ["data.line_items"],
+    });
+
+    const paymentSessions = sessions.data
+      .filter((session) => session.mode === "payment")
+      .slice(0, MAX_RECENT_CHARGES);
+
+    const alerts = await Promise.all(
+      paymentSessions.map(
+        async (session) => await this.formatChargeAlert(session),
+      ),
+    );
+
+    return alerts;
+  }
+
+  private async formatChargeAlert(
+    session: Stripe.Checkout.Session,
+  ): Promise<ChargeAlert> {
+    const lineItems =
+      session.line_items ??
+      (await stripe.checkout.sessions.listLineItems(session.id));
+
+    return {
       id: ChargeAlertManager.hashSessionId(session.id),
       date: new Date(session.created * 1000).toISOString(),
       amount: { cents: session.amount_total ?? 0 },
       productName: this.getProductName(lineItems),
     };
-
-    this.lastPayment = alert;
-    this.broadcast(alert);
   }
 
   private broadcast(alert: ChargeAlert) {
@@ -73,29 +95,7 @@ export class ChargeAlertManager {
     }
   }
 
-  private async fetchLastPayment(): Promise<ChargeAlert | null> {
-    const sessions = await stripe.checkout.sessions.list({
-      status: "complete",
-      limit: 10,
-    });
-
-    const session = sessions.data.find((session) => session.mode === "payment");
-    if (!session) {
-      return null;
-    }
-
-    const lineItems = await stripe.checkout.sessions.listLineItems(session.id);
-    return {
-      id: ChargeAlertManager.hashSessionId(session.id),
-      date: new Date(session.created * 1000).toISOString(),
-      amount: { cents: session.amount_total ?? 0 },
-      productName: this.getProductName(lineItems),
-    };
-  }
-
-  private getProductName(
-    lineItems: Stripe.Response<Stripe.ApiList<Stripe.LineItem>>,
-  ) {
+  private getProductName(lineItems: Stripe.ApiList<Stripe.LineItem>) {
     const productName = lineItems.data[0]?.description;
     if (!productName) {
       return generalDonationName;

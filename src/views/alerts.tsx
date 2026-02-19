@@ -1,6 +1,35 @@
+import type { ChargeAlert } from "~/managers/charge-alert";
+import { formatAmount } from "~/money";
 import paths from "~/paths";
 
-export function AlertsPage() {
+function formatDate(isoDate: string): string {
+  return new Date(isoDate).toLocaleString("en-US", {
+    year: "numeric",
+    month: "numeric",
+    day: "numeric",
+    hour: "numeric",
+    minute: "numeric",
+  });
+}
+
+function HistoryItem({ charge }: { charge: ChargeAlert }) {
+  const [dollars, cents] = formatAmount(charge.amount).split(".");
+
+  return (
+    <div class="history-item" data-alert-id={charge.id}>
+      <span class="history-product">{charge.productName}</span>
+      <span class="history-amount">
+        <span class="history-amount-dollars">{dollars}.</span>
+        <span class="history-amount-cents">{cents}</span>
+      </span>
+      <span class="history-date">{formatDate(charge.date)}</span>
+    </div>
+  );
+}
+
+export function AlertsPage({ charges }: { charges: ChargeAlert[] }) {
+  const [latest, ...history] = charges;
+
   return (
     <>
       {"<!DOCTYPE html>"}
@@ -15,6 +44,9 @@ export function AlertsPage() {
           <link rel="icon" href="/assets/image/favicon.svg" />
           <link rel="stylesheet" href="/assets/css/reset.css" />
           <link rel="stylesheet" href="/assets/css/alerts.css" />
+          <script id="current-charge" type="application/json">
+            {JSON.stringify(latest ?? null)}
+          </script>
           <script type="module" src="/assets/js/alerts.mjs"></script>
         </head>
         <body>
@@ -22,14 +54,22 @@ export function AlertsPage() {
             <div class="alerts-spacer"></div>
             <div class="alerts-container">
               <p class="alert-label">Latest Donation</p>
-              <p id="alert-amount" class="alert-amount"></p>
-              <p id="alert-product" class="alert-product">
-                Waiting for donations&hellip;
+              <p id="alert-amount" class="alert-amount">
+                {latest ? formatAmount(latest.amount) : ""}
               </p>
-              <p id="alert-date" class="alert-date"></p>
+              <p id="alert-product" class="alert-product">
+                {latest ? latest.productName : "Waiting for donations\u2026"}
+              </p>
+              <p id="alert-date" class="alert-date">
+                {latest ? formatDate(latest.date) : ""}
+              </p>
             </div>
             <div class="history-wrapper">
-              <div id="history-list" class="history-list"></div>
+              <div id="history-list" class="history-list">
+                {history.map((charge) => (
+                  <HistoryItem charge={charge} />
+                ))}
+              </div>
             </div>
           </div>
           <div class="qr-corner">

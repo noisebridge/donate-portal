@@ -77,7 +77,7 @@ function formatDate(isoDate) {
  */
 function seenAlert(id) {
   return (
-    currentAlert?.id === id ||
+    currentCharge?.id === id ||
     historyList.querySelector(`[data-alert-id="${CSS.escape(id)}"]`) !== null
   );
 }
@@ -103,7 +103,7 @@ function addToHistory(alert) {
 }
 
 /** @type {ChargeAlert | null} */
-let currentAlert = null;
+let currentCharge = null;
 
 /**
  * Update the DOM with a new charge alert.
@@ -114,10 +114,10 @@ function displayAlert(alert) {
     return;
   }
 
-  if (currentAlert) {
-    addToHistory(currentAlert);
+  if (currentCharge) {
+    addToHistory(currentCharge);
   }
-  currentAlert = alert;
+  currentCharge = alert;
 
   amountEl.textContent = formatAmount(alert.amount);
   productEl.textContent = alert.productName;
@@ -158,5 +158,10 @@ function connect() {
 
 document.addEventListener("DOMContentLoaded", () => {
   initConfetti(confettiCanvas);
+  const currentChargeJson =
+    document.getElementById("latest-charge")?.textContent;
+  currentCharge = currentChargeJson
+    ? /** @type {ChargeAlert} */ (JSON.parse(currentChargeJson))
+    : null;
   connect();
 });

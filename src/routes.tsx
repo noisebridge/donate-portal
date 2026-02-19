@@ -741,7 +741,8 @@ export default async function routes(fastify: FastifyInstance) {
         .send("Unauthorized");
     }
 
-    return reply.html(<AlertsPage />);
+    const charges = await chargeAlertManager.fetchRecentCharges();
+    return reply.html(<AlertsPage charges={charges} />);
   });
 
   fastify.get(
