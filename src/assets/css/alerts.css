@@ -127,6 +127,9 @@ body {
 
 .history-product {
   color: #ffffff;
+  text-wrap: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
 }
 
 .history-amount {
