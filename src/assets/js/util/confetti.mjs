@@ -14,6 +14,7 @@
  * @property {boolean} settled
  * @property {number} fadeStart
  * @property {number} contactStart
+ * @property {string | null} emoji
  */
 
 /**
@@ -31,6 +32,7 @@
  * @property {number} vy
  * @property {number} sparklePhase
  * @property {boolean} exploded
+ * @property {number} dollars
  * @property {TrailPoint[]} trail
  */
 
@@ -46,7 +48,19 @@ const COLORS = [
   "#ff9f43",
   "#00d2d3",
 ];
-const PARTICLES_PER_EXPLOSION = 80;
+/** @type {Record<number, string[]>} */
+const EMOJI_MAP = {
+  4.2: ["\u{1F334}", "\u{1F525}"],
+  42: ["\u{1F334}", "\u{1F525}"],
+  420: ["\u{1F334}", "\u{1F525}"],
+  69: ["\u{1F346}", "\u{1F351}"],
+  69.69: ["\u{1F346}", "\u{1F351}"],
+  6.7: ["\u{1F450}"],
+  67: ["\u{1F450}"],
+  67.67: ["\u{1F450}"],
+};
+const PARTICLES_DEFAULT = 80;
+const PARTICLES_EMOJI = 20;
 const GRAVITY = 0.15;
 const DRAG = 0.98;
 const TRAIL_FADE_RATE = 0.03;
@@ -263,10 +277,14 @@ function resolveCollision(a, b) {
 /**
  * @param {number} x
  * @param {number} y
+ * @param {number} dollars
  */
-function spawnExplosion(x, y) {
+function spawnExplosion(x, y, dollars) {
   const now = performance.now();
-  for (let i = 0; i < PARTICLES_PER_EXPLOSION; i++) {
+  const particleCount = EMOJI_MAP[dollars]
+    ? PARTICLES_EMOJI
+    : PARTICLES_DEFAULT;
+  for (let i = 0; i < particleCount; i++) {
     const angle = Math.random() * Math.PI * 2;
     const speed = 2 + Math.random() * 8;
     particles.push({
@@ -287,8 +305,25 @@ function spawnExplosion(x, y) {
         FADE_AFTER_MIN +
         Math.random() * (FADE_AFTER_MAX - FADE_AFTER_MIN),
       contactStart: 0,
+      emoji: getEmoji(dollars),
     });
   }
+}
+
+/**
+ * Get a random emoji if there is one for the dollar amount;
+ * @param {number} dollars
+ * @returns {string | null}
+ */
+function getEmoji(dollars) {
+  const emojiOptions = EMOJI_MAP[dollars];
+  if (!emojiOptions) {
+    return null;
+  }
+
+  return /** @type {string} */ (
+    emojiOptions[Math.floor(Math.random() * emojiOptions.length)]
+  );
 }
 
 /**
@@ -309,6 +344,7 @@ export function launchConfetti(dollars) {
         sparklePhase: Math.random() * Math.PI * 2,
         exploded: false,
         trail: [],
+        dollars,
       });
 
       if (!animating) {
@@ -404,7 +440,7 @@ function animate() {
     // Check if rocket reached target
     if (r.y <= r.targetY) {
       r.exploded = true;
-      spawnExplosion(r.x, r.y);
+      spawnExplosion(r.x, r.y, r.dollars);
     }
   }
 
@@ -507,8 +543,15 @@ function animate() {
     ctx.translate(p.x, p.y);
     ctx.rotate(p.rotation);
     ctx.globalAlpha = p.opacity;
-    ctx.fillStyle = p.color;
-    ctx.fillRect(-p.size / 2, -p.size / 4, p.size, p.size / 2);
+    if (p.emoji) {
+      ctx.font = `${p.size * 3}px serif`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(p.emoji, 0, 0);
+    } else {
+      ctx.fillStyle = p.color;
+      ctx.fillRect(-p.size / 2, -p.size / 4, p.size, p.size / 2);
+    }
     ctx.restore();
   }
 
