@@ -157,38 +157,6 @@ function connect() {
   });
 }
 
-/** @type {string | null} */
-let initialCommit = null;
-
-const RELEASE_CHECK_INTERVAL = 60000;
-
-async function checkRelease() {
-  try {
-    const res = await fetch("/release");
-    if (!res.ok) {
-      return;
-    }
-
-    const data = /** @type {{ commit: string | null; }} */ (await res.json());
-    const commit = data.commit;
-    if (!commit) {
-      return;
-    }
-
-    if (initialCommit === null) {
-      initialCommit = commit;
-      return;
-    }
-
-    if (commit !== initialCommit) {
-      location.reload();
-      return;
-    }
-  } catch (e) {
-    console.log(e);
-  }
-}
-
 document.addEventListener("DOMContentLoaded", () => {
   initConfetti(confettiCanvas);
   const currentChargeJson =
@@ -197,6 +165,4 @@ document.addEventListener("DOMContentLoaded", () => {
     ? /** @type {ChargeAlert} */ (JSON.parse(currentChargeJson))
     : null;
   connect();
-  checkRelease();
-  setInterval(checkRelease, RELEASE_CHECK_INTERVAL);
 });

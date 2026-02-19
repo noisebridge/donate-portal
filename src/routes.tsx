@@ -818,10 +818,6 @@ export default async function routes(fastify: FastifyInstance) {
     },
   );
 
-  fastify.get(paths.release(), async (_request, reply) => {
-    return reply.status(200).send({ commit: config.gitCommit ?? null });
-  });
-
   fastify.get(paths.healthz(), async (_request, reply) => {
     return reply.status(200).send({ status: "ok" });
   });
