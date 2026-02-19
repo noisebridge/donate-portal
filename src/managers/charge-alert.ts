@@ -13,21 +13,16 @@ export interface ChargeAlert {
 }
 
 const MAX_RECENT_CHARGES = 30;
-
-const generalDonationName = "General Donation";
-const nameRemap: Record<string, string> = {
-  "Donation to Noisebridge": generalDonationName,
-  "Support Us": generalDonationName,
+const GENERAL_DONATION = "General Donation";
+const NAME_REMAP: Record<string, string> = {
+  "Donation to Noisebridge": GENERAL_DONATION,
+  "Support Us": GENERAL_DONATION,
 };
 
 export class ChargeAlertManager {
   static readonly log = baseLogger.child({ class: "ChargeAlertManager" });
 
   private connections = new Set<WebSocket>();
-
-  private static hashSessionId(sessionId: string): string {
-    return crypto.createHash("sha256").update(sessionId).digest("hex");
-  }
 
   addConnection(socket: WebSocket) {
     this.connections.add(socket);
@@ -56,7 +51,7 @@ export class ChargeAlertManager {
   async fetchRecentCharges(): Promise<ChargeAlert[]> {
     const sessions = await stripe.checkout.sessions.list({
       status: "complete",
-      limit: 100,
+      limit: 60,
       expand: ["data.line_items"],
     });
 
@@ -81,7 +76,7 @@ export class ChargeAlertManager {
       (await stripe.checkout.sessions.listLineItems(session.id));
 
     return {
-      id: ChargeAlertManager.hashSessionId(session.id),
+      id: this.hashSessionId(session.id),
       date: new Date(session.created * 1000).toISOString(),
       amount: { cents: session.amount_total ?? 0 },
       productName: this.getProductName(lineItems),
@@ -95,13 +90,21 @@ export class ChargeAlertManager {
     }
   }
 
+  private hashSessionId(sessionId: string): string {
+    return crypto
+      .createHash("sha256")
+      .update(sessionId)
+      .digest("hex")
+      .slice(0, 12);
+  }
+
   private getProductName(lineItems: Stripe.ApiList<Stripe.LineItem>) {
     const productName = lineItems.data[0]?.description;
     if (!productName) {
-      return generalDonationName;
+      return GENERAL_DONATION;
     }
 
-    const remappedName = nameRemap[productName];
+    const remappedName = NAME_REMAP[productName];
     if (!remappedName) {
       return productName;
     }
