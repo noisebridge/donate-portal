@@ -112,16 +112,13 @@ body {
   text-align: center;
   padding: 1rem 2rem;
   font-family: var(--font-sans);
-  padding: 1rem 2rem;
-  font-family: var(--font-sans);
   font-size: 3rem;
 }
 
 .history-item {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
-  padding: 0.75rem 0;
-  grid-template-columns: 1fr 1fr 1fr;
+  align-items: center;
   padding: 0.75rem 0;
   font-size: 3rem;
   color: #ffffff;
