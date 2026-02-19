@@ -145,6 +145,10 @@ const paths = {
    * `/healthz`
    */
   healthz: () => "/healthz",
+  /**
+   * `/release`
+   */
+  release: () => "/release",
 } as const satisfies Record<string, FunctionReturnsString>;
 
 export default paths;
