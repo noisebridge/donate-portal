@@ -61,12 +61,13 @@ function formatAmountAligned(amount) {
  * @returns {string}
  */
 function formatDate(isoDate) {
-  return new Date(isoDate).toLocaleString(undefined, {
+  return new Date(isoDate).toLocaleString("en-US", {
     year: "numeric",
     month: "numeric",
     day: "numeric",
     hour: "numeric",
     minute: "numeric",
+    timeZone: "America/Los_Angeles",
   });
 }
 

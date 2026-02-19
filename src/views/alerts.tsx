@@ -9,6 +9,7 @@ function formatDate(isoDate: string): string {
     day: "numeric",
     hour: "numeric",
     minute: "numeric",
+    timeZone: "America/Los_Angeles",
   });
 }
 
