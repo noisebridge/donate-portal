@@ -1,3 +1,4 @@
+import { escapeHtml } from "@kitajs/html";
 import type Stripe from "stripe";
 import { DonationTierSelector } from "~/components/donation-tier-selector";
 import { Layout } from "~/components/layout";
@@ -26,7 +27,7 @@ export function ManagePage({
         <div class="manage-header">
           <h1>{subscription ? "Manage your Donation" : "Start a Donation"}</h1>
           <p>
-            You're signed in as <strong>{email}</strong>
+            You're signed in as <strong>{escapeHtml(email) as "safe"}</strong>
           </p>
         </div>
 
@@ -34,7 +35,7 @@ export function ManagePage({
 
         <DonationTierSelector subscription={subscription} />
 
-        {subscription && (
+        {!!subscription && (
           <form
             method="POST"
             action={paths.cancel()}

@@ -31,7 +31,7 @@ export function Layout({
             name="viewport"
             content="width=device-width, initial-scale=1.0"
           />
-          <title>{title} | Noisebridge</title>
+          <title>{title as "safe"} | Noisebridge</title>
           <link rel="icon" href="/assets/image/favicon.svg" />
           {/**
            * Hide all content initially. This style is reset at the end of
@@ -40,9 +40,14 @@ export function Layout({
           <style>{"html { visibility: hidden; opacity: 0; }"}</style>
           <link rel="stylesheet" href="/assets/css/reset.css" />
           <link rel="stylesheet" href="/assets/css/main.css" />
-          {styles && <link rel="stylesheet" href={`/assets/css/${styles}`} />}
-          {script && (
-            <script type="module" src={`/assets/js/${script}`}></script>
+          {!!styles && (
+            <link rel="stylesheet" href={`/assets/css/${styles}` as "safe"} />
+          )}
+          {!!script && (
+            <script
+              type="module"
+              src={`/assets/js/${script}` as "safe"}
+            ></script>
           )}
         </head>
         <body>

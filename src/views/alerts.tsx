@@ -1,3 +1,4 @@
+import { escapeHtml } from "@kitajs/html";
 import type { ChargeAlert } from "~/managers/charge-alert";
 import { formatAmount } from "~/money";
 import paths from "~/paths";
@@ -18,12 +19,14 @@ function HistoryItem({ charge }: { charge: ChargeAlert }) {
 
   return (
     <div class="history-item" data-alert-id={charge.id}>
-      <span class="history-product">{charge.productName}</span>
-      <span class="history-amount">
-        <span class="history-amount-dollars">{dollars}.</span>
-        <span class="history-amount-cents">{cents}</span>
+      <span class="history-product">
+        {escapeHtml(charge.productName) as "safe"}
       </span>
-      <span class="history-date">{formatDate(charge.date)}</span>
+      <span class="history-amount">
+        <span class="history-amount-dollars">{dollars as "safe"}.</span>
+        <span class="history-amount-cents">{cents as "safe"}</span>
+      </span>
+      <span class="history-date">{formatDate(charge.date) as "safe"}</span>
     </div>
   );
 }

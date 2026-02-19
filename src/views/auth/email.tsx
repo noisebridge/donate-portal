@@ -1,3 +1,4 @@
+import { escapeHtml } from "@kitajs/html";
 import { Layout } from "~/components/layout";
 
 export interface AuthEmailProps {
@@ -21,7 +22,8 @@ export function AuthEmailPage({ email, isAuthenticated }: AuthEmailProps) {
           <h1 class="page-title">Check your email</h1>
 
           <p class="page-message">
-            We've sent a magic link to <strong>{email}</strong>
+            We've sent a magic link to{" "}
+            <strong>{escapeHtml(email) as "safe"}</strong>
           </p>
 
           <p class="page-message-muted">

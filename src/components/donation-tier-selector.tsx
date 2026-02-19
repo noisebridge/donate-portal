@@ -76,7 +76,7 @@ export function DonationTierSelector({
                 checked={tier.checked}
               />
               <div class="tier-content">
-                <h3 class="tier-name">{tier.name}</h3>
+                <h3 class="tier-name">{tier.name as "safe"}</h3>
                 <div class="tier-amount" aria-hidden="true">
                   <span class="currency">$</span>
                   <span class="amount">{tier.amount}</span>
@@ -143,7 +143,7 @@ export function DonationTierSelector({
         </button>
       </form>
 
-      {subscription && (
+      {!!subscription && (
         <form method="post" action={paths.stripePortal()}>
           <button type="submit" class="btn btn-outline btn-large mt-sm">
             Past Invoices and Payment Methods

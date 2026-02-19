@@ -43,7 +43,7 @@ export function QrEditorPage({ isAuthenticated }: QrEditorProps) {
                 />
               </div>
               <span class="form-hint">
-                Minimum {formatAmount(DonationManager.minimumAmount)}
+                Minimum {formatAmount(DonationManager.minimumAmount) as "safe"}
               </span>
             </div>
 

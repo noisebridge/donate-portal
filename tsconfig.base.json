@@ -23,10 +23,9 @@
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,
     "moduleResolution": "bundler",
-    "jsx": "preserve",
-    "jsxFactory": "Html.createElement",
-    "jsxFragmentFactory": "Html.Fragment",
+    "jsx": "react-jsx",
     "jsxImportSource": "@kitajs/html",
+    "plugins": [{ "name": "@kitajs/ts-html-plugin" }],
     "baseUrl": ".",
     "paths": {
       "~/*": ["./src/*"]

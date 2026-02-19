@@ -1,3 +1,4 @@
+import { escapeHtml } from "@kitajs/html";
 import { Layout } from "~/components/layout";
 import { DonationManager } from "~/managers/donation";
 import { type Cents, formatAmount } from "~/money";
@@ -29,11 +30,17 @@ export function QrPage({
     >
       <div class="container-narrow">
         <div class="card text-center">
-          {name && <h1 class="qr-donate-name">{name}</h1>}
-          {description && <p class="qr-donate-description">{description}</p>}
+          {!!name && (
+            <h1 class="qr-donate-name">{escapeHtml(name) as "safe"}</h1>
+          )}
+          {!!description && (
+            <p class="qr-donate-description">
+              {escapeHtml(description) as "safe"}
+            </p>
+          )}
 
           <div class="qr-amount-display">
-            <span id="current-amount">{formatAmount(amount)}</span>
+            <span id="current-amount">{formatAmount(amount) as "safe"}</span>
           </div>
 
           <div class="qr-slider-container">
@@ -47,8 +54,10 @@ export function QrPage({
               aria-label="Donation amount"
             />
             <div class="qr-slider-labels">
-              <span>{formatAmount(DonationManager.minimumAmount)}</span>
-              <span>{formatAmount({ cents: amount.cents * 2 })}</span>
+              <span>
+                {formatAmount(DonationManager.minimumAmount) as "safe"}
+              </span>
+              <span>{formatAmount({ cents: amount.cents * 2 }) as "safe"}</span>
             </div>
           </div>
 
@@ -59,9 +68,19 @@ export function QrPage({
               id="hidden-amount"
               value={initialDollars.toString()}
             />
-            {name && <input type="hidden" name="name" value={name} />}
-            {description && (
-              <input type="hidden" name="description" value={description} />
+            {!!name && (
+              <input
+                type="hidden"
+                name="name"
+                value={escapeHtml(name) as "safe"}
+              />
+            )}
+            {!!description && (
+              <input
+                type="hidden"
+                name="description"
+                value={escapeHtml(description) as "safe"}
+              />
             )}
             <button type="submit" class="btn btn-primary btn-large">
               Donate

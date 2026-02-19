@@ -36,6 +36,9 @@ jobs:
       - name: Run TypeScript check
         run: bun run check
 
+      - name: Run XSS scan
+        run: bunx xss-scan
+
       - name: Run tests
         run: bun test
 

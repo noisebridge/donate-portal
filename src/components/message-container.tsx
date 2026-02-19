@@ -1,3 +1,5 @@
+import { escapeHtml } from "@kitajs/html";
+
 export interface Message {
   type: "error" | "info";
   /**
@@ -22,7 +24,7 @@ export function MessageContainer({ messages }: MessageContainerProps) {
           role="alert"
           data-type={message.type}
         >
-          <span class="message-text">{message.text}</span>
+          <span class="message-text">{escapeHtml(message.text) as "safe"}</span>
           {(message.dismissable ?? true) && (
             <button type="button" class="message-dismiss" aria-label="Dismiss">
               &times;
