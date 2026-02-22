@@ -79,6 +79,8 @@ body.hacker {
 }
 
 .alert-label {
+  position: relative;
+  z-index: 20;
   font-family: var(--font-sans);
   font-size: 3rem;
   color: #ffffff;
@@ -249,7 +251,7 @@ body.hacker .history-amount {
   flex-direction: column;
   bottom: 1.5rem;
   right: 1.5rem;
-  z-index: 5;
+  z-index: 20;
 }
 
 .qr-label {
@@ -291,4 +293,15 @@ body.hacker .qr-code {
 
 body.hacker #effect-canvas {
   mix-blend-mode: screen;
+}
+
+/* Snoop image (DOM element so APNG animates) */
+
+.snoop-img {
+  position: fixed;
+  left: 5%;
+  width: 90%;
+  pointer-events: none;
+  z-index: 11;
+  display: none;
 }

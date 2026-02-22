@@ -6,6 +6,12 @@ import {
   stopConfetti,
 } from "./util/confetti.mjs";
 import { initMatrix, showMatrix, stopMatrix } from "./util/matrix.mjs";
+import {
+  initSnoop,
+  showSnoop,
+  showSnoopLeaves,
+  stopSnoop,
+} from "./util/snoop.mjs";
 
 /** @typedef {import("~/managers/charge-alert").ChargeAlert} ChargeAlert */
 /** @typedef {import("~/money").Cents} Cents */
@@ -36,6 +42,7 @@ const MAX_RECONNECT_DELAY = 30000;
 const DEFAULT_RECONNECT_DELAY = 1000;
 const MAX_HISTORY = 20;
 const HACKER_AMOUNTS = [1337, 13370, 133700];
+const SNOOP_AMOUNTS = [420, 42000];
 
 let reconnectDelay = DEFAULT_RECONNECT_DELAY;
 
@@ -202,11 +209,17 @@ function displayAlert(alert) {
     el.classList.add("alert-animate");
   }
 
-  if (HACKER_AMOUNTS.includes(alert.amount.cents)) {
+  if (SNOOP_AMOUNTS.includes(alert.amount.cents)) {
     stopConfetti();
+    stopMatrix();
+    showSnoop();
+  } else if (HACKER_AMOUNTS.includes(alert.amount.cents)) {
+    stopConfetti();
+    stopSnoop();
     showMatrix();
   } else {
     stopMatrix();
+    stopSnoop();
     launchConfetti(alert.amount.cents / 100);
   }
 }
@@ -252,6 +265,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const canvas = initCanvas(effectCanvas);
   initConfetti(canvas);
   initMatrix(canvas);
+  initSnoop(canvas);
   const currentChargeJson =
     document.getElementById("current-charge")?.textContent;
   currentCharge = currentChargeJson
@@ -260,6 +274,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (currentCharge) {
     setBodyClass(currentCharge);
+    if (SNOOP_AMOUNTS.includes(currentCharge.amount.cents)) {
+      showSnoopLeaves();
+    }
   }
 
   updateTopAmount();
