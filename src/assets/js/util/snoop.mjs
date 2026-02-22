@@ -13,7 +13,7 @@ const LEAF_SPACING_MIN = 60;
 const LEAF_SPACING_MAX = 100;
 const LEAF_OFFSET_JITTER = 15;
 const LEAF_ANGLE_JITTER = 0.4;
-const TEXT_FONT_SIZE = 400;
+const TEXT_FONT_SIZE = 250;
 
 /** @type {HTMLCanvasElement} */
 let canvas;
