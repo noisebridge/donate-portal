@@ -96,6 +96,12 @@ export function AlertsPage({ charges }: { charges: ChargeAlert[] }) {
             />
           </div>
           <canvas id="effect-canvas"></canvas>
+          <img
+            id="snoop-img"
+            src="/assets/image/snoop.apng"
+            alt=""
+            class="snoop-img"
+          />
           <input type="hidden" id="alerts-ws-path" value={paths.alertsWs()} />
         </body>
       </html>
