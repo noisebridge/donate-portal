@@ -18,7 +18,11 @@ function HistoryItem({ charge }: { charge: ChargeAlert }) {
   const [dollars, cents] = formatAmount(charge.amount).split(".");
 
   return (
-    <div class="history-item" data-alert-id={charge.id}>
+    <div
+      class="history-item"
+      data-alert-id={charge.id}
+      data-amount={String(charge.amount.cents)}
+    >
       <span class="history-product">
         {escapeHtml(charge.productName) as "safe"}
       </span>

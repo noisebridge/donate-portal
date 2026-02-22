@@ -111,6 +111,32 @@ function seenAlert(id) {
 }
 
 /**
+ * Scan history items and apply the rainbow class to the one with the highest amount,
+ * considering both the current charge and all history items.
+ */
+function updateTopAmount() {
+  const currentCents = currentCharge?.amount.cents ?? 0;
+  const latestAmount = document.getElementById("alert-amount");
+  let topItem = /** @type {Element | null} */ (currentCharge && latestAmount);
+  let topCents = currentCents;
+
+  const items = /** @type {HTMLElement[]} */ (Array.from(historyList.children));
+  for (const item of items) {
+    const cents = Number(item.dataset["amount"]);
+    if (cents > topCents) {
+      topCents = cents;
+      topItem = item;
+    }
+  }
+
+  latestAmount?.classList.toggle("top-amount", latestAmount === topItem);
+
+  for (const item of items) {
+    item.classList.toggle("top-amount", item === topItem);
+  }
+}
+
+/**
  * Push the current alert into the history list.
  * @param {ChargeAlert} alert
  */
@@ -118,6 +144,7 @@ function addToHistory(alert) {
   const item = document.createElement("div");
   item.className = "history-item";
   item.dataset["alertId"] = alert.id;
+  item.dataset["amount"] = String(alert.amount.cents);
   item.append(
     span("history-product", alert.productName),
     buildAmountAligned(alert.amount),
@@ -159,6 +186,7 @@ function displayAlert(alert) {
     addToHistory(currentCharge);
   }
   currentCharge = alert;
+  updateTopAmount();
 
   amountEl.textContent = formatAmount(alert.amount);
   productEl.textContent = alert.productName;
@@ -234,5 +262,6 @@ document.addEventListener("DOMContentLoaded", () => {
     setBodyClass(currentCharge);
   }
 
+  updateTopAmount();
   connect();
 });
