@@ -46,6 +46,40 @@ const SNOOP_AMOUNTS = [420, 42000];
 
 let reconnectDelay = DEFAULT_RECONNECT_DELAY;
 
+const ALERT_INTERVAL_MS = 15000;
+/** @type {number | null} */
+let queueDrainInterval = null;
+
+/** @type {ChargeAlert[]} */
+const alertQueue = [];
+
+/**
+ * Enqueue an alert and start draining if not already in progress.
+ * @param {ChargeAlert} alert
+ */
+function enqueueAlert(alert) {
+  alertQueue.push(alert);
+
+  if (!queueDrainInterval) {
+    displayAlert(alert);
+
+    queueDrainInterval = window.setInterval(() => {
+      if (!queueDrainInterval) {
+        return;
+      }
+
+      alertQueue.shift();
+      if (alertQueue.length === 0) {
+        clearInterval(queueDrainInterval);
+        queueDrainInterval = null;
+        return;
+      }
+
+      displayAlert(/** @type {ChargeAlert} */ (alertQueue[0]));
+    }, ALERT_INTERVAL_MS);
+  }
+}
+
 /**
  * Format cents as a dollar amount.
  * @param {Cents} amount
@@ -234,7 +268,7 @@ function connect() {
   });
   ws.addEventListener("message", (event) => {
     const alert = /** @type {ChargeAlert} */ (JSON.parse(event.data));
-    displayAlert(alert);
+    enqueueAlert(alert);
   });
   ws.addEventListener("close", () => {
     setTimeout(() => {
