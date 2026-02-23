@@ -95,6 +95,7 @@ body.hacker .alert-label {
 }
 
 .alert-amount {
+  position: relative;
   font-family: var(--font-eurostile);
   font-weight: 700;
   font-size: 15rem;
@@ -206,12 +207,44 @@ body.hacker .history-amount {
 }
 
 .history-amount-cents {
+  position: relative;
   flex: 1;
   text-align: left;
 }
 
 .history-date {
   font-size: 2rem;
+}
+
+/* "NICE" badge for .69 amounts */
+
+.nice-badge {
+  color: #ff0000;
+  font-family: var(--font-eurostile);
+  font-weight: 700;
+  line-height: 1;
+  transform: rotate(30deg);
+  pointer-events: none;
+  -webkit-text-fill-color: #ff0000;
+  text-shadow:
+    -1px -1px 0 white,
+    1px -1px 0 white,
+    -1px 1px 0 white,
+    1px 1px 0 white;
+}
+
+.alert-amount .nice-badge {
+  position: absolute;
+  top: 0.2em;
+  right: -0.5em;
+  font-size: 0.3em;
+}
+
+.history-amount-cents .nice-badge {
+  position: absolute;
+  top: 0.3em;
+  left: 1.4em;
+  font-size: 0.45em;
 }
 
 @keyframes rainbow-sheen {

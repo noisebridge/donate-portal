@@ -14,6 +14,14 @@ function formatDate(isoDate: string): string {
   });
 }
 
+function NiceBadge() {
+  return <span class="nice-badge">NICE</span>;
+}
+
+function isNice(amount: { cents: number }): boolean {
+  return amount.cents % 100 === 69;
+}
+
 function HistoryItem({ charge }: { charge: ChargeAlert }) {
   const [dollars, cents] = formatAmount(charge.amount).split(".");
 
@@ -28,7 +36,10 @@ function HistoryItem({ charge }: { charge: ChargeAlert }) {
       </span>
       <span class="history-amount">
         <span class="history-amount-dollars">{dollars as "safe"}.</span>
-        <span class="history-amount-cents">{cents as "safe"}</span>
+        <span class="history-amount-cents">
+          {cents as "safe"}
+          {isNice(charge.amount) && <NiceBadge />}
+        </span>
       </span>
       <span class="history-date">{formatDate(charge.date) as "safe"}</span>
     </div>
@@ -65,6 +76,7 @@ export function AlertsPage({ charges }: { charges: ChargeAlert[] }) {
               <p class="alert-label">Latest Donation</p>
               <p id="alert-amount" class="alert-amount">
                 {latest ? formatAmount(latest.amount) : ""}
+                {(latest && isNice(latest.amount) && <NiceBadge />) as "safe"}
               </p>
               <p id="alert-product" class="alert-product">
                 {latest

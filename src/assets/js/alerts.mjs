@@ -104,6 +104,15 @@ function span(className, text) {
 }
 
 /**
+ * Check whether a cent amount ends in .69.
+ * @param {Cents} amount
+ * @returns {boolean}
+ */
+function isNice(amount) {
+  return amount.cents % 100 === 69;
+}
+
+/**
  * Build an amount element with aligned dollar/cent spans.
  * @param {Cents} amount
  * @returns {HTMLSpanElement}
@@ -113,14 +122,27 @@ function buildAmountAligned(amount) {
   const dollars = /** @type {string} */ (parts[0]);
   const cents = /** @type {string} */ (parts[1]);
 
+  const centsSpan = span("history-amount-cents", cents);
+  if (isNice(amount)) {
+    centsSpan.append(niceBadge());
+  }
+
   const wrapper = document.createElement("span");
   wrapper.className = "history-amount";
-  wrapper.append(
-    span("history-amount-dollars", `$${dollars}.`),
-    span("history-amount-cents", cents),
-  );
+  wrapper.append(span("history-amount-dollars", `$${dollars}.`), centsSpan);
 
   return wrapper;
+}
+
+/**
+ * Create a "NICE" badge element.
+ * @returns {HTMLSpanElement}
+ */
+function niceBadge() {
+  const el = document.createElement("span");
+  el.className = "nice-badge";
+  el.textContent = "NICE";
+  return el;
 }
 
 /**
@@ -230,6 +252,9 @@ function displayAlert(alert) {
   updateTopAmount();
 
   amountEl.textContent = formatAmount(alert.amount);
+  if (isNice(alert.amount)) {
+    amountEl.append(niceBadge());
+  }
   productEl.textContent = alert.productName;
   dateEl.textContent = formatDate(alert.date);
 
