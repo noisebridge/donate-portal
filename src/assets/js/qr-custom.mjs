@@ -34,6 +34,48 @@ function createMeasurer(input) {
   };
 }
 
+/**
+ * Update hint text along with dollar amount changes.
+ * @param {HTMLInputElement} amountInput
+ * @param {HTMLSpanElement} hint
+ */
+function hintHandler(amountInput, hint) {
+  const originalHint = hint.textContent;
+
+  amountInput.addEventListener("input", () => {
+    const dollars = parseFloat(amountInput.value);
+    if (amountInput.value.endsWith(".69")) {
+      hint.textContent = "Nice.";
+    } else if (dollars >= 4 && dollars < 4.2) {
+      hint.textContent = "Why not $4.20 (blaze it)?";
+    } else if (dollars === 4.2) {
+      hint.textContent = "Hell yeah 🤘";
+    } else if (dollars >= 10 && dollars < 13.37) {
+      hint.textContent = "Why not $13.37?";
+    } else if (dollars === 13.37) {
+      hint.textContent = "Hack the planet!";
+    } else if (dollars >= 60 && dollars < 69) {
+      hint.textContent = "Why not $69?";
+    } else if (dollars === 69) {
+      hint.textContent = "Nice.";
+    } else if (dollars >= 100 && dollars < 133.7) {
+      hint.textContent = "Why not $133.70?";
+    } else if (dollars === 133.7) {
+      hint.textContent = "Hack the planet!";
+    } else if (dollars >= 400 && dollars < 420) {
+      hint.textContent = "Why not $420 (blaze it)?";
+    } else if (dollars === 420) {
+      hint.textContent = "Hell yeah 🤘";
+    } else if (dollars >= 1000 && dollars < 1337) {
+      hint.textContent = "Why not $1,337?";
+    } else if (dollars === 1337) {
+      hint.textContent = "Hack the planet!";
+    } else {
+      hint.textContent = originalHint;
+    }
+  });
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   const amountInput = /** @type {HTMLInputElement} */ (
     document.getElementById("amount")
@@ -47,4 +89,9 @@ document.addEventListener("DOMContentLoaded", () => {
   amountInput.addEventListener("input", () =>
     autoSize(amountInput, getTextWidth),
   );
+
+  const hint = /** @type {HTMLElement} */ (
+    document.querySelector(".form-hint")
+  );
+  hintHandler(amountInput, hint);
 });
