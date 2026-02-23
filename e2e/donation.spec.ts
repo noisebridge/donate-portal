@@ -229,3 +229,71 @@ test.describe("QR Donation Endpoint", () => {
     await expect(page).toHaveURL(/\/\?error=/);
   });
 });
+
+test.describe("QR Custom Donation Page", () => {
+  test("navigating from qr page to qr-custom page", async ({ page }) => {
+    await page.goto("/qr?amount=5&name=Laser%20Cutter&description=Shop%20fee");
+
+    // Click the "Custom" button on the QR page
+    const customBtn = page.locator('a:has-text("Custom")');
+    await expect(customBtn).toBeVisible();
+    await customBtn.click();
+
+    // Should navigate to qr-custom with the same parameters
+    await expect(page).toHaveURL(
+      /\/qr-custom\?amount=5&name=Laser\+Cutter&description=Shop\+fee/,
+    );
+
+    // Verify the fields are pre-filled
+    await expect(page.locator("#name")).toHaveValue("Laser Cutter");
+    await expect(page.locator("#description")).toHaveValue("Shop fee");
+    await expect(page.locator("#amount")).toHaveValue("5.00");
+  });
+
+  test("navigating from qr-custom page back to qr page", async ({ page }) => {
+    await page.goto(
+      "/qr-custom?amount=10&name=3D%20Printing&description=Per%20hour",
+    );
+
+    // Click the "Back" button
+    const backBtn = page.locator('a:has-text("Back")');
+    await expect(backBtn).toBeVisible();
+    await backBtn.click();
+
+    // Should navigate back to the qr page with the same parameters
+    await expect(page).toHaveURL(
+      /\/qr\?amount=10&name=3D\+Printing&description=Per\+hour/,
+    );
+
+    // Verify the qr page shows the correct info
+    await expect(page.locator("text=3D Printing")).toBeVisible();
+    await expect(page.locator("text=Per hour")).toBeVisible();
+    await expect(page.locator("#current-amount")).toHaveText("$10.00");
+  });
+
+  test("custom input values appear on stripe checkout page", async ({
+    page,
+  }) => {
+    await page.goto("/qr-custom?amount=5");
+
+    // Fill in custom values
+    await page.fill("#name", "Soldering Workshop");
+    await page.fill("#description", "Weekend class");
+    await page.fill("#amount", "42.50");
+
+    // Submit the form
+    await page.click('button:has-text("Donate")');
+
+    // Should redirect to Stripe checkout
+    await expect(page).toHaveURL(/checkout\.stripe\.com/);
+
+    // Verify the amount appears on the Stripe checkout page
+    await expect(page.getByText("$42.50")).toBeVisible();
+
+    // Verify the name appears on the Stripe checkout page
+    await expect(page.getByText("Soldering Workshop")).toBeVisible();
+
+    // Verify the description appears on the Stripe checkout page
+    await expect(page.getByText("Weekend class")).toBeVisible();
+  });
+});
