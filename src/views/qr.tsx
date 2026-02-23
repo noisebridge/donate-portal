@@ -36,14 +36,16 @@ export function QrPage({
           >
             Custom
           </a>
-          {!!name && (
-            <h1 class="qr-donate-name">{escapeHtml(name) as "safe"}</h1>
-          )}
-          {!!description && (
-            <p class="qr-donate-description">
-              {escapeHtml(description) as "safe"}
-            </p>
-          )}
+          <div class="qr-product-details">
+            {!!name && (
+              <h1 class="qr-donate-name">{escapeHtml(name) as "safe"}</h1>
+            )}
+            {!!description && (
+              <p class="qr-donate-description">
+                {escapeHtml(description) as "safe"}
+              </p>
+            )}
+          </div>
 
           <div class="qr-amount-display">
             <span id="current-amount">{formatAmount(amount) as "safe"}</span>

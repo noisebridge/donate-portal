@@ -36,30 +36,32 @@ export function QrCustomPage({
             Back
           </a>
           <form class="qr-custom-form" method="POST" action={paths.donate()}>
-            <div class="form-group qr-custom-name-group">
-              <input
-                type="text"
-                id="name"
-                name="name"
-                class="qr-custom-editable qr-custom-name-input"
-                placeholder="Name (optional)"
-                value={name ? (escapeHtml(name) as "safe") : undefined}
-                maxlength={DonationManager.maxNameLength}
-              />
-            </div>
+            <div class="qr-product-details">
+              <div class="form-group qr-custom-name-group">
+                <textarea
+                  id="name"
+                  name="name"
+                  class="qr-custom-editable qr-custom-name-input"
+                  placeholder="Name (optional)"
+                  maxlength={DonationManager.maxNameLength}
+                  rows="1"
+                >
+                  {name ? (escapeHtml(name) as "safe") : ""}
+                </textarea>
+              </div>
 
-            <div class="form-group qr-custom-description-group">
-              <input
-                type="text"
-                id="description"
-                name="description"
-                class="qr-custom-editable qr-custom-description-input"
-                placeholder="Description (optional)"
-                value={
-                  description ? (escapeHtml(description) as "safe") : undefined
-                }
-                maxlength={DonationManager.maxDescriptionLength}
-              />
+              <div class="form-group qr-custom-description-group">
+                <textarea
+                  id="description"
+                  name="description"
+                  class="qr-custom-editable qr-custom-description-input"
+                  placeholder="Description (optional)"
+                  maxlength={DonationManager.maxDescriptionLength}
+                  rows="1"
+                >
+                  {description ? (escapeHtml(description) as "safe") : ""}
+                </textarea>
+              </div>
             </div>
 
             <div class="form-group qr-custom-amount-wrapper">

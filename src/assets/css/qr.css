@@ -1,3 +1,8 @@
+.qr-product-details {
+  max-width: 70%;
+  margin: 0 auto;
+}
+
 .qr-donate-name {
   font-size: 1.75rem;
   font-weight: 600;
@@ -9,7 +14,7 @@
   font-size: 1rem;
   color: var(--color-text-light);
   margin-bottom: var(--spacing-lg);
-  line-height: 1.6;
+  line-height: 26px;
 }
 
 .qr-amount-display {
@@ -17,6 +22,7 @@
   font-weight: 700;
   color: black;
   margin-bottom: var(--spacing-lg);
+  border-bottom: 1px solid transparent;
 }
 
 .qr-slider-container {

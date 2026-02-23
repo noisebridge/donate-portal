@@ -11,20 +11,31 @@
   transform: none;
 }
 
-.qr-custom-form input.qr-custom-editable {
+.qr-custom-form .qr-product-details {
+  max-width: 70%;
+  margin: 0 auto;
+}
+
+.qr-custom-form .qr-custom-editable {
+  display: block;
   border: none;
   border-bottom: 1px dashed var(--color-border);
   border-radius: 0;
   background: transparent;
+  margin: 0;
   padding: 0;
   transition: border-color 0.15s ease;
+  width: 100%;
+  resize: none;
+  overflow: hidden;
+  font-family: inherit;
 }
 
-.qr-custom-form input.qr-custom-editable:hover {
+.qr-custom-form .qr-custom-editable:hover {
   border-color: var(--color-text-light);
 }
 
-.qr-custom-form input.qr-custom-editable:focus {
+.qr-custom-form .qr-custom-editable:focus {
   outline: none;
   box-shadow: none;
   border-color: var(--color-primary);
@@ -32,7 +43,7 @@
 }
 
 /* Name — matches .qr-donate-name: 1.75rem/600 */
-.qr-custom-form input.qr-custom-name-input {
+.qr-custom-form .qr-custom-name-input {
   font-size: 1.75rem;
   font-weight: 600;
   text-align: center;
@@ -43,11 +54,11 @@
   margin-bottom: var(--spacing-sm);
 }
 
-.qr-custom-form input.qr-custom-description-input {
+.qr-custom-form .qr-custom-description-input {
   font-size: 1rem;
   text-align: center;
   color: var(--color-text-light);
-  line-height: 1.6;
+  line-height: 26px;
 }
 
 .qr-custom-form .qr-custom-description-group {

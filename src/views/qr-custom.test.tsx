@@ -27,7 +27,7 @@ describe("QrCustomPage", () => {
       />
     );
 
-    expect(result).toContain('value="Coffee"');
+    expect(result).toContain(">Coffee</textarea>");
   });
 
   test("should pre-fill description when provided", async () => {
@@ -39,7 +39,7 @@ describe("QrCustomPage", () => {
       />
     );
 
-    expect(result).toContain('value="Support NoiseCafe"');
+    expect(result).toContain(">Support NoiseCafe</textarea>");
   });
 
   test("should include a back link to the qr page", async () => {

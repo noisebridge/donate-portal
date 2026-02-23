@@ -76,6 +76,15 @@ function hintHandler(amountInput, hint) {
   });
 }
 
+/**
+ * Auto-resize a textarea to fit its content.
+ * @param {HTMLTextAreaElement} textarea
+ */
+function autoResizeTextarea(textarea) {
+  textarea.style.height = "auto";
+  textarea.style.height = `${textarea.scrollHeight}px`;
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   const amountInput = /** @type {HTMLInputElement} */ (
     document.getElementById("amount")
@@ -94,4 +103,9 @@ document.addEventListener("DOMContentLoaded", () => {
     document.querySelector(".form-hint")
   );
   hintHandler(amountInput, hint);
+
+  document.querySelectorAll("textarea").forEach((textarea) => {
+    autoResizeTextarea(textarea);
+    textarea.addEventListener("input", () => autoResizeTextarea(textarea));
+  });
 });
