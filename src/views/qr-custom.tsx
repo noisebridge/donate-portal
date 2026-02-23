@@ -72,7 +72,7 @@ export function QrCustomPage({
                 </span>
                 <input
                   type="text"
-                  inputmode="numeric"
+                  inputmode="decimal"
                   id="amount"
                   name="amount-dollars"
                   class="qr-custom-editable qr-custom-amount-input"

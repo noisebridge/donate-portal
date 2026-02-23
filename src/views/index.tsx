@@ -133,7 +133,7 @@ export function IndexPage({ isAuthenticated, messages = [] }: IndexProps) {
                 </span>
                 <input
                   type="text"
-                  inputmode="numeric"
+                  inputmode="decimal"
                   id="custom-amount"
                   name="custom-amount"
                   placeholder="0.00"

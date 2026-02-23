@@ -109,7 +109,7 @@ export function DonationTierSelector({
                 </label>
                 <input
                   type="text"
-                  inputmode="numeric"
+                  inputmode="decimal"
                   name="custom-amount"
                   id="custom-amount"
                   data-min={SubscriptionManager.minimumAmount.cents / 100}

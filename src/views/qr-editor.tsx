@@ -34,7 +34,7 @@ export function QrEditorPage({ isAuthenticated }: QrEditorProps) {
                 </span>
                 <input
                   type="text"
-                  inputmode="numeric"
+                  inputmode="decimal"
                   id="amount"
                   name="amount"
                   placeholder="0.00"
