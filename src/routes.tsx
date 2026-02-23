@@ -28,6 +28,7 @@ import { IndexPage } from "~/views/index";
 import { ManagePage } from "~/views/manage";
 import { NotFoundPage } from "~/views/not-found";
 import { QrPage } from "~/views/qr";
+import { QrCustomPage } from "~/views/qr-custom";
 import { QrEditorPage } from "~/views/qr-editor";
 import { ThankYouPage } from "~/views/thank-you";
 
@@ -632,6 +633,45 @@ export default async function routes(fastify: FastifyInstance) {
       .header("Cache-Control", "no-cache, no-store, must-revalidate")
       .type("image/svg+xml")
       .send(qrCode.svg({ container: "svg-viewbox" }));
+  });
+
+  fastify.get<{
+    Querystring: { name?: string; description?: string; amount?: string };
+  }>(paths.qrCustom(), async (request, reply) => {
+    const { name, description, amount } = request.query;
+
+    const amountCents = parseToCents(amount ?? "");
+    if (amountCents === null) {
+      return reply.redirect(
+        paths.index({ error: ErrorCode.InvalidDonationAmount }),
+      );
+    }
+
+    if (name && name.length > DonationManager.maxNameLength) {
+      return reply
+        .status(400)
+        .send(`Name length must be less than ${DonationManager.maxNameLength}`);
+    }
+
+    if (
+      description &&
+      description.length > DonationManager.maxDescriptionLength
+    ) {
+      return reply
+        .status(400)
+        .send(
+          `Description length must be less than ${DonationManager.maxDescriptionLength}`,
+        );
+    }
+
+    return reply.html(
+      <QrCustomPage
+        amount={amountCents}
+        name={name}
+        description={description}
+        isAuthenticated={isAuthenticated(request, reply)}
+      />,
+    );
   });
 
   fastify.get(paths.qrEditor(), async (request, reply) => {

@@ -63,6 +63,19 @@
   transform: scale(1.1);
 }
 
+.qr-custom-btn {
+  position: absolute;
+  top: var(--spacing-sm);
+  right: var(--spacing-sm);
+  font-size: 0.75rem;
+  padding: 0.25rem 0.75rem;
+  width: auto;
+}
+
+.qr-custom-btn:hover {
+  transform: none;
+}
+
 .qr-slider-labels {
   display: flex;
   justify-content: space-between;

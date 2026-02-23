@@ -1,0 +1,88 @@
+.qr-back-btn {
+  position: absolute;
+  top: var(--spacing-sm);
+  right: var(--spacing-sm);
+  font-size: 0.75rem;
+  padding: 0.25rem 0.75rem;
+  width: auto;
+}
+
+.qr-back-btn:hover {
+  transform: none;
+}
+
+.qr-custom-form input.qr-custom-editable {
+  border: none;
+  border-bottom: 1px dashed var(--color-border);
+  border-radius: 0;
+  background: transparent;
+  padding: 0;
+  transition: border-color 0.15s ease;
+}
+
+.qr-custom-form input.qr-custom-editable:hover {
+  border-color: var(--color-text-light);
+}
+
+.qr-custom-form input.qr-custom-editable:focus {
+  outline: none;
+  box-shadow: none;
+  border-color: var(--color-primary);
+  border-bottom-style: solid;
+}
+
+/* Name — matches .qr-donate-name: 1.75rem/600 */
+.qr-custom-form input.qr-custom-name-input {
+  font-size: 1.75rem;
+  font-weight: 600;
+  text-align: center;
+  color: var(--color-text);
+}
+
+.qr-custom-form .qr-custom-name-group {
+  margin-bottom: var(--spacing-sm);
+}
+
+.qr-custom-form input.qr-custom-description-input {
+  font-size: 1rem;
+  text-align: center;
+  color: var(--color-text-light);
+  line-height: 1.6;
+}
+
+.qr-custom-form .qr-custom-description-group {
+  margin-bottom: var(--spacing-lg);
+}
+
+.qr-custom-form .qr-custom-amount-group {
+  justify-content: center;
+  gap: 0.125rem;
+}
+
+.qr-custom-form span.qr-custom-amount-prefix {
+  position: static;
+  font-size: 3rem;
+  font-weight: 700;
+  color: black;
+  line-height: 1;
+}
+
+.qr-custom-form input.qr-custom-amount-input {
+  font-size: 3rem;
+  font-weight: 700;
+  color: black;
+  text-align: left;
+  padding-left: 0;
+  max-width: 8ch;
+}
+
+.qr-custom-form .qr-custom-amount-wrapper {
+  margin-bottom: var(--spacing-lg);
+}
+
+.qr-custom-form .form-hint {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--color-text-light);
+  margin-top: var(--spacing-xs);
+}

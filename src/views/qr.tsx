@@ -29,7 +29,13 @@ export function QrPage({
       isAuthenticated={isAuthenticated}
     >
       <div class="container-narrow">
-        <div class="card text-center">
+        <div class="card text-center" style="position: relative;">
+          <a
+            href={paths.qrCustom(amount, name, description)}
+            class="btn btn-outline qr-custom-btn"
+          >
+            Custom
+          </a>
           {!!name && (
             <h1 class="qr-donate-name">{escapeHtml(name) as "safe"}</h1>
           )}

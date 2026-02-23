@@ -85,7 +85,7 @@ export class ChargeAlertManager {
   async fetchRecentCharges(): Promise<ChargeAlert[]> {
     const sessions = await stripe.checkout.sessions.list({
       status: "complete",
-      limit: 60,
+      limit: 3 * MAX_RECENT_CHARGES,
       expand: ["data.line_items"],
     });
 
