@@ -8,6 +8,7 @@ import { baseLogger } from "~/logger";
 import type { Cents } from "~/money";
 import paths from "~/paths";
 import stripe from "~/services/stripe";
+import { GENERAL_DONATION, NAME_REMAP } from "./charge-alert";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -111,6 +112,18 @@ export class DonationManager {
    * Pattern shown in the center of QR codes.
    */
   static readonly qrInsert = decodeBMP(`${__dirname}/qr-insert.bmp`);
+
+  /**
+   * Whether a donation product is a general donation.
+   * @param name Donation product name.
+   */
+  isGeneral(name?: string) {
+    if (!name) {
+      return true;
+    }
+
+    return NAME_REMAP[name] === GENERAL_DONATION;
+  }
 
   /**
    * Create a one-time donation checkout session.

@@ -13,8 +13,8 @@ export interface ChargeAlert {
 }
 
 const MAX_RECENT_CHARGES = 20;
-const GENERAL_DONATION = "General Donation";
-const NAME_REMAP: Record<string, string> = {
+export const GENERAL_DONATION = "General Donation";
+export const NAME_REMAP: Record<string, string> = {
   "Donation to Noisebridge": GENERAL_DONATION,
   "Support Us": GENERAL_DONATION,
 };

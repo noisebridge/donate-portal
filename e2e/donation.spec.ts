@@ -206,8 +206,10 @@ test.describe("QR Donation Endpoint", () => {
   test("general donation link is visible and links to index donate section", async ({
     page,
   }) => {
-    await page.goto("/qr?amount=5.00");
+    await page.goto("/qr?name=3D+Printing&amount=5.00");
 
+    // Verify the name appears on the page
+    await expect(page.locator("text=3D Printing")).toBeVisible();
     const generalDonateLink = page.locator(
       'a:has-text("Make a general donation")',
     );

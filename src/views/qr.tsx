@@ -1,6 +1,6 @@
 import { escapeHtml } from "@kitajs/html";
 import { Layout } from "~/components/layout";
-import { DonationManager } from "~/managers/donation";
+import donationManager, { DonationManager } from "~/managers/donation";
 import { type Cents, formatAmount } from "~/money";
 import paths from "~/paths";
 
@@ -91,9 +91,11 @@ export function QrPage({
             <span class="divider-text">or</span>
           </div>
 
-          <a href={`${paths.index()}#donate`} class="btn btn-outline">
-            Make a general donation
-          </a>
+          {!donationManager.isGeneral(name) && (
+            <a href={`${paths.index()}#donate`} class="btn btn-outline">
+              Make a general donation
+            </a>
+          )}
 
           <a href={paths.signIn()} class="btn btn-outline mt-sm">
             Give monthly

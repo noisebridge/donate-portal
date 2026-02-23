@@ -50,4 +50,36 @@ describe("QrPage", () => {
 
     expect(result).toContain("A test donation");
   });
+
+  test("should show general donation link for non-general products", async () => {
+    const result = await (
+      <QrPage
+        amount={{ cents: 1000 }}
+        name="Workshop Fee"
+        isAuthenticated={false}
+      />
+    );
+
+    expect(result).toContain("Make a general donation");
+  });
+
+  test("should hide general donation link for general donation products", async () => {
+    const result = await (
+      <QrPage
+        amount={{ cents: 1000 }}
+        name="Donation to Noisebridge"
+        isAuthenticated={false}
+      />
+    );
+
+    expect(result).not.toContain("Make a general donation");
+  });
+
+  test("should hide general donation link when no name is provided", async () => {
+    const result = await (
+      <QrPage amount={{ cents: 1000 }} isAuthenticated={false} />
+    );
+
+    expect(result).not.toContain("Make a general donation");
+  });
 });
