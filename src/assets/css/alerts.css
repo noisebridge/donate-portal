@@ -338,3 +338,19 @@ body.hacker #effect-canvas {
   z-index: 11;
   display: none;
 }
+
+.arnold-img {
+  position: fixed;
+  left: 5%;
+  width: 90%;
+  pointer-events: none;
+  z-index: 12;
+  display: none;
+}
+
+.eagle-img {
+  position: fixed;
+  pointer-events: none;
+  z-index: 13;
+  display: none;
+}

@@ -114,6 +114,18 @@ export function AlertsPage({ charges }: { charges: ChargeAlert[] }) {
             alt=""
             class="snoop-img"
           />
+          <img
+            id="arnold-img"
+            src="/assets/image/arnold.png"
+            alt=""
+            class="arnold-img"
+          />
+          <img
+            id="eagle-img"
+            src="/assets/image/eagle.png"
+            alt=""
+            class="eagle-img"
+          />
           <input type="hidden" id="alerts-ws-path" value={paths.alertsWs()} />
         </body>
       </html>

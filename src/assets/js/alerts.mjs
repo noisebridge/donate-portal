@@ -6,6 +6,7 @@ import {
   stopConfetti,
 } from "./util/confetti.mjs";
 import { initMatrix, showMatrix, stopMatrix } from "./util/matrix.mjs";
+import { initMerica, showMerica, stopMerica } from "./util/merica.mjs";
 import {
   initSnoop,
   showSnoop,
@@ -43,6 +44,7 @@ const DEFAULT_RECONNECT_DELAY = 1000;
 const MAX_HISTORY = 20;
 const HACKER_AMOUNTS = [1337, 13370, 133700, 133769];
 const SNOOP_AMOUNTS = [420, 42000, 42069];
+const MERICA_AMOUNTS = [1776, 17760, 177600, 177669];
 
 let reconnectDelay = DEFAULT_RECONNECT_DELAY;
 
@@ -268,17 +270,25 @@ function displayAlert(alert) {
     el.classList.add("alert-animate");
   }
 
-  if (SNOOP_AMOUNTS.includes(alert.amount.cents)) {
+  if (MERICA_AMOUNTS.includes(alert.amount.cents)) {
+    stopMatrix();
+    stopSnoop();
+    launchConfetti(alert.amount.cents / 100);
+    showMerica();
+  } else if (SNOOP_AMOUNTS.includes(alert.amount.cents)) {
     stopConfetti();
     stopMatrix();
+    stopMerica();
     showSnoop();
   } else if (HACKER_AMOUNTS.includes(alert.amount.cents)) {
     stopConfetti();
     stopSnoop();
+    stopMerica();
     showMatrix();
   } else {
     stopMatrix();
     stopSnoop();
+    stopMerica();
     launchConfetti(alert.amount.cents / 100);
   }
 }
@@ -325,6 +335,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initConfetti(canvas);
   initMatrix(canvas);
   initSnoop(canvas);
+  initMerica();
   const currentChargeJson =
     document.getElementById("current-charge")?.textContent;
   currentCharge = currentChargeJson
