@@ -41,7 +41,7 @@ const wsPath = /** @type {HTMLInputElement} */ (
 const MAX_RECONNECT_DELAY = 30000;
 const DEFAULT_RECONNECT_DELAY = 1000;
 const MAX_HISTORY = 20;
-const HACKER_AMOUNTS = [1337, 13370, 133700];
+const HACKER_AMOUNTS = [1337, 13370, 133700, 133769];
 const SNOOP_AMOUNTS = [420, 42000, 42069];
 
 let reconnectDelay = DEFAULT_RECONNECT_DELAY;
