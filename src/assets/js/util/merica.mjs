@@ -124,13 +124,13 @@ function eagleBezierAngle(t) {
 
 /**
  * Position Arnold rising from the bottom of the screen.
- * @param {number} yCenter - Desired vertical center of image in viewport px
+ * @param {number} yBottom - Desired bottom edge of the image in viewport px
  */
-function positionArnold(yCenter) {
+function positionArnold(yBottom) {
   const imgAspect = arnoldEl.naturalWidth / arnoldEl.naturalHeight;
   const drawWidth = window.innerWidth;
   const drawHeight = drawWidth / imgAspect;
-  const top = yCenter - drawHeight / 2;
+  const top = yBottom - drawHeight;
 
   arnoldEl.style.display = "block";
   arnoldEl.style.top = `${top}px`;
@@ -142,14 +142,14 @@ function hideArnold() {
 }
 
 /**
- * Get the Y position where Arnold is fully off-screen (below).
+ * Get the Y-bottom value where Arnold is fully off-screen (below).
  * @returns {number}
  */
 function arnoldOffscreenY() {
   const imgAspect = arnoldEl.naturalWidth / arnoldEl.naturalHeight;
-  if (!imgAspect) return window.innerHeight + 200;
+  if (!imgAspect) return window.innerHeight * 2;
   const drawHeight = window.innerWidth / imgAspect;
-  return window.innerHeight + drawHeight / 2;
+  return window.innerHeight + drawHeight;
 }
 
 /**
@@ -160,7 +160,7 @@ function positionEagle(t) {
   const { x, y } = eagleBezierPath(t);
   const angle = eagleBezierAngle(t);
 
-  const eagleSize = Math.min(window.innerWidth, window.innerHeight) * 0.55;
+  const eagleSize = Math.min(window.innerWidth, window.innerHeight) * 1.1;
 
   eagleEl.style.display = "block";
   eagleEl.style.width = `${eagleSize}px`;
@@ -181,12 +181,12 @@ function hideEagle() {
  */
 function animate(now) {
   const elapsed = now - phaseStart;
-  const centerY = window.innerHeight * 0.45;
+  const restingY = window.innerHeight;
   const offscreenY = arnoldOffscreenY();
 
   if (phase === "arnold_enter") {
     const progress = Math.min(1, elapsed / ARNOLD_ENTER_DURATION);
-    const y = offscreenY + (centerY - offscreenY) * easeOut(progress);
+    const y = offscreenY + (restingY - offscreenY) * easeOut(progress);
     positionArnold(y);
 
     if (progress >= 1) {
@@ -194,7 +194,7 @@ function animate(now) {
       phaseStart = now;
     }
   } else if (phase === "arnold_hold") {
-    positionArnold(centerY);
+    positionArnold(restingY);
 
     // Start eagle swoop partway through the hold
     const eagleDelay = 500;
@@ -215,7 +215,7 @@ function animate(now) {
     }
   } else if (phase === "arnold_exit") {
     const progress = Math.min(1, elapsed / ARNOLD_EXIT_DURATION);
-    const y = centerY + (offscreenY - centerY) * easeIn(progress);
+    const y = restingY + (offscreenY - restingY) * easeIn(progress);
     positionArnold(y);
 
     if (progress >= 1) {
