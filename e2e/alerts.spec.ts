@@ -96,13 +96,13 @@ test.describe
       );
     });
 
-    test("returns 401 without credentials", async ({ browser }) => {
-      const context = await browser.newContext();
-      const page = await context.newPage();
+    test("returns 401 without credentials", async ({ browserType }) => {
+      const browser = await browserType.launch();
+      const page = await browser.newPage();
 
       const response = await page.goto("/alerts");
       expect(response?.status()).toBe(401);
 
-      await context.close();
+      await browser.close();
     });
   });
