@@ -111,7 +111,7 @@ function span(className, text) {
  * @returns {boolean}
  */
 function isNice(amount) {
-  return amount.cents % 100 === 69;
+  return String(amount.cents).includes("69");
 }
 
 /**
