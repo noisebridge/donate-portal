@@ -1,5 +1,6 @@
+import { test as baseTest, expect } from "@playwright/test";
 import config from "~/config";
-import { expect, test } from "./fixtures";
+import { test } from "./fixtures";
 import {
   fillStripeCheckoutForm,
   getExpiryOneYearFromNow,
@@ -97,12 +98,12 @@ test.describe
     });
   });
 
-test("Alerts page returns 401 without credentials", async ({ browserType }) => {
-  const browser = await browserType.launch();
-  const page = await browser.newPage();
-
-  const response = await page.goto("/alerts");
-  expect(response?.status()).toBe(401);
-
-  await browser.close();
-});
+baseTest(
+  "Alerts page returns 401 without credentials",
+  async ({ playwright }) => {
+    const request = await playwright.request.newContext();
+    const response = await request.get("/alerts");
+    expect(response.status()).toBe(401);
+    await request.dispose();
+  },
+);
