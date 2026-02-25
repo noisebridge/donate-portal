@@ -89,9 +89,7 @@ test.describe
       await page.goto("/alerts");
 
       // The $10 donation should be in the history list
-      const historyItem = page.locator(".history-item", {
-        has: page.locator('[data-amount="1000"]'),
-      });
+      const historyItem = page.locator('.history-item[data-amount="1000"]');
       await expect(historyItem.first()).toBeVisible();
       await expect(historyItem.first().locator(".history-product")).toHaveText(
         "General Donation",
