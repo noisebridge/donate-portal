@@ -28,9 +28,13 @@ function initCustomAmount() {
 }
 
 function initCancelForm() {
-  const cancelForm = /** @type {HTMLFormElement} */ (
+  const cancelForm = /** @type {HTMLFormElement | null} */ (
     document.querySelector(".cancel-subscription-form")
   );
+  if (!cancelForm) {
+    return;
+  }
+
   const cancelButton = /** @type {HTMLButtonElement} */ (
     cancelForm.querySelector('button[type="submit"]')
   );
