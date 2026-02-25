@@ -11,7 +11,9 @@ dotenv.config({ path: `${__dirname}/../.env` });
 process.env["SERVER_HOST"] = "donate.noisebridge.net";
 process.env["NODE_ENV"] = "production";
 
-const { DonationManager } = await import("~/managers/donation");
+const { QRCodeManager } = await import("~/managers/qr-code");
+const { default: config } = await import("~/config");
+const { default: paths } = await import("~/paths");
 
 // --- String helpers ---
 
@@ -321,12 +323,9 @@ function main() {
   checkOpenscad();
   const args = parseCliArgs();
 
-  const manager = new DonationManager();
-  const qrCode = manager.createQRCode(
-    { cents: args.cents },
-    args.name,
-    args.description,
-  );
+  const qrManager = new QRCodeManager();
+  const url = `${config.baseUrl}${paths.qr({ cents: args.cents }, args.name, args.description)}`;
+  const qrCode = qrManager.createQRCode(url);
 
   const { modules: qrData, moduleCount } = qrCode.qrcode;
   if (moduleCount !== 53) {
@@ -341,7 +340,7 @@ function main() {
   }
 
   const qrInsertCentered = centerBooleanArray(
-    bmpColorToBoolean(DonationManager.qrInsert),
+    bmpColorToBoolean(QRCodeManager.qrInsert),
     moduleCount,
   );
   const qrDataWithoutInsert = subtract(qrData, qrInsertCentered);

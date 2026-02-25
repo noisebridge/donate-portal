@@ -12,6 +12,7 @@ import config from "~/config";
 import chargeAlertManager from "~/managers/charge-alert";
 import donationManager, { DonationManager } from "~/managers/donation";
 import magicLinkManager from "~/managers/magic-link";
+import qrCodeManager from "~/managers/qr-code";
 import subscriptionManager from "~/managers/subscription";
 import { parseToCents, validateAmountFormData } from "~/money";
 import paths, { type MessageParams } from "~/paths";
@@ -622,12 +623,8 @@ export default async function routes(fastify: FastifyInstance) {
     }
 
     const includelogo = useLogo !== "false";
-    const qrCode = donationManager.createQRCode(
-      amountCents,
-      name,
-      description,
-      includelogo,
-    );
+    const url = `${config.baseUrl}${paths.qr(amountCents, name, description)}`;
+    const qrCode = qrCodeManager.createQRCode(url, includelogo);
 
     return reply
       .header("Cache-Control", "no-cache, no-store, must-revalidate")
