@@ -107,5 +107,7 @@ document.addEventListener("DOMContentLoaded", () => {
   document.querySelectorAll("textarea").forEach((textarea) => {
     autoResizeTextarea(textarea);
     textarea.addEventListener("input", () => autoResizeTextarea(textarea));
+    window.addEventListener("resize", () => autoResizeTextarea(textarea));
+    window.addEventListener("load", () => autoResizeTextarea(textarea));
   });
 });
