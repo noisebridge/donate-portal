@@ -1,6 +1,6 @@
-import { expect, test } from "@playwright/test";
 import magicLinkManager from "~/managers/magic-link";
 import { setAuthCookie } from "./auth-utils";
+import { expect, test } from "./fixtures";
 
 test.describe("Auth Flow Tests", () => {
   test("GitHub OAuth button redirects to GitHub authorization page", async ({

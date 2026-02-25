@@ -1,5 +1,5 @@
-import { expect, test } from "@playwright/test";
 import { DonationManager } from "~/managers/donation";
+import { expect, test } from "./fixtures";
 
 test.describe("QR Editor Page", () => {
   test.beforeEach(async ({ page }) => {

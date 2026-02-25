@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./fixtures";
 
 test.describe("Navigation Tests", () => {
   test("Sign In button navigates to /auth", async ({ page }) => {

@@ -1,5 +1,6 @@
-import { expect, type Page, test } from "@playwright/test";
+import type { Page } from "@playwright/test";
 import { setAuthCookie } from "./auth-utils";
+import { expect, test } from "./fixtures";
 import {
   fillStripeCheckoutForm,
   getExpiryOneYearFromNow,

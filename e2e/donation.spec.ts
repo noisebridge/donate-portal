@@ -1,5 +1,5 @@
-import { expect, test } from "@playwright/test";
 import { DonationManager } from "~/managers/donation";
+import { expect, test } from "./fixtures";
 import {
   fillStripeCheckoutForm,
   getExpiryOneYearFromNow,
