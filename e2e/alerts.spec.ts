@@ -95,14 +95,14 @@ test.describe
         "General Donation",
       );
     });
-
-    test("returns 401 without credentials", async ({ browserType }) => {
-      const browser = await browserType.launch();
-      const page = await browser.newPage();
-
-      const response = await page.goto("/alerts");
-      expect(response?.status()).toBe(401);
-
-      await browser.close();
-    });
   });
+
+test("Alerts page returns 401 without credentials", async ({ browserType }) => {
+  const browser = await browserType.launch();
+  const page = await browser.newPage();
+
+  const response = await page.goto("/alerts");
+  expect(response?.status()).toBe(401);
+
+  await browser.close();
+});
