@@ -1,5 +1,4 @@
-# Use official Bun image
-FROM oven/bun:1 AS base
+FROM oven/bun:1-alpine
 WORKDIR /app
 
 # Install dependencies
@@ -12,11 +11,7 @@ COPY types ./types
 COPY scripts ./scripts
 COPY tsconfig.json jsconfig.json tsconfig.base.json ./
 
-# Set production environment
 ENV NODE_ENV=production
-
-# Expose port (Render provides PORT environment variable)
 EXPOSE 3000
 
-# Run the app
 ENTRYPOINT ["bun", "src/server.ts"]
