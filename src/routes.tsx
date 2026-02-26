@@ -64,11 +64,11 @@ const donationRateLimit = conditionalRateLimit({
 /**
  * Cryptographically secure random string for use with OAuth.
  */
-export function getRandomState() {
+function getRandomState() {
   return crypto.randomBytes(32).toString("hex");
 }
 
-export enum ErrorCode {
+enum ErrorCode {
   InvalidState = "Invalid OAuth state parameter",
   InvalidRequest = "Invalid request parameters",
   GithubError = "GitHub raised an error",

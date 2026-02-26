@@ -32,7 +32,7 @@ export type PortalResult =
   | { success: true; portalUrl: string }
   | { success: false; error: string };
 
-export interface SubscriptionInfo {
+interface SubscriptionInfo {
   customer?: Stripe.Customer | undefined;
   subscription?: Stripe.Subscription | undefined;
   migrated?: boolean;
