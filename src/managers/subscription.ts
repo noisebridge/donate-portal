@@ -35,7 +35,6 @@ export type PortalResult =
 interface SubscriptionInfo {
   customer?: Stripe.Customer | undefined;
   subscription?: Stripe.Subscription | undefined;
-  migrated?: boolean;
 }
 
 export class SubscriptionManager {
