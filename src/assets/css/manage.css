@@ -15,13 +15,6 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.donation-tier-form h2 {
-  font-size: 1.75rem;
-  margin-bottom: 0.5rem;
-  color: var(--color-text);
-  text-align: center;
-}
-
 .form-description {
   text-align: center;
   color: var(--color-text-light);

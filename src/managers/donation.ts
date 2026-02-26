@@ -1,5 +1,4 @@
 import config from "~/config";
-import { baseLogger } from "~/logger";
 import type { Cents } from "~/money";
 import paths from "~/paths";
 import stripe from "~/services/stripe";
@@ -15,7 +14,6 @@ export type DonateResult =
   | { success: false; error: DonationErrorCode };
 
 export class DonationManager {
-  static readonly log = baseLogger.child({ class: "DonationManager" });
   static readonly minimumAmount: Cents = { cents: 200 };
   static readonly defaultName = "Donation to Noisebridge";
   static readonly maxNameLength = 40;
