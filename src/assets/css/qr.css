@@ -78,10 +78,6 @@
   width: auto;
 }
 
-.qr-custom-btn:hover {
-  transform: none;
-}
-
 .qr-slider-labels {
   display: flex;
   justify-content: space-between;

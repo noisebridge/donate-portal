@@ -7,10 +7,6 @@
   width: auto;
 }
 
-.qr-back-btn:hover {
-  transform: none;
-}
-
 .qr-custom-form .qr-product-details {
   max-width: 70%;
   margin: 0 auto;
