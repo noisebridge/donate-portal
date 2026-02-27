@@ -17,6 +17,9 @@ import subscriptionManager from "~/managers/subscription";
 import { parseToCents, validateAmountFormData } from "~/money";
 import paths, { type MessageParams } from "~/paths";
 import emailService from "~/services/email";
+import errorReportingService, {
+  type SentryEvent,
+} from "~/services/error-reporting";
 import githubOAuth from "~/services/github";
 import googleOAuth from "~/services/google";
 import stripe from "~/services/stripe";
@@ -32,6 +35,7 @@ import { QrPage } from "~/views/qr";
 import { QrCustomPage } from "~/views/qr-custom";
 import { QrEditorPage } from "~/views/qr-editor";
 import { ThankYouPage } from "~/views/thank-you";
+import { baseLogger } from "./logger";
 
 function conditionalRateLimit(
   rateLimitConfig: RouteShorthandOptions,
@@ -156,7 +160,11 @@ async function rawBody(
 
 export default async function routes(fastify: FastifyInstance) {
   fastify.setErrorHandler(
-    (error: unknown, request: FastifyRequest, reply: FastifyReply) => {
+    (thrown: unknown, request: FastifyRequest, reply: FastifyReply) => {
+      const error =
+        thrown instanceof Error
+          ? thrown
+          : new Error(`Unknown error: ${thrown}`);
       fastify.log.error(
         {
           err: error,
@@ -166,16 +174,16 @@ export default async function routes(fastify: FastifyInstance) {
         "Unhandled error in route",
       );
 
+      errorReportingService
+        .reportBackend(error, request)
+        .catch((err) => baseLogger.error({ err }, "Failed to report error"));
+
       reply
         .status(500)
         .html(
           <ErrorPage
             isAuthenticated={isAuthenticated(request, reply)}
-            error={
-              error instanceof Error
-                ? error
-                : new Error(`Unknown error: ${error}`)
-            }
+            error={error}
           />,
         );
     },
@@ -860,6 +868,38 @@ export default async function routes(fastify: FastifyInstance) {
       }
 
       return reply.status(200).send({ received: true });
+    },
+  );
+
+  fastify.post(
+    paths.errorReporting(),
+    { config: { rawBody: true } },
+    async (request, reply) => {
+      if (request.headers["content-type"] !== "text/plain;charset=UTF-8") {
+        return reply.status(415).send();
+      }
+
+      const body =
+        typeof request.body === "string"
+          ? request.body
+          : request.rawBody?.toString("utf-8");
+      if (!body) {
+        return reply.status(400).send();
+      }
+
+      let event: SentryEvent;
+      try {
+        event = JSON.parse(body);
+      } catch {
+        return reply.status(400).send();
+      }
+
+      const success = await errorReportingService.reportFrontend(event);
+      if (!success) {
+        return reply.status(400).send();
+      }
+
+      return reply.status(204).send();
     },
   );
 

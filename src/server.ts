@@ -11,6 +11,18 @@ import Fastify from "fastify";
 import config from "~/config";
 import { baseLogger } from "~/logger";
 import routes from "~/routes";
+import errorReportingService from "~/services/error-reporting";
+
+process.on("uncaughtException", (err) => {
+  baseLogger.fatal(err, "Uncaught exception");
+  errorReportingService.reportBackend(err).finally(() => process.exit(1));
+});
+
+process.on("unhandledRejection", (reason) => {
+  const err = reason instanceof Error ? reason : new Error(String(reason));
+  baseLogger.fatal(err, "Unhandled rejection");
+  errorReportingService.reportBackend(err).finally(() => process.exit(1));
+});
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

@@ -151,6 +151,10 @@ const paths = {
    */
   webhook: () => "/webhook",
   /**
+   * `/error-reporting`
+   */
+  errorReporting: () => "/error-reporting",
+  /**
    * `/healthz`
    */
   healthz: () => "/healthz",

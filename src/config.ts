@@ -32,4 +32,6 @@ export default {
   totpSecret: assertEnvVar("TOTP_SECRET"),
   alertsUsername: assertEnvVar("ALERTS_USERNAME"),
   alertsPassword: assertEnvVar("ALERTS_PASSWORD"),
+  frontendDSN: new URL(assertEnvVar("FRONTEND_DSN")),
+  backendDSN: new URL(assertEnvVar("BACKEND_DSN")),
 };

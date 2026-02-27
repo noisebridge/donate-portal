@@ -43,6 +43,10 @@ export function Layout({
           {!!styles && (
             <link rel="stylesheet" href={`/assets/css/${styles}` as "safe"} />
           )}
+          <script
+            type="module"
+            src="/assets/js/util/error-reporting.mjs"
+          ></script>
           {!!script && (
             <script
               type="module"
