@@ -815,7 +815,7 @@ export default async function routes(fastify: FastifyInstance) {
         return;
       }
 
-      await chargeAlertManager.addConnection(socket);
+      chargeAlertManager.addConnection(socket);
     },
   );
 
