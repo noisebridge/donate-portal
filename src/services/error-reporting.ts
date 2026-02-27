@@ -1,34 +1,60 @@
 import type { FastifyRequest } from "fastify";
+import { z } from "zod";
 import config from "~/config";
 import { baseLogger } from "~/logger";
 
-interface SentryFrame {
-  filename: string;
-  function: string;
-  lineno: number | null;
-  colno: number | null;
-}
+const sentryFrameSchema = z.object({
+  filename: z.string().max(1024),
+  function: z.string().max(1024),
+  lineno: z.number().int().nullable(),
+  colno: z.number().int().nullable(),
+});
+export type SentryFrame = z.infer<typeof sentryFrameSchema>;
 
-interface SentryException {
-  type: string;
-  value: string;
-  stacktrace: { frames: SentryFrame[] };
-}
+const sentryExceptionSchema = z.object({
+  type: z.string().max(256),
+  value: z.string().max(2048),
+  stacktrace: z.object({
+    frames: z.array(sentryFrameSchema).max(100),
+  }),
+});
+export type SentryException = z.infer<typeof sentryExceptionSchema>;
 
-export interface SentryEvent {
-  event_id: string;
-  timestamp: string;
-  platform: string;
-  level: string;
-  exception: { values: SentryException[] };
-  tags?: Record<string, string>;
-  contexts?: Record<string, Record<string, unknown>>;
+const sentryEventSchema = z.object({
+  event_id: z.string().regex(/^[0-9a-f]{32}$/),
+  timestamp: z.string().refine((s) => !Number.isNaN(Date.parse(s))),
+  platform: z.enum(["javascript", "node"]),
+  level: z.enum(["fatal", "error", "warning", "info", "debug"]),
+  exception: z.object({
+    values: z.array(sentryExceptionSchema).min(1).max(10),
+  }),
+  tags: z.record(z.string().max(64), z.string().max(256)).optional(),
+  contexts: z
+    .record(
+      z.string().max(64),
+      z.record(z.string().max(64), z.union([z.string().max(1024), z.number()])),
+    )
+    .optional(),
+});
+export type SentryEvent = z.infer<typeof sentryEventSchema>;
+
+export function validateSentryEvent(raw: unknown): SentryEvent | null {
+  const result = sentryEventSchema.safeParse(raw);
+  return result.success ? result.data : null;
 }
 
 class ErrorReportingService {
   static readonly log = baseLogger.child({ class: "ErrorReportingService" });
 
   async reportFrontend(event: SentryEvent): Promise<boolean> {
+    if (event.platform !== "javascript") {
+      ErrorReportingService.log.warn(
+        { event },
+        "Received non-JavaScript event from front-end",
+      );
+      return false;
+    }
+
     if (config.gitCommit) {
       event.tags = { ...event.tags, commit: config.gitCommit };
     }
@@ -45,10 +71,10 @@ class ErrorReportingService {
       tags["commit"] = config.gitCommit;
     }
 
-    const contexts: Record<string, Record<string, unknown>> = {
+    const contexts: SentryEvent["contexts"] = {
       runtime: {
         name: "Bun",
-        version: typeof Bun !== "undefined" ? Bun.version : undefined,
+        ...(typeof Bun !== "undefined" ? { version: Bun.version } : {}),
       },
     };
 

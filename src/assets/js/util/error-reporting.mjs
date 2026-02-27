@@ -1,18 +1,9 @@
 // @ts-check
 
 /**
- * @typedef {object} SentryFrame
- * @property {string} filename
- * @property {string} function
- * @property {number | null} lineno
- * @property {number | null} colno
- */
-
-/**
- * @typedef {object} SentryException
- * @property {string} type
- * @property {string} value
- * @property {{ frames: SentryFrame[] }} stacktrace
+ * @typedef {import("~/services/error-reporting").SentryException} SentryException
+ * @typedef {import("~/services/error-reporting").SentryFrame} SentryFrame
+ * @typedef {import("~/services/error-reporting").SentryEvent} SentryEvent
  */
 
 const CHROME_RE =
@@ -97,8 +88,9 @@ function parseStackTrace(error) {
  * Report an `Error` to the server-side error reporting endpoint.
  * @param {Error} error
  */
-export function reportError(error) {
-  const body = JSON.stringify({
+export function sendErrorReport(error) {
+  /** @type {SentryEvent} */
+  const event = {
     event_id: crypto.randomUUID().replace(/-/g, ""),
     timestamp: new Date().toISOString(),
     platform: "javascript",
@@ -116,7 +108,9 @@ export function reportError(error) {
         height: window.screen.height,
       },
     },
-  });
+  };
+
+  const body = JSON.stringify(event);
 
   const success = navigator.sendBeacon("/error-reporting", body);
   if (!success) {
@@ -133,7 +127,7 @@ function initErrorReporting() {
 
   window.addEventListener("error", (event) => {
     if (event.error instanceof Error) {
-      reportError(event.error);
+      sendErrorReport(event.error);
     } else {
       console.warn("Can't log event:", event);
     }
@@ -141,7 +135,7 @@ function initErrorReporting() {
 
   window.addEventListener("unhandledrejection", (event) => {
     if (event.reason instanceof Error) {
-      reportError(event.reason);
+      sendErrorReport(event.reason);
     } else {
       console.warn("Can't log event:", event);
     }

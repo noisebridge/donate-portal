@@ -1,12 +1,14 @@
 import crypto from "node:crypto";
+import { z } from "zod";
 import config from "~/config";
 import { baseLogger } from "~/logger";
 import paths from "~/paths";
 
-interface MagicLinkState {
-  email: string;
-  code: string;
-}
+const magicLinkStateSchema = z.object({
+  email: z.string(),
+  code: z.string(),
+});
+type MagicLinkState = z.infer<typeof magicLinkStateSchema>;
 
 const totpWindow = 5 * 60 * 1000; // milliseconds
 
@@ -48,36 +50,23 @@ export class MagicLinkManager {
   /**
    * Decode and verify magic link state parameter.
    */
-  decodeMagicLinkState(encodedState: string) {
-    const decoded = Buffer.from(encodedState, "base64").toString("utf-8");
-
-    let state: unknown;
+  decodeMagicLinkState(encodedState: string): MagicLinkState | null {
+    let json: unknown;
     try {
-      state = JSON.parse(decoded) as unknown;
+      const decoded = Buffer.from(encodedState, "base64").toString("utf-8");
+      json = JSON.parse(decoded);
     } catch (e) {
       MagicLinkManager.log.error(e);
       return null;
     }
 
-    if (typeof state !== "object" || Array.isArray(state) || state === null) {
-      MagicLinkManager.log.error("Magic link state not an object");
-      return null;
-    }
-    if (!("code" in state) || !("email" in state)) {
-      MagicLinkManager.log.error(
-        "Magic link state object missing code or email key",
-      );
-      return null;
-    }
-    if (
-      typeof state["code"] !== "string" ||
-      typeof state["email"] !== "string"
-    ) {
-      MagicLinkManager.log.error("Magic link code or email is not a string");
+    const result = magicLinkStateSchema.safeParse(json);
+    if (!result.success) {
+      MagicLinkManager.log.error(result.error.message);
       return null;
     }
 
-    return state as MagicLinkState;
+    return result.data;
   }
 
   /**

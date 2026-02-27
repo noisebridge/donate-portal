@@ -18,7 +18,7 @@ import { parseToCents, validateAmountFormData } from "~/money";
 import paths, { type MessageParams } from "~/paths";
 import emailService from "~/services/email";
 import errorReportingService, {
-  type SentryEvent,
+  validateSentryEvent,
 } from "~/services/error-reporting";
 import githubOAuth from "~/services/github";
 import googleOAuth from "~/services/google";
@@ -57,6 +57,15 @@ const authRateLimit = conditionalRateLimit({
 });
 
 const donationRateLimit = conditionalRateLimit({
+  config: {
+    rateLimit: {
+      max: 3,
+      timeWindow: "1 minute",
+    },
+  },
+});
+
+const errorReportingRateLimit = conditionalRateLimit({
   config: {
     rateLimit: {
       max: 3,
@@ -873,30 +882,32 @@ export default async function routes(fastify: FastifyInstance) {
 
   fastify.post(
     paths.errorReporting(),
-    { config: { rawBody: true } },
+    errorReportingRateLimit,
     async (request, reply) => {
       if (request.headers["content-type"] !== "text/plain;charset=UTF-8") {
         return reply.status(415).send();
       }
 
-      const body =
-        typeof request.body === "string"
-          ? request.body
-          : request.rawBody?.toString("utf-8");
-      if (!body) {
+      const body = request.body;
+      if (typeof body !== "string") {
         return reply.status(400).send();
       }
 
-      let event: SentryEvent;
+      let raw: unknown;
       try {
-        event = JSON.parse(body);
+        raw = JSON.parse(body);
       } catch {
+        return reply.status(400).send();
+      }
+
+      const event = validateSentryEvent(raw);
+      if (!event) {
         return reply.status(400).send();
       }
 
       const success = await errorReportingService.reportFrontend(event);
       if (!success) {
-        return reply.status(400).send();
+        return reply.status(502).send();
       }
 
       return reply.status(204).send();

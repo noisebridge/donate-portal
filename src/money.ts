@@ -1,48 +1,42 @@
+import { z } from "zod";
+
+const numericString = z.string().refine((s) => !Number.isNaN(parseFloat(s)));
+
+const amountFormDataSchema = z.union([
+  z.object({
+    "amount-dollars": z.literal("custom"),
+    "custom-amount": numericString,
+  }),
+  z.object({
+    "amount-dollars": numericString,
+  }),
+]);
+
 /**
  * HTML form data that can either be a preset dollar amount or one the user
  * typed in manually.
  */
 export type AmountFormData =
-  | { "amount-dollars": "custom"; "custom-amount": `${number}` }
-  | { "amount-dollars": `${number}` };
+  | { "amount-dollars": "custom"; "custom-amount": string }
+  | { "amount-dollars": string };
 
 export function validateAmountFormData(
   input: unknown,
 ): input is AmountFormData {
-  if (typeof input !== "object" || input === null || Array.isArray(input)) {
-    return false;
-  }
-
-  if (!("amount-dollars" in input)) {
-    return false;
-  }
-  if (typeof input["amount-dollars"] !== "string") {
-    return false;
-  }
-
-  if (input["amount-dollars"] === "custom") {
-    if (!("custom-amount" in input)) {
-      return false;
-    }
-    if (typeof input["custom-amount"] !== "string") {
-      return false;
-    }
-
-    const invalidAmount = Number.isNaN(parseFloat(input["custom-amount"]));
-    return !invalidAmount;
-  } else {
-    const invalidAmount = Number.isNaN(parseFloat(input["amount-dollars"]));
-    return !invalidAmount;
-  }
+  return amountFormDataSchema.safeParse(input).success;
 }
 
 /**
  * Get the string representation of a dollar amount from an `AmountFormData`.
  */
 function getAmount(amountFormData: AmountFormData) {
-  return amountFormData["amount-dollars"] === "custom"
-    ? amountFormData["custom-amount"]
-    : amountFormData["amount-dollars"];
+  if (
+    amountFormData["amount-dollars"] === "custom" &&
+    "custom-amount" in amountFormData
+  ) {
+    return amountFormData["custom-amount"] as string;
+  }
+  return amountFormData["amount-dollars"];
 }
 
 /**
