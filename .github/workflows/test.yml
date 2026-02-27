@@ -18,6 +18,8 @@ env:
   RESEND_KEY: ${{ secrets.RESEND_KEY }}
   TOTP_SECRET: insecure!
   DISABLE_RATE_LIMIT: true
+  FRONTEND_DSN: "https://fakeurl.com"
+  BACKEND_DSN: "https://fakeurl.com"
 
 jobs:
   test:

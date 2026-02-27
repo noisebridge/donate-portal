@@ -40,6 +40,8 @@ export default defineConfig({
       COOKIE_SECRET: config.cookieSecret,
       RESEND_KEY: config.resendKey,
       TOTP_SECRET: config.totpSecret,
+      FRONTEND_DSN: config.frontendDSN.toString(),
+      BACKEND_DSN: config.backendDSN.toString(),
     },
   },
 });
