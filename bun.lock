@@ -27,6 +27,7 @@
         "@biomejs/biome": "2.4.2",
         "@kitajs/ts-html-plugin": "^4.1.4",
         "@playwright/test": "^1.58.2",
+        "@stripe/stripe-js": "^8.8.0",
         "@types/bmp-js": "^0.1.2",
         "@types/bun": "~1.3.9",
         "@types/mjml": "^4.7.4",
@@ -110,6 +111,8 @@
     "@playwright/test": ["@playwright/test@1.58.2", "", { "dependencies": { "playwright": "1.58.2" }, "bin": { "playwright": "cli.js" } }, "sha512-akea+6bHYBBfA9uQqSYmlJXn61cTa+jbO87xVLCWbTqbWadRVmhxlXATaOjOgcBaWU4ePo0wB41KMFv3o35IXA=="],
 
     "@stablelib/base64": ["@stablelib/base64@1.0.1", "", {}, "sha512-1bnPQqSxSuc3Ii6MhBysoWCg58j97aUjuCSZrGSmDxNqtytIi0k8utUenAwTZN4V5mXXYGsVUI9zeBqy+jBOSQ=="],
+
+    "@stripe/stripe-js": ["@stripe/stripe-js@8.8.0", "", {}, "sha512-NNYuyW8qmLjyHnpyFgs/23wUrjB8k0xN9YIZFOMLewCa/pIkIji9e9aY/EgdNryEDDRptc6TcPIHRvG1R0ClFw=="],
 
     "@types/bmp-js": ["@types/bmp-js@0.1.2", "", { "dependencies": { "@types/node": "*" } }, "sha512-BF6u+M+KySDBKfr1DQOT3+z42n4/tq62uf9ong4i2SLLpa7mJqPwEmKbNgMzlVliT/jtE6elxyD/0X1mja8jLg=="],
 

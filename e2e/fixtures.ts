@@ -12,7 +12,13 @@ export const test = base.extend({
 
     page.on("console", (msg) => {
       if (msg.type() === "error" && baseURL && page.url().startsWith(baseURL)) {
-        errors.push(`console.error: ${msg.text()}`);
+        const text = msg.text();
+        // Ignore errors originating from third-party scripts
+        const location = msg.location();
+        if (location.url && !location.url.startsWith(baseURL)) {
+          return;
+        }
+        errors.push(`console.error: ${text}`);
       }
     });
 

@@ -3,6 +3,7 @@ import type Stripe from "stripe";
 import { DonationTierSelector } from "~/components/donation-tier-selector";
 import { Layout } from "~/components/layout";
 import { type Message, MessageContainer } from "~/components/message-container";
+import { StripeCheckoutModal } from "~/components/stripe-checkout-modal";
 import paths from "~/paths";
 
 export interface ManageProps {
@@ -55,6 +56,11 @@ export function ManagePage({
             </button>
           </form>
         )}
+
+        <StripeCheckoutModal
+          title="Complete Your Subscription"
+          donateButton={false}
+        />
       </div>
     </Layout>
   );

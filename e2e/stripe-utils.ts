@@ -1,4 +1,5 @@
 import type { Page } from "@playwright/test";
+import { expect } from "./fixtures";
 
 /**
  * Get expiry date one year from now in MM/YY format
@@ -14,12 +15,74 @@ export function getExpiryOneYearFromNow(): string {
 }
 
 /**
- * Helper function to fill out the Stripe checkout form
+ * Wait for the Stripe checkout modal to become visible and the Payment Element
+ * to finish loading inside it.
  */
-export async function fillStripeCheckoutForm(
+export async function waitForCheckoutModal(page: Page) {
+  const modal = page.locator("#stripe-checkout-modal");
+  await expect(modal).toBeVisible();
+  // Wait for the Stripe Payment Element iframe to load inside the modal
+  await expect(modal.locator("#payment-element iframe")).toBeAttached({
+    timeout: 15000,
+  });
+}
+
+/**
+ * Fill out the Stripe Payment Element card form inside the checkout modal.
+ * All card fields live in a single iframe rendered by the Payment Element.
+ */
+export async function fillStripePaymentElement(
   page: Page,
   options: {
-    email?: string;
+    cardNumber: string;
+    expiry: string;
+    cvc: string;
+    zip?: string;
+  },
+) {
+  const frame = page.locator("#payment-element").frameLocator("iframe").first();
+
+  await frame
+    .locator("#payment-numberInput")
+    .fill(options.cardNumber, { timeout: 10000 });
+  await frame
+    .locator("#payment-expiryInput")
+    .fill(options.expiry, { timeout: 10000 });
+  await frame
+    .locator("#payment-cvcInput")
+    .fill(options.cvc, { timeout: 10000 });
+
+  if (options.zip) {
+    const postalCode = frame.locator("#payment-postalCodeInput");
+    if (await postalCode.isVisible()) {
+      await postalCode.fill(options.zip);
+    }
+  }
+}
+
+/**
+ * Wait for the Stripe Embedded Checkout to load inside the checkout modal.
+ * Embedded Checkout renders in an iframe named "embedded-checkout".
+ */
+export async function waitForEmbeddedCheckout(page: Page) {
+  const modal = page.locator("#stripe-checkout-modal");
+  await expect(modal).toBeVisible();
+  await expect(modal.locator('iframe[name="embedded-checkout"]')).toBeAttached({
+    timeout: 15000,
+  });
+  // Wait for form fields to be ready inside the iframe
+  const frame = modal.frameLocator('iframe[name="embedded-checkout"]');
+  await expect(frame.locator("#cardNumber")).toBeVisible({ timeout: 15000 });
+}
+
+/**
+ * Fill out the Stripe Embedded Checkout form inside the checkout modal.
+ * Embedded Checkout renders a full Stripe checkout form in a single iframe
+ * named "embedded-checkout" with fields like #cardNumber, #cardExpiry, etc.
+ */
+export async function fillEmbeddedCheckoutForm(
+  page: Page,
+  options: {
     cardNumber: string;
     expiry: string;
     cvc: string;
@@ -27,13 +90,28 @@ export async function fillStripeCheckoutForm(
     zip: string;
   },
 ) {
-  if (options.email) {
-    await page.fill("#email", options.email);
-  }
+  const frame = page
+    .locator("#payment-element")
+    .frameLocator('iframe[name="embedded-checkout"]');
 
-  await page.fill("#cardNumber", options.cardNumber);
-  await page.fill("#cardExpiry", options.expiry);
-  await page.fill("#cardCvc", options.cvc);
-  await page.fill("#billingName", options.name);
-  await page.fill("#billingPostalCode", options.zip);
+  await frame
+    .locator("#cardNumber")
+    .fill(options.cardNumber, { timeout: 10000 });
+  await frame.locator("#cardExpiry").fill(options.expiry, { timeout: 10000 });
+  await frame.locator("#cardCvc").fill(options.cvc, { timeout: 10000 });
+  await frame.locator("#billingName").fill(options.name, { timeout: 10000 });
+  await frame
+    .locator("#billingPostalCode")
+    .fill(options.zip, { timeout: 10000 });
+}
+
+/**
+ * Click the submit button inside the Stripe Embedded Checkout iframe.
+ */
+export async function submitEmbeddedCheckout(page: Page) {
+  const frame = page
+    .locator("#payment-element")
+    .frameLocator('iframe[name="embedded-checkout"]');
+
+  await frame.locator('button[type="submit"]').click({ timeout: 10000 });
 }

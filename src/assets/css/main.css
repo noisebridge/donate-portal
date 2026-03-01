@@ -558,6 +558,84 @@ footer p {
   }
 }
 
+/* Stripe Checkout Modal */
+.checkout-modal[hidden] {
+  display: none;
+}
+
+.checkout-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.checkout-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.checkout-modal-content {
+  position: relative;
+  background: var(--color-white);
+  border-radius: 12px;
+  padding: 2rem;
+  width: 100%;
+  max-width: 480px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.checkout-modal-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: var(--color-text-light);
+  line-height: 1;
+  padding: 0.25rem 0.5rem;
+}
+
+.checkout-modal-close:hover {
+  color: var(--color-text);
+}
+
+.checkout-modal-title {
+  margin-bottom: 1.5rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.checkout-modal-submit {
+  width: 100%;
+  margin-top: 1.5rem;
+}
+
+.checkout-modal-message {
+  color: var(--color-error);
+  font-size: 0.875rem;
+  margin-top: 0.75rem;
+}
+
+@media (max-width: 768px) {
+  .checkout-modal-content {
+    max-width: none;
+    max-height: none;
+    /* Adjust positioning to put modal below transparent top bar (iOS 26 fix) */
+    height: 100%;
+    width: 100%;
+    border-radius: 0;
+    box-shadow: none;
+  }
+}
+
 html {
   visibility: visible;
   opacity: 1;

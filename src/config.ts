@@ -19,6 +19,7 @@ export default {
   serverHost,
   serverPort: parseInt(process.env["PORT"] || "3000", 10),
   baseUrl: `${serverProtocol}://${serverHost}`,
+  stripePublicKey: assertEnvVar("STRIPE_PUBLIC"),
   stripeSecretKey: assertEnvVar("STRIPE_SECRET"),
   stripePortalConfig: assertEnvVar("STRIPE_PORTAL_CONFIG"),
   stripeWebhookSecret: process.env["STRIPE_WEBHOOK_SECRET"],

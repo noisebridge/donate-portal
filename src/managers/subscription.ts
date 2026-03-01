@@ -21,7 +21,7 @@ export enum SubscriptionErrorCode {
 }
 
 export type SubscribeResult =
-  | { success: true; checkoutUrl?: string }
+  | { success: true; clientSecret?: string }
   | { success: false; error: SubscriptionErrorCode };
 
 export type CancelResult =
@@ -88,7 +88,7 @@ export class SubscriptionManager {
   /**
    * Create a new subscription or update an existing one.
    * If the customer has an existing subscription with a different amount,
-   * it will be updated with prorated billing.
+   * it will be updated on the next billing cycle.
    */
   async subscribe(email: string, amount: Cents): Promise<SubscribeResult> {
     if (amount.cents < SubscriptionManager.minimumAmount.cents) {
@@ -113,7 +113,7 @@ export class SubscriptionManager {
     const session = await stripe.checkout.sessions.create({
       customer: customer.id,
       mode: "subscription",
-      payment_method_types: ["card"],
+      ui_mode: "embedded",
       line_items: [
         {
           price_data: {
@@ -127,18 +127,16 @@ export class SubscriptionManager {
           quantity: 1,
         },
       ],
-      success_url: `${config.baseUrl}${paths.manage({ info: InfoCode.SubscriptionCreated })}`,
-      cancel_url: `${config.baseUrl}${paths.manage()}`,
+      return_url: `${config.baseUrl}${paths.manage({ info: InfoCode.SubscriptionCreated })}`,
     });
 
-    const checkoutUrl = session.url;
-    if (!checkoutUrl) {
+    if (!session.client_secret) {
       return { success: false, error: SubscriptionErrorCode.CreateError };
     }
 
     return {
       success: true,
-      checkoutUrl,
+      clientSecret: session.client_secret,
     };
   }
 
