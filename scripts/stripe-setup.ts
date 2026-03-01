@@ -5,7 +5,8 @@ import Stripe from "stripe";
 
 dotenv.config({ path: `${__dirname}/../.env` });
 
-const PRODUCT_ID = "monthly_donation";
+const { SubscriptionManager } = await import("~/managers/subscription");
+const PRODUCT_ID = SubscriptionManager.productId;
 const PRODUCT_NAME = "Monthly Donation";
 
 async function setupStripeProduct(stripe: Stripe) {

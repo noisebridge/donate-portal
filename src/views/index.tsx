@@ -1,5 +1,6 @@
 import { Layout } from "~/components/layout";
 import { type Message, MessageContainer } from "~/components/message-container";
+import { StripeCheckoutModal } from "~/components/stripe-checkout-modal";
 import { DonationManager } from "~/managers/donation";
 import paths from "~/paths";
 
@@ -48,7 +49,7 @@ export function IndexPage({ isAuthenticated, messages = [] }: IndexProps) {
           <h2>One-Time Donation</h2>
           <p>Make a single contribution to support Noisebridge.</p>
 
-          <form method="POST" action={paths.donate()}>
+          <form id="donate-form" method="POST" action={paths.donate()}>
             <fieldset class="amount-buttons">
               <legend class="visually-hidden">Donation amount</legend>
               <input
@@ -158,6 +159,8 @@ export function IndexPage({ isAuthenticated, messages = [] }: IndexProps) {
           </form>
         </div>
       </div>
+
+      <StripeCheckoutModal title="Complete Your Donation" />
     </Layout>
   );
 }

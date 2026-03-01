@@ -9,7 +9,7 @@ const mockDefaults = {
   subscriptionsUpdate: {},
   subscriptionsCancel: {},
   checkoutSessionsCreate: {
-    url: "https://checkout.stripe.com/session_1",
+    client_secret: "cs_secret_123",
     id: "cs_1",
   } as Stripe.Checkout.Session,
   portalSessionsCreate: {
@@ -198,13 +198,9 @@ describe("SubscriptionManager", () => {
       }
     });
 
-    test("creates checkout session for new customer", async () => {
+    test("creates embedded checkout session for new customer", async () => {
       mocks.customersList.mockResolvedValue({ data: [] });
       mocks.customersCreate.mockResolvedValue({ id: "cus_new" });
-      mocks.checkoutSessionsCreate.mockResolvedValue({
-        url: "https://checkout.stripe.com/new",
-        id: "cs_new",
-      } as Stripe.Checkout.Session);
 
       const result = await manager.subscribe("new@example.com", {
         cents: 1000,
@@ -212,14 +208,14 @@ describe("SubscriptionManager", () => {
 
       expect(result.success).toBe(true);
       if (result.success) {
-        expect(result.checkoutUrl).toBe("https://checkout.stripe.com/new");
+        expect(result.clientSecret).toBe("cs_secret_123");
       }
       expect(mocks.customersCreate).toHaveBeenCalledWith({
         email: "new@example.com",
       });
     });
 
-    test("creates checkout session for existing customer without subscription", async () => {
+    test("creates subscription with client secret for existing customer without subscription", async () => {
       const customer = makeCustomer();
       mocks.customersList.mockResolvedValue({ data: [customer] });
       mocks.subscriptionsList.mockResolvedValue({ data: [] });
@@ -230,7 +226,7 @@ describe("SubscriptionManager", () => {
 
       expect(result.success).toBe(true);
       if (result.success) {
-        expect(result.checkoutUrl).toBeDefined();
+        expect(result.clientSecret).toBeDefined();
       }
       expect(mocks.customersCreate).not.toHaveBeenCalled();
     });
@@ -249,7 +245,7 @@ describe("SubscriptionManager", () => {
 
       expect(result.success).toBe(true);
       if (result.success) {
-        expect(result.checkoutUrl).toBeUndefined();
+        expect(result.clientSecret).toBeUndefined();
       }
       expect(mocks.subscriptionsUpdate).toHaveBeenCalled();
     });
@@ -309,13 +305,13 @@ describe("SubscriptionManager", () => {
       }
     });
 
-    test("returns error when checkout session has no URL", async () => {
+    test("returns error when checkout session has no client secret", async () => {
       mocks.customersList.mockResolvedValue({ data: [] });
       mocks.customersCreate.mockResolvedValue({ id: "cus_new" });
       mocks.checkoutSessionsCreate.mockResolvedValue({
-        url: "",
+        client_secret: null,
         id: "cs_1",
-      } as Stripe.Checkout.Session);
+      } as unknown as Stripe.Checkout.Session);
 
       const result = await manager.subscribe("new@example.com", {
         cents: 1000,

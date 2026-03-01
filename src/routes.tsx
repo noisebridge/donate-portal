@@ -526,46 +526,46 @@ export default async function routes(fastify: FastifyInstance) {
   }>(paths.donate(), donationRateLimit, async (request, reply) => {
     const body = request.body;
     if (!validateAmountFormData(body)) {
-      return reply.redirect(paths.index({ error: ErrorCode.InvalidRequest }));
+      return reply.send({
+        redirect: paths.index({ error: ErrorCode.InvalidRequest }),
+      });
     }
 
     const amountCents = parseToCents(body);
     if (amountCents === null) {
-      fastify.log.warn({ body }, "Invalid subscription amount");
-      return reply.redirect(
-        paths.index({ error: ErrorCode.InvalidMonthlyDonationAmount }),
-      );
+      fastify.log.warn({ body }, "Invalid donation amount");
+      return reply.send({
+        redirect: paths.index({ error: ErrorCode.InvalidDonationAmount }),
+      });
     }
 
     const { name, description } = body;
     if (name && name.length > DonationManager.maxNameLength) {
-      return reply
-        .status(400)
-        .send(`Name length must be less than ${DonationManager.maxNameLength}`);
+      return reply.send({
+        redirect: paths.index({ error: ErrorCode.InvalidRequest }),
+      });
     }
     if (
       description &&
       description.length > DonationManager.maxDescriptionLength
     ) {
-      return reply
-        .status(400)
-        .send(
-          `Description length must be less than ${DonationManager.maxDescriptionLength}`,
-        );
+      return reply.send({
+        redirect: paths.index({ error: ErrorCode.InvalidRequest }),
+      });
     }
 
     const result = await donationManager.donate(amountCents, name, description);
     if (!result.success) {
       fastify.log.error(`Couldn't initiate Stripe donation: ${result.error}`);
-      return reply.redirect(paths.index({ error: result.error }));
+      return reply.send({ redirect: paths.index({ error: result.error }) });
     }
 
     fastify.log.info(
-      { amount: amountCents, sessionId: result.sessionId },
-      "Stripe checkout session created for donation",
+      { amount: amountCents },
+      "Stripe PaymentIntent created for donation",
     );
 
-    return reply.redirect(result.checkoutUrl);
+    return reply.send({ clientSecret: result.clientSecret });
   });
 
   fastify.get<{
@@ -699,12 +699,14 @@ export default async function routes(fastify: FastifyInstance) {
     const sessionData = sessionCookie.value;
     if (!sessionData) {
       fastify.log.warn("Unauthenticated subscription attempt");
-      return reply.redirect(paths.signIn());
+      return reply.send({ redirect: paths.signIn() });
     }
 
     const body = request.body;
     if (!validateAmountFormData(body)) {
-      return reply.redirect(paths.manage({ error: ErrorCode.InvalidRequest }));
+      return reply.send({
+        redirect: paths.manage({ error: ErrorCode.InvalidRequest }),
+      });
     }
 
     const amountCents = parseToCents(body);
@@ -713,9 +715,11 @@ export default async function routes(fastify: FastifyInstance) {
         { body, email: sessionData.email },
         "Invalid subscription amount",
       );
-      return reply.redirect(
-        paths.manage({ error: ErrorCode.InvalidMonthlyDonationAmount }),
-      );
+      return reply.send({
+        redirect: paths.manage({
+          error: ErrorCode.InvalidMonthlyDonationAmount,
+        }),
+      });
     }
 
     const result = await subscriptionManager.subscribe(
@@ -723,13 +727,13 @@ export default async function routes(fastify: FastifyInstance) {
       amountCents,
     );
     if (!result.success) {
-      return reply.redirect(paths.manage({ error: result.error }));
+      return reply.send({ redirect: paths.manage({ error: result.error }) });
     }
-    if (!result.checkoutUrl) {
-      // If a subscription is updated there is no checkout process
-      return reply.redirect(
-        paths.manage({ info: InfoCode.SubscriptionUpdated }),
-      );
+    if (!result.clientSecret) {
+      // Subscription was updated, no payment needed
+      return reply.send({
+        redirect: paths.manage({ info: InfoCode.SubscriptionUpdated }),
+      });
     }
 
     fastify.log.info(
@@ -737,10 +741,10 @@ export default async function routes(fastify: FastifyInstance) {
         amount: amountCents,
         email: sessionData.email,
       },
-      "Stripe subscription checkout session created",
+      "Stripe subscription created with incomplete payment",
     );
 
-    return reply.redirect(result.checkoutUrl);
+    return reply.send({ clientSecret: result.clientSecret });
   });
 
   fastify.post(paths.stripePortal(), async (request, reply) => {
@@ -860,10 +864,7 @@ export default async function routes(fastify: FastifyInstance) {
       }
 
       try {
-        if (
-          event.type === "checkout.session.completed" &&
-          (event.data.object as { mode?: string }).mode === "payment"
-        ) {
+        if (event.type === "payment_intent.succeeded") {
           await chargeAlertManager.processWebhook(event);
         } else {
           await subscriptionManager.processWebhook(event);

@@ -1,5 +1,6 @@
 // @ts-check
 
+import { initCheckoutForm, openCheckoutModal } from "./util/stripe.mjs";
 import { enforcePattern, validateMinAmount } from "./util/validate.mjs";
 
 /**
@@ -109,5 +110,14 @@ document.addEventListener("DOMContentLoaded", () => {
     textarea.addEventListener("input", () => autoResizeTextarea(textarea));
     window.addEventListener("resize", () => autoResizeTextarea(textarea));
     window.addEventListener("load", () => autoResizeTextarea(textarea));
+  });
+
+  const form = /** @type {HTMLFormElement} */ (
+    document.getElementById("donate-form")
+  );
+  initCheckoutForm(form, async (clientSecret) => {
+    if (clientSecret) {
+      await openCheckoutModal(clientSecret);
+    }
   });
 });

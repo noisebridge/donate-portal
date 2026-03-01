@@ -1,5 +1,6 @@
 import { escapeHtml } from "@kitajs/html";
 import { Layout } from "~/components/layout";
+import { StripeCheckoutModal } from "~/components/stripe-checkout-modal";
 import { DonationManager } from "~/managers/donation";
 import { type Cents, formatAmount } from "~/money";
 import paths from "~/paths";
@@ -35,7 +36,12 @@ export function QrCustomPage({
           >
             Back
           </a>
-          <form class="qr-custom-form" method="POST" action={paths.donate()}>
+          <form
+            id="donate-form"
+            class="qr-custom-form"
+            method="POST"
+            action={paths.donate()}
+          >
             <div class="qr-product-details">
               <div class="form-group qr-custom-name-group">
                 <textarea
@@ -94,6 +100,8 @@ export function QrCustomPage({
           </form>
         </div>
       </div>
+
+      <StripeCheckoutModal title="Complete Your Donation" />
     </Layout>
   );
 }

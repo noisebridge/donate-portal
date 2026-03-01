@@ -67,53 +67,46 @@ export class ChargeAlertManager {
   }
 
   async processWebhook(event: Stripe.Event) {
-    if (event.type !== "checkout.session.completed") {
+    if (event.type !== "payment_intent.succeeded") {
       return;
     }
 
-    const session = event.data.object;
-    if (session.mode !== "payment") {
+    const paymentIntent = event.data.object;
+    if (!this.isDonation(paymentIntent)) {
       return;
     }
 
-    this.broadcast(await this.formatChargeAlert(session));
+    this.broadcast(this.formatChargeAlert(paymentIntent));
   }
 
   /**
-   * Fetch the most recent completed one-time payment sessions from Stripe.
+   * Fetch the most recent completed one-time payments from Stripe.
    */
   async fetchRecentCharges(): Promise<ChargeAlert[]> {
-    const sessions = await stripe.checkout.sessions.list({
-      status: "complete",
+    const paymentIntents = await stripe.paymentIntents.list({
       limit: 3 * MAX_RECENT_CHARGES,
-      expand: ["data.line_items"],
     });
 
-    const paymentSessions = sessions.data
-      .filter((session) => session.mode === "payment")
-      .slice(0, MAX_RECENT_CHARGES);
-
-    const alerts = await Promise.all(
-      paymentSessions.map(
-        async (session) => await this.formatChargeAlert(session),
-      ),
-    );
-
-    return alerts;
+    return paymentIntents.data
+      .filter((paymentIntent) => paymentIntent.status === "succeeded")
+      .filter((paymentIntent) => this.isDonation(paymentIntent))
+      .slice(0, MAX_RECENT_CHARGES)
+      .map((paymentIntent) => this.formatChargeAlert(paymentIntent));
   }
 
-  private async formatChargeAlert(
-    session: Stripe.Checkout.Session,
-  ): Promise<ChargeAlert> {
-    const lineItems =
-      session.line_items ??
-      (await stripe.checkout.sessions.listLineItems(session.id));
+  /**
+   * Whether a payment intent is for a one-off donation.
+   */
+  private isDonation(paymentIntent: Stripe.PaymentIntent): boolean {
+    return paymentIntent.customer === null;
+  }
 
+  private formatChargeAlert(paymentIntent: Stripe.PaymentIntent): ChargeAlert {
     return {
-      id: this.hashSessionId(session.id),
-      date: new Date(session.created * 1000).toISOString(),
-      amount: { cents: session.amount_total ?? 0 },
-      productName: this.getProductName(lineItems),
+      id: this.createAlertId(paymentIntent),
+      date: new Date(paymentIntent.created * 1000).toISOString(),
+      amount: { cents: paymentIntent.amount ?? 0 },
+      productName: this.getProductName(paymentIntent),
     };
   }
 
@@ -124,21 +117,21 @@ export class ChargeAlertManager {
     }
   }
 
-  private hashSessionId(sessionId: string): string {
+  private createAlertId(paymentIntent: Stripe.PaymentIntent): string {
     return crypto
       .createHash("sha256")
-      .update(sessionId)
+      .update(paymentIntent.id)
       .digest("hex")
       .slice(0, 12);
   }
 
-  private getProductName(lineItems: Stripe.ApiList<Stripe.LineItem>) {
-    const productName = lineItems.data[0]?.description;
-    if (!productName) {
+  private getProductName(paymentIntent: Stripe.PaymentIntent): string {
+    const name = paymentIntent.metadata?.["name"] ?? paymentIntent.description;
+    if (!name) {
       return GENERAL_DONATION;
     }
 
-    return NAME_REMAP[productName] ?? productName;
+    return NAME_REMAP[name] ?? name;
   }
 }
 

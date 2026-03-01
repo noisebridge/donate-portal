@@ -2,8 +2,9 @@ import { test as baseTest, expect } from "@playwright/test";
 import config from "~/config";
 import { test } from "./fixtures";
 import {
-  fillStripeCheckoutForm,
+  fillStripePaymentElement,
   getExpiryOneYearFromNow,
+  waitForCheckoutModal,
 } from "./stripe-utils";
 
 test.describe
@@ -23,38 +24,30 @@ test.describe
       await page.goto("/");
       await page.click('label[for="amount-10"]');
       await page.click("#donate-now");
-      await expect(page).toHaveURL(/checkout\.stripe\.com/);
-      await fillStripeCheckoutForm(page, {
-        email: "alerts-test@example.com",
+      await waitForCheckoutModal(page);
+      await fillStripePaymentElement(page, {
         cardNumber: "4242424242424242",
         expiry: getExpiryOneYearFromNow(),
         cvc: "123",
-        name: "Alerts Test User",
         zip: "94110",
       });
-      await page.click('button:has-text("Pay")');
-      await page.waitForTimeout(5000);
-      await page.waitForLoadState("networkidle");
-      await expect(page).toHaveURL(/\/thank-you/);
+      await page.click("#payment-submit");
+      await page.waitForURL(/\/thank-you/, { timeout: 45000 });
 
       // Donation 2: $4.69 custom amount (triggers NICE badge)
       await page.goto("/");
       await page.click('label[for="amount-custom"]');
       await page.fill('input[name="custom-amount"]', "4.69");
       await page.click("#donate-now");
-      await expect(page).toHaveURL(/checkout\.stripe\.com/);
-      await fillStripeCheckoutForm(page, {
-        email: "alerts-test@example.com",
+      await waitForCheckoutModal(page);
+      await fillStripePaymentElement(page, {
         cardNumber: "4242424242424242",
         expiry: getExpiryOneYearFromNow(),
         cvc: "123",
-        name: "Alerts Test User",
         zip: "94110",
       });
-      await page.click('button:has-text("Pay")');
-      await page.waitForTimeout(5000);
-      await page.waitForLoadState("networkidle");
-      await expect(page).toHaveURL(/\/thank-you/);
+      await page.click("#payment-submit");
+      await page.waitForURL(/\/thank-you/, { timeout: 45000 });
 
       await context.close();
     });

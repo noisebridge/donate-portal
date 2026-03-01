@@ -1,5 +1,6 @@
 import { escapeHtml } from "@kitajs/html";
 import { Layout } from "~/components/layout";
+import { StripeCheckoutModal } from "~/components/stripe-checkout-modal";
 import donationManager, { DonationManager } from "~/managers/donation";
 import { type Cents, formatAmount } from "~/money";
 import paths from "~/paths";
@@ -69,7 +70,7 @@ export function QrPage({
             </div>
           </div>
 
-          <form method="POST" action={paths.donate()}>
+          <form id="donate-form" method="POST" action={paths.donate()}>
             <input
               type="hidden"
               name="amount-dollars"
@@ -110,6 +111,8 @@ export function QrPage({
           </a>
         </div>
       </div>
+
+      <StripeCheckoutModal title="Complete Your Donation" />
     </Layout>
   );
 }
