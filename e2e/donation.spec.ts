@@ -1,8 +1,9 @@
 import { DonationManager } from "~/managers/donation";
 import { expect, test } from "./fixtures";
 import {
-  fillStripeCheckoutForm,
+  fillStripePaymentElement,
   getExpiryOneYearFromNow,
+  waitForCheckoutModal,
 } from "./stripe-utils";
 
 test.describe("Donation Validation Tests", () => {
@@ -43,11 +44,8 @@ test.describe("Donation Validation Tests", () => {
     // Submit the form
     await page.click("#donate-now");
 
-    // Should redirect to Stripe checkout
-    await expect(page).toHaveURL(/checkout\.stripe\.com/);
-
-    // Expect page to contain "$2.00" on it
-    await expect(page.getByText("$2.00")).toBeVisible();
+    // Should open the Stripe checkout modal
+    await waitForCheckoutModal(page);
   });
 });
 
@@ -55,6 +53,8 @@ test.describe("Donation Flow Tests", () => {
   test("Amount $10 button creates Stripe checkout and redirects to /thank-you", async ({
     page,
   }) => {
+    test.setTimeout(60000);
+
     await page.goto("/");
 
     // Click the $10 amount button
@@ -63,28 +63,22 @@ test.describe("Donation Flow Tests", () => {
     // Submit the form
     await page.click("#donate-now");
 
-    // Should redirect to Stripe checkout
-    await expect(page).toHaveURL(/checkout\.stripe\.com/);
+    // Should open the Stripe checkout modal
+    await waitForCheckoutModal(page);
 
-    // Expect page to contain "$10.00" on it
-    await expect(page.getByText("$10.00")).toBeVisible();
-
-    // Fill out the Stripe checkout form with test card
-    await fillStripeCheckoutForm(page, {
-      email: "test@example.com",
+    // Fill out the Stripe Payment Element with test card
+    await fillStripePaymentElement(page, {
       cardNumber: "4242424242424242",
       expiry: getExpiryOneYearFromNow(),
       cvc: "123",
-      name: "Test User",
       zip: "94110",
     });
 
     // Submit payment
-    await page.click('button:has-text("Pay")');
+    await page.click("#payment-submit");
 
     // Wait for redirect to complete (Stripe processes payment and redirects)
-    await page.waitForTimeout(5000);
-    await page.waitForLoadState("networkidle");
+    await page.waitForURL(/\/thank-you/, { timeout: 45000 });
 
     // Should redirect to thank-you page after successful payment
     await expect(page).toHaveURL(/\/thank-you/);
@@ -93,6 +87,8 @@ test.describe("Donation Flow Tests", () => {
   test("Custom amount $13.37 creates Stripe checkout and redirects to /thank-you", async ({
     page,
   }) => {
+    test.setTimeout(60000);
+
     await page.goto("/");
 
     // Click the Custom amount button
@@ -104,28 +100,22 @@ test.describe("Donation Flow Tests", () => {
     // Submit the form
     await page.click("#donate-now");
 
-    // Should redirect to Stripe checkout
-    await expect(page).toHaveURL(/checkout\.stripe\.com/);
+    // Should open the Stripe checkout modal
+    await waitForCheckoutModal(page);
 
-    // Expect page to contain "$13.37" on it
-    await expect(page.getByText("$13.37")).toBeVisible();
-
-    // Fill out the Stripe checkout form with test card
-    await fillStripeCheckoutForm(page, {
-      email: "test@example.com",
+    // Fill out the Stripe Payment Element with test card
+    await fillStripePaymentElement(page, {
       cardNumber: "4242424242424242",
       expiry: getExpiryOneYearFromNow(),
       cvc: "123",
-      name: "Test User",
       zip: "94110",
     });
 
     // Submit payment
-    await page.click('button:has-text("Pay")');
+    await page.click("#payment-submit");
 
     // Wait for redirect to complete (Stripe processes payment and redirects)
-    await page.waitForTimeout(5000);
-    await page.waitForLoadState("networkidle");
+    await page.waitForURL(/\/thank-you/, { timeout: 45000 });
 
     // Should redirect to thank-you page after successful payment
     await expect(page).toHaveURL(/\/thank-you/);
@@ -133,7 +123,7 @@ test.describe("Donation Flow Tests", () => {
 });
 
 test.describe("QR Donation Endpoint", () => {
-  test("displays donation page with slider and redirects to Stripe on submit", async ({
+  test("displays donation page with slider and opens checkout modal on submit", async ({
     page,
   }) => {
     await page.goto(
@@ -157,11 +147,8 @@ test.describe("QR Donation Endpoint", () => {
     // Click the Donate button
     await page.click('button:has-text("Donate")');
 
-    // Should redirect to Stripe checkout
-    await expect(page).toHaveURL(/checkout\.stripe\.com/);
-
-    // Verify the amount appears on the Stripe checkout page
-    await expect(page.getByText("$5.00")).toBeVisible();
+    // Should open the Stripe checkout modal
+    await waitForCheckoutModal(page);
   });
 
   test("slider updates displayed amount", async ({ page }) => {
@@ -180,9 +167,8 @@ test.describe("QR Donation Endpoint", () => {
     // Click the Donate button
     await page.click('button:has-text("Donate")');
 
-    // Should redirect to Stripe checkout with new amount
-    await expect(page).toHaveURL(/checkout\.stripe\.com/);
-    await expect(page.getByText("$15.00")).toBeVisible();
+    // Should open the Stripe checkout modal
+    await waitForCheckoutModal(page);
   });
 
   test("returns 400 when name exceeds max length", async ({ page }) => {
@@ -271,7 +257,7 @@ test.describe("QR Custom Donation Page", () => {
     await expect(page.locator("#current-amount")).toHaveText("$10.00");
   });
 
-  test("custom input values appear on stripe checkout page", async ({
+  test("custom input values open checkout modal on submit", async ({
     page,
   }) => {
     await page.goto("/qr-custom?amount=5");
@@ -284,16 +270,7 @@ test.describe("QR Custom Donation Page", () => {
     // Submit the form
     await page.click('button:has-text("Donate")');
 
-    // Should redirect to Stripe checkout
-    await expect(page).toHaveURL(/checkout\.stripe\.com/);
-
-    // Verify the amount appears on the Stripe checkout page
-    await expect(page.getByText("$42.50")).toBeVisible();
-
-    // Verify the name appears on the Stripe checkout page
-    await expect(page.getByText("Soldering Workshop")).toBeVisible();
-
-    // Verify the description appears on the Stripe checkout page
-    await expect(page.getByText("Weekend class")).toBeVisible();
+    // Should open the Stripe checkout modal
+    await waitForCheckoutModal(page);
   });
 });

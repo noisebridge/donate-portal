@@ -1,6 +1,4 @@
-import config from "~/config";
 import type { Cents } from "~/money";
-import paths from "~/paths";
 import stripe from "~/services/stripe";
 import { GENERAL_DONATION, NAME_REMAP } from "./charge-alert";
 
@@ -10,7 +8,7 @@ export enum DonationErrorCode {
 }
 
 export type DonateResult =
-  | { success: true; checkoutUrl: string; sessionId: string }
+  | { success: true; clientSecret: string }
   | { success: false; error: DonationErrorCode };
 
 export class DonationManager {
@@ -47,33 +45,24 @@ export class DonationManager {
       return { success: false, error: DonationErrorCode.InvalidAmount };
     }
 
-    const session = await stripe.checkout.sessions.create({
-      payment_method_types: ["card"],
-      line_items: [
-        {
-          price_data: {
-            currency: "usd",
-            product_data: {
-              name: name || DonationManager.defaultName,
-              description: description || DonationManager.defaultDescription,
-            },
-            unit_amount: amount.cents,
-          },
-          quantity: 1,
-        },
-      ],
-      mode: "payment",
-      success_url: `${config.baseUrl}${paths.thankYou()}`,
-      cancel_url: `${config.baseUrl}${paths.index()}`,
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: amount.cents,
+      currency: "usd",
+      automatic_payment_methods: { enabled: true },
+      description: name || DonationManager.defaultName,
+      metadata: {
+        name: name || DonationManager.defaultName,
+        description: description || DonationManager.defaultDescription,
+      },
     });
-    if (!session.url) {
+
+    if (!paymentIntent.client_secret) {
       return { success: false, error: DonationErrorCode.SessionError };
     }
 
     return {
       success: true,
-      checkoutUrl: session.url,
-      sessionId: session.id,
+      clientSecret: paymentIntent.client_secret,
     };
   }
 }

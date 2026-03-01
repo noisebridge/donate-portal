@@ -31,6 +31,7 @@ export default defineConfig({
       ALERTS_USERNAME: config.alertsUsername,
       DISABLE_RATE_LIMIT: "true",
       SERVER_HOST: config.serverHost,
+      STRIPE_PUBLIC: config.stripePublicKey,
       STRIPE_SECRET: config.stripeSecretKey,
       STRIPE_PORTAL_CONFIG: config.stripePortalConfig,
       GITHUB_CLIENT_ID: config.githubClientId,

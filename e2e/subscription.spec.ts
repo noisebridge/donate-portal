@@ -2,8 +2,10 @@ import type { Page } from "@playwright/test";
 import { setAuthCookie } from "./auth-utils";
 import { expect, test } from "./fixtures";
 import {
-  fillStripeCheckoutForm,
+  fillEmbeddedCheckoutForm,
   getExpiryOneYearFromNow,
+  submitEmbeddedCheckout,
+  waitForEmbeddedCheckout,
 } from "./stripe-utils";
 
 /**
@@ -24,7 +26,7 @@ async function loginAndNavigate(page: Page, email: string): Promise<void> {
 }
 
 /**
- * Create a subscription by selecting a tier and completing Stripe checkout
+ * Create a subscription by selecting a tier and completing payment in the modal
  */
 async function createSubscription(
   page: Page,
@@ -33,10 +35,10 @@ async function createSubscription(
   await page.click(tierSelector);
   await page.click('button:has-text("Start Monthly Donation")');
 
-  // Wait for redirect to Stripe checkout
-  await page.waitForURL(/checkout\.stripe\.com/, { timeout: 10000 });
+  // Wait for embedded checkout to appear in modal
+  await waitForEmbeddedCheckout(page);
 
-  await fillStripeCheckoutForm(page, {
+  await fillEmbeddedCheckoutForm(page, {
     cardNumber: "4242424242424242",
     expiry: getExpiryOneYearFromNow(),
     cvc: "123",
@@ -44,11 +46,11 @@ async function createSubscription(
     zip: "94110",
   });
 
-  await page.click('button:has-text("Subscribe")');
+  await submitEmbeddedCheckout(page);
 
   // Wait for redirect back to /manage after successful payment
-  await page.waitForURL(/\/manage/, { timeout: 15000 });
-  await page.waitForLoadState("networkidle");
+  await page.waitForURL(/\/manage/, { timeout: 45000 });
+  await page.waitForLoadState("domcontentloaded");
 
   // Give extra time for subscription state to sync
   await page.waitForTimeout(2000);
@@ -72,6 +74,7 @@ test.describe("Subscription Flow Tests", () => {
   test("Lowest tier subscription: sign up, verify on /manage, then cancel", async ({
     page,
   }) => {
+    test.setTimeout(60000);
     await loginAndNavigate(page, generateTestEmail());
     await createSubscription(page, 'label[for="tier-starving"]');
 
@@ -84,6 +87,7 @@ test.describe("Subscription Flow Tests", () => {
   test("Custom tier subscription: $1337/month, verify on /manage, then cancel", async ({
     page,
   }) => {
+    test.setTimeout(60000);
     await loginAndNavigate(page, generateTestEmail());
 
     // Select the custom tier and fill in amount
@@ -91,12 +95,11 @@ test.describe("Subscription Flow Tests", () => {
     await page.fill("input#custom-amount", "1337");
 
     await page.click('button:has-text("Start Monthly Donation")');
-    await page.waitForLoadState("networkidle");
 
-    await expect(page).toHaveURL(/checkout\.stripe\.com/);
-    await expect(page.getByText("$1,337.00")).toBeVisible();
+    // Should open the embedded checkout in modal
+    await waitForEmbeddedCheckout(page);
 
-    await fillStripeCheckoutForm(page, {
+    await fillEmbeddedCheckoutForm(page, {
       cardNumber: "4242424242424242",
       expiry: getExpiryOneYearFromNow(),
       cvc: "123",
@@ -104,11 +107,14 @@ test.describe("Subscription Flow Tests", () => {
       zip: "94110",
     });
 
-    await page.click('button:has-text("Subscribe")');
-    await page.waitForTimeout(5000);
+    await submitEmbeddedCheckout(page);
+
+    // Wait for redirect back to /manage after successful payment
+    await page.waitForURL(/\/manage/, { timeout: 45000 });
     await page.waitForLoadState("networkidle");
 
-    await expect(page).toHaveURL(/\/manage/);
+    // Give extra time for subscription state to sync
+    await page.waitForTimeout(2000);
 
     // Verify the custom tier is selected and shows the correct amount
     await expect(page.locator("input#tier-custom")).toBeChecked();
@@ -120,6 +126,7 @@ test.describe("Subscription Flow Tests", () => {
   test("Stripe portal can be accessed with active subscription", async ({
     page,
   }) => {
+    test.setTimeout(60000);
     await loginAndNavigate(page, generateTestEmail());
     await createSubscription(page, 'label[for="tier-employed"]');
 
@@ -141,6 +148,7 @@ test.describe("Subscription Flow Tests", () => {
   test("Subscription update: change from $50 to $100 tier", async ({
     page,
   }) => {
+    test.setTimeout(60000);
     await loginAndNavigate(page, generateTestEmail());
     await createSubscription(page, 'label[for="tier-starving"]');
 
@@ -165,6 +173,7 @@ test.describe("Subscription Flow Tests", () => {
   test("Same amount rejection: cannot update to same tier", async ({
     page,
   }) => {
+    test.setTimeout(60000);
     await loginAndNavigate(page, generateTestEmail());
     await createSubscription(page, 'label[for="tier-starving"]');
 

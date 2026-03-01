@@ -5,6 +5,7 @@ import {
   activateCustomOnClick,
   activateCustomOnRadio,
 } from "./util/money-forms.mjs";
+import { initCheckoutForm, openCheckoutModal } from "./util/stripe.mjs";
 import { enforcePattern, validateMinAmount } from "./util/validate.mjs";
 
 function initCustomAmount() {
@@ -19,15 +20,21 @@ function initCustomAmount() {
   );
 
   enforcePattern(customAmountInput, /^(\d+(\.\d{0,2})?)?$/);
-
   validateMinAmount(customAmountInput);
-
   activateCustomOnClick(customAmountInput, customAmountRadio);
-
   activateCustomOnRadio(amountRadios, customAmountInput);
 }
 
 document.addEventListener("DOMContentLoaded", () => {
   initMessages();
   initCustomAmount();
+
+  const form = /** @type {HTMLFormElement} */ (
+    document.getElementById("donate-form")
+  );
+  initCheckoutForm(form, async (clientSecret) => {
+    if (clientSecret) {
+      await openCheckoutModal(clientSecret);
+    }
+  });
 });
