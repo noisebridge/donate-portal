@@ -52,9 +52,16 @@ const COLORS = [
 const EMOJI_MAP = {
   69: ["\u{1F346}", "\u{1F351}"],
   69.69: ["\u{1F346}", "\u{1F351}"],
+
   6.7: ["\u{1F450}"],
   67: ["\u{1F450}"],
   67.67: ["\u{1F450}"],
+
+  3.14: ["\u{1F967}"],
+  31.41: ["\u{1F967}"],
+  314.15: ["\u{1F967}"],
+  3141.59: ["\u{1F967}"], // Let a man dream.
+
 };
 const PARTICLES_DEFAULT = 80;
 const PARTICLES_EMOJI = 20;
