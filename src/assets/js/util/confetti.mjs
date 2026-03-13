@@ -61,7 +61,6 @@ const EMOJI_MAP = {
   31.41: ["\u{1F967}"],
   314.15: ["\u{1F967}"],
   3141.59: ["\u{1F967}"], // Let a man dream.
-
 };
 const PARTICLES_DEFAULT = 80;
 const PARTICLES_EMOJI = 20;
