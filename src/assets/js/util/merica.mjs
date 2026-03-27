@@ -278,19 +278,24 @@ function drawFlag(now, flagY) {
     );
   }
 
-  // Darken the bottom of the flag with a gradient overlay
+  // Darken the flag with a uniform tint plus a bottom gradient
   ctx.save();
   ctx.globalCompositeOperation = "source-atop";
-  const grad = ctx.createLinearGradient(0, flagY, 0, flagY + flagHeight);
-  grad.addColorStop(0, "rgba(0, 0, 0, 0)");
-  grad.addColorStop(1, "rgba(0, 0, 0, 0.35)");
-  ctx.fillStyle = grad;
-  ctx.fillRect(
+  const overlayRect = /** @type {const} */ ([
     flagX - FLAG_RIPPLE_AMPLITUDE,
     flagY - FLAG_RIPPLE_AMPLITUDE,
     flagWidth + FLAG_RIPPLE_AMPLITUDE * 2,
     flagHeight + FLAG_RIPPLE_AMPLITUDE * 2,
-  );
+  ]);
+  // Uniform darkening
+  ctx.fillStyle = "rgba(0, 0, 0, 0.18)";
+  ctx.fillRect(...overlayRect);
+  // Additional bottom gradient
+  const grad = ctx.createLinearGradient(0, flagY, 0, flagY + flagHeight);
+  grad.addColorStop(0, "rgba(0, 0, 0, 0)");
+  grad.addColorStop(1, "rgba(0, 0, 0, 0.55)");
+  ctx.fillStyle = grad;
+  ctx.fillRect(...overlayRect);
   ctx.restore();
 }
 
