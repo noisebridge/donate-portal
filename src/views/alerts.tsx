@@ -108,6 +108,7 @@ export function AlertsPage({ charges }: { charges: ChargeAlert[] }) {
             />
           </div>
           <canvas id="effect-canvas"></canvas>
+          <canvas id="flag-canvas"></canvas>
           <img
             id="snoop-img"
             src="/assets/image/snoop.apng"

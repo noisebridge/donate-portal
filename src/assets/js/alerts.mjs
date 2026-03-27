@@ -6,7 +6,12 @@ import {
   stopConfetti,
 } from "./util/confetti.mjs";
 import { initMatrix, showMatrix, stopMatrix } from "./util/matrix.mjs";
-import { initMerica, showMerica, stopMerica } from "./util/merica.mjs";
+import {
+  initMerica,
+  showMerica,
+  showMericaFlag,
+  stopMerica,
+} from "./util/merica.mjs";
 import {
   initSnoop,
   showSnoop,
@@ -19,6 +24,9 @@ import {
 
 const effectCanvas = /** @type {HTMLCanvasElement} */ (
   document.getElementById("effect-canvas")
+);
+const flagCanvas = /** @type {HTMLCanvasElement} */ (
+  document.getElementById("flag-canvas")
 );
 const amountEl = /** @type {HTMLElement} */ (
   document.getElementById("alert-amount")
@@ -271,10 +279,10 @@ function displayAlert(alert) {
   }
 
   if (MERICA_AMOUNTS.includes(alert.amount.cents)) {
+    stopConfetti();
     stopMatrix();
     stopSnoop();
-    launchConfetti(alert.amount.cents / 100);
-    showMerica();
+    showMerica(alert.amount.cents / 100);
   } else if (SNOOP_AMOUNTS.includes(alert.amount.cents)) {
     stopConfetti();
     stopMatrix();
@@ -335,7 +343,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initConfetti(canvas);
   initMatrix(canvas);
   initSnoop(canvas);
-  initMerica();
+  initMerica(initCanvas(flagCanvas));
   const currentChargeJson =
     document.getElementById("current-charge")?.textContent;
   currentCharge = currentChargeJson
@@ -346,6 +354,8 @@ document.addEventListener("DOMContentLoaded", () => {
     setBodyClass(currentCharge);
     if (SNOOP_AMOUNTS.includes(currentCharge.amount.cents)) {
       showSnoopLeaves();
+    } else if (MERICA_AMOUNTS.includes(currentCharge.amount.cents)) {
+      showMericaFlag();
     }
   }
 

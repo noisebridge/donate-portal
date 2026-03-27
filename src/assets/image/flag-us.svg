@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1235 650">
+  <!-- Stripes -->
+  <rect width="1235" height="650" fill="#BF0A30"/>
+  <rect y="50" width="1235" height="50" fill="#FFF"/>
+  <rect y="150" width="1235" height="50" fill="#FFF"/>
+  <rect y="250" width="1235" height="50" fill="#FFF"/>
+  <rect y="350" width="1235" height="50" fill="#FFF"/>
+  <rect y="450" width="1235" height="50" fill="#FFF"/>
+  <rect y="550" width="1235" height="50" fill="#FFF"/>
+  <!-- Canton -->
+  <rect width="494" height="350" fill="#002868"/>
+  <!-- Stars (50) - 9 rows alternating 6 and 5 -->
+  <g fill="#FFF">
+    <!-- Row 1: 6 stars -->
+    <polygon points="42,20 45,30 56,30 47,36 50,47 42,40 34,47 37,36 28,30 39,30" transform="translate(0,0)"/>
+    <polygon points="42,20 45,30 56,30 47,36 50,47 42,40 34,47 37,36 28,30 39,30" transform="translate(82,0)"/>
+    <polygon points="42,20 45,30 56,30 47,36 50,47 42,40 34,47 37,36 28,30 39,30" transform="translate(164,0)"/>
+    <polygon points="42,20 45,30 56,30 47,36 50,47 42,40 34,47 37,36 28,30 39,30" transform="translate(246,0)"/>
+    <polygon points="42,20 45,30 56,30 47,36 50,47 42,40 34,47 37,36 28,30 39,30" transform="translate(328,0)"/>
+    <polygon points="42,20 45,30 56,30 47,36 50,47 42,40 34,47 37,36 28,30 39,30" transform="translate(410,0)"/>
+    <!-- Row 2: 5 stars -->
+    <polygon points="42,20 45,30 56,30 47,36 50,47 42,40 34,47 37,36 28,30 39,30" transform="translate(41,38)"/>
+    <polygon points="42,20 45,30 56,30 47,36 50,47 42,40 34,47 37,36 28,30 39,30" transform="translate(123,38)"/>
+    <polygon points="42,20 45,30 56,30 47,36 50,47 42,40 34,47 37,36 28,30 39,30" transform="translate(205,38)"/>
+    <polygon points="42,20 45,30 56,30 47,36 50,47 42,40 34,47 37,36 28,30 39,30" transform="translate(287,38)"/>
+    <polygon points="42,20 45,30 56,30 47,36 50,47 42,40 34,47 37,36 28,30 39,30" transform="translate(369,38)"/>
+    <!-- Row 3: 6 stars -->
+    <polygon points="42,20 45,30 56,30 47,36 50,47 42,40 34,47 37,36 28,30 39,30" transform="translate(0,76)"/>
+    <polygon points="42,20 45,30 56,30 47,36 50,47 42,40 34,47 37,36 28,30 39,30" transform="translate(82,76)"/>
+    <polygon points="42,20 45,30 56,30 47,36 50,47 42,40 34,47 37,36 28,30 39,30" transform="translate(164,76)"/>
+    <polygon points="42,20 45,30 56,30 47,36 50,47 42,40 34,47 37,36 28,30 39,30" transform="translate(246,76)"/>
+    <polygon points="42,20 45,30 56,30 47,36 50,47 42,40 34,47 37,36 28,30 39,30" transform="translate(328,76)"/>
+    <polygon points="42,20 45,30 56,30 47,36 50,47 42,40 34,47 37,36 28,30 39,30" transform="translate(410,76)"/>
+    <!-- Row 4: 5 stars -->
+    <polygon points="42,20 45,30 56,30 47,36 50,47 42,40 34,47 37,36 28,30 39,30" transform="translate(41,114)"/>
+    <polygon points="42,20 45,30 56,30 47,36 50,47 42,40 34,47 37,36 28,30 39,30" transform="translate(123,114)"/>
+    <polygon points="42,20 45,30 56,30 47,36 50,47 42,40 34,47 37,36 28,30 39,30" transform="translate(205,114)"/>
+    <polygon points="42,20 45,30 56,30 47,36 50,47 42,40 34,47 37,36 28,30 39,30" transform="translate(287,114)"/>
+    <polygon points="42,20 45,30 56,30 47,36 50,47 42,40 34,47 37,36 28,30 39,30" transform="translate(369,114)"/>
+    <!-- Row 5: 6 stars -->
+    <polygon points="42,20 45,30 56,30 47,36 50,47 42,40 34,47 37,36 28,30 39,30" transform="translate(0,152)"/>
+    <polygon points="42,20 45,30 56,30 47,36 50,47 42,40 34,47 37,36 28,30 39,30" transform="translate(82,152)"/>
+    <polygon points="42,20 45,30 56,30 47,36 50,47 42,40 34,47 37,36 28,30 39,30" transform="translate(164,152)"/>
+    <polygon points="42,20 45,30 56,30 47,36 50,47 42,40 34,47 37,36 28,30 39,30" transform="translate(246,152)"/>
+    <polygon points="42,20 45,30 56,30 47,36 50,47 42,40 34,47 37,36 28,30 39,30" transform="translate(328,152)"/>
+    <polygon points="42,20 45,30 56,30 47,36 50,47 42,40 34,47 37,36 28,30 39,30" transform="translate(410,152)"/>
+    <!-- Row 6: 5 stars -->
+    <polygon points="42,20 45,30 56,30 47,36 50,47 42,40 34,47 37,36 28,30 39,30" transform="translate(41,190)"/>
+    <polygon points="42,20 45,30 56,30 47,36 50,47 42,40 34,47 37,36 28,30 39,30" transform="translate(123,190)"/>
+    <polygon points="42,20 45,30 56,30 47,36 50,47 42,40 34,47 37,36 28,30 39,30" transform="translate(205,190)"/>
+    <polygon points="42,20 45,30 56,30 47,36 50,47 42,40 34,47 37,36 28,30 39,30" transform="translate(287,190)"/>
+    <polygon points="42,20 45,30 56,30 47,36 50,47 42,40 34,47 37,36 28,30 39,30" transform="translate(369,190)"/>
+    <!-- Row 7: 6 stars -->
+    <polygon points="42,20 45,30 56,30 47,36 50,47 42,40 34,47 37,36 28,30 39,30" transform="translate(0,228)"/>
+    <polygon points="42,20 45,30 56,30 47,36 50,47 42,40 34,47 37,36 28,30 39,30" transform="translate(82,228)"/>
+    <polygon points="42,20 45,30 56,30 47,36 50,47 42,40 34,47 37,36 28,30 39,30" transform="translate(164,228)"/>
+    <polygon points="42,20 45,30 56,30 47,36 50,47 42,40 34,47 37,36 28,30 39,30" transform="translate(246,228)"/>
+    <polygon points="42,20 45,30 56,30 47,36 50,47 42,40 34,47 37,36 28,30 39,30" transform="translate(328,228)"/>
+    <polygon points="42,20 45,30 56,30 47,36 50,47 42,40 34,47 37,36 28,30 39,30" transform="translate(410,228)"/>
+    <!-- Row 8: 5 stars -->
+    <polygon points="42,20 45,30 56,30 47,36 50,47 42,40 34,47 37,36 28,30 39,30" transform="translate(41,266)"/>
+    <polygon points="42,20 45,30 56,30 47,36 50,47 42,40 34,47 37,36 28,30 39,30" transform="translate(123,266)"/>
+    <polygon points="42,20 45,30 56,30 47,36 50,47 42,40 34,47 37,36 28,30 39,30" transform="translate(205,266)"/>
+    <polygon points="42,20 45,30 56,30 47,36 50,47 42,40 34,47 37,36 28,30 39,30" transform="translate(287,266)"/>
+    <polygon points="42,20 45,30 56,30 47,36 50,47 42,40 34,47 37,36 28,30 39,30" transform="translate(369,266)"/>
+    <!-- Row 9: 6 stars -->
+    <polygon points="42,20 45,30 56,30 47,36 50,47 42,40 34,47 37,36 28,30 39,30" transform="translate(0,304)"/>
+    <polygon points="42,20 45,30 56,30 47,36 50,47 42,40 34,47 37,36 28,30 39,30" transform="translate(82,304)"/>
+    <polygon points="42,20 45,30 56,30 47,36 50,47 42,40 34,47 37,36 28,30 39,30" transform="translate(164,304)"/>
+    <polygon points="42,20 45,30 56,30 47,36 50,47 42,40 34,47 37,36 28,30 39,30" transform="translate(246,304)"/>
+    <polygon points="42,20 45,30 56,30 47,36 50,47 42,40 34,47 37,36 28,30 39,30" transform="translate(328,304)"/>
+    <polygon points="42,20 45,30 56,30 47,36 50,47 42,40 34,47 37,36 28,30 39,30" transform="translate(410,304)"/>
+  </g>
+</svg>
