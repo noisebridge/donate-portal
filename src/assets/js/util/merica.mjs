@@ -325,6 +325,7 @@ function animate(now) {
       if (fp >= 1) {
         flagRetracting = false;
         flagVisible = false;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
       }
     }
 
