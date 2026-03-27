@@ -138,12 +138,7 @@ export class ChargeAlertManager {
       return GENERAL_DONATION;
     }
 
-    const remappedName = NAME_REMAP[productName];
-    if (!remappedName) {
-      return productName;
-    }
-
-    return remappedName;
+    return NAME_REMAP[productName] ?? productName;
   }
 }
 

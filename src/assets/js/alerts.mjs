@@ -70,24 +70,26 @@ const alertQueue = [];
 function enqueueAlert(alert) {
   alertQueue.push(alert);
 
-  if (!queueDrainInterval) {
-    displayAlert(alert);
-
-    queueDrainInterval = window.setInterval(() => {
-      if (!queueDrainInterval) {
-        return;
-      }
-
-      alertQueue.shift();
-      if (alertQueue.length === 0) {
-        clearInterval(queueDrainInterval);
-        queueDrainInterval = null;
-        return;
-      }
-
-      displayAlert(/** @type {ChargeAlert} */ (alertQueue[0]));
-    }, ALERT_INTERVAL_MS);
+  if (queueDrainInterval) {
+    return;
   }
+
+  displayAlert(alert);
+
+  queueDrainInterval = window.setInterval(() => {
+    if (!queueDrainInterval) {
+      return;
+    }
+
+    alertQueue.shift();
+    if (alertQueue.length === 0) {
+      clearInterval(queueDrainInterval);
+      queueDrainInterval = null;
+      return;
+    }
+
+    displayAlert(/** @type {ChargeAlert} */ (alertQueue[0]));
+  }, ALERT_INTERVAL_MS);
 }
 
 /**
@@ -114,7 +116,7 @@ function span(className, text) {
 }
 
 /**
- * Check whether a cent amount ends in .69.
+ * Check whether a cent amount contains 69 (not across the decimal).
  * @param {Cents} amount
  * @returns {boolean}
  */
@@ -324,7 +326,6 @@ function connect() {
 /**
  * Initialize a full-screen canvas element with auto-resize.
  * @param {HTMLCanvasElement} canvasEl
- * @returns {HTMLCanvasElement}
  */
 function initCanvas(canvasEl) {
   function resize() {
@@ -334,16 +335,17 @@ function initCanvas(canvasEl) {
 
   window.addEventListener("resize", resize);
   resize();
-
-  return canvasEl;
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  const canvas = initCanvas(effectCanvas);
-  initConfetti(canvas);
-  initMatrix(canvas);
-  initSnoop(canvas);
-  initMerica(initCanvas(flagCanvas));
+  initCanvas(effectCanvas);
+  initConfetti(effectCanvas);
+  initMatrix(effectCanvas);
+  initSnoop(effectCanvas);
+
+  initCanvas(flagCanvas);
+  initMerica(flagCanvas);
+
   const currentChargeJson =
     document.getElementById("current-charge")?.textContent;
   currentCharge = currentChargeJson

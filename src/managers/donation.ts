@@ -64,7 +64,7 @@ export class DonationManager {
       ],
       mode: "payment",
       success_url: `${config.baseUrl}${paths.thankYou()}`,
-      cancel_url: `${config.baseUrl}${paths.index()}`,
+      cancel_url: `${config.baseUrl}${paths.index({ error: "Transaction cancelled" })}`,
     });
     if (!session.url) {
       return { success: false, error: DonationErrorCode.SessionError };

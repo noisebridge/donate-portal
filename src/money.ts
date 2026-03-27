@@ -11,14 +11,11 @@ const amountFormDataSchema = z.union([
     "amount-dollars": numericString,
   }),
 ]);
-
 /**
  * HTML form data that can either be a preset dollar amount or one the user
  * typed in manually.
  */
-export type AmountFormData =
-  | { "amount-dollars": "custom"; "custom-amount": string }
-  | { "amount-dollars": string };
+export type AmountFormData = z.infer<typeof amountFormDataSchema>;
 
 export function validateAmountFormData(
   input: unknown,
@@ -34,8 +31,9 @@ function getAmount(amountFormData: AmountFormData) {
     amountFormData["amount-dollars"] === "custom" &&
     "custom-amount" in amountFormData
   ) {
-    return amountFormData["custom-amount"] as string;
+    return amountFormData["custom-amount"];
   }
+
   return amountFormData["amount-dollars"];
 }
 
