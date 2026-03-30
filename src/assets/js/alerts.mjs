@@ -284,7 +284,7 @@ function displayAlert(alert) {
     stopConfetti();
     stopMatrix();
     stopSnoop();
-    showMerica(alert.amount.cents / 100);
+    showMerica(alert.amount);
   } else if (SNOOP_AMOUNTS.includes(alert.amount.cents)) {
     stopConfetti();
     stopMatrix();
@@ -299,7 +299,7 @@ function displayAlert(alert) {
     stopMatrix();
     stopSnoop();
     stopMerica();
-    launchConfetti(alert.amount.cents / 100);
+    launchConfetti(alert.amount);
   }
 }
 

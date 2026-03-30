@@ -1,5 +1,7 @@
 // @ts-check
 
+/** @typedef {import("~/money").Cents} Cents */
+
 /**
  * @typedef {object} ConfettiParticle
  * @property {number} x
@@ -32,7 +34,7 @@
  * @property {number} vy
  * @property {number} sparklePhase
  * @property {boolean} exploded
- * @property {number} dollars
+ * @property {Cents} amount
  * @property {TrailPoint[]} trail
  */
 
@@ -50,17 +52,17 @@ const COLORS = [
 ];
 /** @type {Record<number, string[]>} */
 const EMOJI_MAP = {
-  69: ["\u{1F346}", "\u{1F351}"],
-  69.69: ["\u{1F346}", "\u{1F351}"],
+  6900: ["\u{1F346}", "\u{1F351}"],
+  6969: ["\u{1F346}", "\u{1F351}"],
 
-  6.7: ["\u{1F450}"],
-  67: ["\u{1F450}"],
-  67.67: ["\u{1F450}"],
+  670: ["\u{1F450}"],
+  6700: ["\u{1F450}"],
+  6767: ["\u{1F450}"],
 
-  3.14: ["\u{1F967}"],
-  31.41: ["\u{1F967}"],
-  314.15: ["\u{1F967}"],
-  3141.59: ["\u{1F967}"], // Let a man dream.
+  314: ["\u{1F967}"],
+  3141: ["\u{1F967}"],
+  31415: ["\u{1F967}"],
+  314159: ["\u{1F967}"], // Let a man dream.
 };
 const PARTICLES_DEFAULT = 80;
 const PARTICLES_EMOJI = 20;
@@ -274,11 +276,11 @@ function resolveCollision(a, b) {
 /**
  * @param {number} x
  * @param {number} y
- * @param {number} dollars
+ * @param {Cents} amount
  */
-function spawnExplosion(x, y, dollars) {
+function spawnExplosion(x, y, amount) {
   const now = performance.now();
-  const particleCount = EMOJI_MAP[dollars]
+  const particleCount = EMOJI_MAP[amount.cents]
     ? PARTICLES_EMOJI
     : PARTICLES_DEFAULT;
   for (let i = 0; i < particleCount; i++) {
@@ -302,18 +304,18 @@ function spawnExplosion(x, y, dollars) {
         FADE_AFTER_MIN +
         Math.random() * (FADE_AFTER_MAX - FADE_AFTER_MIN),
       contactStart: 0,
-      emoji: getEmoji(dollars),
+      emoji: getEmoji(amount),
     });
   }
 }
 
 /**
- * Get a random emoji if there is one for the dollar amount;
- * @param {number} dollars
+ * Get a random emoji if there is one for the cent amount.
+ * @param {Cents} amount
  * @returns {string | null}
  */
-function getEmoji(dollars) {
-  const emojiOptions = EMOJI_MAP[dollars];
+function getEmoji(amount) {
+  const emojiOptions = EMOJI_MAP[amount.cents];
   if (!emojiOptions) {
     return null;
   }
@@ -324,10 +326,13 @@ function getEmoji(dollars) {
 }
 
 /**
- * @param {number} dollars
+ * @param {Cents} amount
  */
-export function launchConfetti(dollars) {
-  const rocketCount = Math.min(25, Math.ceil(Math.floor(dollars / 10) + 0.001));
+export function launchConfetti(amount) {
+  const rocketCount = Math.min(
+    25,
+    Math.ceil(Math.floor(amount.cents / 1000) + 0.001),
+  );
 
   for (let i = 0; i < rocketCount; i++) {
     const delay = i * 300 + Math.random() * 200;
@@ -342,7 +347,7 @@ export function launchConfetti(dollars) {
           sparklePhase: Math.random() * Math.PI * 2,
           exploded: false,
           trail: [],
-          dollars,
+          amount,
         });
 
         if (!animating) {
@@ -456,7 +461,7 @@ function animate() {
     // Check if rocket reached target
     if (r.y <= r.targetY) {
       r.exploded = true;
-      spawnExplosion(r.x, r.y, r.dollars);
+      spawnExplosion(r.x, r.y, r.amount);
     }
   }
 

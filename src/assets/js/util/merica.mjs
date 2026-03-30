@@ -2,6 +2,8 @@
 
 import { launchConfetti } from "./confetti.mjs";
 
+/** @typedef {import("~/money").Cents} Cents */
+
 const FLAG_SRC = "/assets/image/flag-us.svg";
 
 const ARNOLD_ENTER_DURATION = 2000;
@@ -398,9 +400,9 @@ function ensureAnimating() {
 /**
  * Launch the 'MERICA takeover effect.
  * Sequence: Arnold rises, holds, eagle swoops, Arnold retracts. Flag drops in and ripples.
- * @param {number} dollars - Dollar amount for confetti
+ * @param {Cents} amount
  */
-export function showMerica(dollars) {
+export function showMerica(amount) {
   phase = "arnold_enter";
   phaseStart = performance.now();
 
@@ -409,7 +411,7 @@ export function showMerica(dollars) {
   flagRetracting = false;
   flagEnterStart = performance.now();
 
-  launchConfetti(dollars);
+  launchConfetti(amount);
   ensureAnimating();
 }
 
