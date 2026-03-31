@@ -864,10 +864,16 @@ export default async function routes(fastify: FastifyInstance) {
       }
 
       try {
-        if (event.type === "payment_intent.succeeded") {
-          await chargeAlertManager.processWebhook(event);
-        } else {
-          await subscriptionManager.processWebhook(event);
+        switch (event.type) {
+          case "payment_intent.succeeded":
+            await chargeAlertManager.processWebhook(event);
+            break;
+          case "invoice.paid":
+            await subscriptionManager.handleInvoicePaid(event);
+            break;
+          case "customer.subscription.updated":
+            await subscriptionManager.handleSubscriptionUpdated(event);
+            break;
         }
       } catch (err) {
         fastify.log.error(

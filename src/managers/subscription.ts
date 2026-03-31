@@ -255,23 +255,6 @@ export class SubscriptionManager {
     return { success: true, portalUrl: session.url };
   }
 
-  /**
-   * Process Stripe webhook events for subscriptions.
-   */
-  async processWebhook(event: Stripe.Event) {
-    switch (event.type) {
-      case "invoice.paid":
-        await this.handleInvoicePaid(event.data.object);
-        break;
-      case "customer.subscription.updated":
-        await this.handleSubscriptionUpdated(
-          event.data.object,
-          event.data.previous_attributes,
-        );
-        break;
-    }
-  }
-
   private subscriptionAmount(
     subscription?: Partial<Stripe.Subscription>,
   ): Cents | undefined {
@@ -283,7 +266,8 @@ export class SubscriptionManager {
     return { cents: unit_amount };
   }
 
-  private async handleInvoicePaid(invoice: Stripe.Invoice) {
+  async handleInvoicePaid(event: Stripe.InvoicePaidEvent) {
+    const invoice = event.data.object;
     // Only handle subscription creation invoices
     if (invoice.billing_reason !== "subscription_create") {
       return;
@@ -310,10 +294,10 @@ export class SubscriptionManager {
     }
   }
 
-  private async handleSubscriptionUpdated(
-    subscription: Stripe.Subscription,
-    previousAttributes?: Partial<Stripe.Subscription>,
+  async handleSubscriptionUpdated(
+    event: Stripe.CustomerSubscriptionUpdatedEvent,
   ) {
+    const subscription = event.data.object;
     const customer =
       typeof subscription.customer === "string"
         ? await stripe.customers.retrieve(subscription.customer)
@@ -322,6 +306,7 @@ export class SubscriptionManager {
       return;
     }
 
+    const previousAttributes = event.data.previous_attributes;
     if (this.changedToPastDue(subscription, previousAttributes)) {
       // Handle subscription becoming past due
       const amount = this.subscriptionAmount(subscription);

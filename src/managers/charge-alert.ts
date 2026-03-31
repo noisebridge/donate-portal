@@ -66,11 +66,7 @@ export class ChargeAlertManager {
     this.pingInterval.unref();
   }
 
-  async processWebhook(event: Stripe.Event) {
-    if (event.type !== "payment_intent.succeeded") {
-      return;
-    }
-
+  async processWebhook(event: Stripe.PaymentIntentSucceededEvent) {
     const paymentIntent = event.data.object;
     if (!this.isDonation(paymentIntent)) {
       return;

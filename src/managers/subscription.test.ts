@@ -480,7 +480,7 @@ describe("SubscriptionManager", () => {
 
   describe("processWebhook", () => {
     test("sends welcome email on subscription_create invoice", async () => {
-      await manager.processWebhook({
+      await manager.handleInvoicePaid({
         type: "invoice.paid",
         data: {
           object: {
@@ -489,7 +489,7 @@ describe("SubscriptionManager", () => {
             amount_paid: 1500,
           },
         },
-      } as unknown as Stripe.Event);
+      } as unknown as Stripe.InvoicePaidEvent);
 
       expect(mocks.sendSubscriptionWelcomeEmail).toHaveBeenCalledWith(
         "test@example.com",
@@ -498,7 +498,7 @@ describe("SubscriptionManager", () => {
     });
 
     test("ignores non-subscription_create invoices", async () => {
-      await manager.processWebhook({
+      await manager.handleInvoicePaid({
         type: "invoice.paid",
         data: {
           object: {
@@ -507,7 +507,7 @@ describe("SubscriptionManager", () => {
             amount_paid: 1500,
           },
         },
-      } as unknown as Stripe.Event);
+      } as unknown as Stripe.InvoicePaidEvent);
 
       expect(mocks.sendSubscriptionWelcomeEmail).not.toHaveBeenCalled();
     });
@@ -519,7 +519,7 @@ describe("SubscriptionManager", () => {
         deleted: false,
       });
 
-      await manager.processWebhook({
+      await manager.handleSubscriptionUpdated({
         type: "customer.subscription.updated",
         data: {
           object: {
@@ -531,7 +531,7 @@ describe("SubscriptionManager", () => {
             status: "active",
           },
         },
-      } as unknown as Stripe.Event);
+      } as unknown as Stripe.CustomerSubscriptionUpdatedEvent);
 
       expect(mocks.sendSubscriptionPastDueEmail).toHaveBeenCalledWith(
         "test@example.com",
@@ -546,7 +546,7 @@ describe("SubscriptionManager", () => {
         deleted: false,
       });
 
-      await manager.processWebhook({
+      await manager.handleSubscriptionUpdated({
         type: "customer.subscription.updated",
         data: {
           object: {
@@ -559,7 +559,7 @@ describe("SubscriptionManager", () => {
             items: { data: [{ price: { unit_amount: 1000 } }] },
           },
         },
-      } as unknown as Stripe.Event);
+      } as unknown as Stripe.CustomerSubscriptionUpdatedEvent);
 
       expect(mocks.sendSubscriptionUpdatedEmail).toHaveBeenCalledWith(
         "test@example.com",
@@ -575,7 +575,7 @@ describe("SubscriptionManager", () => {
         deleted: false,
       });
 
-      await manager.processWebhook({
+      await manager.handleSubscriptionUpdated({
         type: "customer.subscription.updated",
         data: {
           object: {
@@ -588,7 +588,7 @@ describe("SubscriptionManager", () => {
             items: { data: [{ price: { unit_amount: 1000 } }] },
           },
         },
-      } as unknown as Stripe.Event);
+      } as unknown as Stripe.CustomerSubscriptionUpdatedEvent);
 
       expect(mocks.sendSubscriptionUpdatedEmail).not.toHaveBeenCalled();
       expect(mocks.sendSubscriptionPastDueEmail).not.toHaveBeenCalled();
@@ -601,7 +601,7 @@ describe("SubscriptionManager", () => {
         deleted: false,
       });
 
-      await manager.processWebhook({
+      await manager.handleSubscriptionUpdated({
         type: "customer.subscription.updated",
         data: {
           object: {
@@ -613,7 +613,7 @@ describe("SubscriptionManager", () => {
             status: "past_due",
           },
         },
-      } as unknown as Stripe.Event);
+      } as unknown as Stripe.CustomerSubscriptionUpdatedEvent);
 
       expect(mocks.sendSubscriptionPastDueEmail).not.toHaveBeenCalled();
     });
@@ -625,7 +625,7 @@ describe("SubscriptionManager", () => {
         deleted: true,
       });
 
-      await manager.processWebhook({
+      await manager.handleSubscriptionUpdated({
         type: "customer.subscription.updated",
         data: {
           object: {
@@ -635,7 +635,7 @@ describe("SubscriptionManager", () => {
           },
           previous_attributes: { status: "active" },
         },
-      } as unknown as Stripe.Event);
+      } as unknown as Stripe.CustomerSubscriptionUpdatedEvent);
 
       expect(mocks.sendSubscriptionPastDueEmail).not.toHaveBeenCalled();
     });
