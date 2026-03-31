@@ -1,0 +1,7 @@
+# Test files
+**/*.spec.*
+**/*.test.*
+
+# Generated script artifacts
+scripts/openscad/*-render.scad
+scripts/openscad/qrs/
