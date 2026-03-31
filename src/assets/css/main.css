@@ -265,10 +265,12 @@ body {
   border-color: var(--color-primary);
 }
 
-.btn-primary:hover {
-  background-color: #b82e2e;
-  border-color: #b82e2e;
-  box-shadow: 0 4px 12px rgba(204, 51, 51, 0.2);
+@media (hover: hover) {
+  .btn-primary:hover {
+    background-color: #b82e2e;
+    border-color: #b82e2e;
+    box-shadow: 0 4px 12px rgba(204, 51, 51, 0.2);
+  }
 }
 
 .btn-primary:disabled {
@@ -281,10 +283,12 @@ body {
   border-color: var(--color-text);
 }
 
-.btn-secondary:hover {
-  background-color: var(--color-text-light);
-  border-color: var(--color-text-light);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+@media (hover: hover) {
+  .btn-secondary:hover {
+    background-color: var(--color-text-light);
+    border-color: var(--color-text-light);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
 }
 
 .btn-secondary:disabled {
