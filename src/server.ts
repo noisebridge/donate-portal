@@ -9,6 +9,7 @@ import fastifyWebsocket from "@fastify/websocket";
 import html from "@kitajs/fastify-html-plugin";
 import Fastify from "fastify";
 import config from "~/config";
+import { contentSecurityPolicy } from "~/csp";
 import { baseLogger } from "~/logger";
 import routes from "~/routes";
 import errorReportingService from "~/services/error-reporting";
@@ -36,8 +37,7 @@ fastify.register(fastifyCookie, {
 });
 
 fastify.register(fastifyHelmet, {
-  // Disabled because of strange iOS Safari bugs when redirecting to Stripe
-  contentSecurityPolicy: false,
+  contentSecurityPolicy,
 });
 
 fastify.register(fastifyFormbody, { bodyLimit: 1024 });
