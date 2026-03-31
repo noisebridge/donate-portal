@@ -1,5 +1,7 @@
 // @ts-check
 
+import { ledClear, ledSnoop } from "./led_effects.mjs";
+
 const CANNABIS_SRC = "/assets/image/cannabis.svg";
 const SCROLL_TEXT = "SMOKE WEED EVERY DAY";
 
@@ -417,6 +419,7 @@ export function showSnoop() {
   phaseStart = now;
 
   ensureAnimating();
+  ledSnoop();
 }
 
 /**
@@ -428,6 +431,7 @@ export function stopSnoop() {
   // Stop snoop immediately
   snoopPhase = "idle";
   hideSnoop();
+  ledClear();
 
   // Rotate leaves out
   if (leavesVisible && !leavesRotatingOut) {

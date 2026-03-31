@@ -1,6 +1,7 @@
 // @ts-check
 
 import { launchConfetti } from "./confetti.mjs";
+import { ledClear, ledMerica } from "./led_effects.mjs";
 
 /** @typedef {import("~/money").Cents} Cents */
 
@@ -413,6 +414,7 @@ export function showMerica(amount) {
 
   launchConfetti(amount);
   ensureAnimating();
+  ledMerica();
 }
 
 /**
@@ -433,6 +435,7 @@ export function stopMerica() {
   phase = "idle";
   hideArnold();
   hideEagle();
+  ledClear();
 
   if (flagVisible && !flagRetracting) {
     flagRetracting = true;

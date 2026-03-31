@@ -1,5 +1,7 @@
 // @ts-check
 
+import { ledClear, ledConfetti } from "./led_effects.mjs";
+
 /** @typedef {import("~/money").Cents} Cents */
 
 /**
@@ -358,6 +360,8 @@ export function launchConfetti(amount) {
     );
   }
 
+  ledConfetti(rocketCount);
+
   if (!animating) {
     animating = true;
     requestAnimationFrame(animate);
@@ -376,6 +380,7 @@ export function stopConfetti() {
   particles = [];
   rockets = [];
   animating = false;
+  ledClear();
   if (ctx && canvas) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
   }

@@ -1,5 +1,7 @@
 // @ts-check
 
+import { ledClear, ledMatrix } from "./led_effects.mjs";
+
 const CHAR_SET =
   "\u{FF66}\u{FF67}\u{FF68}\u{FF69}\u{FF6A}\u{FF6B}\u{FF6C}\u{FF6D}\u{FF6E}\u{FF6F}" +
   "\u{FF70}\u{FF71}\u{FF72}\u{FF73}\u{FF74}\u{FF75}\u{FF76}\u{FF77}\u{FF78}\u{FF79}" +
@@ -86,6 +88,8 @@ export function showMatrix() {
     animating = true;
     requestAnimationFrame(animate);
   }
+
+  ledMatrix();
 }
 
 /**
@@ -94,6 +98,7 @@ export function showMatrix() {
 export function stopMatrix() {
   drops = [];
   animating = false;
+  ledClear();
   if (ctx && canvas) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
   }
