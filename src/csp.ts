@@ -7,11 +7,9 @@
  */
 
 import type { FastifyHelmetOptions } from "@fastify/helmet";
-import config from "~/config";
 
 type Directive =
   | "default-src"
-  | "upgrade-insecure-requests"
   | "script-src"
   | "style-src"
   | "img-src"
@@ -61,10 +59,11 @@ const stripePolicy: PolicyEntry = {
   "form-action": ["https://billing.stripe.com"],
 };
 
-const policies = [basePolicy, stripePolicy];
-if (config.production) {
-  policies.push({ "upgrade-insecure-requests": [] });
-}
+const ledPolicy: PolicyEntry = {
+  "connect-src": ["http://localhost:3000"],
+};
+
+const policies = [basePolicy, stripePolicy, ledPolicy];
 
 export const contentSecurityPolicy: NonNullable<
   FastifyHelmetOptions["contentSecurityPolicy"]
