@@ -126,8 +126,8 @@ function confettiLedFn(index, num_leds, timestamp, data) {
     if (t < rocket.launch) continue;
     const rt = t - rocket.launch;
 
-    if (rt < rocket.travel) {
-      const progress = rt / rocket.travel;
+    if (rt < rocket.travel * 3) {
+      const progress = rt / (rocket.travel * 3);
       const ledPos = Math.floor(progress * rocket.wraps * num_leds) % num_leds;
       if (index === ledPos) {
         return { r: 255, g: 255, b: 255 };
