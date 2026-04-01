@@ -1,5 +1,7 @@
 // @ts-check
 
+import { sendErrorReport } from "./error-reporting.mjs";
+
 /** @typedef {{ r: number, g: number, b: number }} RGB */
 
 /**
@@ -51,6 +53,10 @@ async function sendLedEffect(fn, data, timeout) {
       body: JSON.stringify(body),
     });
   } catch (e) {
+    if (e instanceof Error) {
+      sendErrorReport(e);
+    }
+
     console.warn("LED effect update failed:", e);
   }
 }
@@ -291,6 +297,10 @@ export async function ledClear() {
       method: "POST",
     });
   } catch (e) {
+    if (e instanceof Error) {
+      sendErrorReport(e);
+    }
+
     console.warn("LED reset failed:", e);
   }
 }
