@@ -275,7 +275,7 @@ export function ledConfetti(rocketCount) {
 export function ledMatrix() {
   /** @type {TimestampedLedData} */
   const data = {};
-  sendLedEffect(matrixLedFn, data, 15000);
+  sendLedEffect(matrixLedFn, data);
 }
 
 /** Send merica LED effect. */
