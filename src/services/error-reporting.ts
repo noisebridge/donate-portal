@@ -84,6 +84,8 @@ class ErrorReportingService {
       contexts["request"] = {
         method: request.method,
         url: request.url,
+        contentType: request.headers["content-type"] ?? "unknown",
+        contentLength: request.headers["content-length"] ?? "unknown",
       };
     }
 
