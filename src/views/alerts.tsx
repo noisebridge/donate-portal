@@ -1,5 +1,5 @@
 import { escapeHtml } from "@kitajs/html";
-import type { ChargeAlert } from "~/managers/charge-alert";
+import type { ChargeAlertMessage } from "~/managers/charge-alert";
 import { formatAmount } from "~/money";
 import paths from "~/paths";
 
@@ -22,7 +22,7 @@ function isNice(amount: { cents: number }): boolean {
   return amount.cents % 100 === 69;
 }
 
-function HistoryItem({ charge }: { charge: ChargeAlert }) {
+function HistoryItem({ charge }: { charge: ChargeAlertMessage }) {
   const [dollars, cents] = formatAmount(charge.amount).split(".");
 
   return (
@@ -46,7 +46,7 @@ function HistoryItem({ charge }: { charge: ChargeAlert }) {
   );
 }
 
-export function AlertsPage({ charges }: { charges: ChargeAlert[] }) {
+export function AlertsPage({ charges }: { charges: ChargeAlertMessage[] }) {
   const [latest, ...history] = charges;
 
   return (

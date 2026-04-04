@@ -19,7 +19,8 @@ import {
   stopSnoop,
 } from "./util/snoop.mjs";
 
-/** @typedef {import("~/managers/charge-alert").ChargeAlert} ChargeAlert */
+/** @typedef {import("~/managers/charge-alert").ChargeAlertMessage} ChargeAlertMessage */
+/** @typedef {import("~/managers/charge-alert").WebsocketMessage} WebsocketMessage */
 /** @typedef {import("~/money").Cents} Cents */
 
 const effectCanvas = /** @type {HTMLCanvasElement} */ (
@@ -49,6 +50,7 @@ const wsPath = /** @type {HTMLInputElement} */ (
 
 const MAX_RECONNECT_DELAY = 30000;
 const DEFAULT_RECONNECT_DELAY = 1000;
+const PING_TIMEOUT_MS = 70000;
 const MAX_HISTORY = 20;
 const HACKER_AMOUNTS = [1337, 13370, 133700, 133769];
 const SNOOP_AMOUNTS = [420, 42000, 42069];
@@ -60,12 +62,12 @@ const ALERT_INTERVAL_MS = 15000;
 /** @type {number | null} */
 let queueDrainInterval = null;
 
-/** @type {ChargeAlert[]} */
+/** @type {ChargeAlertMessage[]} */
 const alertQueue = [];
 
 /**
  * Enqueue an alert and start draining if not already in progress.
- * @param {ChargeAlert} alert
+ * @param {ChargeAlertMessage} alert
  */
 function enqueueAlert(alert) {
   alertQueue.push(alert);
@@ -88,7 +90,7 @@ function enqueueAlert(alert) {
       return;
     }
 
-    displayAlert(/** @type {ChargeAlert} */ (alertQueue[0]));
+    displayAlert(/** @type {ChargeAlertMessage} */ (alertQueue[0]));
   }, ALERT_INTERVAL_MS);
 }
 
@@ -213,7 +215,7 @@ function updateTopAmount() {
 
 /**
  * Push the current alert into the history list.
- * @param {ChargeAlert} alert
+ * @param {ChargeAlertMessage} alert
  */
 function addToHistory(alert) {
   const item = document.createElement("div");
@@ -234,7 +236,7 @@ function addToHistory(alert) {
 }
 
 /**
- * @param {ChargeAlert} alert
+ * @param {ChargeAlertMessage} alert
  */
 function setBodyClass(alert) {
   document.body.classList.toggle(
@@ -243,12 +245,12 @@ function setBodyClass(alert) {
   );
 }
 
-/** @type {ChargeAlert | null} */
+/** @type {ChargeAlertMessage | null} */
 let currentCharge = null;
 
 /**
  * Update the DOM with a new charge alert.
- * @param {ChargeAlert} alert
+ * @param {ChargeAlertMessage} alert
  */
 function displayAlert(alert) {
   if (seenAlert(alert.id)) {
@@ -308,14 +310,40 @@ function connect() {
   const url = `${protocol}//${location.host}${wsPath}`;
 
   const ws = new WebSocket(url);
+  /** @type {number | null} */
+  let pingTimeout = null;
+
+  function resetPingTimeout() {
+    if (pingTimeout) {
+      clearTimeout(pingTimeout);
+    }
+    pingTimeout = window.setTimeout(() => {
+      ws.close();
+    }, PING_TIMEOUT_MS);
+  }
+
   ws.addEventListener("open", () => {
     reconnectDelay = DEFAULT_RECONNECT_DELAY;
+    resetPingTimeout();
   });
   ws.addEventListener("message", (event) => {
-    const alert = /** @type {ChargeAlert} */ (JSON.parse(event.data));
-    enqueueAlert(alert);
+    const message = /** @type {WebsocketMessage} */ (JSON.parse(event.data));
+    if (message.type === "ping") {
+      resetPingTimeout();
+      ws.send(JSON.stringify({ type: "pong" }));
+      return;
+    }
+
+    enqueueAlert(message);
+  });
+  ws.addEventListener("error", (event) => {
+    console.error("WebSocket error:", event);
   });
   ws.addEventListener("close", () => {
+    if (pingTimeout) {
+      clearTimeout(pingTimeout);
+    }
+
     setTimeout(() => {
       reconnectDelay = Math.min(reconnectDelay * 2, MAX_RECONNECT_DELAY);
       connect();
@@ -349,7 +377,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const currentChargeJson =
     document.getElementById("current-charge")?.textContent;
   currentCharge = currentChargeJson
-    ? /** @type {ChargeAlert} */ (JSON.parse(currentChargeJson))
+    ? /** @type {ChargeAlertMessage} */ (JSON.parse(currentChargeJson))
     : null;
 
   if (currentCharge) {

@@ -1,11 +1,12 @@
 import { describe, expect, test } from "bun:test";
-import type { ChargeAlert } from "~/managers/charge-alert";
+import type { ChargeAlertMessage } from "~/managers/charge-alert";
 import { AlertsPage } from "./alerts";
 
 const makeCharge = (
   cents: number,
   productName = "General Donation",
-): ChargeAlert => ({
+): ChargeAlertMessage => ({
+  type: "charge_alert",
   id: "ch_test",
   date: "2026-01-15T12:00:00Z",
   amount: { cents },

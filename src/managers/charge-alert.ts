@@ -5,12 +5,23 @@ import { baseLogger } from "~/logger";
 import type { Cents } from "~/money";
 import stripe from "~/services/stripe";
 
-export interface ChargeAlert {
+export interface ChargeAlertMessage {
+  type: "charge_alert";
   id: string;
   date: string;
   amount: Cents;
   productName: string;
 }
+
+export interface PingMessage {
+  type: "ping";
+}
+
+export interface PongMessage {
+  type: "pong";
+}
+
+export type WebsocketMessage = ChargeAlertMessage | PingMessage;
 
 const MAX_RECENT_CHARGES = 20;
 export const GENERAL_DONATION = "General Donation";
@@ -28,11 +39,20 @@ export class ChargeAlertManager {
   private pingInterval: NodeJS.Timeout | null = null;
 
   addConnection(socket: WebSocket) {
-    const state = { alive: true };
-    this.connections.set(socket, state);
+    this.connections.set(socket, { alive: true });
 
-    socket.on("pong", () => {
-      state.alive = true;
+    socket.on("message", (data) => {
+      try {
+        const message = JSON.parse(String(data)) as { type: string };
+        if (message.type === "pong") {
+          const state = this.connections.get(socket);
+          if (state) {
+            state.alive = true;
+          }
+        }
+      } catch (err) {
+        ChargeAlertManager.log.error({ err }, "Failed to parse client message");
+      }
     });
 
     socket.on("close", () => {
@@ -44,17 +64,29 @@ export class ChargeAlertManager {
     }
   }
 
+  private sendPing(socket: WebSocket) {
+    try {
+      const message: PingMessage = { type: "ping" };
+      socket.send(JSON.stringify(message));
+    } catch (err) {
+      ChargeAlertManager.log.error({ err }, "Failed to send ping");
+      this.connections.delete(socket);
+      socket.terminate();
+    }
+  }
+
   private startPinging() {
     this.pingInterval = setInterval(() => {
       for (const [socket, state] of this.connections) {
         if (!state.alive) {
-          socket.terminate();
+          ChargeAlertManager.log.warn("Terminating unresponsive connection");
           this.connections.delete(socket);
+          socket.terminate();
           continue;
         }
 
         state.alive = false;
-        socket.ping();
+        this.sendPing(socket);
       }
 
       if (this.connections.size === 0 && this.pingInterval) {
@@ -78,7 +110,7 @@ export class ChargeAlertManager {
   /**
    * Fetch the most recent completed one-time payments from Stripe.
    */
-  async fetchRecentCharges(): Promise<ChargeAlert[]> {
+  async fetchRecentCharges(): Promise<ChargeAlertMessage[]> {
     const paymentIntents = await stripe.paymentIntents.list({
       limit: 3 * MAX_RECENT_CHARGES,
     });
@@ -97,8 +129,11 @@ export class ChargeAlertManager {
     return paymentIntent.customer === null;
   }
 
-  private formatChargeAlert(paymentIntent: Stripe.PaymentIntent): ChargeAlert {
+  private formatChargeAlert(
+    paymentIntent: Stripe.PaymentIntent,
+  ): ChargeAlertMessage {
     return {
+      type: "charge_alert",
       id: this.createAlertId(paymentIntent),
       date: new Date(paymentIntent.created * 1000).toISOString(),
       amount: { cents: paymentIntent.amount ?? 0 },
@@ -106,10 +141,16 @@ export class ChargeAlertManager {
     };
   }
 
-  private broadcast(alert: ChargeAlert) {
+  private broadcast(alert: ChargeAlertMessage) {
     const message = JSON.stringify(alert);
     for (const socket of this.connections.keys()) {
-      socket.send(message);
+      try {
+        socket.send(message);
+      } catch (err) {
+        ChargeAlertManager.log.error({ err }, "Failed to broadcast alert");
+        this.connections.delete(socket);
+        socket.terminate();
+      }
     }
   }
 
