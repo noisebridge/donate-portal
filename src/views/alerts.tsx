@@ -60,7 +60,6 @@ export function AlertsPage({ charges }: { charges: ChargeAlertMessage[] }) {
             content="width=device-width, initial-scale=1.0"
           />
           <title>Donation Alerts | Noisebridge</title>
-          <meta http-equiv="refresh" content="86400" />
           <link rel="icon" href="/assets/image/favicon.svg" />
           <link rel="stylesheet" href="/assets/css/reset.css" />
           <link rel="stylesheet" href="/assets/css/alerts.css" />
