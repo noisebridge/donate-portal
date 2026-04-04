@@ -243,19 +243,18 @@ export function ledConfetti(rocketCount) {
     const travel = 1500 + Math.random() * 2000;
     const wraps = (0.55 + Math.random() * 0.35) * 4;
 
+    /** @type {BurstPixel[]} */
     const burst = [];
     for (let j = 0; j < 6; j++) {
       const hue = (j / 6) * 360;
       const rgb = hsvToRgb(hue, 1, 1);
-      burst.push(
-        /** @type {BurstPixel} */ ({
-          dir: j < 3 ? -1 : 1,
-          speed: 5 + Math.random() * 10,
-          r: rgb.r,
-          g: rgb.g,
-          b: rgb.b,
-        }),
-      );
+      burst.push({
+        dir: j < 3 ? -1 : 1,
+        speed: 5 + Math.random() * 10,
+        r: rgb.r,
+        g: rgb.g,
+        b: rgb.b,
+      });
     }
 
     rockets.push({
