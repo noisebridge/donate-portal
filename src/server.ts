@@ -1,6 +1,7 @@
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import fastifyCookie from "@fastify/cookie";
+import createError from "@fastify/error";
 import fastifyFormbody from "@fastify/formbody";
 import fastifyHelmet from "@fastify/helmet";
 import fastifyRateLimit from "@fastify/rate-limit";
@@ -43,7 +44,13 @@ fastify.register(fastifyHelmet, {
 fastify.register(fastifyFormbody, { bodyLimit: 1024 });
 
 if (!config.disableRateLimit) {
-  fastify.register(fastifyRateLimit, { max: 256, timeWindow: "1 minute" });
+  fastify.register(fastifyRateLimit, {
+    max: 256,
+    timeWindow: "1 minute",
+    errorResponseBuilder: (_req, _context) => {
+      return createError("TOO_MANY_REQUESTS", "Rate limit exceeded", 429);
+    },
+  });
 }
 
 fastify.register(fastifyStatic, {
