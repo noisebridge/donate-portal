@@ -5,6 +5,7 @@ import {
   launchConfetti,
   stopConfetti,
 } from "./util/confetti.mjs";
+import { ledMatrix, ledMerica, ledSnoop } from "./util/led_effects.mjs";
 import { initMatrix, showMatrix, stopMatrix } from "./util/matrix.mjs";
 import {
   initMerica,
@@ -384,8 +385,12 @@ document.addEventListener("DOMContentLoaded", () => {
     setBodyClass(currentCharge);
     if (SNOOP_AMOUNTS.includes(currentCharge.amount.cents)) {
       showSnoopLeaves();
+      ledSnoop();
     } else if (MERICA_AMOUNTS.includes(currentCharge.amount.cents)) {
       showMericaFlag();
+      ledMerica();
+    } else if (HACKER_AMOUNTS.includes(currentCharge.amount.cents)) {
+      ledMatrix();
     }
   }
 
