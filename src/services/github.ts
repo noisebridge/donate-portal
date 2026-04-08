@@ -36,7 +36,7 @@ export class GitHubOAuth {
   /**
    * Build the GitHub OAuth authorization URL
    * @param state - CSRF protection state parameter
-   * @param scopes - Array of OAuth scopes to request (defaults to user:email)
+   * @param scopes - Array of OAuth scopes to request
    */
   getAuthorizationUrl(state: string, scopes: string[]) {
     const params = new URLSearchParams({
