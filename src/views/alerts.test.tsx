@@ -16,7 +16,7 @@ const makeCharge = (
 describe("AlertsPage", () => {
   test("should render with charges", async () => {
     const charges = [makeCharge(5000, "Laser Cutter"), makeCharge(2000)];
-    const result = await (<AlertsPage charges={charges} />);
+    const result = await (<AlertsPage alerts={charges} />);
 
     expect(result).toBeTypeOf("string");
     expect(result).toContain("Laser Cutter");
@@ -25,7 +25,7 @@ describe("AlertsPage", () => {
 
   test("should show NICE badge for amounts ending in 69 cents", async () => {
     const charges = [makeCharge(4269)];
-    const result = await (<AlertsPage charges={charges} />);
+    const result = await (<AlertsPage alerts={charges} />);
 
     expect(result).toContain("nice-badge");
   });

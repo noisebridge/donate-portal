@@ -1,5 +1,9 @@
 import { escapeHtml } from "@kitajs/html";
-import type { ChargeAlertMessage } from "~/managers/charge-alert";
+import type {
+  AlertMessage,
+  ChargeAlertMessage,
+  MemberAlertMessage,
+} from "~/managers/charge-alert";
 import { formatAmount } from "~/money";
 import paths from "~/paths";
 
@@ -19,35 +23,72 @@ function NiceBadge() {
 }
 
 function isNice(amount: { cents: number }): boolean {
-  return amount.cents % 100 === 69;
+  return String(amount.cents).includes("69");
 }
 
-function HistoryItem({ charge }: { charge: ChargeAlertMessage }) {
-  const [dollars, cents] = formatAmount(charge.amount).split(".");
+interface ChargeHistoryItemProps {
+  alert: ChargeAlertMessage;
+}
+
+function ChargeHistoryItem({ alert }: ChargeHistoryItemProps) {
+  const [dollars, cents] = formatAmount(alert.amount).split(".");
 
   return (
     <div
       class="history-item"
-      data-alert-id={charge.id}
-      data-amount={String(charge.amount.cents)}
+      data-alert-id={alert.id}
+      data-amount={String(alert.amount.cents)}
     >
       <span class="history-product">
-        {escapeHtml(charge.productName) as "safe"}
+        {escapeHtml(alert.productName) as "safe"}
       </span>
       <span class="history-amount">
         <span class="history-amount-dollars">{dollars as "safe"}.</span>
         <span class="history-amount-cents">
           {cents as "safe"}
-          {isNice(charge.amount) && <NiceBadge />}
+          {isNice(alert.amount) && <NiceBadge />}
         </span>
       </span>
-      <span class="history-date">{formatDate(charge.date) as "safe"}</span>
+      <span class="history-date">{formatDate(alert.date) as "safe"}</span>
     </div>
   );
 }
 
-export function AlertsPage({ charges }: { charges: ChargeAlertMessage[] }) {
-  const [latest, ...history] = charges;
+interface MemberHistoryItemProps {
+  alert: MemberAlertMessage;
+}
+
+function MemberHistoryItem({ alert }: MemberHistoryItemProps) {
+  return (
+    <div class="history-item" data-alert-id={alert.id} data-amount="0">
+      <span class="history-product">
+        {escapeHtml(alert.productName) as "safe"}
+      </span>
+      <span class="history-amount">Membership</span>
+      <span class="history-date">{formatDate(alert.date) as "safe"}</span>
+    </div>
+  );
+}
+
+interface HistoryItemProps {
+  alert: AlertMessage;
+}
+
+function HistoryItem({ alert }: HistoryItemProps) {
+  switch (alert.type) {
+    case "charge_alert":
+      return <ChargeHistoryItem alert={alert} />;
+    case "member_alert":
+      return <MemberHistoryItem alert={alert} />;
+  }
+}
+
+interface AlertsPageProps {
+  alerts: AlertMessage[];
+}
+
+export function AlertsPage({ alerts }: AlertsPageProps) {
+  const [latest, ...history] = alerts;
 
   return (
     <>
@@ -74,8 +115,16 @@ export function AlertsPage({ charges }: { charges: ChargeAlertMessage[] }) {
             <div class="alerts-container">
               <p class="alert-label">Latest Donation</p>
               <p id="alert-amount" class="alert-amount">
-                {latest ? formatAmount(latest.amount) : ""}
-                {(latest && isNice(latest.amount) && <NiceBadge />) as "safe"}
+                {latest
+                  ? latest.type === "member_alert"
+                    ? "Membership"
+                    : formatAmount(latest.amount)
+                  : ""}
+                {
+                  (latest &&
+                    latest.type === "charge_alert" &&
+                    isNice(latest.amount) && <NiceBadge />) as "safe"
+                }
               </p>
               <p id="alert-product" class="alert-product">
                 {latest
@@ -88,8 +137,8 @@ export function AlertsPage({ charges }: { charges: ChargeAlertMessage[] }) {
             </div>
             <div class="history-wrapper">
               <div id="history-list" class="history-list">
-                {history.map((charge) => (
-                  <HistoryItem charge={charge} />
+                {history.map((alert) => (
+                  <HistoryItem alert={alert} />
                 ))}
               </div>
             </div>

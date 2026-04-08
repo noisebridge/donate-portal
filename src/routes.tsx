@@ -807,8 +807,8 @@ export default async function routes(fastify: FastifyInstance) {
         .send("Unauthorized");
     }
 
-    const charges = await chargeAlertManager.fetchRecentCharges();
-    return reply.html(<AlertsPage charges={charges} />);
+    const alerts = await chargeAlertManager.fetchRecentAlerts();
+    return reply.html(<AlertsPage alerts={alerts} />);
   });
 
   fastify.get(
@@ -866,7 +866,10 @@ export default async function routes(fastify: FastifyInstance) {
       try {
         switch (event.type) {
           case "payment_intent.succeeded":
-            await chargeAlertManager.processWebhook(event);
+            chargeAlertManager.handlePaymentSuccess(event);
+            break;
+          case "customer.subscription.created":
+            chargeAlertManager.handleNewSubscription(event);
             break;
           case "invoice.paid":
             await subscriptionManager.handleInvoicePaid(event);

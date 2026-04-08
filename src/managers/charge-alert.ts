@@ -4,12 +4,20 @@ import type Stripe from "stripe";
 import { baseLogger } from "~/logger";
 import type { Cents } from "~/money";
 import stripe from "~/services/stripe";
+import { SubscriptionManager } from "./subscription";
 
 export interface ChargeAlertMessage {
   type: "charge_alert";
   id: string;
   date: string;
   amount: Cents;
+  productName: string;
+}
+
+export interface MemberAlertMessage {
+  type: "member_alert";
+  id: string;
+  date: string;
   productName: string;
 }
 
@@ -21,9 +29,10 @@ export interface PongMessage {
   type: "pong";
 }
 
-export type WebsocketMessage = ChargeAlertMessage | PingMessage;
+export type AlertMessage = ChargeAlertMessage | MemberAlertMessage;
+export type WebsocketMessage = AlertMessage | PingMessage;
 
-const MAX_RECENT_CHARGES = 20;
+const MAX_RECENT_ALERTS = 20;
 export const GENERAL_DONATION = "General Donation";
 export const NAME_REMAP: Record<string, string> = {
   "Donation to Noisebridge": GENERAL_DONATION,
@@ -98,28 +107,49 @@ export class ChargeAlertManager {
     this.pingInterval.unref();
   }
 
-  async processWebhook(event: Stripe.PaymentIntentSucceededEvent) {
+  handlePaymentSuccess(event: Stripe.PaymentIntentSucceededEvent) {
     const paymentIntent = event.data.object;
     if (!this.isDonation(paymentIntent)) {
       return;
     }
 
-    this.broadcast(this.formatChargeAlert(paymentIntent));
+    this.broadcastAlert(this.formatChargeAlert(paymentIntent));
+  }
+
+  handleNewSubscription(event: Stripe.CustomerSubscriptionCreatedEvent) {
+    const subscription = event.data.object;
+    if (!this.isMembership(subscription)) {
+      return;
+    }
+
+    this.broadcastAlert(this.formatMemberAlert(event.data.object));
   }
 
   /**
-   * Fetch the most recent completed one-time payments from Stripe.
+   * Fetch recent one-time payments and new subscriptions from Stripe,
+   * interleaved by date descending.
    */
-  async fetchRecentCharges(): Promise<ChargeAlertMessage[]> {
-    const paymentIntents = await stripe.paymentIntents.list({
-      limit: 3 * MAX_RECENT_CHARGES,
-    });
+  async fetchRecentAlerts(): Promise<AlertMessage[]> {
+    const [paymentIntents, subscriptions] = await Promise.all([
+      stripe.paymentIntents.list({ limit: 3 * MAX_RECENT_ALERTS }),
+      stripe.subscriptions.list({
+        limit: MAX_RECENT_ALERTS,
+        status: "active",
+      }),
+    ]);
 
-    return paymentIntents.data
+    const charges: AlertMessage[] = paymentIntents.data
       .filter((paymentIntent) => paymentIntent.status === "succeeded")
       .filter((paymentIntent) => this.isDonation(paymentIntent))
-      .slice(0, MAX_RECENT_CHARGES)
       .map((paymentIntent) => this.formatChargeAlert(paymentIntent));
+
+    const memberships: AlertMessage[] = subscriptions.data
+      .filter((subscription) => this.isMembership(subscription))
+      .map((subscription) => this.formatMemberAlert(subscription));
+
+    return [...charges, ...memberships]
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+      .slice(0, MAX_RECENT_ALERTS);
   }
 
   /**
@@ -129,19 +159,46 @@ export class ChargeAlertManager {
     return paymentIntent.customer === null;
   }
 
+  /**
+   * Whether a subscription is for a membership.
+   */
+  private isMembership(subscription: Stripe.Subscription) {
+    const product = subscription.items.data[0]?.plan?.product;
+    if (!product) {
+      return false;
+    }
+
+    if (typeof product === "string") {
+      return product === SubscriptionManager.productId;
+    } else {
+      return product.id === SubscriptionManager.productId;
+    }
+  }
+
+  private formatMemberAlert(
+    subscription: Stripe.Subscription,
+  ): MemberAlertMessage {
+    return {
+      type: "member_alert",
+      id: this.createObjectId(subscription),
+      date: new Date(subscription.created * 1000).toISOString(),
+      productName: "New Member",
+    };
+  }
+
   private formatChargeAlert(
     paymentIntent: Stripe.PaymentIntent,
   ): ChargeAlertMessage {
     return {
       type: "charge_alert",
-      id: this.createAlertId(paymentIntent),
+      id: this.createObjectId(paymentIntent),
       date: new Date(paymentIntent.created * 1000).toISOString(),
       amount: { cents: paymentIntent.amount ?? 0 },
       productName: this.getProductName(paymentIntent),
     };
   }
 
-  private broadcast(alert: ChargeAlertMessage) {
+  private broadcastAlert(alert: AlertMessage) {
     const message = JSON.stringify(alert);
     for (const socket of this.connections.keys()) {
       try {
@@ -154,10 +211,12 @@ export class ChargeAlertManager {
     }
   }
 
-  private createAlertId(paymentIntent: Stripe.PaymentIntent): string {
+  private createObjectId(
+    object: Stripe.PaymentIntent | Stripe.Subscription,
+  ): string {
     return crypto
       .createHash("sha256")
-      .update(paymentIntent.id)
+      .update(object.id)
       .digest("hex")
       .slice(0, 12);
   }

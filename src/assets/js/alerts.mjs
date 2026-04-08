@@ -21,6 +21,8 @@ import {
 } from "./util/snoop.mjs";
 
 /** @typedef {import("~/managers/charge-alert").ChargeAlertMessage} ChargeAlertMessage */
+/** @typedef {import("~/managers/charge-alert").MemberAlertMessage} MemberAlertMessage */
+/** @typedef {import("~/managers/charge-alert").AlertMessage} AlertMessage */
 /** @typedef {import("~/managers/charge-alert").WebsocketMessage} WebsocketMessage */
 /** @typedef {import("~/money").Cents} Cents */
 
@@ -63,12 +65,12 @@ const ALERT_INTERVAL_MS = 15000;
 /** @type {number | null} */
 let queueDrainInterval = null;
 
-/** @type {ChargeAlertMessage[]} */
+/** @type {AlertMessage[]} */
 const alertQueue = [];
 
 /**
  * Enqueue an alert and start draining if not already in progress.
- * @param {ChargeAlertMessage} alert
+ * @param {AlertMessage} alert
  */
 function enqueueAlert(alert) {
   alertQueue.push(alert);
@@ -91,7 +93,7 @@ function enqueueAlert(alert) {
       return;
     }
 
-    displayAlert(/** @type {ChargeAlertMessage} */ (alertQueue[0]));
+    displayAlert(/** @type {AlertMessage} */ (alertQueue[0]));
   }, ALERT_INTERVAL_MS);
 }
 
@@ -193,7 +195,8 @@ function seenAlert(id) {
  * considering both the current charge and all history items.
  */
 function updateTopAmount() {
-  const currentCents = currentCharge?.amount.cents ?? 0;
+  const currentCents =
+    currentCharge?.type === "charge_alert" ? currentCharge.amount.cents : 0;
   const latestAmount = document.getElementById("alert-amount");
   let topItem = /** @type {Element | null} */ (currentCharge && latestAmount);
   let topCents = currentCents;
@@ -216,18 +219,28 @@ function updateTopAmount() {
 
 /**
  * Push the current alert into the history list.
- * @param {ChargeAlertMessage} alert
+ * @param {AlertMessage} alert
  */
 function addToHistory(alert) {
   const item = document.createElement("div");
   item.className = "history-item";
   item.dataset["alertId"] = alert.id;
-  item.dataset["amount"] = String(alert.amount.cents);
-  item.append(
-    span("history-product", alert.productName),
-    buildAmountAligned(alert.amount),
-    span("history-date", formatDate(alert.date)),
-  );
+
+  if (alert.type === "member_alert") {
+    item.dataset["amount"] = "0";
+    item.append(
+      span("history-product", alert.productName),
+      span("history-amount", "Membership"),
+      span("history-date", formatDate(alert.date)),
+    );
+  } else {
+    item.dataset["amount"] = String(alert.amount.cents);
+    item.append(
+      span("history-product", alert.productName),
+      buildAmountAligned(alert.amount),
+      span("history-date", formatDate(alert.date)),
+    );
+  }
 
   historyList.prepend(item);
 
@@ -237,21 +250,22 @@ function addToHistory(alert) {
 }
 
 /**
- * @param {ChargeAlertMessage} alert
+ * @param {AlertMessage} alert
  */
 function setBodyClass(alert) {
   document.body.classList.toggle(
     "hacker",
-    HACKER_AMOUNTS.includes(alert.amount.cents),
+    alert.type === "charge_alert" &&
+      HACKER_AMOUNTS.includes(alert.amount.cents),
   );
 }
 
-/** @type {ChargeAlertMessage | null} */
+/** @type {AlertMessage | null} */
 let currentCharge = null;
 
 /**
- * Update the DOM with a new charge alert.
- * @param {ChargeAlertMessage} alert
+ * Update the DOM with a new alert.
+ * @param {AlertMessage} alert
  */
 function displayAlert(alert) {
   if (seenAlert(alert.id)) {
@@ -266,9 +280,13 @@ function displayAlert(alert) {
   currentCharge = alert;
   updateTopAmount();
 
-  amountEl.textContent = formatAmount(alert.amount);
-  if (isNice(alert.amount)) {
-    amountEl.append(niceBadge());
+  if (alert.type === "member_alert") {
+    amountEl.textContent = "Membership";
+  } else {
+    amountEl.textContent = formatAmount(alert.amount);
+    if (isNice(alert.amount)) {
+      amountEl.append(niceBadge());
+    }
   }
   productEl.textContent = alert.productName;
   dateEl.textContent = formatDate(alert.date);
@@ -283,7 +301,12 @@ function displayAlert(alert) {
     el.classList.add("alert-animate");
   }
 
-  if (MERICA_AMOUNTS.includes(alert.amount.cents)) {
+  if (alert.type === "member_alert") {
+    stopMatrix();
+    stopSnoop();
+    stopMerica();
+    launchConfetti({ cents: 10000 });
+  } else if (MERICA_AMOUNTS.includes(alert.amount.cents)) {
     stopConfetti();
     stopMatrix();
     stopSnoop();
@@ -378,18 +401,27 @@ document.addEventListener("DOMContentLoaded", () => {
   const currentChargeJson =
     document.getElementById("current-charge")?.textContent;
   currentCharge = currentChargeJson
-    ? /** @type {ChargeAlertMessage} */ (JSON.parse(currentChargeJson))
+    ? /** @type {AlertMessage} */ (JSON.parse(currentChargeJson))
     : null;
 
   if (currentCharge) {
     setBodyClass(currentCharge);
-    if (SNOOP_AMOUNTS.includes(currentCharge.amount.cents)) {
+    if (
+      currentCharge.type === "charge_alert" &&
+      SNOOP_AMOUNTS.includes(currentCharge.amount.cents)
+    ) {
       showSnoopLeaves();
       ledSnoop();
-    } else if (MERICA_AMOUNTS.includes(currentCharge.amount.cents)) {
+    } else if (
+      currentCharge.type === "charge_alert" &&
+      MERICA_AMOUNTS.includes(currentCharge.amount.cents)
+    ) {
       showMericaFlag();
       ledMerica();
-    } else if (HACKER_AMOUNTS.includes(currentCharge.amount.cents)) {
+    } else if (
+      currentCharge.type === "charge_alert" &&
+      HACKER_AMOUNTS.includes(currentCharge.amount.cents)
+    ) {
       ledMatrix();
     }
   }
