@@ -3,7 +3,7 @@
 import { launchConfetti } from "./confetti.mjs";
 import { ledClear, ledMerica } from "./led_effects.mjs";
 
-/** @typedef {import("~/money").Cents} Cents */
+/** @typedef {import("~/types/cents").Cents} Cents */
 
 const FLAG_SRC = "/assets/image/flag-us.svg";
 

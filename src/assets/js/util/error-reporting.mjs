@@ -1,9 +1,9 @@
 // @ts-check
 
 /**
- * @typedef {import("~/services/error-reporting").SentryException} SentryException
- * @typedef {import("~/services/error-reporting").SentryFrame} SentryFrame
- * @typedef {import("~/services/error-reporting").SentryEvent} SentryEvent
+ * @typedef {import("~/types/error-reporting").SentryException} SentryException
+ * @typedef {import("~/types/error-reporting").SentryFrame} SentryFrame
+ * @typedef {import("~/types/error-reporting").SentryEvent} SentryEvent
  */
 
 const CHROME_RE =

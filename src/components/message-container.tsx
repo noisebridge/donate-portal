@@ -1,13 +1,7 @@
 import { escapeHtml } from "@kitajs/html";
+import type { Message } from "~/types/message";
 
-export interface Message {
-  type: "error" | "info";
-  /**
-   * Defaults to `true`
-   */
-  dismissable?: boolean;
-  text: string;
-}
+export type { Message } from "~/types/message";
 
 export interface MessageContainerProps {
   messages: Message[];

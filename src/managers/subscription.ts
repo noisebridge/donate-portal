@@ -1,11 +1,11 @@
 import type Stripe from "stripe";
 import config from "~/config";
 import { baseLogger } from "~/logger";
-import type { Cents } from "~/money";
 import paths from "~/paths";
 import { InfoCode } from "~/routes";
 import emailService from "~/services/email";
 import stripe from "~/services/stripe";
+import type { Cents } from "~/types/cents";
 
 export enum SubscriptionErrorCode {
   InvalidAmount = "Please select a valid donation amount",

@@ -2,35 +2,23 @@ import crypto from "node:crypto";
 import type { WebSocket } from "@fastify/websocket";
 import type Stripe from "stripe";
 import { baseLogger } from "~/logger";
-import type { Cents } from "~/money";
 import stripe from "~/services/stripe";
+import type {
+  AlertMessage,
+  ChargeAlertMessage,
+  MemberAlertMessage,
+  PingMessage,
+} from "~/types/alerts";
 import { SubscriptionManager } from "./subscription";
 
-export interface ChargeAlertMessage {
-  type: "charge_alert";
-  id: string;
-  date: string;
-  amount: Cents;
-  productName: string;
-}
-
-export interface MemberAlertMessage {
-  type: "member_alert";
-  id: string;
-  date: string;
-  productName: string;
-}
-
-export interface PingMessage {
-  type: "ping";
-}
-
-export interface PongMessage {
-  type: "pong";
-}
-
-export type AlertMessage = ChargeAlertMessage | MemberAlertMessage;
-export type WebsocketMessage = AlertMessage | PingMessage;
+export type {
+  AlertMessage,
+  ChargeAlertMessage,
+  MemberAlertMessage,
+  PingMessage,
+  PongMessage,
+  WebsocketMessage,
+} from "~/types/alerts";
 
 const MAX_RECENT_ALERTS = 20;
 export const GENERAL_DONATION = "General Donation";

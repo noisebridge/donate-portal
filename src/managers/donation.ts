@@ -1,5 +1,5 @@
-import type { Cents } from "~/money";
 import stripe from "~/services/stripe";
+import type { Cents } from "~/types/cents";
 import { GENERAL_DONATION, NAME_REMAP } from "./charge-alert";
 
 export enum DonationErrorCode {

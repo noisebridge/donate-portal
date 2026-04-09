@@ -7,7 +7,7 @@ import { SubscriptionUpdatedEmail } from "~/emails/subscription-updated";
 import { SubscriptionWelcomeEmail } from "~/emails/subscription-welcome";
 import { baseLogger } from "~/logger";
 import magicLinkManager from "~/managers/magic-link";
-import type { Cents } from "~/money";
+import type { Cents } from "~/types/cents";
 
 const resend = new Resend(config.resendKey);
 

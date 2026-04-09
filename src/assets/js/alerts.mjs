@@ -20,11 +20,11 @@ import {
   stopSnoop,
 } from "./util/snoop.mjs";
 
-/** @typedef {import("~/managers/charge-alert").ChargeAlertMessage} ChargeAlertMessage */
-/** @typedef {import("~/managers/charge-alert").MemberAlertMessage} MemberAlertMessage */
-/** @typedef {import("~/managers/charge-alert").AlertMessage} AlertMessage */
-/** @typedef {import("~/managers/charge-alert").WebsocketMessage} WebsocketMessage */
-/** @typedef {import("~/money").Cents} Cents */
+/** @typedef {import("~/types/alerts").ChargeAlertMessage} ChargeAlertMessage */
+/** @typedef {import("~/types/alerts").MemberAlertMessage} MemberAlertMessage */
+/** @typedef {import("~/types/alerts").AlertMessage} AlertMessage */
+/** @typedef {import("~/types/alerts").WebsocketMessage} WebsocketMessage */
+/** @typedef {import("~/types/cents").Cents} Cents */
 
 const effectCanvas = /** @type {HTMLCanvasElement} */ (
   document.getElementById("effect-canvas")

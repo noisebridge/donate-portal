@@ -2,7 +2,7 @@
 
 import { ledClear, ledConfetti } from "./led_effects.mjs";
 
-/** @typedef {import("~/money").Cents} Cents */
+/** @typedef {import("~/types/cents").Cents} Cents */
 
 /**
  * @typedef {object} ConfettiParticle

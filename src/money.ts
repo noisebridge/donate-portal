@@ -1,4 +1,5 @@
 import { z } from "zod";
+import type { Cents } from "~/types/cents";
 
 const numericString = z.string().refine((s) => !Number.isNaN(parseFloat(s)));
 
@@ -35,13 +36,6 @@ function getAmount(amountFormData: AmountFormData) {
   }
 
   return amountFormData["amount-dollars"];
-}
-
-/**
- * Tagged object to make financial mistakes less common.
- */
-export interface Cents {
-  cents: number;
 }
 
 export function parseToCents(

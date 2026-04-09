@@ -1,42 +1,18 @@
 import type { FastifyRequest } from "fastify";
-import { z } from "zod";
 import config from "~/config";
 import { baseLogger } from "~/logger";
+import {
+  type SentryEvent,
+  type SentryException,
+  type SentryFrame,
+  sentryEventSchema,
+} from "~/types/error-reporting";
 
-const sentryFrameSchema = z.object({
-  filename: z.string().max(1024),
-  function: z.string().max(1024),
-  lineno: z.number().int().nullable(),
-  colno: z.number().int().nullable(),
-});
-export type SentryFrame = z.infer<typeof sentryFrameSchema>;
-
-const sentryExceptionSchema = z.object({
-  type: z.string().max(256),
-  value: z.string().max(2048),
-  stacktrace: z.object({
-    frames: z.array(sentryFrameSchema).max(100),
-  }),
-});
-export type SentryException = z.infer<typeof sentryExceptionSchema>;
-
-const sentryEventSchema = z.object({
-  event_id: z.string().regex(/^[0-9a-f]{32}$/),
-  timestamp: z.string().refine((s) => !Number.isNaN(Date.parse(s))),
-  platform: z.enum(["javascript", "node"]),
-  level: z.enum(["fatal", "error", "warning", "info", "debug"]),
-  exception: z.object({
-    values: z.array(sentryExceptionSchema).min(1).max(10),
-  }),
-  tags: z.record(z.string().max(64), z.string().max(256)).optional(),
-  contexts: z
-    .record(
-      z.string().max(64),
-      z.record(z.string().max(64), z.union([z.string().max(1024), z.number()])),
-    )
-    .optional(),
-});
-export type SentryEvent = z.infer<typeof sentryEventSchema>;
+export type {
+  SentryEvent,
+  SentryException,
+  SentryFrame,
+} from "~/types/error-reporting";
 
 export function validateSentryEvent(raw: unknown): SentryEvent | null {
   const result = sentryEventSchema.safeParse(raw);

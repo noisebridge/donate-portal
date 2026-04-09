@@ -1,5 +1,6 @@
 import config from "~/config";
-import { type Cents, formatAmount } from "~/money";
+import { formatAmount } from "~/money";
+import type { Cents } from "~/types/cents";
 import { Layout } from "./layout";
 
 export interface SubscriptionCanceledEmailProps {

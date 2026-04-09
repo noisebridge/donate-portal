@@ -1,5 +1,5 @@
 import type { Message } from "./components/message-container";
-import type { Cents } from "./money";
+import type { Cents } from "./types/cents";
 
 export type MessageParams = Partial<Record<Message["type"], string>>;
 

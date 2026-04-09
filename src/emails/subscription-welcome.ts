@@ -1,6 +1,7 @@
 import config from "~/config";
-import { type Cents, formatAmount } from "~/money";
+import { formatAmount } from "~/money";
 import paths from "~/paths";
+import type { Cents } from "~/types/cents";
 import { Layout } from "./layout";
 
 export interface SubscriptionWelcomeEmailProps {

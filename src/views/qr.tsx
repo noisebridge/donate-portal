@@ -2,8 +2,9 @@ import { escapeHtml } from "@kitajs/html";
 import { Layout } from "~/components/layout";
 import { StripeCheckoutModal } from "~/components/stripe-checkout-modal";
 import donationManager, { DonationManager } from "~/managers/donation";
-import { type Cents, formatAmount } from "~/money";
+import { formatAmount } from "~/money";
 import paths from "~/paths";
+import type { Cents } from "~/types/cents";
 
 export interface QrPageProps {
   amount: Cents;
