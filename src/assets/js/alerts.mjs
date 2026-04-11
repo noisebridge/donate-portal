@@ -191,29 +191,33 @@ function seenAlert(id) {
 }
 
 /**
- * Scan history items and apply the rainbow class to the one with the highest amount,
- * considering both the current charge and all history items.
+ * Apply the rainbow class to the element whose amount matches topCents.
  */
 function updateTopAmount() {
   const currentCents =
     currentCharge?.type === "charge_alert" ? currentCharge.amount.cents : 0;
   const latestAmount = document.getElementById("alert-amount");
-  let topItem = /** @type {Element | null} */ (currentCharge && latestAmount);
-  let topCents = currentCents;
+  let topElementSet = false;
+
+  const latestIsTop = latestAmount?.classList.toggle(
+    "top-amount",
+    currentCents === topCents && topCents > 0,
+  );
+  if (latestIsTop) {
+    topElementSet = latestIsTop;
+  }
 
   const items = /** @type {HTMLElement[]} */ (Array.from(historyList.children));
   for (const item of items) {
     const cents = Number(item.dataset["amount"]);
-    if (cents > topCents) {
-      topCents = cents;
-      topItem = item;
+
+    const itemIsTop = item.classList.toggle(
+      "top-amount",
+      !topElementSet && cents === topCents && topCents > 0,
+    );
+    if (itemIsTop) {
+      topElementSet = true;
     }
-  }
-
-  latestAmount?.classList.toggle("top-amount", latestAmount === topItem);
-
-  for (const item of items) {
-    item.classList.toggle("top-amount", item === topItem);
   }
 }
 
@@ -263,6 +267,9 @@ function setBodyClass(alert) {
 /** @type {AlertMessage | null} */
 let currentCharge = null;
 
+/** Highest charge amount seen so far (cents). */
+let topCents = 0;
+
 /**
  * Update the DOM with a new alert.
  * @param {AlertMessage} alert
@@ -278,6 +285,13 @@ function displayAlert(alert) {
     addToHistory(currentCharge);
   }
   currentCharge = alert;
+
+  const isNewTop =
+    alert.type === "charge_alert" && alert.amount.cents > topCents;
+  if (isNewTop) {
+    topCents = alert.amount.cents;
+  }
+
   updateTopAmount();
 
   if (alert.type === "member_alert") {
@@ -305,27 +319,27 @@ function displayAlert(alert) {
     stopMatrix();
     stopSnoop();
     stopMerica();
-    launchConfetti({ cents: 10000 });
+    launchConfetti({ cents: 10000 }, false);
   } else if (MERICA_AMOUNTS.includes(alert.amount.cents)) {
     stopConfetti();
     stopMatrix();
     stopSnoop();
-    showMerica(alert.amount);
+    showMerica(alert.amount, isNewTop);
   } else if (SNOOP_AMOUNTS.includes(alert.amount.cents)) {
     stopConfetti();
     stopMatrix();
     stopMerica();
-    showSnoop();
+    showSnoop(isNewTop);
   } else if (HACKER_AMOUNTS.includes(alert.amount.cents)) {
     stopConfetti();
     stopSnoop();
     stopMerica();
-    showMatrix();
+    showMatrix(isNewTop);
   } else {
     stopMatrix();
     stopSnoop();
     stopMerica();
-    launchConfetti(alert.amount);
+    launchConfetti(alert.amount, isNewTop);
   }
 }
 
@@ -403,6 +417,16 @@ document.addEventListener("DOMContentLoaded", () => {
   currentCharge = currentChargeJson
     ? /** @type {AlertMessage} */ (JSON.parse(currentChargeJson))
     : null;
+
+  if (currentCharge?.type === "charge_alert") {
+    topCents = currentCharge.amount.cents;
+  }
+  for (const item of /** @type {HTMLElement[]} */ (
+    Array.from(historyList.children)
+  )) {
+    const cents = Number(item.dataset["amount"]);
+    if (cents > topCents) topCents = cents;
+  }
 
   if (currentCharge) {
     setBodyClass(currentCharge);

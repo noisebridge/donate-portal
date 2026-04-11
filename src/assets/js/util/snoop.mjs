@@ -1,6 +1,6 @@
 // @ts-check
 
-import { ledClear, ledSnoop } from "./led_effects.mjs";
+import { ledClear, ledHyperdrive, ledSnoop } from "./led_effects.mjs";
 
 const CANNABIS_SRC = "/assets/image/cannabis.svg";
 const SCROLL_TEXT = "SMOKE WEED EVERY DAY";
@@ -402,8 +402,9 @@ export function showSnoopLeaves() {
 
 /**
  * Launch the snoop dogg takeover effect.
+ * @param {boolean} showHyperdrive
  */
-export function showSnoop() {
+export function showSnoop(showHyperdrive) {
   const now = performance.now();
 
   // Start leaves rotating in
@@ -419,7 +420,12 @@ export function showSnoop() {
   phaseStart = now;
 
   ensureAnimating();
-  ledSnoop();
+
+  if (showHyperdrive) {
+    ledHyperdrive();
+  } else {
+    ledSnoop();
+  }
 }
 
 /**

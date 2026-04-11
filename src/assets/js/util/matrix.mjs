@@ -1,6 +1,6 @@
 // @ts-check
 
-import { ledClear, ledMatrix } from "./led_effects.mjs";
+import { ledClear, ledHyperdrive, ledMatrix } from "./led_effects.mjs";
 
 const CHAR_SET =
   "\u{FF66}\u{FF67}\u{FF68}\u{FF69}\u{FF6A}\u{FF6B}\u{FF6C}\u{FF6D}\u{FF6E}\u{FF6F}" +
@@ -63,8 +63,9 @@ function randomChar() {
 
 /**
  * Launch a wave of matrix rain down the screen.
+ * @param {boolean} showHyperdrive
  */
-export function showMatrix() {
+export function showMatrix(showHyperdrive) {
   const columns = Math.ceil(canvas.width / FONT_SIZE);
   const maxRows = Math.ceil(canvas.height / FONT_SIZE);
   drops = [];
@@ -89,7 +90,11 @@ export function showMatrix() {
     requestAnimationFrame(animate);
   }
 
-  ledMatrix();
+  if (showHyperdrive) {
+    ledHyperdrive();
+  } else {
+    ledMatrix();
+  }
 }
 
 /**

@@ -32,6 +32,33 @@ import { sendErrorReport } from "./error-reporting.mjs";
  * @property {number} [_t0] - Set on first call for timestamp calibration
  */
 
+/**
+ * @typedef {object} HyperdriveRotation
+ * @property {number} startTime - ms from effect start
+ * @property {number} endTime - ms from effect start
+ * @property {number} speed - rotations per second
+ */
+
+/**
+ * @typedef {object} HyperdriveParticle
+ * @property {number} pos - Fractional position on strip (0-1)
+ * @property {number} spawnTime - ms from effect start
+ * @property {number} fadeDuration - ms to fade out to black
+ * @property {number} r
+ * @property {number} g
+ * @property {number} b
+ */
+
+/**
+ * @typedef {object} HyperdriveLedData
+ * @property {HyperdriveRotation[]} rotations
+ * @property {HyperdriveParticle[]} particles
+ * @property {number} spinDuration - Total spin phase duration in ms
+ * @property {number} explosionPos - Fractional position (0-1) where explosion occurs
+ * @property {number} expandDuration - ms for rainbow to cover full strip
+ * @property {number} [_t0]
+ */
+
 const LED_API = "http://localhost:3000";
 
 /**
@@ -213,6 +240,110 @@ function mericaLedFn(index, num_leds, timestamp) {
 }
 
 /**
+ * Hyperdrive: accelerating white pixel leaves sparks, explodes into rainbow.
+ * @param {number} index
+ * @param {number} num_leds
+ * @param {number} timestamp
+ * @param {HyperdriveLedData} data
+ * @returns {RGB}
+ */
+function hyperdriveLedFn(index, num_leds, timestamp, data) {
+  if (!data._t0) data._t0 = timestamp;
+  const t = timestamp - data._t0;
+  const fracPos = index / num_leds;
+
+  // --- Phase 1: spinning white pixel with fading particles ---
+  if (t < data.spinDuration) {
+    let pixelPos = 0;
+    for (let i = 0; i < data.rotations.length; i++) {
+      const rot = /** @type {HyperdriveRotation} */ (data.rotations[i]);
+      if (t < rot.startTime) break;
+      if (t < rot.endTime) {
+        const elapsed = (t - rot.startTime) / 1000;
+        pixelPos = (elapsed * rot.speed) % 1;
+        break;
+      }
+    }
+
+    const pixelIdx = Math.floor(pixelPos * num_leds) % num_leds;
+    if (index === pixelIdx) {
+      return { r: 255, g: 255, b: 255 };
+    }
+
+    let pr = 0;
+    let pg = 0;
+    let pb = 0;
+    for (let j = 0; j < data.particles.length; j++) {
+      const p = /** @type {HyperdriveParticle} */ (data.particles[j]);
+      if (t < p.spawnTime) continue;
+      const age = t - p.spawnTime;
+      if (age > p.fadeDuration) continue;
+      const pIdx = Math.floor(p.pos * num_leds) % num_leds;
+      if (index === pIdx) {
+        const bright = 1 - age / p.fadeDuration;
+        pr = Math.max(pr, Math.round(p.r * bright));
+        pg = Math.max(pg, Math.round(p.g * bright));
+        pb = Math.max(pb, Math.round(p.b * bright));
+      }
+    }
+    return { r: pr, g: pg, b: pb };
+  }
+
+  // --- Phase 2 & 3: rainbow expansion then rotation ---
+  const rainbowT = t - data.spinDuration;
+  let expandProgress = rainbowT / data.expandDuration;
+  if (expandProgress > 1) expandProgress = 1;
+
+  const expPos = data.explosionPos;
+  let dist = fracPos - expPos;
+  if (dist < 0) dist = -dist;
+  if (dist > 0.5) dist = 1 - dist;
+  const normalizedDist = dist * 2;
+
+  if (normalizedDist > expandProgress) {
+    return { r: 0, g: 0, b: 0 };
+  }
+
+  const rotationOffset =
+    rainbowT > data.expandDuration
+      ? (rainbowT - data.expandDuration) / 2000
+      : 0;
+  const huePos = (((fracPos - expPos + rotationOffset) % 1) + 1) % 1;
+  const hue = (huePos * 720) % 360;
+
+  const c = 1;
+  const x = c * (1 - Math.abs(((hue / 60) % 2) - 1));
+  let hr = 0;
+  let hg = 0;
+  let hb = 0;
+  if (hue < 60) {
+    hr = c;
+    hg = x;
+  } else if (hue < 120) {
+    hr = x;
+    hg = c;
+  } else if (hue < 180) {
+    hg = c;
+    hb = x;
+  } else if (hue < 240) {
+    hg = x;
+    hb = c;
+  } else if (hue < 300) {
+    hr = x;
+    hb = c;
+  } else {
+    hr = c;
+    hb = x;
+  }
+
+  return {
+    r: Math.round(hr * 255),
+    g: Math.round(hg * 255),
+    b: Math.round(hb * 255),
+  };
+}
+
+/**
  * Snoop: entire strip fades in and out bright green.
  * @param {number} _index
  * @param {number} _num_leds
@@ -287,6 +418,61 @@ export function ledSnoop() {
   /** @type {TimestampedLedData} */
   const data = {};
   sendLedEffect(snoopLedFn, data);
+}
+
+/** Send hyperdrive LED effect. */
+export function ledHyperdrive() {
+  /** @type {HyperdriveRotation[]} */
+  const rotations = [];
+  /** @type {HyperdriveParticle[]} */
+  const particles = [];
+  let cumTime = 0;
+
+  for (let i = 0; i < 8; i++) {
+    const speed = 1.05 ** i;
+    const duration = 1000 / speed;
+
+    rotations.push({
+      startTime: Math.round(cumTime),
+      endTime: Math.round(cumTime + duration),
+      speed,
+    });
+
+    const numParticles = 2 + Math.floor(Math.random() * 2);
+    for (let j = 0; j < numParticles; j++) {
+      const spawnFrac = Math.random();
+      const spawnTime = cumTime + spawnFrac * duration;
+      const pixelPos = (((spawnFrac * duration) / 1000) * speed) % 1;
+      const rgb = hsvToRgb(Math.random() * 360, 1, 1);
+      particles.push({
+        pos: pixelPos,
+        spawnTime: Math.round(spawnTime),
+        fadeDuration: 2000 + Math.random() * 1000,
+        r: rgb.r,
+        g: rgb.g,
+        b: rgb.b,
+      });
+    }
+
+    cumTime += duration;
+  }
+
+  const lastRot = /** @type {HyperdriveRotation} */ (
+    rotations[rotations.length - 1]
+  );
+  const finalElapsed = (lastRot.endTime - lastRot.startTime) / 1000;
+  const finalPos = (finalElapsed * lastRot.speed) % 1;
+
+  /** @type {HyperdriveLedData} */
+  const data = {
+    rotations,
+    particles,
+    spinDuration: Math.round(cumTime),
+    explosionPos: finalPos,
+    expandDuration: 1500,
+  };
+
+  sendLedEffect(hyperdriveLedFn, data);
 }
 
 /** Turn off all LEDs. */

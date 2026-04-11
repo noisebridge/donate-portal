@@ -1,7 +1,7 @@
 // @ts-check
 
 import { launchConfetti } from "./confetti.mjs";
-import { ledClear, ledMerica } from "./led_effects.mjs";
+import { ledClear, ledHyperdrive, ledMerica } from "./led_effects.mjs";
 
 /** @typedef {import("~/types/cents").Cents} Cents */
 
@@ -402,8 +402,9 @@ function ensureAnimating() {
  * Launch the 'MERICA takeover effect.
  * Sequence: Arnold rises, holds, eagle swoops, Arnold retracts. Flag drops in and ripples.
  * @param {Cents} amount
+ * @param {boolean} showHyperdrive
  */
-export function showMerica(amount) {
+export function showMerica(amount, showHyperdrive) {
   phase = "arnold_enter";
   phaseStart = performance.now();
 
@@ -412,9 +413,14 @@ export function showMerica(amount) {
   flagRetracting = false;
   flagEnterStart = performance.now();
 
-  launchConfetti(amount);
+  launchConfetti(amount, null);
   ensureAnimating();
-  ledMerica();
+
+  if (showHyperdrive) {
+    ledHyperdrive();
+  } else {
+    ledMerica();
+  }
 }
 
 /**

@@ -1,6 +1,6 @@
 // @ts-check
 
-import { ledClear, ledConfetti } from "./led_effects.mjs";
+import { ledClear, ledConfetti, ledHyperdrive } from "./led_effects.mjs";
 
 /** @typedef {import("~/types/cents").Cents} Cents */
 
@@ -329,8 +329,9 @@ function getEmoji(amount) {
 
 /**
  * @param {Cents} amount
+ * @param {boolean | null} showHyperdrive
  */
-export function launchConfetti(amount) {
+export function launchConfetti(amount, showHyperdrive) {
   const rocketCount = Math.min(
     25,
     Math.ceil(Math.floor(amount.cents / 1000) + 0.001),
@@ -360,7 +361,16 @@ export function launchConfetti(amount) {
     );
   }
 
-  ledConfetti(rocketCount);
+  switch (showHyperdrive) {
+    case true:
+      ledHyperdrive();
+      break;
+    case false:
+      ledConfetti(rocketCount);
+      break;
+    case null:
+      break;
+  }
 
   if (!animating) {
     animating = true;
