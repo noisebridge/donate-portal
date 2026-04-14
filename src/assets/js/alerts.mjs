@@ -191,34 +191,39 @@ function seenAlert(id) {
 }
 
 /**
- * Apply the rainbow class to the element whose amount matches topCents.
+ * Apply the rainbow sheen class to the largest donation amount (latest wins).
+ * @returns {boolean} Whether the highest amount belongs to the most recent alert.
  */
-function updateTopAmount() {
-  const currentCents =
-    currentCharge?.type === "charge_alert" ? currentCharge.amount.cents : 0;
-  const latestAmount = document.getElementById("alert-amount");
-  let topElementSet = false;
+function applyRainbowSheen() {
+  let topAmount = 0;
+  /** @type {HTMLElement | null} */
+  let topElement = null;
 
-  const latestIsTop = latestAmount?.classList.toggle(
-    "top-amount",
-    currentCents === topCents && topCents > 0,
-  );
-  if (latestIsTop) {
-    topElementSet = latestIsTop;
-  }
+  for (const element of Array.from(
+    document.querySelectorAll("[data-amount]"),
+  )) {
+    if (!(element instanceof HTMLElement)) {
+      continue;
+    }
 
-  const items = /** @type {HTMLElement[]} */ (Array.from(historyList.children));
-  for (const item of items) {
-    const cents = Number(item.dataset["amount"]);
+    element.classList.remove("top-amount");
 
-    const itemIsTop = item.classList.toggle(
-      "top-amount",
-      !topElementSet && cents === topCents && topCents > 0,
-    );
-    if (itemIsTop) {
-      topElementSet = true;
+    const amount = Number(element.dataset["amount"]);
+    if (Number.isNaN(amount) || amount < 0) {
+      continue;
+    }
+
+    if (amount > topAmount) {
+      topAmount = amount;
+      topElement = element;
     }
   }
+
+  if (topElement) {
+    topElement.classList.add("top-amount");
+  }
+
+  return topElement === amountEl;
 }
 
 /**
@@ -264,43 +269,20 @@ function setBodyClass(alert) {
   );
 }
 
-/** @type {AlertMessage | null} */
-let currentCharge = null;
-
-/** Highest charge amount seen so far (cents). */
-let topCents = 0;
-
 /**
- * Update the DOM with a new alert.
+ * Update text at the top of the page for the latest alert.
  * @param {AlertMessage} alert
  */
-function displayAlert(alert) {
-  if (seenAlert(alert.id)) {
-    return;
-  }
-
-  setBodyClass(alert);
-
-  if (currentCharge) {
-    addToHistory(currentCharge);
-  }
-  currentCharge = alert;
-
-  const isNewTop =
-    alert.type === "charge_alert" && alert.amount.cents > topCents;
-  if (isNewTop) {
-    topCents = alert.amount.cents;
-  }
-
-  updateTopAmount();
-
+function updateHeader(alert) {
   if (alert.type === "member_alert") {
     amountEl.textContent = "Membership";
+    amountEl.dataset["amount"] = "0";
   } else {
     amountEl.textContent = formatAmount(alert.amount);
     if (isNice(alert.amount)) {
       amountEl.append(niceBadge());
     }
+    amountEl.dataset["amount"] = alert.amount.cents.toString();
   }
   productEl.textContent = alert.productName;
   dateEl.textContent = formatDate(alert.date);
@@ -314,6 +296,28 @@ function displayAlert(alert) {
   for (const el of animatedEls) {
     el.classList.add("alert-animate");
   }
+}
+
+/** @type {AlertMessage | null} */
+let currentCharge = null;
+
+/**
+ * Update the DOM with a new alert.
+ * @param {AlertMessage} alert
+ */
+function displayAlert(alert) {
+  if (seenAlert(alert.id)) {
+    return;
+  }
+
+  if (currentCharge) {
+    addToHistory(currentCharge);
+  }
+  currentCharge = alert;
+
+  setBodyClass(alert);
+  updateHeader(alert);
+  const isNewTop = applyRainbowSheen();
 
   if (alert.type === "member_alert") {
     stopMatrix();
@@ -418,16 +422,6 @@ document.addEventListener("DOMContentLoaded", () => {
     ? /** @type {AlertMessage} */ (JSON.parse(currentChargeJson))
     : null;
 
-  if (currentCharge?.type === "charge_alert") {
-    topCents = currentCharge.amount.cents;
-  }
-  for (const item of /** @type {HTMLElement[]} */ (
-    Array.from(historyList.children)
-  )) {
-    const cents = Number(item.dataset["amount"]);
-    if (cents > topCents) topCents = cents;
-  }
-
   if (currentCharge) {
     setBodyClass(currentCharge);
     if (
@@ -450,6 +444,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  updateTopAmount();
+  applyRainbowSheen();
   connect();
 });

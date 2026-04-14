@@ -8,12 +8,6 @@ import {
   sentryEventSchema,
 } from "~/types/error-reporting";
 
-export type {
-  SentryEvent,
-  SentryException,
-  SentryFrame,
-} from "~/types/error-reporting";
-
 export function validateSentryEvent(raw: unknown): SentryEvent | null {
   const result = sentryEventSchema.safeParse(raw);
   return result.success ? result.data : null;

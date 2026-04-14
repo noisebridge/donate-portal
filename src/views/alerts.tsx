@@ -31,7 +31,7 @@ interface ChargeHistoryItemProps {
 }
 
 function ChargeHistoryItem({ alert }: ChargeHistoryItemProps) {
-  const [dollars, cents] = formatAmount(alert.amount).split(".");
+  const [dollars, cents] = amountDisplayText(alert).split(".");
 
   return (
     <div
@@ -64,7 +64,7 @@ function MemberHistoryItem({ alert }: MemberHistoryItemProps) {
       <span class="history-product">
         {escapeHtml(alert.productName) as "safe"}
       </span>
-      <span class="history-amount">Membership</span>
+      <span class="history-amount">{amountDisplayText(alert) as "safe"}</span>
       <span class="history-date">{formatDate(alert.date) as "safe"}</span>
     </div>
   );
@@ -83,12 +83,25 @@ function HistoryItem({ alert }: HistoryItemProps) {
   }
 }
 
+function amountDisplayText(alert?: AlertMessage) {
+  switch (alert?.type) {
+    case "charge_alert":
+      return formatAmount(alert.amount);
+    case "member_alert":
+      return "Membership";
+    case undefined:
+      return "";
+  }
+}
+
 interface AlertsPageProps {
   alerts: AlertMessage[];
 }
 
 export function AlertsPage({ alerts }: AlertsPageProps) {
   const [latest, ...history] = alerts;
+  const latestAmountCents =
+    latest?.type === "charge_alert" ? latest.amount.cents : 0;
 
   return (
     <>
@@ -114,16 +127,16 @@ export function AlertsPage({ alerts }: AlertsPageProps) {
             <div class="alerts-spacer"></div>
             <div class="alerts-container">
               <p class="alert-label">Latest Donation</p>
-              <p id="alert-amount" class="alert-amount">
-                {latest
-                  ? latest.type === "member_alert"
-                    ? "Membership"
-                    : formatAmount(latest.amount)
-                  : ""}
+              <p
+                id="alert-amount"
+                class="alert-amount"
+                data-amount={latestAmountCents.toString()}
+              >
+                {amountDisplayText(latest) as "safe"}
                 {
-                  (latest &&
-                    latest.type === "charge_alert" &&
-                    isNice(latest.amount) && <NiceBadge />) as "safe"
+                  (latest?.type === "charge_alert" && isNice(latest.amount) && (
+                    <NiceBadge />
+                  )) as "safe"
                 }
               </p>
               <p id="alert-product" class="alert-product">
