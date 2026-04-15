@@ -167,7 +167,7 @@ export async function openCheckoutModal(clientSecret) {
     layout: {
       type: "accordion",
       defaultCollapsed: false,
-      radios: true,
+      radios: "if_multiple",
       spacedAccordionItems: true,
     },
   });
@@ -192,7 +192,7 @@ export async function openEmbeddedCheckout(clientSecret) {
     return;
   }
 
-  embeddedCheckout = await stripe.initEmbeddedCheckout({ clientSecret });
+  embeddedCheckout = await stripe.createEmbeddedCheckoutPage({ clientSecret });
   embeddedCheckout.mount(mountPoint);
 
   showModal();

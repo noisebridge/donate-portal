@@ -113,7 +113,7 @@ export class SubscriptionManager {
     const session = await stripe.checkout.sessions.create({
       customer: customer.id,
       mode: "subscription",
-      ui_mode: "embedded",
+      ui_mode: "embedded_page",
       line_items: [
         {
           price_data: {

@@ -1,4 +1,5 @@
 import { describe, expect, test } from "bun:test";
+import { Decimal } from "node_modules/stripe/esm/Decimal";
 import type Stripe from "stripe";
 import { DonationTierSelector } from "./donation-tier-selector";
 
@@ -54,7 +55,7 @@ function createMockSubscription(unitAmount: number): Stripe.Subscription {
             object: "plan",
             active: true,
             amount: unitAmount,
-            amount_decimal: unitAmount.toString(),
+            amount_decimal: Decimal.from(unitAmount),
             billing_scheme: "per_unit",
             created: 1234567890,
             currency: "usd",
@@ -95,7 +96,7 @@ function createMockSubscription(unitAmount: number): Stripe.Subscription {
             transform_quantity: null,
             type: "recurring",
             unit_amount: unitAmount,
-            unit_amount_decimal: unitAmount.toString(),
+            unit_amount_decimal: Decimal.from(unitAmount),
           },
           quantity: 1,
           subscription: "sub_123",
