@@ -170,6 +170,7 @@ export async function openCheckoutModal(clientSecret) {
       radios: "if_multiple",
       spacedAccordionItems: true,
     },
+    paymentMethodOrder: ["apple_pay", "google_pay", "card", "crypto"],
   });
 
   const mountPoint = document.getElementById("payment-element");
