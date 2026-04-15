@@ -16,11 +16,9 @@ let elements = null;
 let embeddedCheckout = null;
 
 /**
- * Loads the Stripe.js script and resolves with the Stripe constructor.
- * Subsequent calls return the same promise.
- * @returns {Promise<Stripe>}
+ * Extract Stripe public key from the DOM.
  */
-export function initStripe() {
+function getStripeKey() {
   const stripeKeyTag = /** @type {HTMLMetaElement | null} */ (
     document.querySelector("meta[name='stripe-public']")
   );
@@ -28,15 +26,24 @@ export function initStripe() {
     throw new Error("Stripe public key not found");
   }
 
-  const stripeKey = stripeKeyTag.content;
+  return stripeKeyTag.content;
+}
 
+/**
+ * Loads the Stripe.js script and resolves with the Stripe constructor.
+ * Subsequent calls return the same promise.
+ * @returns {Promise<Stripe>}
+ */
+export function initStripe() {
   if (stripePromise) {
     return stripePromise;
   }
 
+  const stripeKey = getStripeKey();
+
   stripePromise = new Promise((resolve, reject) => {
     const script = document.createElement("script");
-    script.src = "https://js.stripe.com/clover/stripe.js";
+    script.src = "https://js.stripe.com/dahlia/stripe.js";
 
     script.addEventListener("load", () => {
       if (!window.Stripe) {
