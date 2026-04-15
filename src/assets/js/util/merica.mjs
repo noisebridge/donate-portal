@@ -225,7 +225,7 @@ function hideEagle() {
  * @param {number} h - Target height
  */
 function ensureFlagBuffer(w, h) {
-  if (!flagImg || !flagImg.complete) return;
+  if (!flagImg?.complete) return;
   const iw = Math.round(w);
   const ih = Math.round(h);
   if (flagBuffer && flagBufferW === iw && flagBufferH === ih) return;
@@ -247,7 +247,7 @@ function ensureFlagBuffer(w, h) {
  * @param {number} flagY - Top Y position of the flag
  */
 function drawFlag(now, flagY) {
-  if (!flagImg || !flagImg.complete) return;
+  if (!flagImg?.complete) return;
 
   const cw = canvas.width;
   const flagWidth = Math.round(cw * 0.6);

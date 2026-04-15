@@ -205,7 +205,7 @@ function getLeafPositions() {
  * @param {number} now
  */
 function drawLeaves(now) {
-  if (!cannabisImg || !cannabisImg.complete) return;
+  if (!cannabisImg?.complete) return;
 
   let rotateProgress = 1;
 

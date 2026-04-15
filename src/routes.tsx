@@ -112,7 +112,7 @@ function isAuthenticated(
 
 function verifyBasicAuth(request: FastifyRequest) {
   const auth = request.headers.authorization;
-  if (!auth || !auth.startsWith("Basic ")) {
+  if (!auth?.startsWith("Basic ")) {
     return false;
   }
 
