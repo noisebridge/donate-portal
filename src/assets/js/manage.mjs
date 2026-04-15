@@ -6,7 +6,11 @@ import {
   activateCustomOnRadio,
 } from "./util/money-forms.mjs";
 import { initCheckoutForm, openEmbeddedCheckout } from "./util/stripe.mjs";
-import { enforcePattern, validateMinAmount } from "./util/validate.mjs";
+import {
+  dollarPattern,
+  enforcePattern,
+  validateMinAmount,
+} from "./util/validate.mjs";
 
 function initCustomAmount() {
   const customTierRadio = /** @type {HTMLInputElement} */ (
@@ -19,7 +23,7 @@ function initCustomAmount() {
     document.querySelectorAll(".tier-options input[type=radio]")
   );
 
-  enforcePattern(customAmountInput, /^(\d+(\.\d{0,2})?)?$/);
+  enforcePattern(customAmountInput, dollarPattern);
   validateMinAmount(customAmountInput);
   activateCustomOnClick(customAmountInput, customTierRadio);
   activateCustomOnRadio(radioButtons, customAmountInput);

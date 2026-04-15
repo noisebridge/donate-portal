@@ -6,7 +6,11 @@ import {
   activateCustomOnRadio,
 } from "./util/money-forms.mjs";
 import { initCheckoutForm, openCheckoutModal } from "./util/stripe.mjs";
-import { enforcePattern, validateMinAmount } from "./util/validate.mjs";
+import {
+  dollarPattern,
+  enforcePattern,
+  validateMinAmount,
+} from "./util/validate.mjs";
 
 function initCustomAmount() {
   const customAmountInput = /** @type {HTMLInputElement} */ (
@@ -19,7 +23,7 @@ function initCustomAmount() {
     document.getElementById("amount-custom")
   );
 
-  enforcePattern(customAmountInput, /^(\d+(\.\d{0,2})?)?$/);
+  enforcePattern(customAmountInput, dollarPattern);
   validateMinAmount(customAmountInput);
   activateCustomOnClick(customAmountInput, customAmountRadio);
   activateCustomOnRadio(amountRadios, customAmountInput);

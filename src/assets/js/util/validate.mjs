@@ -1,20 +1,48 @@
 // @ts-check
 
 /**
+ * Allows for values of the form "123.45", or any other partially typed form.
+ * This allows a user to take an input with the value "5.00", delete the leading
+ * 5 and replace it with a 6.
+ */
+export const dollarPattern = /^(\d*(\.\d{0,2})?)?$/;
+
+/**
  * Prevent an input field from diverging from a `RegExp`.
  * @param {HTMLInputElement} input
  * @param {RegExp} pattern
  */
 export function enforcePattern(input, pattern) {
   input.addEventListener("beforeinput", (event) => {
-    const currentValue = input.value;
+    const value = input.value;
+    const start = input.selectionStart ?? value.length;
+    const end = input.selectionEnd ?? start;
 
-    const prefix = currentValue.substring(0, input.selectionStart ?? 0);
-    const newInput = event.data ?? "";
-    const suffix = currentValue.substring(input.selectionEnd ?? 0);
-    const newValue = `${prefix}${newInput}${suffix}`;
+    let simulated;
+    switch (event.inputType) {
+      case "insertText":
+      case "insertFromPaste":
+      case "insertFromDrop":
+        simulated =
+          value.slice(0, start) + (event.data ?? "") + value.slice(end);
+        break;
+      case "deleteContentBackward":
+        simulated =
+          start === end
+            ? value.slice(0, Math.max(0, start - 1)) + value.slice(end)
+            : value.slice(0, start) + value.slice(end);
+        break;
+      case "deleteContentForward":
+        simulated =
+          start === end
+            ? value.slice(0, start) + value.slice(end + 1)
+            : value.slice(0, start) + value.slice(end);
+        break;
+      default:
+        return;
+    }
 
-    if (!pattern.test(newValue)) {
+    if (!pattern.test(simulated)) {
       event.preventDefault();
     }
   });

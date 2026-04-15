@@ -1,7 +1,11 @@
 // @ts-check
 
 import { initCheckoutForm, openCheckoutModal } from "./util/stripe.mjs";
-import { enforcePattern, validateMinAmount } from "./util/validate.mjs";
+import {
+  dollarPattern,
+  enforcePattern,
+  validateMinAmount,
+} from "./util/validate.mjs";
 
 /**
  * Resize an input's width to fit its current value using a hidden measurer.
@@ -91,7 +95,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("amount")
   );
 
-  enforcePattern(amountInput, /^(\d+(\.\d{0,2})?)?$/);
+  enforcePattern(amountInput, dollarPattern);
   validateMinAmount(amountInput);
 
   const getTextWidth = createMeasurer(amountInput);
