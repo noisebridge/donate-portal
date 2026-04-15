@@ -59,6 +59,10 @@ function hintHandler(amountInput, hint) {
       hint.textContent = "Why not $13.37?";
     } else if (dollars === 13.37) {
       hint.textContent = "Hack the planet!";
+    } else if (dollars >= 16 && dollars < 17.76) {
+      hint.textContent = "Why not $17.76?";
+    } else if (dollars === 17.76) {
+      hint.textContent = "'Merica, baby!";
     } else if (dollars >= 60 && dollars < 69) {
       hint.textContent = "Why not $69?";
     } else if (dollars === 69) {
