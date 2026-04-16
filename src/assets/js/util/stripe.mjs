@@ -275,21 +275,15 @@ export function initCheckoutForm(form, onSuccess) {
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    const body = new URLSearchParams();
-    for (const [key, value] of new FormData(form).entries()) {
-      body.append(key, value);
-    }
-
     /** @type {Response} */
     let response;
     try {
       response = await fetch(form.action, {
         method: "POST",
         headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
           Accept: "application/json",
         },
-        body,
+        body: new URLSearchParams(Array.from(new FormData(form).entries())),
       });
     } catch (e) {
       console.error("Failed to initiate donation:", e);
