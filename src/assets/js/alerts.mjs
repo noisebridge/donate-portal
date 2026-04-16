@@ -5,7 +5,12 @@ import {
   launchConfetti,
   stopConfetti,
 } from "./util/confetti.mjs";
-import { ledMatrix, ledMerica, ledSnoop } from "./util/led_effects.mjs";
+import {
+  ledHyperdrive,
+  ledMatrix,
+  ledMerica,
+  ledSnoop,
+} from "./util/led_effects.mjs";
 import { initMatrix, showMatrix, stopMatrix } from "./util/matrix.mjs";
 import {
   initMerica,
@@ -317,7 +322,7 @@ function displayAlert(alert) {
 
   setBodyClass(alert);
   updateHeader(alert);
-  const isNewTop = applyRainbowSheen();
+  const newIsTop = applyRainbowSheen();
 
   if (alert.type === "member_alert") {
     stopMatrix();
@@ -328,22 +333,22 @@ function displayAlert(alert) {
     stopConfetti();
     stopMatrix();
     stopSnoop();
-    showMerica(alert.amount, isNewTop);
+    showMerica(alert.amount, newIsTop);
   } else if (SNOOP_AMOUNTS.includes(alert.amount.cents)) {
     stopConfetti();
     stopMatrix();
     stopMerica();
-    showSnoop(isNewTop);
+    showSnoop(newIsTop);
   } else if (HACKER_AMOUNTS.includes(alert.amount.cents)) {
     stopConfetti();
     stopSnoop();
     stopMerica();
-    showMatrix(isNewTop);
+    showMatrix(newIsTop);
   } else {
     stopMatrix();
     stopSnoop();
     stopMerica();
-    launchConfetti(alert.amount, isNewTop);
+    launchConfetti(alert.amount, newIsTop);
   }
 }
 
@@ -422,6 +427,7 @@ document.addEventListener("DOMContentLoaded", () => {
     ? /** @type {AlertMessage} */ (JSON.parse(currentChargeJson))
     : null;
 
+  const newIsTop = applyRainbowSheen();
   if (currentCharge) {
     setBodyClass(currentCharge);
     if (
@@ -429,21 +435,34 @@ document.addEventListener("DOMContentLoaded", () => {
       SNOOP_AMOUNTS.includes(currentCharge.amount.cents)
     ) {
       showSnoopLeaves();
-      ledSnoop();
+
+      if (newIsTop) {
+        ledHyperdrive();
+      } else {
+        ledSnoop();
+      }
     } else if (
       currentCharge.type === "charge_alert" &&
       MERICA_AMOUNTS.includes(currentCharge.amount.cents)
     ) {
       showMericaFlag();
-      ledMerica();
+
+      if (newIsTop) {
+        ledHyperdrive();
+      } else {
+        ledMerica();
+      }
     } else if (
       currentCharge.type === "charge_alert" &&
       HACKER_AMOUNTS.includes(currentCharge.amount.cents)
     ) {
-      ledMatrix();
+      if (newIsTop) {
+        ledHyperdrive();
+      } else {
+        ledMatrix();
+      }
     }
   }
 
-  applyRainbowSheen();
   connect();
 });
