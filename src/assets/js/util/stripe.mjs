@@ -309,7 +309,7 @@ export function initCheckoutForm(form, onSuccess) {
     if (isRedirectData(data)) {
       window.location.href = data.redirect;
     } else if (isCheckoutData(data)) {
-      onSuccess(data.clientSecret);
+      await onSuccess(data.clientSecret);
     } else {
       console.error("Response contains invalid data:", data);
     }
