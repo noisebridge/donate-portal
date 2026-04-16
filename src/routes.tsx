@@ -903,15 +903,14 @@ export default async function routes(fastify: FastifyInstance) {
         return reply.status(400).send();
       }
 
-      let raw: unknown;
+      let event: unknown;
       try {
-        raw = JSON.parse(body);
+        event = JSON.parse(body);
       } catch {
         return reply.status(400).send();
       }
 
-      const event = validateSentryEvent(raw);
-      if (!event) {
+      if (!validateSentryEvent(event)) {
         return reply.status(400).send();
       }
 
