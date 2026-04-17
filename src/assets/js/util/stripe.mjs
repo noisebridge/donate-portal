@@ -4,7 +4,11 @@ import { sendErrorReport } from "./error-reporting.mjs";
 
 /** @typedef {import("@stripe/stripe-js").Stripe} Stripe */
 /** @typedef {import("@stripe/stripe-js").StripeElements} StripeElements */
+/** @typedef {import("@stripe/stripe-js").StripeElementType} StripeElementType */
 /** @typedef {import("@stripe/stripe-js").StripeEmbeddedCheckout} StripeEmbeddedCheckout */
+
+/** @satisfies {StripeElementType} */
+const ELEMENT_TYPE = "payment";
 
 /** @type {Promise<Stripe> | null} */
 let stripePromise = null;
@@ -82,7 +86,7 @@ function hideModal() {
   }
 
   if (elements) {
-    elements.getElement("payment")?.destroy();
+    elements.getElement(ELEMENT_TYPE)?.destroy();
     elements = null;
   }
 
@@ -170,7 +174,7 @@ export async function openCheckoutModal(clientSecret) {
   const stripe = await initStripe();
   elements = stripe.elements({ clientSecret });
 
-  const paymentElement = elements.create("payment", {
+  const paymentElement = elements.create(ELEMENT_TYPE, {
     layout: {
       type: "accordion",
       defaultCollapsed: false,
