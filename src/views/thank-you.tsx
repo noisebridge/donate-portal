@@ -18,7 +18,7 @@ export function ThankYouPage({ isAuthenticated }: ThankYouProps) {
             />
           </div>
 
-          <h1 class="page-title">donation_complete</h1>
+          <h1 class="page-title">Donation Complete!</h1>
 
           <p class="page-message">
             Your support helps keep Noisebridge running and accessible to

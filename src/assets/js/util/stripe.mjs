@@ -20,6 +20,34 @@ let elements = null;
 let embeddedCheckout = null;
 
 /**
+ * Replace a button's content with animated loading bars.
+ * @param {HTMLButtonElement} button
+ * @returns {() => void} A function that restores the original content.
+ */
+export function startLoading(button) {
+  const originalHTML = button.innerHTML;
+
+  button.disabled = true;
+  button.innerHTML = "";
+
+  const wrap = document.createElement("div");
+  wrap.className = "loading-block-wrap";
+
+  for (let i = 0; i < 5; i++) {
+    const bar = document.createElement("div");
+    bar.className = "loading-block-bar";
+    wrap.appendChild(bar);
+  }
+
+  button.appendChild(wrap);
+
+  return () => {
+    button.innerHTML = originalHTML;
+    button.disabled = false;
+  };
+}
+
+/**
  * Extract Stripe public key from the DOM.
  */
 function getStripeKey() {
@@ -274,10 +302,20 @@ function isCheckoutData(data) {
  * @param {(clientSecret?: string) => Promise<void>} onSuccess
  */
 export function initCheckoutForm(form, onSuccess) {
+  const submitBtn = /** @type {HTMLButtonElement | null} */ (
+    form.querySelector('button[type="submit"]')
+  );
+  if (!submitBtn) {
+    console.error("Could not find a submit button");
+    return;
+  }
+
   initCheckoutModal();
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
+
+    const stopLoading = startLoading(submitBtn);
 
     /** @type {Response} */
     let response;
@@ -291,6 +329,7 @@ export function initCheckoutForm(form, onSuccess) {
       });
     } catch (e) {
       console.error("Failed to initiate donation:", e);
+      stopLoading();
 
       if (e instanceof Error) {
         sendErrorReport(e);
@@ -300,6 +339,7 @@ export function initCheckoutForm(form, onSuccess) {
 
     if (!response.ok) {
       console.error(`Error response from ${form.action}:`, response.statusText);
+      stopLoading();
       return;
     }
 
@@ -311,5 +351,7 @@ export function initCheckoutForm(form, onSuccess) {
     } else {
       console.error("Response contains invalid data:", data);
     }
+
+    stopLoading();
   });
 }
