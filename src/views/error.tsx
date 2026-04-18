@@ -11,17 +11,17 @@ export function ErrorPage({ error, isAuthenticated }: ErrorPageProps) {
     <Layout title="Error" styles="error.css" isAuthenticated={isAuthenticated}>
       <div class="container">
         <div class="error-page">
-          <h1 class="error-heading">Oops! Something went wrong</h1>
+          <h1 class="error-heading">fatal_error</h1>
 
           <div class="error-details">
             <div class="error-message">
-              <h2>Error Message:</h2>
+              <h2>Message</h2>
               <pre>{escapeHtml(error.message) as "safe"}</pre>
             </div>
 
             {!!error.stack && (
               <div class="error-stack">
-                <h2>Stack Trace:</h2>
+                <h2>Stack trace</h2>
                 <pre>{escapeHtml(error.stack) as "safe"}</pre>
               </div>
             )}

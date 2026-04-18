@@ -26,9 +26,9 @@ export function ManagePage({
     >
       <div class="container">
         <div class="manage-header">
-          <h1>{subscription ? "Manage your Donation" : "Start a Donation"}</h1>
+          <h1>{subscription ? "manage_donation" : "start_donation"}</h1>
           <p>
-            You're signed in as <strong>{escapeHtml(email) as "safe"}</strong>
+            Signed in as <strong>{escapeHtml(email) as "safe"}</strong>
           </p>
         </div>
 

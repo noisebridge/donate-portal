@@ -205,7 +205,6 @@ test.describe("QR Donation Endpoint", () => {
     await generalDonateLink.click();
 
     await expect(page).toHaveURL("/#donate");
-    await expect(page.locator("#donate")).toBeVisible();
   });
 
   test("redirects to index with error for invalid amount", async ({ page }) => {

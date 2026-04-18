@@ -1,10 +1,23 @@
+.container-narrow > .card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: 1px solid var(--color-border);
+  transform: translate(6px, 6px);
+  z-index: -1;
+  opacity: 0.5;
+}
+
 .qr-back-btn {
   position: absolute;
   top: var(--spacing-sm);
   right: var(--spacing-sm);
-  font-size: 0.75rem;
-  padding: 0.25rem 0.75rem;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  padding: 6px 12px;
   width: auto;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .qr-custom-form .qr-product-details {
@@ -16,15 +29,14 @@
   display: block;
   border: none;
   border-bottom: 1px dashed var(--color-border);
-  border-radius: 0;
   background: transparent;
   margin: 0;
   padding: 0;
-  transition: border-color 0.15s ease;
+  transition: border-color 120ms ease;
   width: 100%;
   resize: none;
   overflow: hidden;
-  font-family: inherit;
+  font-family: var(--font-mono);
 }
 
 .qr-custom-form .qr-custom-editable:hover {
@@ -38,12 +50,12 @@
   border-bottom-style: solid;
 }
 
-/* Name — matches .qr-donate-name: 1.75rem/600 */
 .qr-custom-form .qr-custom-name-input {
   font-size: 1.75rem;
-  font-weight: 600;
+  font-weight: 700;
   text-align: center;
   color: var(--color-text);
+  letter-spacing: -0.01em;
 }
 
 .qr-custom-form .qr-custom-name-group {
@@ -51,7 +63,7 @@
 }
 
 .qr-custom-form .qr-custom-description-input {
-  font-size: 1rem;
+  font-size: 14px;
   text-align: center;
   color: var(--color-text-light);
   line-height: 26px;
@@ -63,24 +75,27 @@
 
 .qr-custom-form .qr-custom-amount-group {
   justify-content: center;
-  gap: 0.125rem;
+  gap: 2px;
 }
 
 .qr-custom-form span.qr-custom-amount-prefix {
   position: static;
+  font-family: var(--font-mono);
   font-size: 3rem;
   font-weight: 700;
-  color: black;
+  color: var(--color-text);
   line-height: 1;
 }
 
 .qr-custom-form input.qr-custom-amount-input {
+  font-family: var(--font-mono);
   font-size: 3rem;
   font-weight: 700;
-  color: black;
+  color: var(--color-text);
   text-align: left;
   padding-left: 0;
   max-width: 8ch;
+  letter-spacing: -0.02em;
 }
 
 .qr-custom-form .qr-custom-amount-wrapper {
@@ -89,7 +104,9 @@
 
 .qr-custom-form .form-hint {
   display: block;
-  font-size: 0.75rem;
-  color: var(--color-text-light);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-text-mute);
   margin-top: var(--spacing-xs);
+  letter-spacing: 0.04em;
 }

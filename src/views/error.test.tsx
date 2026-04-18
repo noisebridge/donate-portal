@@ -7,6 +7,6 @@ describe("ErrorPage", () => {
     const result = await (<ErrorPage error={error} isAuthenticated />);
 
     expect(result).toBeTypeOf("string");
-    expect(result).toContain("Oops! Something went wrong");
+    expect(result).toContain("fatal_error");
   });
 });

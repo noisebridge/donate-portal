@@ -5,23 +5,34 @@
 }
 
 .error-heading {
+  font-family: var(--font-mono);
   font-size: 2.5rem;
+  font-weight: 700;
   color: var(--color-error);
   margin-bottom: 2rem;
   text-align: center;
+  letter-spacing: -0.02em;
+}
+
+.error-heading::before {
+  content: "$ ";
+  color: var(--color-primary);
 }
 
 .error-details {
-  background-color: var(--color-background);
+  background-color: var(--color-panel);
   padding: 1.5rem;
-  border-radius: 4px;
+  border: 1px solid var(--color-border);
   border-left: 4px solid var(--color-error);
 }
 
 .error-details h2 {
-  font-size: 1.2rem;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
   margin-bottom: 1rem;
-  color: var(--color-text);
+  color: var(--color-text-light);
 }
 
 .error-message,
@@ -35,18 +46,17 @@
 }
 
 .error-details pre {
-  background-color: var(--color-white);
+  background-color: var(--color-background);
   padding: 1rem;
-  border-radius: 4px;
   overflow-x: auto;
-  font-family: "Courier New", Courier, monospace;
-  font-size: 0.9rem;
+  font-family: var(--font-mono);
+  font-size: 13px;
   line-height: 1.5;
   color: var(--color-error);
   border: 1px solid var(--color-border);
 }
 
-@media (max-width: 768px) {
+@media (max-width: 900px) {
   .error-heading {
     font-size: 1.8rem;
   }
@@ -56,6 +66,6 @@
   }
 
   .error-details pre {
-    font-size: 0.8rem;
+    font-size: 12px;
   }
 }

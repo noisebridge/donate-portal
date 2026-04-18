@@ -20,7 +20,7 @@ describe("QrEditorPage", () => {
   test("should display page title", async () => {
     const result = await (<QrEditorPage isAuthenticated={false} />);
 
-    expect(result).toContain("Donation QR Code Creator");
+    expect(result).toContain("qr_code_creator");
   });
 
   test("should contain amount input", async () => {

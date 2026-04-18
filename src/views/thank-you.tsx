@@ -18,7 +18,7 @@ export function ThankYouPage({ isAuthenticated }: ThankYouProps) {
             />
           </div>
 
-          <h1 class="page-title">Thank you for your donation!</h1>
+          <h1 class="page-title">donation_complete</h1>
 
           <p class="page-message">
             Your support helps keep Noisebridge running and accessible to
@@ -26,7 +26,7 @@ export function ThankYouPage({ isAuthenticated }: ThankYouProps) {
           </p>
 
           <a href={paths.index()} class="btn btn-primary btn-large">
-            Return to Home
+            Return Home
           </a>
         </div>
       </div>

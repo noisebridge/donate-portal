@@ -5,7 +5,7 @@ import { Navbar } from "./navbar";
 const githubUrl =
   config.gitRepo &&
   config.gitCommit &&
-  `https://github.com/${config.gitRepo}/tree/${config.gitCommit}`;
+  (`https://github.com/${config.gitRepo}/tree/${config.gitCommit}` as "safe");
 
 export type LayoutProps = PropsWithChildren<{
   title: string;
@@ -61,19 +61,18 @@ export function Layout({
           <main id="main-content">{children}</main>
 
           <footer>
-            <p>
-              Noisebridge is a 501(c)(3) non-profit
-              {githubUrl ? (
-                <>
-                  {" &mdash; "}
+            <div class="footer-content">
+              <div>
+                {"&copy;"} {new Date().getFullYear()} Noisebridge
+              </div>
+              {githubUrl && (
+                <div>
                   <a href={githubUrl} target="_blank" rel="noopener noreferrer">
-                    Source Code
+                    Source
                   </a>
-                </>
-              ) : (
-                ""
+                </div>
               )}
-            </p>
+            </div>
           </footer>
         </body>
       </html>

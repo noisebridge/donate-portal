@@ -13,7 +13,7 @@ export function NotFoundPage({ isAuthenticated }: NotFoundProps) {
     >
       <div class="container">
         <div class="error-page">
-          <h1 class="error-heading">Page Not Found</h1>
+          <h1 class="error-heading">page_not_found</h1>
         </div>
       </div>
     </Layout>

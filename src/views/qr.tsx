@@ -97,17 +97,19 @@ export function QrPage({
             </button>
           </form>
 
-          <div class="divider">
-            <span class="divider-text">or</span>
-          </div>
+          <div class="divider">or</div>
 
           {!donationManager.isGeneral(name) && (
-            <a href={`${paths.index()}#donate`} class="btn btn-outline">
+            <a href={`${paths.index()}#donate`} class="qr-btn-outline">
               Make a general donation
             </a>
           )}
 
-          <a href={paths.signIn()} class="btn btn-outline mt-sm">
+          <a
+            href={paths.signIn()}
+            class="qr-btn-outline"
+            style="margin-top: 10px;"
+          >
             Give monthly
           </a>
         </div>

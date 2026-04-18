@@ -15,65 +15,83 @@ export function AuthPage({ isAuthenticated, messages = [] }: AuthProps) {
       script="auth.mjs"
       isAuthenticated={isAuthenticated}
     >
-      <div class="container-narrow">
-        <MessageContainer messages={messages} />
+      <main class="stage">
+        <div class="center-col">
+          <MessageContainer messages={messages} />
 
-        <div class="card">
-          <h1 class="auth-title">Sign In</h1>
-          <p class="auth-subtitle">Sign in to manage your monthly donation</p>
-
-          <div class="oauth-buttons">
-            <a href={paths.githubStart()} class="btn btn-outline btn-github">
-              <img
-                class="oauth-icon"
-                src="/assets/image/github.svg"
-                alt="GitHub Logo"
-              />
-              Continue with GitHub
-            </a>
-
-            <a href={paths.googleStart()} class="btn btn-outline btn-google">
-              <img
-                class="oauth-icon"
-                src="/assets/image/google.svg"
-                alt="Google Logo"
-              />
-              Continue with Google
-            </a>
+          <div class="center-intro">
+            <h1>
+              Welcome <span class="accent">back</span>
+              <span class="cursor"></span>
+            </h1>
           </div>
 
-          <div class="divider">
-            <span class="divider-text">or</span>
-          </div>
+          <div class="form-card">
+            <div class="card-head">
+              <div>~/auth/sign_in</div>
+            </div>
 
-          <div class="magic-link-section">
-            <h2 class="magic-link-title">Sign in with Email</h2>
-            <p class="magic-link-description">
-              We'll send you a link to sign in
+            <h2>sign_in</h2>
+            <p class="sub">
+              Pick a provider, or we'll email you a one-time link.
             </p>
 
-            <form
-              class="magic-link-form"
-              method="post"
-              action={paths.emailAuth()}
-            >
-              <input
-                type="email"
-                id="email"
-                name="email"
-                class="form-input"
-                placeholder="you@example.com"
-                minlength="5"
-                required
-              />
+            <div class="oauth-stack">
+              <a href={paths.googleStart()} class="btn-oauth">
+                <span class="oauth-ico" aria-hidden="true">
+                  <img
+                    src="/assets/image/google.svg"
+                    alt=""
+                    width="18"
+                    height="18"
+                  />
+                </span>
+                <span>Continue with Google</span>
+                <span class="arrow">{"→"}</span>
+              </a>
 
-              <button class="btn btn-outline btn-block" type="submit">
-                Send Magic Link
+              <a href={paths.githubStart()} class="btn-oauth">
+                <span class="oauth-ico" aria-hidden="true">
+                  <img
+                    src="/assets/image/github.svg"
+                    alt=""
+                    width="18"
+                    height="18"
+                  />
+                </span>
+                <span>Continue with GitHub</span>
+                <span class="arrow">{"→"}</span>
+              </a>
+            </div>
+
+            <div class="divider">or email me a link</div>
+
+            <form method="post" action={paths.emailAuth()}>
+              <div class="field">
+                <label for="email">Email</label>
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  placeholder="you@domain.tld"
+                  minlength="5"
+                  required
+                  autocomplete="email"
+                />
+              </div>
+
+              <button type="submit" class="btn-signin">
+                <span>Send magic link</span>
+                <span>{"→"}</span>
               </button>
+
+              <div class="magic-note">
+                We'll email a one-time sign-in link. No password required.
+              </div>
             </form>
           </div>
         </div>
-      </div>
+      </main>
     </Layout>
   );
 }

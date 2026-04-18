@@ -17,10 +17,10 @@ export function QrEditorPage({ isAuthenticated }: QrEditorProps) {
       isAuthenticated={isAuthenticated}
     >
       <div class="container">
-        <section class="hero">
-          <h1>Donation QR Code Creator</h1>
+        <div class="qr-editor-header">
+          <h1>qr_code_creator</h1>
           <p>Generate donation QR codes for use in the hackerspace</p>
-        </section>
+        </div>
 
         <div class="card">
           <h2>Parameters</h2>

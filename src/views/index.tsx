@@ -17,41 +17,76 @@ export function IndexPage({ isAuthenticated, messages = [] }: IndexProps) {
       styles="index.css"
       isAuthenticated={isAuthenticated}
     >
-      <div class="container">
+      <div class="shell">
         <section class="hero">
-          <h1>Support Noisebridge</h1>
-          <p>
-            All donations are tax-deductible. Noisebridge is a 501(c)(3)
-            non-profit.
-          </p>
+          <div>
+            <div class="kicker">{"501(c)(3) · EST. 2007 · San Francisco"}</div>
+            <h1 class="hero-title">
+              Keep the
+              <br />
+              <span class="accent">lights on</span>,
+              <br />
+              the doors open
+              <span class="cursor"></span>
+            </h1>
+            <p class="hero-lede">
+              Help keep our hackerspace running and accessible to everyone. Your
+              contribution supports workshops, equipment, and a vibrant
+              community of makers, thinkers, and tinkerers.
+            </p>
+
+            <div class="stat-row">
+              <div class="stat">
+                <div class="num">24/7</div>
+                <div class="lbl">Doors open</div>
+              </div>
+              <div class="stat">
+                <div class="num">$0</div>
+                <div class="lbl">Membership required</div>
+              </div>
+              <div class="stat">
+                <div class="num">100%</div>
+                <div class="lbl">Volunteer-run</div>
+              </div>
+            </div>
+          </div>
+
+          <aside class="recurring-card">
+            <div class="tag-row">
+              <span>{"// supporting_member.sh"}</span>
+              <span class="badge">Best impact</span>
+            </div>
+            <h2>Become a supporting member</h2>
+            <p>
+              Supporting members keep our lease, our internet, and our classes
+              running without another fundraising sprint. Set your own monthly
+              donation amount.
+            </p>
+            <a
+              class="btn-recurring"
+              href={isAuthenticated ? paths.manage() : paths.signIn()}
+            >
+              <span>
+                {isAuthenticated
+                  ? "Manage your donation"
+                  : "Become a supporting member"}
+              </span>
+              <span class="arrow">{"→"}</span>
+            </a>
+          </aside>
         </section>
 
         <MessageContainer messages={messages} />
 
-        <div class="card">
-          <h2>Monthly Donation</h2>
-          <p>
-            Help keep our hackerspace running and accessible to everyone. Your
-            contribution supports workshops, equipment, and a vibrant community
-            of makers, thinkers, and tinkerers.
-          </p>
-          <a
-            class="btn btn-primary btn-large"
-            href={isAuthenticated ? paths.manage() : paths.signIn()}
-          >
-            {isAuthenticated
-              ? "Manage Your Donation"
-              : "Start Membership Donation"}
-          </a>
-        </div>
-
-        <div id="donate" class="card">
-          <h2>One-Time Donation</h2>
-          <p>Make a single contribution to support Noisebridge.</p>
+        <section>
+          <div class="section-head">
+            <h2>one_time_donation</h2>
+          </div>
 
           <form id="donate-form" method="POST" action={paths.donate()}>
-            <fieldset class="amount-buttons">
+            <fieldset class="amount-grid">
               <legend class="visually-hidden">Donation amount</legend>
+
               <input
                 type="radio"
                 id="amount-10"
@@ -60,8 +95,11 @@ export function IndexPage({ isAuthenticated, messages = [] }: IndexProps) {
                 aria-label="$10"
                 required
               />
-              <label for="amount-10" class="btn btn-amount" aria-hidden="true">
-                $10
+              <label for="amount-10" class="amount-chip" aria-hidden="true">
+                <span class="idx">[01]</span>
+                <span class="amt">
+                  <span class="dol">$</span>10
+                </span>
               </label>
 
               <input
@@ -71,8 +109,11 @@ export function IndexPage({ isAuthenticated, messages = [] }: IndexProps) {
                 value="20"
                 aria-label="$20"
               />
-              <label for="amount-20" class="btn btn-amount" aria-hidden="true">
-                $20
+              <label for="amount-20" class="amount-chip" aria-hidden="true">
+                <span class="idx">[02]</span>
+                <span class="amt">
+                  <span class="dol">$</span>20
+                </span>
               </label>
 
               <input
@@ -82,8 +123,11 @@ export function IndexPage({ isAuthenticated, messages = [] }: IndexProps) {
                 value="40"
                 aria-label="$40"
               />
-              <label for="amount-40" class="btn btn-amount" aria-hidden="true">
-                $40
+              <label for="amount-40" class="amount-chip" aria-hidden="true">
+                <span class="idx">[03]</span>
+                <span class="amt">
+                  <span class="dol">$</span>40
+                </span>
               </label>
 
               <input
@@ -93,8 +137,11 @@ export function IndexPage({ isAuthenticated, messages = [] }: IndexProps) {
                 value="80"
                 aria-label="$80"
               />
-              <label for="amount-80" class="btn btn-amount" aria-hidden="true">
-                $80
+              <label for="amount-80" class="amount-chip" aria-hidden="true">
+                <span class="idx">[04]</span>
+                <span class="amt">
+                  <span class="dol">$</span>80
+                </span>
               </label>
 
               <input
@@ -104,8 +151,11 @@ export function IndexPage({ isAuthenticated, messages = [] }: IndexProps) {
                 value="160"
                 aria-label="$160"
               />
-              <label for="amount-160" class="btn btn-amount" aria-hidden="true">
-                $160
+              <label for="amount-160" class="amount-chip" aria-hidden="true">
+                <span class="idx">[05]</span>
+                <span class="amt">
+                  <span class="dol">$</span>160
+                </span>
               </label>
 
               <input
@@ -115,12 +165,9 @@ export function IndexPage({ isAuthenticated, messages = [] }: IndexProps) {
                 value="custom"
                 aria-label="Custom amount"
               />
-              <label
-                for="amount-custom"
-                class="btn btn-amount"
-                aria-hidden="true"
-              >
-                Custom
+              <label for="amount-custom" class="amount-chip" aria-hidden="true">
+                <span class="idx">[06]</span>
+                <span class="amt custom-label">Custom</span>
               </label>
             </fieldset>
 
@@ -128,36 +175,40 @@ export function IndexPage({ isAuthenticated, messages = [] }: IndexProps) {
               <label for="custom-amount" class="visually-hidden">
                 Custom donation amount in dollars
               </label>
-              <div class="input-group">
-                <span class="input-prefix" aria-hidden="true">
-                  $
-                </span>
-                <input
-                  type="text"
-                  inputmode="decimal"
-                  id="custom-amount"
-                  name="custom-amount"
-                  placeholder="0.00"
-                  aria-describedby="custom-amount-hint"
-                  data-min={DonationManager.minimumAmount.cents / 100}
-                  required
-                  readonly
-                />
+              <div class="custom-input-wrap">
+                <span class="custom-input-label">Custom amount</span>
+                <div class="custom-input-row">
+                  <span class="dol">$</span>
+                  <input
+                    type="text"
+                    inputmode="decimal"
+                    id="custom-amount"
+                    name="custom-amount"
+                    placeholder="0"
+                    aria-describedby="custom-amount-hint"
+                    data-min={DonationManager.minimumAmount.cents / 100}
+                    required
+                    readonly
+                  />
+                </div>
               </div>
               <span id="custom-amount-hint" class="visually-hidden">
                 Enter a custom dollar amount for your one-time donation
               </span>
             </div>
 
-            <button
-              id="donate-now"
-              class="btn btn-secondary btn-large"
-              type="submit"
-            >
-              Donate Now
+            <button id="donate-now" class="btn-continue" type="submit">
+              <span>Continue to payment</span>
+              <span>{"→"}</span>
             </button>
           </form>
-        </div>
+
+          <div class="tax-note">
+            Noisebridge is a 501(c)(3) tax-exempt nonprofit. Your donation is
+            tax-deductible to the extent allowed by law. EIN{" "}
+            <span class="ein">26-2852080</span>.
+          </div>
+        </section>
       </div>
 
       <StripeCheckoutModal title="Complete Your Donation" />

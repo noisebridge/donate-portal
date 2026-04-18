@@ -7,7 +7,7 @@ test.describe("QR Editor Page", () => {
   });
 
   test("displays the QR editor page with correct title", async ({ page }) => {
-    await expect(page.locator("h1")).toContainText("Donation QR Code Creator");
+    await expect(page.locator("h1")).toContainText("qr_code_creator");
   });
 
   test("shows placeholder when no amount is entered", async ({ page }) => {
@@ -143,7 +143,7 @@ test.describe("QR Editor Navigation", () => {
     await page.goto("/");
 
     // Click the QR code icon in the navbar
-    await page.click('a[aria-label="QR Code Editor"]');
+    await page.click('a:has-text("QR Editor")');
 
     await expect(page).toHaveURL("/qr-editor");
   });

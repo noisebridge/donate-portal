@@ -8,40 +8,29 @@ export function Navbar({ isAuthenticated }: NavbarProps) {
   return (
     <nav class="navbar" aria-label="Main navigation">
       <div class="navbar-content">
-        <div class="navbar-left">
-          <a href={paths.index()} class="navbar-brand">
-            <img src="/assets/image/logo.svg" alt="Logo" class="logo" />
-            <span class="site-title">Noisebridge</span>
-          </a>
-        </div>
-        <div class="navbar-right">
-          <a
-            href={paths.qrEditor()}
-            class="btn-nav btn-nav-icon"
-            aria-label="QR Code Editor"
-          >
-            <img src="/assets/image/qr-code.svg" alt="" class="nav-icon" />
+        <a href={paths.index()} class="brand">
+          <div class="mark">N</div>
+          <div class="org">NOISEBRIDGE</div>
+        </a>
+        <div class="nav-links">
+          <a href={paths.qrEditor()} class="hide-mobile">
+            QR Editor
           </a>
           {isAuthenticated ? (
             <>
-              <a
-                href={paths.manage()}
-                class="btn-nav btn-nav-subtle mobile-hidden"
-              >
-                Manage
-              </a>
+              <a href={paths.manage()}>Manage</a>
               <form
                 method="post"
                 action={paths.signOut()}
                 class="sign-out-form"
               >
-                <button type="submit" class="btn-nav btn-nav-filled">
+                <button type="submit" class="signin">
                   Sign Out
                 </button>
               </form>
             </>
           ) : (
-            <a href={paths.signIn()} class="btn-nav">
+            <a href={paths.signIn()} class="signin">
               Sign In
             </a>
           )}

@@ -7,11 +7,11 @@ test.describe("Navigation Tests", () => {
     await expect(page).toHaveURL("/auth");
   });
 
-  test("Start Membership Donation button navigates to /auth when not authenticated", async ({
+  test("Become a supporting member button navigates to /auth when not authenticated", async ({
     page,
   }) => {
     await page.goto("/");
-    await page.click('a:has-text("Start Membership Donation")');
+    await page.click('a:has-text("Become a supporting member")');
     await expect(page).toHaveURL("/auth");
   });
 
@@ -22,7 +22,7 @@ test.describe("Navigation Tests", () => {
     expect(response?.status()).toBe(404);
 
     // Verify 404 page content is displayed
-    await expect(page.locator("h1")).toContainText("Page Not Found");
+    await expect(page.locator("h1")).toContainText("page_not_found");
   });
 
   test("Logo navigates to home page", async ({ page }) => {
@@ -30,7 +30,7 @@ test.describe("Navigation Tests", () => {
     await page.goto("/auth");
 
     // Click the logo/brand link
-    await page.click("a.navbar-brand");
+    await page.click("a.brand");
 
     // Should navigate to home page
     await expect(page).toHaveURL("/");
