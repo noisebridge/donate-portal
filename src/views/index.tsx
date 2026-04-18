@@ -206,7 +206,7 @@ export function IndexPage({ isAuthenticated, messages = [] }: IndexProps) {
           <div class="tax-note">
             Noisebridge is a 501(c)(3) tax-exempt nonprofit. Your donation is
             tax-deductible to the extent allowed by law. EIN{" "}
-            <span class="ein">26-2852080</span>.
+            <span class="ein">26-3507741</span>.
           </div>
         </section>
       </div>
