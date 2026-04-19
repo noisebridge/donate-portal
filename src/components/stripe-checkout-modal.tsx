@@ -1,5 +1,3 @@
-import { escapeHtml } from "@kitajs/html";
-
 interface StripeCheckoutModalProps {
   title: string;
   donateButton?: boolean;
@@ -20,7 +18,7 @@ export function StripeCheckoutModal({
         >
           &times;
         </button>
-        <h2 class="checkout-modal-title">{escapeHtml(title)}</h2>
+        <h2 class="checkout-modal-title">{title as "safe"}</h2>
         <div id="payment-element"></div>
         <div id="payment-message" class="checkout-modal-message" hidden></div>
         {donateButton && (
