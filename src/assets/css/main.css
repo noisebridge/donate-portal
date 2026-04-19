@@ -129,27 +129,9 @@ body::before {
   text-decoration: none;
 }
 
-.mark {
+.brand-logo {
   width: 34px;
   height: 34px;
-  background: var(--color-primary);
-  color: #fff;
-  display: grid;
-  place-items: center;
-  font-weight: 800;
-  font-size: 18px;
-  font-family: var(--font-mono);
-  position: relative;
-}
-
-.mark::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border: 2px solid var(--color-primary);
-  transform: translate(4px, 4px);
-  z-index: -1;
-  opacity: 0.35;
 }
 
 .org {

@@ -9,7 +9,11 @@ export function Navbar({ isAuthenticated }: NavbarProps) {
     <nav class="navbar" aria-label="Main navigation">
       <div class="navbar-content">
         <a href={paths.index()} class="brand">
-          <div class="mark">N</div>
+          <img
+            src="/assets/image/logo.svg"
+            alt="Noisebridge logo"
+            class="brand-logo"
+          />
           <div class="org">NOISEBRIDGE</div>
         </a>
         <div class="nav-links">
