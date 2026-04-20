@@ -60,11 +60,11 @@ async function createSubscription(
 async function cancelSubscription(page: Page): Promise<void> {
   await Promise.all([
     page.waitForURL(/info=/, { timeout: 10000 }),
-    page.dblclick('button:has-text("Cancel Monthly Donation")'),
+    page.dblclick('button:has-text("Cancel subscription")'),
   ]);
   await page.waitForLoadState("networkidle");
   await expect(
-    page.locator('button:has-text("Cancel Monthly Donation")'),
+    page.locator('button:has-text("Cancel subscription")'),
   ).not.toBeVisible();
 }
 
@@ -197,7 +197,7 @@ test.describe("Subscription Flow Tests", () => {
 
     // Verify no cancel button is present
     await expect(
-      page.locator('button:has-text("Cancel Monthly Donation")'),
+      page.locator('button:has-text("Cancel subscription")'),
     ).not.toBeVisible();
 
     // Verify no portal button is present

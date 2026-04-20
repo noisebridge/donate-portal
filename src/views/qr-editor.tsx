@@ -4,6 +4,22 @@ import { DonationManager } from "~/managers/donation";
 import { formatAmount } from "~/money";
 import paths from "~/paths";
 
+function DownloadSVG() {
+  return (
+    <svg
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.5"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <title>Download</title>
+      <path d="M8 2v8m0 0l-3-3m3 3l3-3M2 12v1a1 1 0 001 1h10a1 1 0 001-1v-1" />
+    </svg>
+  );
+}
+
 export interface QrEditorProps {
   isAuthenticated: boolean;
 }
@@ -16,109 +32,172 @@ export function QrEditorPage({ isAuthenticated }: QrEditorProps) {
       styles="qr-editor.css"
       isAuthenticated={isAuthenticated}
     >
-      <div class="container">
-        <div class="qr-editor-header">
-          <h1>qr_code_creator</h1>
-          <p>Generate donation QR codes for use in the hackerspace</p>
-        </div>
+      <div class="container-wide">
+        <header class="page-head">
+          <h1>qr_editor</h1>
+          <div class="crumbs">
+            <a href={paths.donate()}>~</a>
+            <span class="sep">/</span>tools<span class="sep">/</span>
+            <span class="crumb-current">qr-editor</span>
+          </div>
+        </header>
 
-        <div class="card">
-          <h2>Parameters</h2>
+        <p class="page-desc">
+          Generate a scannable QR code that opens a pre-filled Noisebridge
+          donation. Perfect for laser-cut signs, 3D-printed placards, flyers at
+          the space, or slapping on the side of a vending machine.
+        </p>
 
-          <form id="qr-form" action={paths.qrSvg()} method="GET">
-            <div class="form-group">
-              <label for="amount">Amount (USD)</label>
-              <div class="input-group">
-                <span class="input-prefix" aria-hidden="true">
-                  $
+        <div class="editor-grid">
+          <section>
+            <div class="section-head">
+              <h2>parameters</h2>
+              <span class="meta">{"Live preview \u2192"}</span>
+            </div>
+
+            <form id="qr-form" action={paths.qrSvg()} method="GET">
+              <div class="field">
+                <label class="field-label" for="amount">
+                  <span class="field-idx">[01]</span>
+                  Donation amount
+                </label>
+                <div class="input-wrap input-wrap-amount">
+                  <span class="input-prefix-box" aria-hidden="true">
+                    $
+                  </span>
+                  <input
+                    type="text"
+                    inputmode="decimal"
+                    id="amount"
+                    name="amount"
+                    placeholder="0.00"
+                    data-min={DonationManager.minimumAmount.cents / 100}
+                    required
+                  />
+                </div>
+                <span class="field-hint">
+                  Minimum{" "}
+                  {formatAmount(DonationManager.minimumAmount) as "safe"}.
+                  Donors can still adjust this when they scan — it's just a
+                  suggested default.
                 </span>
-                <input
-                  type="text"
-                  inputmode="decimal"
-                  id="amount"
-                  name="amount"
-                  placeholder="0.00"
-                  data-min={DonationManager.minimumAmount.cents / 100}
-                  required
-                />
               </div>
-              <span class="form-hint">
-                Minimum {formatAmount(DonationManager.minimumAmount) as "safe"}
-              </span>
-            </div>
 
-            <div class="form-group">
-              <label for="name">Product Name (optional)</label>
-              <input
-                type="text"
-                id="name"
-                name="name"
-                placeholder={DonationManager.defaultName}
-                maxlength={DonationManager.maxNameLength}
-              />
-            </div>
+              <div class="field">
+                <label class="field-label" for="name">
+                  <span class="field-idx">[02]</span>
+                  Product name
+                  <span class="field-opt">— optional</span>
+                </label>
+                <div class="input-wrap">
+                  <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    placeholder={DonationManager.defaultName}
+                    maxlength={DonationManager.maxNameLength}
+                  />
+                </div>
+                <span class="field-hint">
+                  Appears on the donor's receipt and checkout page.
+                </span>
+              </div>
 
-            <div class="form-group">
-              <label for="description">Description (optional)</label>
-              <input
-                type="text"
-                id="description"
-                name="description"
-                placeholder={DonationManager.defaultDescription}
-                maxlength={DonationManager.maxDescriptionLength}
-              />
-            </div>
+              <div class="field">
+                <label class="field-label" for="description">
+                  <span class="field-idx">[03]</span>
+                  Description
+                  <span class="field-opt">— optional</span>
+                </label>
+                <div class="input-wrap">
+                  <input
+                    type="text"
+                    id="description"
+                    name="description"
+                    placeholder={DonationManager.defaultDescription}
+                    maxlength={DonationManager.maxDescriptionLength}
+                  />
+                </div>
+                <span class="field-hint">
+                  Shown under the product name at checkout.
+                </span>
+              </div>
 
-            <div class="form-group">
-              <label class="checkbox-label">
+              <label class="check-row" for="use-logo">
                 <input type="checkbox" id="use-logo" name="use-logo" checked />
-                Include Logo
+                <div>
+                  <span class="check-lbl">Include Noisebridge logo</span>
+                  <span class="check-desc">
+                    Embed our logo in the center of the QR code.
+                  </span>
+                </div>
               </label>
-            </div>
-          </form>
-        </div>
+            </form>
+          </section>
 
-        <div class="card qr-preview-card">
-          <h2>Preview</h2>
-          <div class="qr-preview">
-            <img
-              id="qr-image"
-              src=""
-              alt="QR Code preview"
-              style="display: none;"
-            />
-            <div id="qr-placeholder" class="qr-placeholder">
-              Enter an amount to generate a QR code
+          <section>
+            <div class="section-head">
+              <h2>preview</h2>
             </div>
-          </div>
-          <div class="qr-url-display">
-            <input
-              type="text"
-              id="qr-url"
-              name="qr-url"
-              value={`${config.baseUrl}${paths.qr()}`}
-              readonly
-            />
-          </div>
-          <div class="button-group">
-            <button type="button" id="download-png" class="btn btn-primary">
-              Download PNG
-            </button>
-            <button type="button" id="download-svg" class="btn btn-secondary">
-              Download SVG
-            </button>
-          </div>
-          <div class="info-3d">
-            For information on creating a 3D-printable QR code go&nbsp;
+
+            <div class="preview-card">
+              <div class="qr-frame">
+                <img
+                  id="qr-image"
+                  src=""
+                  alt="QR Code preview"
+                  style="display: none;"
+                />
+                <div id="qr-placeholder" class="qr-placeholder">
+                  <div class="qr-placeholder-icon">[ ]</div>
+                  <div class="qr-placeholder-msg">Enter an amount</div>
+                  <div class="qr-placeholder-sub">QR updates as you type</div>
+                </div>
+              </div>
+
+              <div class="qr-url-wrap">
+                <div class="field-label">
+                  <span class="field-idx">{"\u2192"}</span>
+                  Target URL
+                </div>
+                <div class="qr-url-display">
+                  <input
+                    type="text"
+                    id="qr-url"
+                    name="qr-url"
+                    value={`${config.baseUrl}${paths.qr()}`}
+                    readonly
+                  />
+                </div>
+              </div>
+
+              <div class="button-group">
+                <button type="button" id="download-png" class="btn btn-ghost">
+                  <DownloadSVG />
+                  Download PNG
+                </button>
+                <button type="button" id="download-svg" class="btn btn-ghost">
+                  <DownloadSVG />
+                  Download SVG
+                </button>
+              </div>
+            </div>
+
             <a
+              class="wiki-callout"
               href="https://www.noisebridge.net/wiki/Donation_QR_Codes#3D"
               target="_blank"
               rel="noopener noreferrer"
             >
-              here
+              <div class="wiki-body">
+                <div class="wiki-title">3D-printable QR codes on the wiki</div>
+                <div class="wiki-desc">
+                  Includes instructions for generating 3D-print files, as well
+                  as links to a collection of pre-made QR code files.
+                </div>
+              </div>
             </a>
-            .
-          </div>
+          </section>
         </div>
       </div>
     </Layout>

@@ -7,7 +7,7 @@ test.describe("QR Editor Page", () => {
   });
 
   test("displays the QR editor page with correct title", async ({ page }) => {
-    await expect(page.locator("h1")).toContainText("qr_code_creator");
+    await expect(page.locator("h1")).toContainText("qr_editor");
   });
 
   test("shows placeholder when no amount is entered", async ({ page }) => {
@@ -108,14 +108,14 @@ test.describe("QR Editor Page", () => {
     const downloadPngButton = page.locator("#download-png");
 
     await expect(downloadPngButton).toBeVisible();
-    await expect(downloadPngButton).toHaveText("Download PNG");
+    await expect(downloadPngButton).toContainText("Download PNG");
   });
 
   test("download SVG button is present", async ({ page }) => {
     const downloadSvgButton = page.locator("#download-svg");
 
     await expect(downloadSvgButton).toBeVisible();
-    await expect(downloadSvgButton).toHaveText("Download SVG");
+    await expect(downloadSvgButton).toContainText("Download SVG");
   });
 
   test("form has correct input fields", async ({ page }) => {

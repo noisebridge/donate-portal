@@ -61,6 +61,9 @@ import { sendErrorReport } from "./error-reporting.mjs";
 
 const LED_API = "http://localhost:3000";
 
+const IS_LOCAL_DEV =
+  location.hostname === "localhost" || location.hostname === "127.0.0.1";
+
 /**
  * Send a LED effect function to the controller.
  * @param {Function} fn - Self-contained function to serialize via .toString()
@@ -68,6 +71,8 @@ const LED_API = "http://localhost:3000";
  * @param {number} [timeout] - Auto-expire after this many ms
  */
 async function sendLedEffect(fn, data, timeout) {
+  if (IS_LOCAL_DEV) return;
+
   /** @type {Record<string, unknown>} */
   const body = { function: fn.toString() };
   if (data !== undefined) body["data"] = data;
@@ -477,6 +482,8 @@ export function ledHyperdrive() {
 
 /** Turn off all LEDs. */
 export async function ledClear() {
+  if (IS_LOCAL_DEV) return;
+
   try {
     await fetch(`${LED_API}/reset`, {
       method: "POST",

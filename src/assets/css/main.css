@@ -203,6 +203,7 @@ body::before {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-sm);
+  margin-bottom: 1rem;
 }
 
 .message {
@@ -426,6 +427,114 @@ body::before {
   width: 100%;
 }
 
+/* Ghost button (base — pages may override specifics) */
+.btn-ghost {
+  display: flex;
+  align-items: center;
+  background: transparent;
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  font-family: var(--font-mono);
+  cursor: pointer;
+  transition:
+    border-color 120ms ease,
+    transform 120ms ease,
+    box-shadow 120ms ease;
+}
+
+.btn-ghost:hover {
+  border-color: var(--color-primary);
+  transform: translate(-2px, -2px);
+  box-shadow: 4px 4px 0 var(--color-text);
+}
+
+/* Page header */
+.page-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 24px;
+  padding-bottom: 22px;
+  border-bottom: 1px dashed var(--color-border);
+}
+
+.page-head h1 {
+  font-family: var(--font-mono);
+  font-size: 38px;
+  line-height: 1.05;
+  margin: 0;
+  letter-spacing: -0.025em;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.page-head h1::before {
+  content: "$ ";
+  color: var(--color-primary);
+  font-weight: 700;
+}
+
+/* Section head */
+.section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--color-border);
+  margin-bottom: 22px;
+}
+
+.section-head h2 {
+  font-family: var(--font-mono);
+  font-size: 20px;
+  margin: 0;
+  color: var(--color-text);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.section-head h2::before {
+  content: "$ ";
+  color: var(--color-primary);
+  font-weight: 700;
+}
+
+.section-head .meta {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-text-light);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* Breadcrumbs */
+.crumbs {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-text-light);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.crumbs a {
+  color: var(--color-text-light);
+  text-decoration: none;
+}
+
+.crumbs a:hover {
+  color: var(--color-text);
+}
+
+.crumbs .sep {
+  color: var(--color-text-mute);
+  margin: 0 8px;
+}
+
+.crumb-current {
+  color: var(--color-text);
+}
+
 footer {
   margin-top: 80px;
   padding: 24px 0;
@@ -488,6 +597,21 @@ footer {
 
   .hide-mobile {
     display: none;
+  }
+
+  .page-head {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .page-head h1 {
+    font-size: 28px;
+  }
+
+  .section-head {
+    flex-direction: column;
+    gap: 6px;
   }
 }
 

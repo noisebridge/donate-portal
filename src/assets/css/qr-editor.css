@@ -1,135 +1,471 @@
-.qr-editor-header h1 {
+.container-wide {
+  width: 100%;
+  max-width: var(--content-max-width);
+  margin: 0 auto;
+  padding: 22px 40px 80px;
+}
+
+.page-desc {
   font-family: var(--font-mono);
-  font-size: 32px;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  margin: 0 0 8px;
-}
-
-.qr-editor-header h1::before {
-  content: "$ ";
-  color: var(--color-primary);
-}
-
-.qr-editor-header p {
-  font-size: 14px;
+  font-size: 12px;
   color: var(--color-text-light);
+  margin: 16px 0 40px;
+  max-width: 68ch;
+  line-height: 1.65;
 }
 
-.card h2 {
+/* Grid Layout */
+.editor-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+  gap: 40px;
+  align-items: start;
+}
+
+/* Fields */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 22px;
+}
+
+.field-label {
   font-family: var(--font-mono);
-  font-size: 22px;
-  font-weight: 700;
-  color: var(--color-text);
-  margin-bottom: var(--spacing-md);
-  letter-spacing: -0.01em;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-text-light);
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
-.card h2::before {
-  content: "$ ";
-  color: var(--color-primary);
-  font-weight: 700;
+.field-idx {
+  color: var(--color-text-mute);
+  font-size: 10px;
 }
 
-.form-hint {
-  display: block;
+.field-opt {
+  color: var(--color-text-mute);
+  text-transform: none;
+  letter-spacing: 0.02em;
+  font-size: 10px;
+  font-weight: 400;
+}
+
+.field-hint {
   font-family: var(--font-mono);
   font-size: 11px;
   color: var(--color-text-mute);
-  margin-top: var(--spacing-xs);
-  letter-spacing: 0.04em;
+  line-height: 1.5;
 }
 
-/* Checkbox Label */
-.checkbox-label {
+/* Input Wrap */
+.input-wrap {
+  position: relative;
+  display: flex;
   align-items: center;
+  border: 1px solid var(--color-border);
+  background: var(--color-panel);
+  transition: border-color 120ms ease;
+}
+
+.input-wrap:focus-within {
+  border-color: var(--color-primary);
+}
+
+.input-prefix-box {
+  font-family: var(--font-mono);
+  color: var(--color-text-light);
+  padding: 0 14px 0 16px;
+  font-size: 18px;
+  font-weight: 500;
+  border-right: 1px solid var(--color-border);
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  background: color-mix(in oklab, var(--color-text) 3%, var(--color-panel));
+}
+
+.input-wrap input {
+  flex: 1;
+  min-width: 0;
+  background: transparent;
+  border: none;
+  font-family: var(--font-mono);
+  font-size: 15px;
+  color: var(--color-text);
+  padding: 14px 16px;
+  outline: none;
+  width: 100%;
+}
+
+.input-wrap input::placeholder {
+  color: var(--color-text-mute);
+}
+
+.input-wrap-amount input {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+/* Checkbox Row */
+.check-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 16px 18px;
+  border: 1px solid var(--color-border);
+  background: var(--color-panel);
+  cursor: pointer;
+  user-select: none;
+  margin-bottom: 22px;
+  transition: border-color 120ms ease;
+}
+
+.check-row:hover {
+  border-color: var(--color-text-light);
+}
+
+.check-row input[type="checkbox"] {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border: 1px solid var(--color-text-light);
+  background: var(--color-panel);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  margin: 0;
+  flex-shrink: 0;
+  margin-top: 1px;
+  position: relative;
+  transition: all 120ms ease;
+}
+
+.check-row input[type="checkbox"]:checked {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.check-row input[type="checkbox"]:checked::after {
+  content: "";
+  width: 10px;
+  height: 6px;
+  border-left: 2px solid #fff;
+  border-bottom: 2px solid #fff;
+  transform: translateY(-1px) rotate(-45deg);
+}
+
+.check-lbl {
   font-family: var(--font-mono);
   font-size: 13px;
-  font-weight: 500;
+  font-weight: 600;
   color: var(--color-text);
-  cursor: pointer;
+  letter-spacing: -0.005em;
+  line-height: 1.3;
+  display: block;
+  margin-bottom: 4px;
 }
 
-.checkbox-label input[type="checkbox"] {
-  width: 1.125rem;
-  height: 1.125rem;
-  accent-color: var(--color-primary);
-  cursor: pointer;
-  margin-right: var(--spacing-sm);
+.check-desc {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-text-light);
+  line-height: 1.5;
 }
 
-.input-group input {
-  padding-left: 2rem;
+/* Preview Card */
+.preview-card {
+  border: 1px solid var(--color-border);
+  background: var(--color-panel);
+  position: relative;
+  padding: 28px;
+}
+
+.preview-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: 1px solid var(--color-border);
+  transform: translate(6px, 6px);
+  z-index: -1;
+  opacity: 0.5;
+}
+
+/* QR Frame */
+.qr-frame {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+  width: 100%;
+  background: color-mix(in oklab, var(--color-text) 3%, var(--color-panel));
+  border: 1px dashed var(--color-border);
+  margin-bottom: 22px;
+  position: relative;
+  overflow: hidden;
+}
+
+.qr-frame img {
+  max-width: 100%;
+  max-height: 100%;
+  display: block;
+}
+
+.qr-placeholder {
+  text-align: center;
+  padding: 28px;
+  font-family: var(--font-mono);
+}
+
+.qr-placeholder-icon {
+  font-size: 42px;
+  color: var(--color-text-mute);
+  margin-bottom: 16px;
+  letter-spacing: 0.2em;
+  line-height: 1;
+}
+
+.qr-placeholder-msg {
+  font-size: 11px;
+  color: var(--color-text-light);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.qr-placeholder-sub {
+  font-size: 11px;
+  color: var(--color-text-mute);
+  margin-top: 6px;
+  line-height: 1.5;
+}
+
+/* QR URL Display */
+.qr-url-wrap {
+  margin-bottom: 20px;
+}
+
+.qr-url-wrap .field-label {
+  margin-bottom: 8px;
+}
+
+.qr-url-display {
+  display: flex;
+  align-items: stretch;
+  border: 1px solid var(--color-border);
+  background: color-mix(in oklab, var(--color-text) 2%, var(--color-panel));
+}
+
+.qr-url-display input {
+  flex: 1;
+  min-width: 0;
+  background: transparent;
+  border: none;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--color-text);
+  padding: 12px 14px;
+  outline: none;
 }
 
 /* Button Group */
 .button-group {
-  display: flex;
-  gap: var(--spacing-sm);
-  margin-top: var(--spacing-lg);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
 }
 
-.button-group .btn {
-  flex: 1;
-}
-
-/* QR Preview */
-.qr-preview {
-  display: flex;
-  align-items: center;
+/* Ghost button overrides (extends base in main.css) */
+.btn-ghost {
   justify-content: center;
-  min-height: 300px;
-  background-color: var(--color-background);
-  padding: var(--spacing-md);
-  aspect-ratio: 1;
-  border: 1px solid var(--color-border);
+  gap: 10px;
+  padding: 14px 18px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
-.qr-preview img {
-  max-width: 100%;
-  height: auto;
+.btn-ghost svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
 }
 
-.qr-placeholder {
-  font-family: var(--font-mono);
-  color: var(--color-text-mute);
-  font-size: 14px;
-  text-align: center;
-  letter-spacing: 0.02em;
+/* Wiki Callout */
+.wiki-callout {
+  margin-top: 22px;
+  padding: 16px 18px;
+  border: 1px dashed var(--color-border);
+  background: color-mix(in oklab, var(--color-primary) 3%, var(--color-panel));
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 120ms ease;
 }
 
-/* QR URL Display */
-.qr-url-display {
-  margin-top: var(--spacing-sm);
+.wiki-callout:hover {
+  border-color: var(--color-primary);
+  border-style: solid;
 }
 
-.qr-url-display input {
-  width: 100%;
-  padding: 12px 14px;
-  font-family: var(--font-mono);
-  font-size: 13px;
-  border: 1px solid var(--color-border);
-  background-color: var(--color-background);
-  color: var(--color-text);
-  cursor: text;
+.wiki-body {
+  flex: 1;
+  min-width: 0;
 }
 
-.info-3d {
-  padding-top: var(--spacing-md);
-  width: 100%;
-  text-align: center;
+.wiki-title {
   font-family: var(--font-mono);
   font-size: 12px;
-  color: var(--color-text-mute);
+  font-weight: 700;
+  color: var(--color-text);
+  letter-spacing: -0.005em;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
-.info-3d a {
-  color: var(--color-primary);
+.wiki-title::after {
+  content: "\2197";
+  color: var(--color-text-light);
+  font-size: 11px;
+}
+
+.wiki-desc {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-text-light);
+  line-height: 1.55;
 }
 
 /* Responsive */
 @media (max-width: 900px) {
+  .container-wide {
+    padding: 20px 22px 60px;
+  }
+
+  .page-head {
+    gap: 12px;
+    padding-bottom: 18px;
+  }
+
+  .page-head h1 {
+    font-size: 30px;
+  }
+
+  .crumbs {
+    font-size: 10px;
+    letter-spacing: 0.08em;
+  }
+
+  .page-desc {
+    font-size: 11.5px;
+    margin: 14px 0 30px;
+  }
+
+  .editor-grid {
+    grid-template-columns: 1fr;
+    gap: 36px;
+  }
+
+  .section-head {
+    padding-bottom: 12px;
+    margin-bottom: 18px;
+  }
+
+  .section-head h2 {
+    font-size: 18px;
+  }
+
+  .section-head .meta {
+    font-size: 10px;
+  }
+
+  .input-wrap-amount input {
+    font-size: 20px;
+  }
+
+  .input-prefix-box {
+    font-size: 16px;
+    padding: 0 12px;
+  }
+
+  .input-wrap input {
+    font-size: 14px;
+    padding: 12px 14px;
+  }
+
+  .check-row {
+    padding: 14px 16px;
+  }
+
+  .check-lbl {
+    font-size: 12.5px;
+  }
+
+  .check-desc {
+    font-size: 10.5px;
+  }
+
+  .preview-card {
+    padding: 20px;
+  }
+
+  .preview-card::before {
+    transform: translate(4px, 4px);
+  }
+
+  .qr-placeholder-icon {
+    font-size: 34px;
+    margin-bottom: 12px;
+  }
+
+  .qr-url-display input {
+    font-size: 11px;
+    padding: 11px 12px;
+  }
+
   .button-group {
-    flex-direction: column;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .btn-ghost {
+    padding: 12px 12px;
+    font-size: 11px;
+    letter-spacing: 0.05em;
+    gap: 6px;
+  }
+
+  .wiki-callout {
+    padding: 14px 16px;
+    gap: 12px;
+  }
+
+  .wiki-title {
+    font-size: 11.5px;
+  }
+
+  .wiki-desc {
+    font-size: 10.5px;
+  }
+}
+
+@media (max-width: 440px) {
+  .container-wide {
+    padding: 16px 18px 50px;
+  }
+
+  .page-head h1 {
+    font-size: 26px;
+  }
+
+  .button-group {
+    grid-template-columns: 1fr;
   }
 }

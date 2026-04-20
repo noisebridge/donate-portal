@@ -18,7 +18,16 @@ export default defineConfig({
   },
   projects: [
     {
-      name: "firefox",
+      name: "main",
+      testIgnore: /alerts\.spec/,
+      use: { ...devices["Desktop Firefox"] },
+    },
+    // Run alerts.spec after other tests to avoid race conditions on checks for
+    // recent donations.
+    {
+      name: "alerts",
+      testMatch: /alerts\.spec/,
+      dependencies: ["main"],
       use: { ...devices["Desktop Firefox"] },
     },
   ],

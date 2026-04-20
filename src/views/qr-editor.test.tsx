@@ -20,7 +20,7 @@ describe("QrEditorPage", () => {
   test("should display page title", async () => {
     const result = await (<QrEditorPage isAuthenticated={false} />);
 
-    expect(result).toContain("qr_code_creator");
+    expect(result).toContain("qr_editor");
   });
 
   test("should contain amount input", async () => {
@@ -41,7 +41,7 @@ describe("QrEditorPage", () => {
     const result = await (<QrEditorPage isAuthenticated={false} />);
 
     expect(result).toContain('id="use-logo"');
-    expect(result).toContain("Include Logo");
+    expect(result).toContain("Include Noisebridge logo");
   });
 
   test("should contain download buttons", async () => {

@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import type Stripe from "stripe";
+import { createMockSubscription } from "~/test-utils/mock-subscription";
 import { ManagePage } from "./manage";
 
 describe("ManagePage", () => {
@@ -46,73 +46,70 @@ describe("ManagePage", () => {
   });
 
   test("should display cancel form when subscription exists", async () => {
-    const mockSubscription: Stripe.Subscription = {
-      id: "sub_123",
-      object: "subscription",
-      application: null,
-      application_fee_percent: null,
-      automatic_tax: {
-        enabled: false,
-        liability: null,
-        disabled_reason: null,
-      },
-      billing_cycle_anchor: 1234567890,
-      billing_cycle_anchor_config: null,
-      billing_mode: {
-        type: "classic",
-        flexible: null,
-      },
-      billing_thresholds: null,
-      cancel_at: null,
-      cancel_at_period_end: false,
-      canceled_at: null,
-      cancellation_details: null,
-      collection_method: "charge_automatically",
-      created: 1234567890,
-      currency: "usd",
-      customer: "cus_123",
-      customer_account: "ca_123",
-      days_until_due: null,
-      default_payment_method: null,
-      default_source: null,
-      description: null,
-      discounts: [],
-      ended_at: null,
-      invoice_settings: {
-        account_tax_ids: null,
-        issuer: { type: "self" },
-      },
-      items: {
-        object: "list",
-        data: [],
-        has_more: false,
-        url: "/v1/subscription_items",
-      },
-      latest_invoice: null,
-      livemode: false,
-      metadata: {},
-      next_pending_invoice_item_invoice: null,
-      on_behalf_of: null,
-      pause_collection: null,
-      payment_settings: null,
-      pending_invoice_item_interval: null,
-      pending_setup_intent: null,
-      pending_update: null,
-      schedule: null,
-      start_date: 1234567890,
-      status: "active",
-      test_clock: null,
-      transfer_data: null,
-      trial_end: null,
-      trial_settings: null,
-      trial_start: null,
-    };
-
     const result = await (
-      <ManagePage email="test@example.com" subscription={mockSubscription} />
+      <ManagePage
+        email="test@example.com"
+        subscription={createMockSubscription()}
+      />
     );
 
     expect(result).toBeTypeOf("string");
-    expect(result).toContain("Cancel Monthly Donation");
+    expect(result).toContain("Cancel subscription");
+  });
+
+  test("status strip shows tier, amount, and renewal date", async () => {
+    const result = await (
+      <ManagePage
+        email="test@example.com"
+        subscription={createMockSubscription({ unitAmount: 10000 })}
+      />
+    );
+
+    expect(result).toContain('class="status-strip"');
+    expect(result).toContain("Employed Hacker");
+    expect(result).toContain("$100.00");
+    expect(result).toContain("Jan");
+    expect(result).toContain("2025");
+    expect(result).toContain("pill-ok");
+    expect(result).toContain("active");
+  });
+
+  test("status strip shows 'Custom' tier name for non-standard amount", async () => {
+    const result = await (
+      <ManagePage
+        email="test@example.com"
+        subscription={createMockSubscription({ unitAmount: 7500 })}
+      />
+    );
+
+    expect(result).toContain("Custom");
+    expect(result).toContain("$75.00");
+  });
+
+  test("shows no-subscription notice when no subscription", async () => {
+    const result = await (<ManagePage email="test@example.com" />);
+
+    expect(result).toContain('class="status-null"');
+    expect(result).not.toContain('class="status-strip"');
+  });
+
+  test("should display portal form when subscription exists", async () => {
+    const result = await (
+      <ManagePage
+        email="test@example.com"
+        subscription={createMockSubscription()}
+      />
+    );
+
+    expect(result).toBeTypeOf("string");
+    expect(result).toContain('action="/subscribe/portal"');
+    expect(result).toContain("Past invoices");
+  });
+
+  test("should not display portal form without subscription", async () => {
+    const result = await (<ManagePage email="test@example.com" />);
+
+    expect(result).toBeTypeOf("string");
+    expect(result).not.toContain('action="/subscribe/portal"');
   });
 });

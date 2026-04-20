@@ -2,17 +2,21 @@ import type Stripe from "stripe";
 import { SubscriptionManager } from "~/managers/subscription";
 import paths from "~/paths";
 
-interface Tier {
+export interface Tier {
   id: string;
   name: string;
   amount: number;
 }
 
-const TIERS: Tier[] = [
+export const TIERS: Tier[] = [
   { id: "starving", name: "Starving Hacker", amount: 50 },
   { id: "employed", name: "Employed Hacker", amount: 100 },
   { id: "rich", name: "Rich Hacker", amount: 200 },
 ];
+
+function tierIndex(position: number): string {
+  return `[${String(position + 1).padStart(2, "0")}]`;
+}
 
 interface DonationTierSelectorProps {
   subscription?: Stripe.Subscription | undefined;
@@ -26,19 +30,6 @@ function tierChecked(tier: Tier, existingAmount: number | null): boolean {
   return tier.amount === existingAmount / 100;
 }
 
-function subscriptionRenewalDate(subscription?: Stripe.Subscription) {
-  if (!subscription) {
-    return null;
-  }
-
-  const item = subscription.items.data[0];
-  if (!item) {
-    return null;
-  }
-
-  return new Date(item.current_period_end * 1000);
-}
-
 export function DonationTierSelector({
   subscription,
 }: DonationTierSelectorProps) {
@@ -48,62 +39,58 @@ export function DonationTierSelector({
     ...tier,
     checked: tierChecked(tier, existingAmount),
   }));
-  const hasCustomAmount = tiers.find((tier) => tier.checked) === undefined;
-  const renewalDate =
-    subscriptionRenewalDate(subscription)?.toLocaleDateString();
+  const hasCustomAmount = !tiers.some((tier) => tier.checked);
 
   return (
-    <>
-      <form method="POST" action={paths.subscribe()} class="donation-tier-form">
-        <p class="form-description">
-          {renewalDate
-            ? `Your monthly donation renews on ${renewalDate}`
-            : "Choose a monthly donation tier to support Noisebridge"}
-        </p>
+    <section>
+      <div class="section-head">
+        <h2>{subscription ? "update_tier" : "choose_tier"}</h2>
+        <div class="meta">
+          {subscription
+            ? "Change your monthly amount \u00b7 applies next cycle"
+            : "Billed monthly in USD \u00b7 cancel anytime"}
+        </div>
+      </div>
 
+      <form method="POST" action={paths.subscribe()} class="donation-tier-form">
         <fieldset class="tier-options">
           <legend class="visually-hidden">
             Select a monthly donation tier
           </legend>
-          {tiers.map((tier) => (
-            <label class="tier-card" for={`tier-${tier.id}`}>
+          <div class="tier-grid">
+            {tiers.map((tier, position) => (
+              <label class="tier-chip" for={`tier-${tier.id}`}>
+                <input
+                  type="radio"
+                  id={`tier-${tier.id}`}
+                  name="amount-dollars"
+                  value={tier.amount.toString()}
+                  required
+                  checked={tier.checked}
+                />
+                <span class="idx">{tierIndex(position) as "safe"}</span>
+                <span class="tier-name">{tier.name as "safe"}</span>
+                <span class="amt">
+                  <span class="dol">$</span>
+                  {tier.amount}
+                </span>
+                <span class="freq">/ month</span>
+              </label>
+            ))}
+
+            <label class="tier-chip custom" for="tier-custom">
               <input
                 type="radio"
-                id={`tier-${tier.id}`}
+                id="tier-custom"
                 name="amount-dollars"
-                value={tier.amount.toString()}
+                value="custom"
                 required
-                checked={tier.checked}
+                checked={hasCustomAmount}
               />
-              <div class="tier-content">
-                <h3 class="tier-name">{tier.name as "safe"}</h3>
-                <div class="tier-amount" aria-hidden="true">
-                  <span class="currency">$</span>
-                  <span class="amount">{tier.amount}</span>
-                  <span class="period">/month</span>
-                </div>
-              </div>
-              <div class="tier-checkmark" aria-hidden="true">
-                <img src="/assets/image/checkmark.svg" alt="" />
-              </div>
-            </label>
-          ))}
-
-          <label class="tier-card tier-card-custom" for="tier-custom">
-            <input
-              type="radio"
-              id="tier-custom"
-              name="amount-dollars"
-              value="custom"
-              required
-              checked={hasCustomAmount}
-            />
-            <div class="tier-content">
-              <h3 class="tier-name">Custom Amount</h3>
-              <div class="custom-amount-input">
-                <span class="currency" aria-hidden="true">
-                  $
-                </span>
+              <span class="idx">{tierIndex(TIERS.length) as "safe"}</span>
+              <span class="tier-name">Custom</span>
+              <div class="input-row">
+                <span class="dol">$</span>
                 <label for="custom-amount" class="visually-hidden">
                   Custom monthly donation amount in dollars
                 </label>
@@ -114,7 +101,7 @@ export function DonationTierSelector({
                   id="custom-amount"
                   data-min={SubscriptionManager.minimumAmount.cents / 100}
                   class="custom-input"
-                  placeholder="0.00"
+                  placeholder="0"
                   aria-describedby="custom-amount-monthly-hint"
                   value={
                     hasCustomAmount
@@ -124,32 +111,19 @@ export function DonationTierSelector({
                   required
                   readonly={!hasCustomAmount}
                 />
-                <span class="period" aria-hidden="true">
-                  /month
-                </span>
                 <span id="custom-amount-monthly-hint" class="visually-hidden">
                   Enter a custom dollar amount for your monthly donation
                 </span>
               </div>
-            </div>
-            <div class="tier-checkmark" aria-hidden="true">
-              <img src="/assets/image/checkmark.svg" alt="" />
-            </div>
-          </label>
+              <span class="freq">/ month</span>
+            </label>
+          </div>
         </fieldset>
 
         <button type="submit" class="btn btn-primary btn-large">
           {subscription ? "Update Monthly Donation" : "Start Monthly Donation"}
         </button>
       </form>
-
-      {!!subscription && (
-        <form method="post" action={paths.stripePortal()}>
-          <button type="submit" class="btn btn-outline btn-large mt-sm">
-            Past Invoices and Payment Methods
-          </button>
-        </form>
-      )}
-    </>
+    </section>
   );
 }

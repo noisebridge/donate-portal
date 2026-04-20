@@ -1,135 +1,213 @@
-.manage-header {
-  text-align: center;
-  margin-bottom: var(--spacing-md);
+.manage-container {
+  max-width: var(--content-max-width);
+  padding: 22px 40px 80px;
+  gap: 0;
 }
 
-.manage-header h1 {
+/* Signed-in line */
+.who-line {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   font-family: var(--font-mono);
-  font-size: 2.5rem;
-  font-weight: 700;
+  font-size: 12px;
+  color: var(--color-text-light);
+  margin-top: 18px;
+  margin-bottom: 14px;
+  letter-spacing: 0.02em;
+  flex-wrap: wrap;
+}
+
+.who-lbl {
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 10px;
+  color: var(--color-text-mute);
+}
+
+.who-email {
   color: var(--color-text);
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+/* Active subscription status strip */
+.status-strip {
+  display: grid;
+  grid-template-columns: 1fr auto auto auto;
+  align-items: stretch;
+  border: 1px solid var(--color-border);
+  background: var(--color-panel);
+  margin-bottom: 40px;
+  position: relative;
+}
+
+.status-strip::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: 1px solid var(--color-border);
+  transform: translate(5px, 5px);
+  z-index: -1;
+  opacity: 0.5;
+}
+
+.status-strip .cell {
+  padding: 18px 22px;
+  border-right: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.status-strip .cell:last-child {
+  border-right: none;
+}
+
+.status-strip .lbl {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--color-text-light);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.status-strip .val {
+  font-family: var(--font-mono);
+  font-size: 15px;
+  color: var(--color-text);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.status-strip .big {
+  font-size: 22px;
+  font-weight: 700;
   letter-spacing: -0.02em;
 }
 
-.manage-header h1::before {
-  content: "$ ";
-  color: var(--color-primary);
+.status-strip .pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
-.manage-header p {
-  font-size: 14px;
+.status-strip .pill::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.status-strip .pill-ok {
+  color: #1a6b22;
+}
+
+.status-strip .pill-ok::before {
+  background: #2fae3b;
+  box-shadow: 0 0 0 3px rgba(47, 174, 59, 0.2);
+}
+
+.status-strip .pill-warn {
+  color: #8a5a00;
+}
+
+.status-strip .pill-warn::before {
+  background: #e0a020;
+  box-shadow: 0 0 0 3px rgba(224, 160, 32, 0.2);
+}
+
+.status-strip .pill-stopped {
   color: var(--color-text-light);
 }
 
-/* Donation Tier Selector Styles */
-.donation-tier-form {
-  background: var(--color-panel);
-  border: 1px solid var(--color-border);
-  padding: 2rem;
+.status-strip .pill-stopped::before {
+  background: var(--color-text-mute);
+  box-shadow: 0 0 0 3px
+    color-mix(in oklab, var(--color-text-mute) 25%, transparent);
 }
 
-.form-description {
-  text-align: center;
+/* No-subscription notice */
+.status-null {
+  border: 1px dashed var(--color-border);
+  padding: 20px 22px;
+  margin-bottom: 40px;
   font-family: var(--font-mono);
   font-size: 13px;
   color: var(--color-text-light);
-  margin-bottom: 2rem;
+  background: color-mix(in oklab, var(--color-primary) 3%, var(--color-panel));
+  line-height: 1.55;
+}
+
+.status-null::before {
+  content: "NO ACTIVE SUBSCRIPTION";
+  display: block;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  color: var(--color-primary);
+  margin-bottom: 6px;
+  font-weight: 700;
+}
+
+/* Donation tier form — remove old box styles */
+.donation-tier-form {
+  background: none;
+  border: none;
+  padding: 0;
 }
 
 .tier-options {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 10px;
-  margin-bottom: 2rem;
+  border: none;
+  padding: 0;
+  margin: 0;
 }
 
-.tier-card {
+/* Tier grid */
+.tier-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 28px;
+}
+
+/* Tier chip */
+.tier-chip {
   position: relative;
-  display: block;
-  padding: 1.5rem;
-  background: var(--color-background);
   border: 1px solid var(--color-border);
+  background: var(--color-panel);
+  padding: 22px 20px 20px;
   cursor: pointer;
+  font-family: var(--font-mono);
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
   transition:
     border-color 120ms ease,
     background 120ms ease;
 }
 
-.tier-card:hover {
+.tier-chip:hover {
   border-color: var(--color-text-light);
 }
 
-.tier-card input[type="radio"] {
+.tier-chip input[type="radio"] {
   position: absolute;
   opacity: 0;
   width: 0;
   height: 0;
 }
 
-.tier-content {
-  text-align: center;
-  transition: color 120ms ease;
-}
-
-.tier-name {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  margin-bottom: 1rem;
-  color: var(--color-text-light);
-}
-
-.tier-amount {
-  font-family: var(--font-mono);
-  font-size: 2rem;
-  font-weight: 700;
-  color: var(--color-text);
-  display: flex;
-  align-items: baseline;
-  justify-content: center;
-  gap: 2px;
-  letter-spacing: -0.02em;
-}
-
-.tier-amount .currency {
-  font-size: 1.25rem;
-  font-weight: 500;
-  color: var(--color-text-light);
-}
-
-.tier-amount .period {
-  font-size: 12px;
-  font-weight: 400;
-  color: var(--color-text-mute);
-  margin-left: 4px;
-}
-
-.tier-checkmark {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  width: 24px;
-  height: 24px;
-  opacity: 0;
-  transition: opacity 120ms ease;
-}
-
-.tier-card input[type="radio"]:checked ~ .tier-checkmark {
-  opacity: 1;
-}
-
-.tier-card:has(input[type="radio"]:checked) {
+.tier-chip:has(input[type="radio"]:checked) {
   border-color: var(--color-primary);
-  background: color-mix(
-    in oklab,
-    var(--color-primary) 10%,
-    var(--color-background)
-  );
+  background: color-mix(in oklab, var(--color-primary) 10%, var(--color-panel));
 }
 
-.tier-card:has(input[type="radio"]:checked)::before {
+.tier-chip:has(input[type="radio"]:checked)::before {
   content: "";
   position: absolute;
   inset: 0;
@@ -139,63 +217,170 @@
   opacity: 0.4;
 }
 
-.custom-amount-input {
-  display: flex;
-  align-items: baseline;
-  justify-content: center;
-  gap: 2px;
-  font-family: var(--font-mono);
-  font-size: 1.5rem;
+.tier-chip .idx {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  font-size: 10px;
+  color: var(--color-text-mute);
+  letter-spacing: 0.1em;
 }
 
-.custom-amount-input .currency {
-  font-size: 1.25rem;
+.tier-chip .tier-name {
+  font-size: 11px;
+  color: var(--color-text-light);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+.tier-chip:has(input[type="radio"]:checked) .tier-name {
+  color: var(--color-primary);
+}
+
+.tier-chip .amt {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--color-text);
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 2px;
+}
+
+.tier-chip .dol {
+  font-size: 18px;
   font-weight: 500;
   color: var(--color-text-light);
+  margin-right: 2px;
 }
 
-.custom-amount-input .period {
-  font-size: 12px;
-  font-weight: 400;
+.tier-chip .freq {
+  font-size: 10px;
   color: var(--color-text-mute);
-  margin-left: 4px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-top: 4px;
 }
 
-.custom-input {
-  width: 120px;
-  padding: 0.5rem;
-  font-family: var(--font-mono);
-  font-size: 1.5rem;
-  font-weight: 700;
-  text-align: center;
-  border: 1px solid var(--color-border);
+/* Custom tier */
+.tier-chip.custom .input-row {
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+  width: 100%;
+  margin-top: 2px;
+}
+
+.tier-chip.custom .dol {
+  font-size: 22px;
+}
+
+.tier-chip.custom .custom-input {
+  flex: 1;
   background: transparent;
+  border: none;
+  font-family: var(--font-mono);
+  font-size: 32px;
+  font-weight: 700;
   color: var(--color-text);
-  transition: border-color 120ms ease;
-}
-
-.custom-input:focus {
+  letter-spacing: -0.02em;
+  padding: 0;
   outline: none;
-  border-color: var(--color-primary);
+  width: 100%;
+  min-width: 0;
+  text-align: left;
 }
 
-.custom-input::placeholder {
+.tier-chip.custom .custom-input::placeholder {
   color: var(--color-text-mute);
-  font-size: 1.5rem;
-  font-weight: 400;
 }
 
-.cancel-subscription-form .form-description {
+/* Ghost buttons for account actions (extends base in main.css) */
+.btn-ghost {
+  justify-content: space-between;
+  width: 100%;
+  padding: 15px 20px;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-align: left;
+  text-decoration: none;
+}
+
+.btn-ghost::after {
+  content: "↗";
+  color: var(--color-text-light);
+  margin-left: auto;
+  padding-left: 12px;
+  font-size: 20px;
+  line-height: 1;
+}
+
+.btn-ghost.danger {
+  color: var(--color-primary);
+}
+
+.btn-ghost.danger::after {
+  content: "×";
+  color: var(--color-primary);
+  font-size: 24px;
+  line-height: 1;
+}
+
+/* Action stack */
+.action-stack {
+  display: grid;
+  gap: 10px;
+  max-width: 560px;
+}
+
+/* Account actions section */
+.account-actions-section {
+  margin-top: 44px;
+}
+
+/* No-sub hint in account actions */
+.no-sub-hint {
   font-family: var(--font-mono);
   font-size: 13px;
+  color: var(--color-text-light);
+  line-height: 1.55;
+  margin: 0;
 }
 
+/* Cancel form — reset old card styles */
+.cancel-subscription-form {
+  background: none;
+  border: none;
+  padding: 0;
+}
+
+/* Responsive */
 @media (max-width: 900px) {
-  .manage-header h1 {
-    font-size: 2rem;
+  .manage-container {
+    padding: 20px;
   }
 
-  .tier-options {
-    grid-template-columns: 1fr;
+  .status-strip {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .status-strip .cell {
+    border-right: none;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .status-strip .cell:nth-child(odd) {
+    border-right: 1px solid var(--color-border);
+  }
+
+  .status-strip .cell:nth-last-child(-n + 2) {
+    border-bottom: none;
+  }
+
+  .tier-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
