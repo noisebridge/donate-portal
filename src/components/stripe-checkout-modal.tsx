@@ -1,3 +1,5 @@
+import { Button } from "~/components/button";
+
 interface StripeCheckoutModalProps {
   title: string;
   donateButton?: boolean;
@@ -22,13 +24,13 @@ export function StripeCheckoutModal({
         <div id="payment-element"></div>
         <div id="payment-message" class="checkout-modal-message" hidden></div>
         {donateButton && (
-          <button
+          <Button
+            variant="secondary"
             id="payment-submit"
-            type="button"
-            class="btn btn-secondary btn-large checkout-modal-submit"
+            class="checkout-modal-submit"
           >
             Donate Now
-          </button>
+          </Button>
         )}
       </div>
     </div>

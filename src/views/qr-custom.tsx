@@ -1,4 +1,5 @@
 import { escapeHtml } from "@kitajs/html";
+import { Button } from "~/components/button";
 import { Layout } from "~/components/layout";
 import { StripeCheckoutModal } from "~/components/stripe-checkout-modal";
 import { DonationManager } from "~/managers/donation";
@@ -31,10 +32,7 @@ export function QrCustomPage({
     >
       <div class="container-narrow">
         <div class="card text-center" style="position: relative;">
-          <a
-            href={paths.qr(amount, name, description)}
-            class="btn btn-outline qr-back-btn"
-          >
+          <a href={paths.qr(amount, name, description)} class="qr-corner-btn">
             Back
           </a>
           <form
@@ -95,9 +93,9 @@ export function QrCustomPage({
               </span>
             </div>
 
-            <button type="submit" class="btn btn-primary btn-large">
+            <Button variant="primary" type="submit">
               Donate
-            </button>
+            </Button>
           </form>
         </div>
       </div>

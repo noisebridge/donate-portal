@@ -104,47 +104,6 @@
   margin-bottom: 4px;
 }
 
-.btn-oauth {
-  display: grid;
-  grid-template-columns: 20px 1fr 20px;
-  align-items: center;
-  gap: 14px;
-  width: 100%;
-  padding: 13px 16px;
-  background: transparent;
-  color: var(--color-text);
-  border: 1px solid var(--color-border);
-  font-family: var(--font-mono);
-  font-size: 13px;
-  font-weight: 500;
-  letter-spacing: 0.02em;
-  cursor: pointer;
-  transition:
-    border-color 120ms ease,
-    transform 120ms ease,
-    box-shadow 120ms ease;
-  text-align: left;
-  text-decoration: none;
-}
-
-.btn-oauth:hover {
-  border-color: var(--color-primary);
-  transform: translate(-2px, -2px);
-  box-shadow: 4px 4px 0 var(--color-text);
-}
-
-.btn-oauth .oauth-ico {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.btn-oauth .arrow {
-  color: var(--color-text-light);
-  font-weight: 400;
-  text-align: right;
-}
-
 /* Field */
 .field {
   display: flex;
@@ -178,32 +137,6 @@
 
 .field input::placeholder {
   color: var(--color-text-mute);
-}
-
-/* Sign In Button */
-.btn-signin {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  padding: 16px 20px;
-  background: var(--color-primary);
-  color: #fff;
-  border: none;
-  font-family: var(--font-mono);
-  font-size: 14px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition:
-    transform 120ms ease,
-    box-shadow 120ms ease;
-}
-
-.btn-signin:hover {
-  transform: translate(-2px, -2px);
-  box-shadow: 6px 6px 0 var(--color-text);
 }
 
 /* Magic Link Note */

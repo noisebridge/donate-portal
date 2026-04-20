@@ -1,3 +1,4 @@
+import { Button } from "~/components/button";
 import { Layout } from "~/components/layout";
 import { type Message, MessageContainer } from "~/components/message-container";
 import { StripeCheckoutModal } from "~/components/stripe-checkout-modal";
@@ -62,17 +63,15 @@ export function IndexPage({ isAuthenticated, messages = [] }: IndexProps) {
               running without another fundraising sprint. Set your own monthly
               donation amount.
             </p>
-            <a
-              class="btn-recurring"
+            <Button
+              variant="primary"
+              arrow
               href={isAuthenticated ? paths.manage() : paths.signIn()}
             >
-              <span>
-                {isAuthenticated
-                  ? "Manage your donation"
-                  : "Become a supporting member"}
-              </span>
-              <span class="arrow">{"→"}</span>
-            </a>
+              {isAuthenticated
+                ? "Manage your donation"
+                : "Become a supporting member"}
+            </Button>
           </aside>
         </section>
 
@@ -197,10 +196,9 @@ export function IndexPage({ isAuthenticated, messages = [] }: IndexProps) {
               </span>
             </div>
 
-            <button id="donate-now" class="btn-continue" type="submit">
-              <span>Continue to payment</span>
-              <span>{"→"}</span>
-            </button>
+            <Button variant="primary" arrow type="submit" id="donate-now">
+              Continue to payment
+            </Button>
           </form>
 
           <div class="tax-note">

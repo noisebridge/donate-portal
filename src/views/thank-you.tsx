@@ -1,3 +1,4 @@
+import { Button } from "~/components/button";
 import { Layout } from "~/components/layout";
 import paths from "~/paths";
 
@@ -25,9 +26,9 @@ export function ThankYouPage({ isAuthenticated }: ThankYouProps) {
             everyone.
           </p>
 
-          <a href={paths.index()} class="btn btn-primary btn-large">
+          <Button variant="primary" href={paths.index()}>
             Return Home
-          </a>
+          </Button>
         </div>
       </div>
     </Layout>

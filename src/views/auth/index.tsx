@@ -1,3 +1,4 @@
+import { Button } from "~/components/button";
 import { Layout } from "~/components/layout";
 import { type Message, MessageContainer } from "~/components/message-container";
 import paths from "~/paths";
@@ -37,31 +38,37 @@ export function AuthPage({ isAuthenticated, messages = [] }: AuthProps) {
             </p>
 
             <div class="oauth-stack">
-              <a href={paths.googleStart()} class="btn-oauth">
-                <span class="oauth-ico" aria-hidden="true">
+              <Button
+                variant="outline"
+                arrow
+                href={paths.googleStart()}
+                icon={
                   <img
                     src="/assets/image/google.svg"
                     alt=""
                     width="18"
                     height="18"
                   />
-                </span>
-                <span>Continue with Google</span>
-                <span class="arrow">{"→"}</span>
-              </a>
+                }
+              >
+                Continue with Google
+              </Button>
 
-              <a href={paths.githubStart()} class="btn-oauth">
-                <span class="oauth-ico" aria-hidden="true">
+              <Button
+                variant="outline"
+                arrow
+                href={paths.githubStart()}
+                icon={
                   <img
                     src="/assets/image/github.svg"
                     alt=""
                     width="18"
                     height="18"
                   />
-                </span>
-                <span>Continue with GitHub</span>
-                <span class="arrow">{"→"}</span>
-              </a>
+                }
+              >
+                Continue with GitHub
+              </Button>
             </div>
 
             <div class="divider">or email me a link</div>
@@ -80,10 +87,9 @@ export function AuthPage({ isAuthenticated, messages = [] }: AuthProps) {
                 />
               </div>
 
-              <button type="submit" class="btn-signin">
-                <span>Send magic link</span>
-                <span>{"→"}</span>
-              </button>
+              <Button variant="primary" arrow type="submit">
+                Send magic link
+              </Button>
 
               <div class="magic-note">
                 We'll email a one-time sign-in link. No password required.

@@ -1,3 +1,4 @@
+import { Button } from "~/components/button";
 import { Layout } from "~/components/layout";
 import config from "~/config";
 import { DonationManager } from "~/managers/donation";
@@ -172,14 +173,20 @@ export function QrEditorPage({ isAuthenticated }: QrEditorProps) {
               </div>
 
               <div class="button-group">
-                <button type="button" id="download-png" class="btn btn-ghost">
-                  <DownloadSVG />
+                <Button
+                  variant="ghost"
+                  id="download-png"
+                  icon={<DownloadSVG />}
+                >
                   Download PNG
-                </button>
-                <button type="button" id="download-svg" class="btn btn-ghost">
-                  <DownloadSVG />
+                </Button>
+                <Button
+                  variant="ghost"
+                  id="download-svg"
+                  icon={<DownloadSVG />}
+                >
                   Download SVG
-                </button>
+                </Button>
               </div>
             </div>
 

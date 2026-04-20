@@ -159,37 +159,6 @@ p.hero-lede {
   margin: 0 0 22px;
 }
 
-.btn-recurring {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  padding: 16px 20px;
-  background: var(--color-primary);
-  color: #fff;
-  border: none;
-  font-family: var(--font-mono);
-  font-size: 14px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  cursor: pointer;
-  text-decoration: none;
-  transition:
-    transform 120ms ease,
-    box-shadow 120ms ease;
-}
-
-.btn-recurring:hover {
-  transform: translate(-2px, -2px);
-  box-shadow: 6px 6px 0 var(--color-text);
-}
-
-.btn-recurring .arrow {
-  font-weight: 400;
-  opacity: 0.9;
-}
-
 /* === ONE-TIME SECTION === */
 .section-head {
   display: flex;
@@ -362,36 +331,8 @@ input[type="radio"]:focus + .amount-chip {
   background: transparent;
 }
 
-/* Continue button */
-.btn-continue {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  padding: 18px 22px;
+#donate-now {
   margin-top: 24px;
-  background: var(--color-primary);
-  color: #fff;
-  border: none;
-  font-family: var(--font-mono);
-  font-size: 14px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition:
-    transform 120ms ease,
-    box-shadow 120ms ease;
-}
-
-.btn-continue:hover:not(:disabled) {
-  transform: translate(-2px, -2px);
-  box-shadow: 6px 6px 0 var(--color-text);
-}
-
-.btn-continue:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
 }
 
 /* Tax Note */

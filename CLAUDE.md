@@ -81,14 +81,10 @@ Every reference to a path for this system should be made using one of these path
 functions, ex:
 
 ```tsx
-<a
-  href={paths.stripePortal()}
-  class="btn btn-outline btn-large"
-  style="margin-top: 1rem;"
->
+<Button variant="outline" href={paths.stripePortal()}>
   Past Invoices and Payment Methods
-</a>
-````
+</Button>
+```
 
 ## Client-Side JavaScript
 

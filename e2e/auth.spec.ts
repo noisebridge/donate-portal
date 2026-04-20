@@ -9,7 +9,7 @@ test.describe("Auth Flow Tests", () => {
     await page.goto("/auth");
 
     // Click the GitHub OAuth button
-    await page.click('a.btn-oauth:has-text("GitHub")');
+    await page.click('a.btn-outline:has-text("GitHub")');
 
     // Should redirect to GitHub OAuth authorization page
     await expect(page).toHaveURL(/^https:\/\/github\.com\/login/);
@@ -25,7 +25,7 @@ test.describe("Auth Flow Tests", () => {
     await page.goto("/auth");
 
     // Click the Google OAuth button
-    await page.click('a.btn-oauth:has-text("Google")');
+    await page.click('a.btn-outline:has-text("Google")');
 
     // Should redirect to Google OAuth authorization page
     await expect(page).toHaveURL(/^https:\/\/accounts\.google\.com\//);

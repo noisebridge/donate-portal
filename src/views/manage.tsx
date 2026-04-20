@@ -1,5 +1,6 @@
 import { escapeHtml } from "@kitajs/html";
 import type Stripe from "stripe";
+import { Button } from "~/components/button";
 import {
   DonationTierSelector,
   TIERS,
@@ -133,9 +134,9 @@ export function ManagePage({
           {!!subscription && (
             <div class="action-stack">
               <form method="post" action={paths.stripePortal()}>
-                <button type="submit" class="btn-ghost">
+                <Button variant="ghost" suffix={"\u2197"} type="submit">
                   Past invoices &amp; payment method
-                </button>
+                </Button>
               </form>
 
               <form
@@ -143,13 +144,15 @@ export function ManagePage({
                 action={paths.cancel()}
                 class="cancel-subscription-form"
               >
-                <button
+                <Button
+                  variant="ghost"
+                  danger
+                  suffix={"\u00d7"}
                   type="submit"
-                  class="btn-ghost danger"
                   aria-live="polite"
                 >
                   Cancel subscription
-                </button>
+                </Button>
               </form>
             </div>
           )}

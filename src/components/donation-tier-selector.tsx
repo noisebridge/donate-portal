@@ -1,4 +1,5 @@
 import type Stripe from "stripe";
+import { Button } from "~/components/button";
 import { SubscriptionManager } from "~/managers/subscription";
 import paths from "~/paths";
 
@@ -120,9 +121,9 @@ export function DonationTierSelector({
           </div>
         </fieldset>
 
-        <button type="submit" class="btn btn-primary btn-large">
+        <Button variant="primary" type="submit">
           {subscription ? "Update Monthly Donation" : "Start Monthly Donation"}
-        </button>
+        </Button>
       </form>
     </section>
   );

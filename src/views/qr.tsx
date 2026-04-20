@@ -1,4 +1,5 @@
 import { escapeHtml } from "@kitajs/html";
+import { Button } from "~/components/button";
 import { Layout } from "~/components/layout";
 import { StripeCheckoutModal } from "~/components/stripe-checkout-modal";
 import donationManager, { DonationManager } from "~/managers/donation";
@@ -34,7 +35,7 @@ export function QrPage({
         <div class="card text-center" style="position: relative;">
           <a
             href={paths.qrCustom(amount, name, description)}
-            class="btn btn-outline qr-custom-btn"
+            class="qr-corner-btn"
           >
             Custom
           </a>
@@ -92,26 +93,24 @@ export function QrPage({
                 value={escapeHtml(description) as "safe"}
               />
             )}
-            <button type="submit" class="btn btn-primary btn-large">
+            <Button variant="primary" type="submit">
               Donate
-            </button>
+            </Button>
           </form>
 
           <div class="divider">or</div>
 
-          {!donationManager.isGeneral(name) && (
-            <a href={`${paths.index()}#donate`} class="qr-btn-outline">
-              Make a general donation
-            </a>
-          )}
+          <div class="qr-actions">
+            {!donationManager.isGeneral(name) && (
+              <Button variant="outline" href={`${paths.index()}#donate`}>
+                Make a general donation
+              </Button>
+            )}
 
-          <a
-            href={paths.signIn()}
-            class="qr-btn-outline"
-            style="margin-top: 10px;"
-          >
-            Give monthly
-          </a>
+            <Button variant="outline" href={paths.signIn()}>
+              Give monthly
+            </Button>
+          </div>
         </div>
       </div>
 
