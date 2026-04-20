@@ -20,12 +20,12 @@
         "mjml": "^4.18.0",
         "pino": "^9.14.0",
         "qrcode-svg": "1.1.0",
-        "resend": "^6.11.0",
+        "resend": "^6.12.2",
         "stripe": "^22.0.1",
         "zod": "^4.3.6",
       },
       "devDependencies": {
-        "@biomejs/biome": "2.4.12",
+        "@biomejs/biome": "^2.4.12",
         "@kitajs/ts-html-plugin": "^4.1.4",
         "@playwright/test": "^1.59.1",
         "@stripe/stripe-js": "^9.2.0",
@@ -443,7 +443,7 @@
 
     "require-from-string": ["require-from-string@2.0.2", "", {}, "sha512-Xf0nWe6RseziFMu+Ap9biiUbmplq6S9/p+7w7YXP/JBHhrUDDUhwa+vANyubuqfZWTveU//DYVGsDG7RKL/vEw=="],
 
-    "resend": ["resend@6.11.0", "", { "dependencies": { "postal-mime": "2.7.4", "svix": "1.90.0" }, "peerDependencies": { "@react-email/render": "*" }, "optionalPeers": ["@react-email/render"] }, "sha512-S9gxOccfwc+E6Cr3q28Gu8NkiIjYlYPlj9rqk4zkIuzlEoh8sWu/IvJSg7U7t+o3g0Ov2IOCzcneUaCi/M/WdQ=="],
+    "resend": ["resend@6.12.2", "", { "dependencies": { "postal-mime": "2.7.4", "svix": "1.90.0" }, "peerDependencies": { "@react-email/render": "*" }, "optionalPeers": ["@react-email/render"] }, "sha512-xwgmU4b0OqoabJsIoK/x0Whk0Fcs3bpbK4i/DEWPiE5hYJHyHl0TbB6QbI3gIr+bLdLUJ1GYm/fe41aVFuHXgw=="],
 
     "ret": ["ret@0.5.0", "", {}, "sha512-I1XxrZSQ+oErkRR4jYbAyEEu2I0avBvvMM5JN+6EBprOGRCs63ENqZ3vjavq8fBw2+62G5LF5XelKwuJpcvcxw=="],
 
