@@ -1,5 +1,6 @@
 import { Button } from "~/components/button";
 import { Layout } from "~/components/layout";
+import { StatusCard } from "~/components/status-card";
 import paths from "~/paths";
 
 export interface ThankYouProps {
@@ -9,28 +10,25 @@ export interface ThankYouProps {
 export function ThankYouPage({ isAuthenticated }: ThankYouProps) {
   return (
     <Layout title="Thank You!" isAuthenticated={isAuthenticated}>
-      <div class="container-narrow">
-        <div class="card text-center">
-          <div class="page-icon-wrapper">
-            <img
-              class="page-icon"
-              src="/assets/image/checkmark.svg"
-              alt="Success checkmark"
-            />
-          </div>
+      <StatusCard
+        icon={
+          <img
+            class="page-icon"
+            src="/assets/image/checkmark.svg"
+            alt="Success checkmark"
+          />
+        }
+        title="Donation Complete!"
+      >
+        <p class="page-message">
+          Your support helps keep Noisebridge running and accessible to
+          everyone.
+        </p>
 
-          <h1 class="page-title">Donation Complete!</h1>
-
-          <p class="page-message">
-            Your support helps keep Noisebridge running and accessible to
-            everyone.
-          </p>
-
-          <Button variant="primary" href={paths.index()}>
-            Return Home
-          </Button>
-        </div>
-      </div>
+        <Button variant="primary" href={paths.index()}>
+          Return Home
+        </Button>
+      </StatusCard>
     </Layout>
   );
 }

@@ -7,6 +7,8 @@ import {
 } from "~/components/donation-tier-selector";
 import { Layout } from "~/components/layout";
 import { type Message, MessageContainer } from "~/components/message-container";
+import { PageHead } from "~/components/page-head";
+import { SectionHead } from "~/components/section-head";
 import { StripeCheckoutModal } from "~/components/stripe-checkout-modal";
 import { formatAmount } from "~/money";
 import paths from "~/paths";
@@ -76,15 +78,10 @@ export function ManagePage({
       <div class="container manage-container">
         <MessageContainer messages={messages} />
 
-        <header class="page-head">
-          <h1>manage_subscription</h1>
-          <div class="crumbs">
-            <a href={paths.donate()}>~</a>
-            <span class="sep">/</span>account
-            <span class="sep">/</span>
-            <span class="crumb-current">subscription</span>
-          </div>
-        </header>
+        <PageHead
+          title="manage_subscription"
+          crumbs={["account", "subscription"]}
+        />
 
         <div class="who-line">
           <span class="who-lbl">Signed in as</span>
@@ -126,10 +123,10 @@ export function ManagePage({
         <DonationTierSelector subscription={subscription} />
 
         <section class="account-actions-section">
-          <div class="section-head">
-            <h2>account_actions</h2>
-            <div class="meta">Manage billing &amp; history</div>
-          </div>
+          <SectionHead
+            title="account_actions"
+            meta="Manage billing & history"
+          />
 
           {!!subscription && (
             <div class="action-stack">

@@ -1,6 +1,7 @@
 import { Button } from "~/components/button";
 import { Layout } from "~/components/layout";
 import { type Message, MessageContainer } from "~/components/message-container";
+import { SectionHead } from "~/components/section-head";
 import { StripeCheckoutModal } from "~/components/stripe-checkout-modal";
 import { DonationManager } from "~/managers/donation";
 import paths from "~/paths";
@@ -78,9 +79,7 @@ export function IndexPage({ isAuthenticated, messages = [] }: IndexProps) {
         <MessageContainer messages={messages} />
 
         <section>
-          <div class="section-head">
-            <h2>one_time_donation</h2>
-          </div>
+          <SectionHead title="one_time_donation" />
 
           <form id="donate-form" method="POST" action={paths.donate()}>
             <fieldset class="amount-grid">

@@ -1,5 +1,7 @@
 import { Button } from "~/components/button";
 import { Layout } from "~/components/layout";
+import { PageHead } from "~/components/page-head";
+import { SectionHead } from "~/components/section-head";
 import config from "~/config";
 import { DonationManager } from "~/managers/donation";
 import { formatAmount } from "~/money";
@@ -34,14 +36,7 @@ export function QrEditorPage({ isAuthenticated }: QrEditorProps) {
       isAuthenticated={isAuthenticated}
     >
       <div class="container-wide">
-        <header class="page-head">
-          <h1>qr_editor</h1>
-          <div class="crumbs">
-            <a href={paths.donate()}>~</a>
-            <span class="sep">/</span>tools<span class="sep">/</span>
-            <span class="crumb-current">qr-editor</span>
-          </div>
-        </header>
+        <PageHead title="qr_editor" crumbs={["tools", "qr-editor"]} />
 
         <p class="page-desc">
           Generate a scannable QR code that opens a pre-filled Noisebridge
@@ -51,10 +46,7 @@ export function QrEditorPage({ isAuthenticated }: QrEditorProps) {
 
         <div class="editor-grid">
           <section>
-            <div class="section-head">
-              <h2>parameters</h2>
-              <span class="meta">{"Live preview \u2192"}</span>
-            </div>
+            <SectionHead title="parameters" meta={"Live preview \u2192"} />
 
             <form id="qr-form" action={paths.qrSvg()} method="GET">
               <div class="field">
@@ -137,9 +129,7 @@ export function QrEditorPage({ isAuthenticated }: QrEditorProps) {
           </section>
 
           <section>
-            <div class="section-head">
-              <h2>preview</h2>
-            </div>
+            <SectionHead title="preview" />
 
             <div class="preview-card">
               <div class="qr-frame">
