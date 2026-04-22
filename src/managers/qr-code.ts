@@ -65,10 +65,10 @@ export class QRCodeManager {
     const decoded = bmp.decode(buffer);
 
     const { width, height, data } = decoded;
-    const result: BMPColor[][] = new Array(width);
 
+    const result: BMPColor[][] = new Array(width);
     for (let x = 0; x < width; x++) {
-      result[x] = new Array(height);
+      result[x] = new Array<BMPColor>(height).fill("transparent");
     }
 
     // BMP data is stored row by row (y * width + x)
@@ -129,7 +129,7 @@ export class QRCodeManager {
   /**
    * Insert an image into the middle of the QR code.
    * @param qrCode The starting `QRCode`
-   * @returns A modified copy of `qrCode`
+   * @returns A new `QRCode`
    */
   private addInsert(originalQRCode: QRCode) {
     const qrCode = clone(originalQRCode);

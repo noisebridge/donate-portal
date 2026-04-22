@@ -1,6 +1,5 @@
 import stripe from "~/services/stripe";
 import type { Cents } from "~/types/cents";
-import { GENERAL_DONATION, NAME_REMAP } from "./charge-alert";
 
 export enum DonationErrorCode {
   InvalidAmount = "Please select a valid donation amount",
@@ -65,6 +64,12 @@ export class DonationManager {
     };
   }
 }
+
+export const GENERAL_DONATION = "General Donation";
+export const NAME_REMAP: Record<string, string> = {
+  [DonationManager.defaultName]: GENERAL_DONATION,
+  "Support Us": GENERAL_DONATION,
+};
 
 const donationManager = new DonationManager();
 export default donationManager;

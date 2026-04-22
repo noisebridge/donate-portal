@@ -9,24 +9,10 @@ import type {
   MemberAlertMessage,
   PingMessage,
 } from "~/types/alerts";
+import { GENERAL_DONATION, NAME_REMAP } from "./donation";
 import { SubscriptionManager } from "./subscription";
 
-export type {
-  AlertMessage,
-  ChargeAlertMessage,
-  MemberAlertMessage,
-  PingMessage,
-  PongMessage,
-  WebsocketMessage,
-} from "~/types/alerts";
-
 const MAX_RECENT_ALERTS = 20;
-export const GENERAL_DONATION = "General Donation";
-export const NAME_REMAP: Record<string, string> = {
-  "Donation to Noisebridge": GENERAL_DONATION,
-  "Support Us": GENERAL_DONATION,
-};
-
 const PING_INTERVAL_MS = 30_000;
 
 export class ChargeAlertManager {

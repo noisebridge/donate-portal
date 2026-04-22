@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import type { ChargeAlertMessage } from "~/managers/charge-alert";
+import type { ChargeAlertMessage } from "~/types/alerts";
 import { AlertsPage } from "./alerts";
 
 const makeCharge = (

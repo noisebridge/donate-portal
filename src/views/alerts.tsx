@@ -1,11 +1,11 @@
 import { escapeHtml } from "@kitajs/html";
+import { formatAmount } from "~/money";
+import paths from "~/paths";
 import type {
   AlertMessage,
   ChargeAlertMessage,
   MemberAlertMessage,
-} from "~/managers/charge-alert";
-import { formatAmount } from "~/money";
-import paths from "~/paths";
+} from "~/types/alerts";
 
 function formatDate(isoDate: string): string {
   return new Date(isoDate).toLocaleString("en-US", {
