@@ -36,7 +36,7 @@ export function QrEditorPage({ isAuthenticated }: QrEditorProps) {
       isAuthenticated={isAuthenticated}
     >
       <div class="container-wide">
-        <PageHead title="qr_editor" crumbs={["tools", "qr-editor"]} />
+        <PageHead title="qr_editor" />
 
         <p class="page-desc">
           Generate a scannable QR code that opens a pre-filled Noisebridge

@@ -24,11 +24,11 @@ export function IndexPage({ isAuthenticated, messages = [] }: IndexProps) {
           <div>
             <div class="kicker">{"501(c)(3) · EST. 2007 · San Francisco"}</div>
             <h1 class="hero-title">
-              Keep the
+              Keep our
               <br />
               <span class="accent">lights on</span>,
               <br />
-              the doors open
+              doors open
               <span class="cursor"></span>
             </h1>
             <p class="hero-lede">

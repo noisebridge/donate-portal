@@ -78,10 +78,7 @@ export function ManagePage({
       <div class="container manage-container">
         <MessageContainer messages={messages} />
 
-        <PageHead
-          title="manage_subscription"
-          crumbs={["account", "subscription"]}
-        />
+        <PageHead title="manage_subscription" />
 
         <div class="who-line">
           <span class="who-lbl">Signed in as</span>
