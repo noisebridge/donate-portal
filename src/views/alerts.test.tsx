@@ -1,5 +1,9 @@
 import { describe, expect, test } from "bun:test";
-import type { ChargeAlertMessage } from "~/types/alerts";
+import type {
+  AlertMessage,
+  ChargeAlertMessage,
+  MemberAlertMessage,
+} from "~/types/alerts";
 import { AlertsPage } from "./alerts";
 
 const makeCharge = (
@@ -11,6 +15,13 @@ const makeCharge = (
   date: "2026-01-15T12:00:00Z",
   amount: { cents },
   productName,
+});
+
+const makeMember = (): MemberAlertMessage => ({
+  type: "member_alert",
+  id: "mem_test",
+  date: "2026-01-15T13:00:00Z",
+  productName: "New Member",
 });
 
 describe("AlertsPage", () => {
@@ -28,5 +39,19 @@ describe("AlertsPage", () => {
     const result = await (<AlertsPage alerts={charges} />);
 
     expect(result).toContain("nice-badge");
+  });
+
+  test("should render member alerts in history", async () => {
+    const alerts: AlertMessage[] = [makeCharge(5000), makeMember()];
+    const result = await (<AlertsPage alerts={alerts} />);
+
+    expect(result).toContain("New Member");
+    expect(result).toContain("Membership");
+  });
+
+  test("should show waiting message with empty alerts", async () => {
+    const result = await (<AlertsPage alerts={[]} />);
+
+    expect(result).toContain("Waiting for donations");
   });
 });

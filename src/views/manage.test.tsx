@@ -112,4 +112,26 @@ describe("ManagePage", () => {
     expect(result).toBeTypeOf("string");
     expect(result).not.toContain('action="/subscribe/portal"');
   });
+
+  test("shows pill-warn for past_due status", async () => {
+    const sub = createMockSubscription();
+    sub.status = "past_due";
+    const result = await (
+      <ManagePage email="test@example.com" subscription={sub} />
+    );
+
+    expect(result).toContain("pill-warn");
+    expect(result).toContain("past_due");
+  });
+
+  test("shows pill-stopped for canceled status", async () => {
+    const sub = createMockSubscription();
+    sub.status = "canceled";
+    const result = await (
+      <ManagePage email="test@example.com" subscription={sub} />
+    );
+
+    expect(result).toContain("pill-stopped");
+    expect(result).toContain("canceled");
+  });
 });
