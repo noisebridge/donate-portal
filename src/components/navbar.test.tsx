@@ -35,6 +35,6 @@ describe("Navbar", () => {
 
     expect(result).toBeTypeOf("string");
     expect(result).toContain('action="/auth/signout"');
-    expect(result).toContain('method="post"');
+    expect(result).toContain('method="POST"');
   });
 });

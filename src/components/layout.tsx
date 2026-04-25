@@ -27,6 +27,8 @@ export function Layout({
       <html lang="en">
         <head>
           <meta charset="UTF-8" />
+          {/** Prevent Safari from turning our EIN into a phone number link */}
+          <meta name="format-detection" content="telephone=no" />
           <meta
             name="viewport"
             content="width=device-width, initial-scale=1.0"
