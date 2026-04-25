@@ -24,7 +24,7 @@ export function Navbar({ isAuthenticated }: NavbarProps) {
             <>
               <a href={paths.manage()}>Manage</a>
               <form
-                method="post"
+                method="POST"
                 action={paths.signOut()}
                 class="sign-out-form"
               >

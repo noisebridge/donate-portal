@@ -2,6 +2,10 @@
   "name": "donate.noisebridge.net",
   "type": "module",
   "private": true,
+  "packageManager": "bun@1.3.13",
+  "engines": {
+    "bun": "1.3.13"
+  },
   "scripts": {
     "dev": "bun --watch src/server.ts",
     "dev:stripe": "stripe listen --forward-to localhost:3000/webhook",
@@ -20,9 +24,9 @@
     "@biomejs/biome": "^2.4.12",
     "@kitajs/ts-html-plugin": "^4.1.4",
     "@playwright/test": "^1.59.1",
-    "@stripe/stripe-js": "^9.2.0",
+    "@stripe/stripe-js": "^9.3.0",
     "@types/bmp-js": "^0.1.2",
-    "@types/bun": "~1.3.12",
+    "@types/bun": "~1.3.13",
     "@types/mjml": "^4.7.4",
     "@types/ws": "^8.18.1",
     "playwright": "^1.59.1"
@@ -36,7 +40,7 @@
     "@fastify/formbody": "^8.0.2",
     "@fastify/helmet": "^13.0.2",
     "@fastify/rate-limit": "^10.3.0",
-    "@fastify/static": "^9.1.2",
+    "@fastify/static": "^9.1.3",
     "@fastify/websocket": "^11.2.0",
     "@kitajs/fastify-html-plugin": "^4.2.1",
     "@kitajs/html": "^4.2.13",

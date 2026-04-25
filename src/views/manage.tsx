@@ -127,7 +127,7 @@ export function ManagePage({
 
           {!!subscription && (
             <div class="action-stack">
-              <form method="post" action={paths.stripePortal()}>
+              <form method="POST" action={paths.stripePortal()}>
                 <Button variant="ghost" suffix={"\u2197"} type="submit">
                   Past invoices &amp; payment method
                 </Button>

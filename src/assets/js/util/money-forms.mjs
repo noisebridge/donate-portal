@@ -10,6 +10,7 @@
 export function activateCustomOnClick(customInputField, customRadioButton) {
   // Touch devices
   customInputField.addEventListener("touchend", (e) => {
+    // [HACK]: Using the read-only flag as a substitute for disabled
     if (!customInputField.readOnly) {
       return;
     }
