@@ -3,15 +3,6 @@ import { formatAmount } from "~/money";
 import { QrPage } from "./qr";
 
 describe("QrPage", () => {
-  test("should render qr page", async () => {
-    const result = await (
-      <QrPage amount={{ cents: 1000 }} isAuthenticated={false} />
-    );
-
-    expect(result).toBeTypeOf("string");
-    expect(result.length).toBeGreaterThan(0);
-  });
-
   test("should display the formatted amount", async () => {
     const amount = { cents: 2500 };
     const result = await (<QrPage amount={amount} isAuthenticated={false} />);

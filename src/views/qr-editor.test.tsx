@@ -3,20 +3,6 @@ import { DonationManager } from "~/managers/donation";
 import { QrEditorPage } from "./qr-editor";
 
 describe("QrEditorPage", () => {
-  test("should render when not authenticated", async () => {
-    const result = await (<QrEditorPage isAuthenticated={false} />);
-
-    expect(result).toBeTypeOf("string");
-    expect(result.length).toBeGreaterThan(0);
-  });
-
-  test("should render when authenticated", async () => {
-    const result = await (<QrEditorPage isAuthenticated={true} />);
-
-    expect(result).toBeTypeOf("string");
-    expect(result.length).toBeGreaterThan(0);
-  });
-
   test("should display page title", async () => {
     const result = await (<QrEditorPage isAuthenticated={false} />);
 

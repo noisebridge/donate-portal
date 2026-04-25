@@ -2,12 +2,10 @@ import { describe, expect, test } from "bun:test";
 import { MagicLinkEmail } from "./magic-link";
 
 describe("MagicLinkEmail", () => {
-  test("should generate email template", () => {
-    const result = MagicLinkEmail({
-      magicLinkUrl: "https://example.com/magic-link?token=abc123",
-    });
+  test("should include the magic link URL in the email", () => {
+    const url = "https://example.com/magic-link?token=abc123";
+    const result = MagicLinkEmail({ magicLinkUrl: url });
 
-    expect(result).toBeTypeOf("string");
-    expect(result.length).toBeGreaterThan(0);
+    expect(result).toContain(url);
   });
 });

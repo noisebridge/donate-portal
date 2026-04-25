@@ -2,13 +2,6 @@ import { describe, expect, test } from "bun:test";
 import { NotFoundPage } from "./not-found";
 
 describe("NotFoundPage", () => {
-  test("should render not found page", async () => {
-    const result = await (<NotFoundPage isAuthenticated={false} />);
-
-    expect(result).toBeTypeOf("string");
-    expect(result.length).toBeGreaterThan(0);
-  });
-
   test("should contain 404 text", async () => {
     const result = await (<NotFoundPage isAuthenticated={false} />);
 
