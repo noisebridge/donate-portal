@@ -355,10 +355,10 @@ function hyperdriveLedFn(index, num_leds, timestamp, data) {
 }
 
 /**
- * Dolphin: ripple expands from a random origin in both directions.
- * CW and CCW wavefronts carry a cosine pattern; CCW is π-shifted so
- * they destructively interfere when they meet at the antipode.
- * Repeats from a new origin each cycle.
+ * Dolphin: ripple expands outward from a random origin, undulating
+ * between blue and white. A 1D slice of a 2D water-ripple model:
+ * gaussian envelope around an outward-moving wavefront, cosine
+ * oscillation, global decay, and suppression ahead of the front.
  * @param {number} index
  * @param {number} num_leds
  * @param {number} timestamp
@@ -367,11 +367,11 @@ function hyperdriveLedFn(index, num_leds, timestamp, data) {
  */
 function dolphinLedFn(index, num_leds, timestamp, data) {
   if (!data._t0) data._t0 = timestamp;
-  const t = timestamp - data._t0;
+  const tMs = timestamp - data._t0;
 
-  const cycleDuration = 2500;
-  const cycleIndex = Math.floor(t / cycleDuration);
-  const cycleT = t - cycleIndex * cycleDuration;
+  const cycleDuration = 3000;
+  const cycleIndex = Math.floor(tMs / cycleDuration);
+  const cycleT = (tMs - cycleIndex * cycleDuration) / 1000;
 
   const originFrac = /** @type {number} */ (
     data.origins[cycleIndex % data.origins.length]
@@ -379,32 +379,37 @@ function dolphinLedFn(index, num_leds, timestamp, data) {
   const origin = Math.floor(originFrac * num_leds);
 
   const halfStrip = num_leds / 2;
-  const waveFront = (cycleT / cycleDuration) * (halfStrip + 4);
+  let d = Math.abs(index - origin);
+  if (d > halfStrip) d = num_leds - d;
+  const r = d / halfStrip;
 
-  const dCW = (((index - origin) % num_leds) + num_leds) % num_leds;
-  const dCCW = dCW === 0 ? num_leds : num_leds - dCW;
+  const c = 0.45;
+  const front = c * cycleT;
 
-  const wavelength = 6;
-  const k = (2 * Math.PI) / wavelength;
+  const dist = r - front;
+  const envelope =
+    dist > 0 ? Math.exp(-(dist * dist) / (0.04 * 0.04)) : Math.exp(dist * 4);
 
-  let val = 0;
+  const k = 28;
+  const phase = k * (r - front);
+  const wave = Math.cos(phase);
+  const tipWave = Math.cos(phase - 0.6);
 
-  if (dCW <= waveFront) {
-    const decay = Math.max(0, 1 - (dCW * 0.8) / halfStrip);
-    val += Math.cos(k * dCW) * decay;
-  }
+  const blueAmt = envelope * Math.max(0, wave) * 1.3;
+  const whiteAmt = envelope * Math.max(0, tipWave) ** 10 * 1.2;
 
-  if (dCCW <= waveFront) {
-    const decay = Math.max(0, 1 - (dCCW * 0.8) / halfStrip);
-    val += Math.cos(k * dCCW + Math.PI) * decay;
-  }
+  const blueR = 0;
+  const blueG = 30;
+  const blueB = 255;
 
-  const brightness = Math.max(0, Math.min(1, val));
+  const outR = blueAmt * blueR + whiteAmt * 255;
+  const outG = blueAmt * blueG + whiteAmt * 255;
+  const outB = blueAmt * blueB + whiteAmt * 255;
 
   return {
-    r: Math.round(brightness * 100),
-    g: Math.round(brightness * 200),
-    b: Math.round(brightness * 255),
+    r: Math.round(Math.max(0, Math.min(255, outR))),
+    g: Math.round(Math.max(0, Math.min(255, outG))),
+    b: Math.round(Math.max(0, Math.min(255, outB))),
   };
 }
 
@@ -568,3 +573,12 @@ export async function ledClear() {
     console.warn("LED reset failed:", e);
   }
 }
+
+export default {
+  confetti: ledConfetti,
+  dolphin: ledDolphin,
+  hyperdrive: ledHyperdrive,
+  matrix: ledMatrix,
+  snoop: ledSnoop,
+  merica: ledMerica,
+};

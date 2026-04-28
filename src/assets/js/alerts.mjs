@@ -1,13 +1,7 @@
 // @ts-check
 
 import effects from "./effects/index.mjs";
-import {
-  ledDolphin,
-  ledHyperdrive,
-  ledMatrix,
-  ledMerica,
-  ledSnoop,
-} from "./effects/led_effects.mjs";
+import ledEffects from "./effects/led_effects.mjs";
 
 /** @typedef {import("~/types/alerts").ChargeAlertMessage} ChargeAlertMessage */
 /** @typedef {import("~/types/alerts").MemberAlertMessage} MemberAlertMessage */
@@ -431,15 +425,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     effects[activeEffect].showStatic?.();
 
     if (newIsTop) {
-      await ledHyperdrive();
-    } else if (activeEffect === "snoop") {
-      await ledSnoop();
-    } else if (activeEffect === "merica") {
-      await ledMerica();
-    } else if (activeEffect === "matrix") {
-      await ledMatrix();
-    } else if (activeEffect === "dolphin") {
-      await ledDolphin();
+      await ledEffects.hyperdrive();
+    } else if (activeEffect !== "confetti") {
+      await ledEffects[activeEffect]();
     }
   }
 
