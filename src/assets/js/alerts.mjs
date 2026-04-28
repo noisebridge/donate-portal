@@ -77,16 +77,16 @@ const alertQueue = [];
  * Enqueue an alert and start draining if not already in progress.
  * @param {AlertMessage} alert
  */
-function enqueueAlert(alert) {
+async function enqueueAlert(alert) {
   alertQueue.push(alert);
 
   if (queueDrainInterval) {
     return;
   }
 
-  displayAlert(alert);
+  await displayAlert(alert);
 
-  queueDrainInterval = window.setInterval(() => {
+  queueDrainInterval = window.setInterval(async () => {
     if (!queueDrainInterval) {
       return;
     }
@@ -98,7 +98,7 @@ function enqueueAlert(alert) {
       return;
     }
 
-    displayAlert(/** @type {AlertMessage} */ (alertQueue[0]));
+    await displayAlert(/** @type {AlertMessage} */ (alertQueue[0]));
   }, ALERT_INTERVAL_MS);
 }
 
@@ -310,7 +310,7 @@ let currentCharge = null;
  * Update the DOM with a new alert.
  * @param {AlertMessage} alert
  */
-function displayAlert(alert) {
+async function displayAlert(alert) {
   if (seenAlert(alert.id)) {
     return;
   }
@@ -325,30 +325,20 @@ function displayAlert(alert) {
   const newIsTop = applyRainbowSheen();
 
   if (alert.type === "member_alert") {
-    stopMatrix();
-    stopSnoop();
-    stopMerica();
-    launchConfetti({ cents: 10000 }, false);
+    await Promise.all([stopMatrix(), stopSnoop(), stopMerica()]);
+    await launchConfetti({ cents: 10000 }, false);
   } else if (MERICA_AMOUNTS.includes(alert.amount.cents)) {
-    stopConfetti();
-    stopMatrix();
-    stopSnoop();
-    showMerica(alert.amount, newIsTop);
+    await Promise.all([stopConfetti(), stopMatrix(), stopSnoop()]);
+    await showMerica(alert.amount, newIsTop);
   } else if (SNOOP_AMOUNTS.includes(alert.amount.cents)) {
-    stopConfetti();
-    stopMatrix();
-    stopMerica();
-    showSnoop(newIsTop);
+    await Promise.all([stopConfetti(), stopMatrix(), stopMerica()]);
+    await showSnoop(newIsTop);
   } else if (HACKER_AMOUNTS.includes(alert.amount.cents)) {
-    stopConfetti();
-    stopSnoop();
-    stopMerica();
-    showMatrix(newIsTop);
+    await Promise.all([stopConfetti(), stopSnoop(), stopMerica()]);
+    await showMatrix(newIsTop);
   } else {
-    stopMatrix();
-    stopSnoop();
-    stopMerica();
-    launchConfetti(alert.amount, newIsTop);
+    await Promise.all([stopMatrix(), stopSnoop(), stopMerica()]);
+    await launchConfetti(alert.amount, newIsTop);
   }
 }
 
@@ -373,7 +363,7 @@ function connect() {
     reconnectDelay = DEFAULT_RECONNECT_DELAY;
     resetPingTimeout();
   });
-  ws.addEventListener("message", (event) => {
+  ws.addEventListener("message", async (event) => {
     const message = /** @type {WebsocketMessage} */ (JSON.parse(event.data));
     if (message.type === "ping") {
       resetPingTimeout();
@@ -381,7 +371,7 @@ function connect() {
       return;
     }
 
-    enqueueAlert(message);
+    await enqueueAlert(message);
   });
   ws.addEventListener("error", (event) => {
     console.error("WebSocket error:", event);
@@ -412,7 +402,7 @@ function initCanvas(canvasEl) {
   resize();
 }
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
   initCanvas(effectCanvas);
   initConfetti(effectCanvas);
   initMatrix(effectCanvas);
@@ -437,9 +427,9 @@ document.addEventListener("DOMContentLoaded", () => {
       showSnoopLeaves();
 
       if (newIsTop) {
-        ledHyperdrive();
+        await ledHyperdrive();
       } else {
-        ledSnoop();
+        await ledSnoop();
       }
     } else if (
       currentCharge.type === "charge_alert" &&
@@ -448,18 +438,18 @@ document.addEventListener("DOMContentLoaded", () => {
       showMericaFlag();
 
       if (newIsTop) {
-        ledHyperdrive();
+        await ledHyperdrive();
       } else {
-        ledMerica();
+        await ledMerica();
       }
     } else if (
       currentCharge.type === "charge_alert" &&
       HACKER_AMOUNTS.includes(currentCharge.amount.cents)
     ) {
       if (newIsTop) {
-        ledHyperdrive();
+        await ledHyperdrive();
       } else {
-        ledMatrix();
+        await ledMatrix();
       }
     }
   }

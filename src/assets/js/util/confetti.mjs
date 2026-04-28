@@ -331,7 +331,7 @@ function getEmoji(amount) {
  * @param {Cents} amount
  * @param {boolean | null} showHyperdrive
  */
-export function launchConfetti(amount, showHyperdrive) {
+export async function launchConfetti(amount, showHyperdrive) {
   const rocketCount = Math.min(
     25,
     Math.ceil(Math.floor(amount.cents / 1000) + 0.001),
@@ -363,10 +363,10 @@ export function launchConfetti(amount, showHyperdrive) {
 
   switch (showHyperdrive) {
     case true:
-      ledHyperdrive();
+      await ledHyperdrive();
       break;
     case false:
-      ledConfetti(rocketCount);
+      await ledConfetti(rocketCount);
       break;
     case null:
       break;
@@ -381,7 +381,7 @@ export function launchConfetti(amount, showHyperdrive) {
 /**
  * Stop all confetti animations and clear the canvas.
  */
-export function stopConfetti() {
+export async function stopConfetti() {
   for (const id of pendingTimers) {
     clearTimeout(id);
   }
@@ -390,7 +390,7 @@ export function stopConfetti() {
   particles = [];
   rockets = [];
   animating = false;
-  ledClear();
+  await ledClear();
   if (ctx && canvas) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
   }

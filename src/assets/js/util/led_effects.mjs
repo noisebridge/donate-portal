@@ -371,7 +371,7 @@ function snoopLedFn(_index, _num_leds, timestamp, data) {
  * Send confetti LED effect with pre-computed rocket schedule.
  * @param {number} rocketCount
  */
-export function ledConfetti(rocketCount) {
+export async function ledConfetti(rocketCount) {
   /** @type {LedRocket[]} */
   const rockets = [];
   for (let i = 0; i < rocketCount; i++) {
@@ -403,30 +403,30 @@ export function ledConfetti(rocketCount) {
 
   /** @type {ConfettiLedData} */
   const data = { rockets };
-  sendLedEffect(confettiLedFn, data, 30000);
+  await sendLedEffect(confettiLedFn, data, 30000);
 }
 
 /** Send matrix LED effect. */
-export function ledMatrix() {
+export async function ledMatrix() {
   /** @type {TimestampedLedData} */
   const data = {};
-  sendLedEffect(matrixLedFn, data);
+  await sendLedEffect(matrixLedFn, data);
 }
 
 /** Send merica LED effect. */
-export function ledMerica() {
-  sendLedEffect(mericaLedFn);
+export async function ledMerica() {
+  await sendLedEffect(mericaLedFn);
 }
 
 /** Send snoop LED effect. */
-export function ledSnoop() {
+export async function ledSnoop() {
   /** @type {TimestampedLedData} */
   const data = {};
-  sendLedEffect(snoopLedFn, data);
+  await sendLedEffect(snoopLedFn, data);
 }
 
 /** Send hyperdrive LED effect. */
-export function ledHyperdrive() {
+export async function ledHyperdrive() {
   /** @type {HyperdriveRotation[]} */
   const rotations = [];
   /** @type {HyperdriveParticle[]} */
@@ -477,7 +477,7 @@ export function ledHyperdrive() {
     expandDuration: 1500,
   };
 
-  sendLedEffect(hyperdriveLedFn, data);
+  await sendLedEffect(hyperdriveLedFn, data);
 }
 
 /** Turn off all LEDs. */

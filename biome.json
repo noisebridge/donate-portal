@@ -19,6 +19,9 @@
       "recommended": true,
       "complexity": {
         "useLiteralKeys": "off"
+      },
+      "nursery": {
+        "noFloatingPromises": "error"
       }
     }
   },

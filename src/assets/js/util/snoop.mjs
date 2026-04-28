@@ -404,7 +404,7 @@ export function showSnoopLeaves() {
  * Launch the snoop dogg takeover effect.
  * @param {boolean} showHyperdrive
  */
-export function showSnoop(showHyperdrive) {
+export async function showSnoop(showHyperdrive) {
   const now = performance.now();
 
   // Start leaves rotating in
@@ -422,22 +422,22 @@ export function showSnoop(showHyperdrive) {
   ensureAnimating();
 
   if (showHyperdrive) {
-    ledHyperdrive();
+    await ledHyperdrive();
   } else {
-    ledSnoop();
+    await ledSnoop();
   }
 }
 
 /**
  * Stop the snoop effect and rotate out leaves.
  */
-export function stopSnoop() {
+export async function stopSnoop() {
   const now = performance.now();
 
   // Stop snoop immediately
   snoopPhase = "idle";
   hideSnoop();
-  ledClear();
+  await ledClear();
 
   // Rotate leaves out
   if (leavesVisible && !leavesRotatingOut) {

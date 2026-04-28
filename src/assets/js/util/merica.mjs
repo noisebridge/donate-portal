@@ -404,7 +404,7 @@ function ensureAnimating() {
  * @param {Cents} amount
  * @param {boolean} showHyperdrive
  */
-export function showMerica(amount, showHyperdrive) {
+export async function showMerica(amount, showHyperdrive) {
   phase = "arnold_enter";
   phaseStart = performance.now();
 
@@ -413,13 +413,13 @@ export function showMerica(amount, showHyperdrive) {
   flagRetracting = false;
   flagEnterStart = performance.now();
 
-  launchConfetti(amount, null);
+  await launchConfetti(amount, null);
   ensureAnimating();
 
   if (showHyperdrive) {
-    ledHyperdrive();
+    await ledHyperdrive();
   } else {
-    ledMerica();
+    await ledMerica();
   }
 }
 
@@ -437,11 +437,11 @@ export function showMericaFlag() {
 /**
  * Stop the merica effect immediately.
  */
-export function stopMerica() {
+export async function stopMerica() {
   phase = "idle";
   hideArnold();
   hideEagle();
-  ledClear();
+  await ledClear();
 
   if (flagVisible && !flagRetracting) {
     flagRetracting = true;

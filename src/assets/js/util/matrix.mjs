@@ -65,7 +65,7 @@ function randomChar() {
  * Launch a wave of matrix rain down the screen.
  * @param {boolean} showHyperdrive
  */
-export function showMatrix(showHyperdrive) {
+export async function showMatrix(showHyperdrive) {
   const columns = Math.ceil(canvas.width / FONT_SIZE);
   const maxRows = Math.ceil(canvas.height / FONT_SIZE);
   drops = [];
@@ -91,19 +91,19 @@ export function showMatrix(showHyperdrive) {
   }
 
   if (showHyperdrive) {
-    ledHyperdrive();
+    await ledHyperdrive();
   } else {
-    ledMatrix();
+    await ledMatrix();
   }
 }
 
 /**
  * Stop all matrix animations and clear the canvas.
  */
-export function stopMatrix() {
+export async function stopMatrix() {
   drops = [];
   animating = false;
-  ledClear();
+  await ledClear();
   if (ctx && canvas) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
   }
