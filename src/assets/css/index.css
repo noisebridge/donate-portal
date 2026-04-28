@@ -321,7 +321,6 @@ input[type="radio"]:focus + .amount-chip {
 
 .tax-note .ein {
   color: var(--color-text-light);
-  border-bottom: 1px dotted var(--color-text-mute);
 }
 
 /* Responsive */
