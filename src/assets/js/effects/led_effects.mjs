@@ -1,6 +1,6 @@
 // @ts-check
 
-import { sendErrorReport } from "./error-reporting.mjs";
+import { sendErrorReport } from "../util/error-reporting.mjs";
 
 /** @typedef {{ r: number, g: number, b: number }} RGB */
 

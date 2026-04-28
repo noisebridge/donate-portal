@@ -453,3 +453,13 @@ export async function stopSnoop() {
     }
   }
 }
+
+/** @typedef {import("~/types/cents").Cents} Cents */
+
+export const snoopEffect = {
+  init: initSnoop,
+  show: (/** @type {Cents} */ _amount, /** @type {boolean} */ showHyperdrive) =>
+    showSnoop(showHyperdrive),
+  stop: stopSnoop,
+  showStatic: showSnoopLeaves,
+};

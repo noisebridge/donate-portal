@@ -624,3 +624,11 @@ function animate() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
   }
 }
+
+export const confettiEffect = {
+  init: initConfetti,
+  show: (/** @type {Cents} */ amount, /** @type {boolean} */ showHyperdrive) =>
+    launchConfetti(amount, showHyperdrive),
+  stop: stopConfetti,
+  showStatic: null,
+};

@@ -1,29 +1,12 @@
 // @ts-check
 
-import {
-  initConfetti,
-  launchConfetti,
-  stopConfetti,
-} from "./util/confetti.mjs";
+import effects from "./effects/index.mjs";
 import {
   ledHyperdrive,
   ledMatrix,
   ledMerica,
   ledSnoop,
-} from "./util/led_effects.mjs";
-import { initMatrix, showMatrix, stopMatrix } from "./util/matrix.mjs";
-import {
-  initMerica,
-  showMerica,
-  showMericaFlag,
-  stopMerica,
-} from "./util/merica.mjs";
-import {
-  initSnoop,
-  showSnoop,
-  showSnoopLeaves,
-  stopSnoop,
-} from "./util/snoop.mjs";
+} from "./effects/led_effects.mjs";
 
 /** @typedef {import("~/types/alerts").ChargeAlertMessage} ChargeAlertMessage */
 /** @typedef {import("~/types/alerts").MemberAlertMessage} MemberAlertMessage */
@@ -72,6 +55,37 @@ let queueDrainInterval = null;
 
 /** @type {AlertMessage[]} */
 const alertQueue = [];
+
+/** @type {keyof typeof effects | null} */
+let activeEffect = null;
+
+/**
+ * @param {AlertMessage} alert
+ * @returns {keyof typeof effects}
+ */
+function effectForAlert(alert) {
+  if (alert.type === "charge_alert") {
+    if (MERICA_AMOUNTS.includes(alert.amount.cents)) return "merica";
+    if (SNOOP_AMOUNTS.includes(alert.amount.cents)) return "snoop";
+    if (HACKER_AMOUNTS.includes(alert.amount.cents)) return "matrix";
+  }
+  return "confetti";
+}
+
+/**
+ * Switch to a new effect, stopping the previous one unless it's the same.
+ * @param {keyof typeof effects} name
+ * @param {Cents} amount
+ * @param {boolean} showHyperdrive
+ */
+async function switchEffect(name, amount, showHyperdrive) {
+  if (activeEffect && activeEffect !== name) {
+    await effects[activeEffect].stop();
+  }
+
+  await effects[name].show(amount, showHyperdrive);
+  activeEffect = name;
+}
 
 /**
  * Enqueue an alert and start draining if not already in progress.
@@ -324,22 +338,11 @@ async function displayAlert(alert) {
   updateHeader(alert);
   const newIsTop = applyRainbowSheen();
 
-  if (alert.type === "member_alert") {
-    await Promise.all([stopMatrix(), stopSnoop(), stopMerica()]);
-    await launchConfetti({ cents: 10000 }, false);
-  } else if (MERICA_AMOUNTS.includes(alert.amount.cents)) {
-    await Promise.all([stopConfetti(), stopMatrix(), stopSnoop()]);
-    await showMerica(alert.amount, newIsTop);
-  } else if (SNOOP_AMOUNTS.includes(alert.amount.cents)) {
-    await Promise.all([stopConfetti(), stopMatrix(), stopMerica()]);
-    await showSnoop(newIsTop);
-  } else if (HACKER_AMOUNTS.includes(alert.amount.cents)) {
-    await Promise.all([stopConfetti(), stopSnoop(), stopMerica()]);
-    await showMatrix(newIsTop);
-  } else {
-    await Promise.all([stopMatrix(), stopSnoop(), stopMerica()]);
-    await launchConfetti(alert.amount, newIsTop);
-  }
+  const effect = effectForAlert(alert);
+  const amount =
+    alert.type === "member_alert" ? { cents: 10000 } : alert.amount;
+  const hyperdrive = alert.type === "member_alert" ? false : newIsTop;
+  await switchEffect(effect, amount, hyperdrive);
 }
 
 function connect() {
@@ -404,12 +407,12 @@ function initCanvas(canvasEl) {
 
 document.addEventListener("DOMContentLoaded", async () => {
   initCanvas(effectCanvas);
-  initConfetti(effectCanvas);
-  initMatrix(effectCanvas);
-  initSnoop(effectCanvas);
+  effects.confetti.init(effectCanvas);
+  effects.matrix.init(effectCanvas);
+  effects.snoop.init(effectCanvas);
 
   initCanvas(flagCanvas);
-  initMerica(flagCanvas);
+  effects.merica.init(flagCanvas);
 
   const currentChargeJson =
     document.getElementById("current-charge")?.textContent;
@@ -420,34 +423,18 @@ document.addEventListener("DOMContentLoaded", async () => {
   const newIsTop = applyRainbowSheen();
   if (currentCharge) {
     setBodyClass(currentCharge);
-    if (
-      currentCharge.type === "charge_alert" &&
-      SNOOP_AMOUNTS.includes(currentCharge.amount.cents)
-    ) {
-      showSnoopLeaves();
+    const effect = effectForAlert(currentCharge);
+
+    if (effect !== "confetti") {
+      effects[effect].showStatic?.();
+      activeEffect = effect;
 
       if (newIsTop) {
         await ledHyperdrive();
-      } else {
+      } else if (effect === "snoop") {
         await ledSnoop();
-      }
-    } else if (
-      currentCharge.type === "charge_alert" &&
-      MERICA_AMOUNTS.includes(currentCharge.amount.cents)
-    ) {
-      showMericaFlag();
-
-      if (newIsTop) {
-        await ledHyperdrive();
-      } else {
+      } else if (effect === "merica") {
         await ledMerica();
-      }
-    } else if (
-      currentCharge.type === "charge_alert" &&
-      HACKER_AMOUNTS.includes(currentCharge.amount.cents)
-    ) {
-      if (newIsTop) {
-        await ledHyperdrive();
       } else {
         await ledMatrix();
       }

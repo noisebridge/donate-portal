@@ -452,3 +452,11 @@ export async function stopMerica() {
     animating = false;
   }
 }
+
+export const mericaEffect = {
+  init: initMerica,
+  show: (/** @type {Cents} */ amount, /** @type {boolean} */ showHyperdrive) =>
+    showMerica(amount, showHyperdrive),
+  stop: stopMerica,
+  showStatic: showMericaFlag,
+};

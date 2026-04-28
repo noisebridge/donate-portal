@@ -168,3 +168,13 @@ function animate(now) {
     requestAnimationFrame(animate);
   }
 }
+
+/** @typedef {import("~/types/cents").Cents} Cents */
+
+export const matrixEffect = {
+  init: initMatrix,
+  show: (/** @type {Cents} */ _amount, /** @type {boolean} */ showHyperdrive) =>
+    showMatrix(showHyperdrive),
+  stop: stopMatrix,
+  showStatic: null,
+};
