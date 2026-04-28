@@ -33,6 +33,12 @@ import { sendErrorReport } from "../util/error-reporting.mjs";
  */
 
 /**
+ * @typedef {object} DolphinLedData
+ * @property {number[]} origins - Pre-computed fractional positions (0-1) for ripple origins
+ * @property {number} [_t0]
+ */
+
+/**
  * @typedef {object} HyperdriveRotation
  * @property {number} startTime - ms from effect start
  * @property {number} endTime - ms from effect start
@@ -349,6 +355,60 @@ function hyperdriveLedFn(index, num_leds, timestamp, data) {
 }
 
 /**
+ * Dolphin: ripple expands from a random origin in both directions.
+ * CW and CCW wavefronts carry a cosine pattern; CCW is π-shifted so
+ * they destructively interfere when they meet at the antipode.
+ * Repeats from a new origin each cycle.
+ * @param {number} index
+ * @param {number} num_leds
+ * @param {number} timestamp
+ * @param {DolphinLedData} data
+ * @returns {RGB}
+ */
+function dolphinLedFn(index, num_leds, timestamp, data) {
+  if (!data._t0) data._t0 = timestamp;
+  const t = timestamp - data._t0;
+
+  const cycleDuration = 2500;
+  const cycleIndex = Math.floor(t / cycleDuration);
+  const cycleT = t - cycleIndex * cycleDuration;
+
+  const originFrac = /** @type {number} */ (
+    data.origins[cycleIndex % data.origins.length]
+  );
+  const origin = Math.floor(originFrac * num_leds);
+
+  const halfStrip = num_leds / 2;
+  const waveFront = (cycleT / cycleDuration) * (halfStrip + 4);
+
+  const dCW = (((index - origin) % num_leds) + num_leds) % num_leds;
+  const dCCW = dCW === 0 ? num_leds : num_leds - dCW;
+
+  const wavelength = 6;
+  const k = (2 * Math.PI) / wavelength;
+
+  let val = 0;
+
+  if (dCW <= waveFront) {
+    const decay = Math.max(0, 1 - (dCW * 0.8) / halfStrip);
+    val += Math.cos(k * dCW) * decay;
+  }
+
+  if (dCCW <= waveFront) {
+    const decay = Math.max(0, 1 - (dCCW * 0.8) / halfStrip);
+    val += Math.cos(k * dCCW + Math.PI) * decay;
+  }
+
+  const brightness = Math.max(0, Math.min(1, val));
+
+  return {
+    r: Math.round(brightness * 100),
+    g: Math.round(brightness * 200),
+    b: Math.round(brightness * 255),
+  };
+}
+
+/**
  * Snoop: entire strip fades in and out bright green.
  * @param {number} _index
  * @param {number} _num_leds
@@ -416,6 +476,18 @@ export async function ledMatrix() {
 /** Send merica LED effect. */
 export async function ledMerica() {
   await sendLedEffect(mericaLedFn);
+}
+
+/** Send dolphin LED effect. */
+export async function ledDolphin() {
+  /** @type {number[]} */
+  const origins = [];
+  for (let i = 0; i < 20; i++) {
+    origins.push(Math.random());
+  }
+  /** @type {DolphinLedData} */
+  const data = { origins };
+  await sendLedEffect(dolphinLedFn, data);
 }
 
 /** Send snoop LED effect. */

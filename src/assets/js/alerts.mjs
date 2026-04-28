@@ -2,6 +2,7 @@
 
 import effects from "./effects/index.mjs";
 import {
+  ledDolphin,
   ledHyperdrive,
   ledMatrix,
   ledMerica,
@@ -17,8 +18,8 @@ import {
 const effectCanvas = /** @type {HTMLCanvasElement} */ (
   document.getElementById("effect-canvas")
 );
-const flagCanvas = /** @type {HTMLCanvasElement} */ (
-  document.getElementById("flag-canvas")
+const bannerCanvas = /** @type {HTMLCanvasElement} */ (
+  document.getElementById("banner-canvas")
 );
 const amountEl = /** @type {HTMLElement} */ (
   document.getElementById("alert-amount")
@@ -46,6 +47,7 @@ const MAX_HISTORY = 20;
 const HACKER_AMOUNTS = [1337, 13370, 31337, 133700, 133769, 313370];
 const SNOOP_AMOUNTS = [420, 42000, 42069];
 const MERICA_AMOUNTS = [1776, 17760, 177600, 177669];
+const DOLPHIN_AMOUNTS = [4200];
 
 let reconnectDelay = DEFAULT_RECONNECT_DELAY;
 
@@ -66,6 +68,7 @@ let activeEffect = null;
 function effectForAlert(alert) {
   if (alert.type === "charge_alert") {
     if (MERICA_AMOUNTS.includes(alert.amount.cents)) return "merica";
+    if (DOLPHIN_AMOUNTS.includes(alert.amount.cents)) return "dolphin";
     if (SNOOP_AMOUNTS.includes(alert.amount.cents)) return "snoop";
     if (HACKER_AMOUNTS.includes(alert.amount.cents)) return "matrix";
   }
@@ -411,8 +414,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   effects.matrix.init(effectCanvas);
   effects.snoop.init(effectCanvas);
 
-  initCanvas(flagCanvas);
-  effects.merica.init(flagCanvas);
+  initCanvas(bannerCanvas);
+  effects.merica.init(bannerCanvas);
+  effects.dolphin.init(bannerCanvas);
 
   const currentChargeJson =
     document.getElementById("current-charge")?.textContent;
@@ -423,21 +427,19 @@ document.addEventListener("DOMContentLoaded", async () => {
   const newIsTop = applyRainbowSheen();
   if (currentCharge) {
     setBodyClass(currentCharge);
-    const effect = effectForAlert(currentCharge);
+    activeEffect = effectForAlert(currentCharge);
+    effects[activeEffect].showStatic?.();
 
-    if (effect !== "confetti") {
-      effects[effect].showStatic?.();
-      activeEffect = effect;
-
-      if (newIsTop) {
-        await ledHyperdrive();
-      } else if (effect === "snoop") {
-        await ledSnoop();
-      } else if (effect === "merica") {
-        await ledMerica();
-      } else {
-        await ledMatrix();
-      }
+    if (newIsTop) {
+      await ledHyperdrive();
+    } else if (activeEffect === "snoop") {
+      await ledSnoop();
+    } else if (activeEffect === "merica") {
+      await ledMerica();
+    } else if (activeEffect === "matrix") {
+      await ledMatrix();
+    } else if (activeEffect === "dolphin") {
+      await ledDolphin();
     }
   }
 

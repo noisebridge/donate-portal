@@ -11,6 +11,7 @@
  */
 
 import { confettiEffect } from "./confetti.mjs";
+import { dolphinEffect } from "./dolphin.mjs";
 import { matrixEffect } from "./matrix.mjs";
 import { mericaEffect } from "./merica.mjs";
 import { snoopEffect } from "./snoop.mjs";
@@ -18,6 +19,7 @@ import { snoopEffect } from "./snoop.mjs";
 /** @satisfies {Record<string, EffectModule>} */
 const effects = {
   confetti: confettiEffect,
+  dolphin: dolphinEffect,
   matrix: matrixEffect,
   snoop: snoopEffect,
   merica: mericaEffect,

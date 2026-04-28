@@ -165,7 +165,7 @@ export function AlertsPage({ alerts }: AlertsPageProps) {
             />
           </div>
           <canvas id="effect-canvas"></canvas>
-          <canvas id="flag-canvas"></canvas>
+          <canvas id="banner-canvas"></canvas>
           <img
             id="snoop-img"
             src="/assets/image/snoop.apng"
@@ -183,6 +183,30 @@ export function AlertsPage({ alerts }: AlertsPageProps) {
             src="/assets/image/eagle.png"
             alt=""
             class="eagle-img"
+          />
+          <img
+            id="dolphin-fly-0"
+            src="/assets/image/dolphin-back.png"
+            alt=""
+            class="dolphin-fly"
+          />
+          <img
+            id="dolphin-fly-1"
+            src="/assets/image/dolphin-back.png"
+            alt=""
+            class="dolphin-fly"
+          />
+          <img
+            id="dolphin-fly-2"
+            src="/assets/image/dolphin-back.png"
+            alt=""
+            class="dolphin-fly"
+          />
+          <img
+            id="dolphin-fly-3"
+            src="/assets/image/dolphin-back.png"
+            alt=""
+            class="dolphin-fly"
           />
           <input type="hidden" id="alerts-ws-path" value={paths.alertsWs()} />
         </body>
