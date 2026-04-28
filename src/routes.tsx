@@ -860,6 +860,9 @@ export default async function routes(fastify: FastifyInstance) {
         );
       } catch (err) {
         fastify.log.warn({ err }, "Webhook signature verification failed");
+        if (err instanceof Error) {
+          await errorReportingService.reportBackend(err, request);
+        }
         return reply.status(400).send({ error: "Invalid signature" });
       }
 
@@ -883,6 +886,9 @@ export default async function routes(fastify: FastifyInstance) {
           { err, eventType: event.type },
           "Webhook processing error",
         );
+        if (err instanceof Error) {
+          await errorReportingService.reportBackend(err, request);
+        }
         // Still return 200 to prevent Stripe retries for processing errors
       }
 
