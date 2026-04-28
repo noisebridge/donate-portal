@@ -16,13 +16,13 @@ export function ErrorPage({ error, isAuthenticated }: ErrorPageProps) {
           <div class="error-details">
             <div class="error-message">
               <h2>Message</h2>
-              <pre>{escapeHtml(error.message) as "safe"}</pre>
+              <pre>{escapeHtml(error.message)}</pre>
             </div>
 
             {!!error.stack && (
               <div class="error-stack">
                 <h2>Stack trace</h2>
-                <pre>{escapeHtml(error.stack) as "safe"}</pre>
+                <pre>{escapeHtml(error.stack)}</pre>
               </div>
             )}
           </div>

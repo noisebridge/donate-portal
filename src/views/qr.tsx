@@ -40,13 +40,9 @@ export function QrPage({
             Custom
           </a>
           <div class="qr-product-details">
-            {!!name && (
-              <h1 class="qr-donate-name">{escapeHtml(name) as "safe"}</h1>
-            )}
+            {!!name && <h1 class="qr-donate-name">{escapeHtml(name)}</h1>}
             {!!description && (
-              <p class="qr-donate-description">
-                {escapeHtml(description) as "safe"}
-              </p>
+              <p class="qr-donate-description">{escapeHtml(description)}</p>
             )}
           </div>
 
@@ -80,17 +76,13 @@ export function QrPage({
               value={initialDollars.toString()}
             />
             {!!name && (
-              <input
-                type="hidden"
-                name="name"
-                value={escapeHtml(name) as "safe"}
-              />
+              <input type="hidden" name="name" value={escapeHtml(name)} />
             )}
             {!!description && (
               <input
                 type="hidden"
                 name="description"
-                value={escapeHtml(description) as "safe"}
+                value={escapeHtml(description)}
               />
             )}
             <Button variant="primary" type="submit">

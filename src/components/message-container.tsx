@@ -18,7 +18,7 @@ export function MessageContainer({ messages }: MessageContainerProps) {
           role="alert"
           data-type={message.type}
         >
-          <span class="message-text">{escapeHtml(message.text) as "safe"}</span>
+          <span class="message-text">{escapeHtml(message.text)}</span>
           {(message.dismissable ?? true) && (
             <button type="button" class="message-dismiss" aria-label="Dismiss">
               &times;

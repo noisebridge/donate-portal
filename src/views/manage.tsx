@@ -82,7 +82,7 @@ export function ManagePage({
 
         <div class="who-line">
           <span class="who-lbl">Signed in as</span>
-          <span class="who-email">{escapeHtml(email) as "safe"}</span>
+          <span class="who-email">{escapeHtml(email)}</span>
         </div>
 
         {!!subscription && (

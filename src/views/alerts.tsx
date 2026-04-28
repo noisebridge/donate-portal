@@ -39,9 +39,7 @@ function ChargeHistoryItem({ alert }: ChargeHistoryItemProps) {
       data-alert-id={alert.id}
       data-amount={String(alert.amount.cents)}
     >
-      <span class="history-product">
-        {escapeHtml(alert.productName) as "safe"}
-      </span>
+      <span class="history-product">{escapeHtml(alert.productName)}</span>
       <span class="history-amount">
         <span class="history-amount-dollars">{dollars as "safe"}.</span>
         <span class="history-amount-cents">
@@ -61,9 +59,7 @@ interface MemberHistoryItemProps {
 function MemberHistoryItem({ alert }: MemberHistoryItemProps) {
   return (
     <div class="history-item" data-alert-id={alert.id} data-amount="0">
-      <span class="history-product">
-        {escapeHtml(alert.productName) as "safe"}
-      </span>
+      <span class="history-product">{escapeHtml(alert.productName)}</span>
       <span class="history-amount">{amountDisplayText(alert) as "safe"}</span>
       <span class="history-date">{formatDate(alert.date) as "safe"}</span>
     </div>

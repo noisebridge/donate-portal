@@ -21,8 +21,7 @@ export function AuthEmailPage({ email, isAuthenticated }: AuthEmailProps) {
         title="Check your email"
       >
         <p class="page-message">
-          We've sent a magic link to{" "}
-          <strong>{escapeHtml(email) as "safe"}</strong>
+          We've sent a magic link to <strong>{escapeHtml(email)}</strong>
         </p>
 
         <p class="page-message-muted">

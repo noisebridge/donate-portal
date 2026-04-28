@@ -51,7 +51,7 @@ export function QrCustomPage({
                   maxlength={DonationManager.maxNameLength}
                   rows="1"
                 >
-                  {name ? (escapeHtml(name) as "safe") : ""}
+                  {name ? escapeHtml(name) : ""}
                 </textarea>
               </div>
 
@@ -64,7 +64,7 @@ export function QrCustomPage({
                   maxlength={DonationManager.maxDescriptionLength}
                   rows="1"
                 >
-                  {description ? (escapeHtml(description) as "safe") : ""}
+                  {description ? escapeHtml(description) : ""}
                 </textarea>
               </div>
             </div>
