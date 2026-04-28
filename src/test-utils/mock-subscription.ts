@@ -120,6 +120,7 @@ export function createMockSubscription(
     },
     latest_invoice: null,
     livemode: false,
+    managed_payments: null,
     metadata: {},
     next_pending_invoice_item_invoice: null,
     on_behalf_of: null,
