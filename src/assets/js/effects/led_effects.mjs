@@ -171,7 +171,7 @@ function confettiLedFn(index, num_leds, timestamp, data) {
         return { r: 255, g: 255, b: 255 };
       }
     } else {
-      const et = rt - rocket.travel;
+      const et = rt - rocket.travel * 3;
       if (et > 2000) continue;
 
       const brightness = 1 - et / 2000;
