@@ -407,9 +407,9 @@ function dolphinLedFn(index, num_leds, timestamp, data) {
   const outB = blueAmt * blueB + whiteAmt * 255;
 
   return {
-    r: Math.round(Math.max(0, Math.min(255, outR))),
-    g: Math.round(Math.max(0, Math.min(255, outG))),
-    b: Math.round(Math.max(0, Math.min(255, outB))),
+    r: Math.round(Math.max(8, Math.min(255, outR))),
+    g: Math.round(Math.max(8, Math.min(255, outG))),
+    b: Math.round(Math.max(32, Math.min(255, outB))),
   };
 }
 
