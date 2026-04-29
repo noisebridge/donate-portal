@@ -369,7 +369,10 @@ function dolphinLedFn(index, num_leds, timestamp, data) {
   if (!data._t0) data._t0 = timestamp;
   const tMs = timestamp - data._t0;
 
-  const cycleDuration = 3000;
+  const c = 0.45;
+  const waveDuration = (1 / c) * 1000;
+  const pauseMs = 3000;
+  const cycleDuration = waveDuration + pauseMs;
   const cycleIndex = Math.floor(tMs / cycleDuration);
   const cycleT = (tMs - cycleIndex * cycleDuration) / 1000;
 
@@ -383,7 +386,6 @@ function dolphinLedFn(index, num_leds, timestamp, data) {
   if (d > halfStrip) d = num_leds - d;
   const r = d / halfStrip;
 
-  const c = 0.45;
   const front = c * cycleT;
 
   const dist = r - front;
