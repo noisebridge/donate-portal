@@ -139,9 +139,9 @@ function hsvToRgb(h, s, v) {
     b = x;
   }
   return {
-    r: Math.round((r + m) * 255),
-    g: Math.round((g + m) * 255),
-    b: Math.round((b + m) * 255),
+    r: Math.floor((r + m) * 255),
+    g: Math.floor((g + m) * 255),
+    b: Math.floor((b + m) * 255),
   };
 }
 
@@ -188,9 +188,9 @@ function confettiLedFn(index, num_leds, timestamp, data) {
         const offset = Math.round(bp.dir * bp.speed * (et / 1000));
         const pos = (((center + offset) % num_leds) + num_leds) % num_leds;
         if (index === pos) {
-          r = Math.max(r, Math.round(bp.r * brightness));
-          g = Math.max(g, Math.round(bp.g * brightness));
-          b = Math.max(b, Math.round(bp.b * brightness));
+          r = Math.max(r, Math.floor(bp.r * brightness));
+          g = Math.max(g, Math.floor(bp.g * brightness));
+          b = Math.max(b, Math.floor(bp.b * brightness));
         }
       }
     }
@@ -229,7 +229,7 @@ function matrixLedFn(index, num_leds, timestamp, data) {
       for (let k = 1; k <= trailLen; k++) {
         const trailIdx = (headIdx - k + num_leds) % num_leds;
         if (index === trailIdx) {
-          const gb = Math.round(255 * (1 - k / trailLen));
+          const gb = Math.floor(255 * (1 - k / trailLen));
           g = Math.max(g, gb);
         }
       }
@@ -354,9 +354,9 @@ function hyperdriveLedFn(index, num_leds, timestamp, data) {
   }
 
   return {
-    r: Math.round(hr * 255),
-    g: Math.round(hg * 255),
-    b: Math.round(hb * 255),
+    r: Math.floor(hr * 255),
+    g: Math.floor(hg * 255),
+    b: Math.floor(hb * 255),
   };
 }
 
@@ -415,9 +415,9 @@ function dolphinLedFn(index, num_leds, timestamp, data) {
   const outB = blueAmt * blueB + whiteAmt * 255;
 
   return {
-    r: Math.round(Math.max(8, Math.min(255, outR))),
-    g: Math.round(Math.max(8, Math.min(255, outG))),
-    b: Math.round(Math.max(32, Math.min(255, outB))),
+    r: Math.floor(Math.max(8, Math.min(255, outR))),
+    g: Math.floor(Math.max(8, Math.min(255, outG))),
+    b: Math.floor(Math.max(32, Math.min(255, outB))),
   };
 }
 
