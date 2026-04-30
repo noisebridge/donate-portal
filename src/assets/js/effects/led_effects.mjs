@@ -71,9 +71,15 @@ const IS_LOCAL_DEV =
   location.hostname === "localhost" || location.hostname === "127.0.0.1";
 
 /**
+ * @template T
+ * @typedef {(index: number, num_leds: number, timestep: number, data: T) => RGB} LEDFunction
+ */
+
+/**
  * Send a LED effect function to the controller.
- * @param {Function} fn - Self-contained function to serialize via .toString()
- * @param {unknown} [data] - Arbitrary JSON passed as the `data` parameter
+ * @template T
+ * @param {LEDFunction<T>} fn - Self-contained function to serialize via .toString()
+ * @param {T} [data] - Arbitrary JSON passed as the `data` parameter
  * @param {number} [timeout] - Auto-expire after this many ms
  */
 async function sendLedEffect(fn, data, timeout) {
