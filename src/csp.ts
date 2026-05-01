@@ -34,6 +34,13 @@ function mergePolicies(entries: PolicyEntry[]) {
     }
   }
 
+  // Remove 'none' CSP entries when a conflicting entry exists
+  for (const sources of Object.values(merged)) {
+    if (sources.size <= 1) continue;
+
+    sources.delete("'none'");
+  }
+
   return Object.fromEntries(
     Object.entries(merged).map(([k, v]) => [k, Array.from(v)]),
   );
