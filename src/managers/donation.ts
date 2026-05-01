@@ -28,7 +28,7 @@ export class DonationManager {
     return true;
   }
 
-  isGeneral(name?: string) {
+  static isGeneral(name?: string) {
     if (!name) {
       return true;
     }

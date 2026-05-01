@@ -2,7 +2,7 @@ import { escapeHtml } from "@kitajs/html";
 import { Button } from "~/components/button";
 import { Layout } from "~/components/layout";
 import { StripeCheckoutModal } from "~/components/stripe-checkout-modal";
-import donationManager, { DonationManager } from "~/managers/donation";
+import { DonationManager } from "~/managers/donation";
 import { formatAmount } from "~/money";
 import paths from "~/paths";
 import type { Cents } from "~/types/cents";
@@ -97,7 +97,7 @@ export function QrPage({
           <div class="divider">or</div>
 
           <div class="qr-actions">
-            {!donationManager.isGeneral(name) && (
+            {!DonationManager.isGeneral(name) && (
               <Button variant="outline" href={`${paths.index()}#donate`}>
                 Make a general donation
               </Button>

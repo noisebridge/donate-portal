@@ -1,8 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { DonationManager } from "./donation";
 
-const manager = new DonationManager();
-
 describe("DonationManager", () => {
   describe("maxNameLength", () => {
     test("is defined as a positive number", () => {
@@ -18,19 +16,19 @@ describe("DonationManager", () => {
 
   describe("isGeneral", () => {
     test("returns true when name is undefined", () => {
-      expect(manager.isGeneral()).toBe(true);
+      expect(DonationManager.isGeneral()).toBe(true);
     });
 
     test("returns true for the default donation name", () => {
-      expect(manager.isGeneral(DonationManager.defaultName)).toBe(true);
+      expect(DonationManager.isGeneral(DonationManager.defaultName)).toBe(true);
     });
 
     test("returns true for 'Support Us'", () => {
-      expect(manager.isGeneral("Support Us")).toBe(true);
+      expect(DonationManager.isGeneral("Support Us")).toBe(true);
     });
 
     test("returns false for a custom product name", () => {
-      expect(manager.isGeneral("Laser Cutter")).toBe(false);
+      expect(DonationManager.isGeneral("Laser Cutter")).toBe(false);
     });
   });
 });
