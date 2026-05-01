@@ -6,6 +6,7 @@ import { sendErrorReport } from "./error-reporting.mjs";
 /** @typedef {import("@stripe/stripe-js").StripeElements} StripeElements */
 /** @typedef {import("@stripe/stripe-js").StripeElementType} StripeElementType */
 /** @typedef {import("@stripe/stripe-js").StripeEmbeddedCheckout} StripeEmbeddedCheckout */
+/** @typedef {import("@stripe/stripe-js").ReleaseTrain} StripeRelease */
 
 /** @satisfies {StripeElementType} */
 const ELEMENT_TYPE = "payment";
@@ -75,7 +76,7 @@ export function initStripe() {
 
   stripePromise = new Promise((resolve, reject) => {
     const script = document.createElement("script");
-    script.src = "https://js.stripe.com/dahlia/stripe.js";
+    script.src = `https://js.stripe.com/${/** @satisfies {StripeRelease} */ ("dahlia")}/stripe.js`;
 
     script.addEventListener("load", () => {
       if (!window.Stripe) {
