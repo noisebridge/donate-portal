@@ -116,7 +116,7 @@ function verifyBasicAuth(request: FastifyRequest) {
     return false;
   }
 
-  const decoded = Buffer.from(auth.slice(6), "base64").toString();
+  const decoded = Buffer.from(auth.slice("Basic ".length), "base64").toString();
   const [username, password] = decoded.split(":", 2) as [
     string,
     string | undefined,
@@ -135,7 +135,7 @@ function verifyBasicAuth(request: FastifyRequest) {
       Buffer.from(config.alertsUsername),
     ) ||
     !crypto.timingSafeEqual(
-      Buffer.from(password ?? ""),
+      Buffer.from(password),
       Buffer.from(config.alertsPassword),
     )
   ) {
