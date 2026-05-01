@@ -211,7 +211,8 @@ export default async function routes(fastify: FastifyInstance) {
   fastify.get<{
     Querystring: MessageParams;
   }>(paths.signIn(), async (request, reply) => {
-    if (isAuthenticated(request, reply)) {
+    const authenticated = isAuthenticated(request, reply);
+    if (authenticated) {
       return reply.redirect(paths.manage());
     }
 
@@ -221,7 +222,7 @@ export default async function routes(fastify: FastifyInstance) {
 
     return reply.html(
       <AuthPage
-        isAuthenticated={isAuthenticated(request, reply)}
+        isAuthenticated={authenticated}
         messages={formatMessages(request.query)}
         csrfToken={reply.generateCsrf()}
       />,
