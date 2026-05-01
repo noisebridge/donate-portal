@@ -1,12 +1,8 @@
 #!/usr/bin/env bun
 
-import dotenv from "dotenv";
-
-dotenv.config({ path: `${__dirname}/../.env` });
+import stripe from "~/services/stripe";
 
 async function cleanUpTestData() {
-  const stripe = (await import("~/services/stripe")).default;
-
   console.log("Searching for subscriptions with e2e-test emails...\n");
 
   let totalCancelled = 0;

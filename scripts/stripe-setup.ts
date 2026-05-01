@@ -1,15 +1,13 @@
 #!/usr/bin/env bun
 
-import dotenv from "dotenv";
 import Stripe from "stripe";
+import { SubscriptionManager } from "~/managers/subscription";
+import stripe from "~/services/stripe";
 
-dotenv.config({ path: `${__dirname}/../.env` });
-
-const { SubscriptionManager } = await import("~/managers/subscription");
 const PRODUCT_ID = SubscriptionManager.productId;
 const PRODUCT_NAME = "Monthly Donation";
 
-async function setupStripeProduct(stripe: Stripe) {
+async function setupStripeProduct() {
   console.log(
     `Checking if product "${PRODUCT_NAME}" (${PRODUCT_ID}) already exists...`,
   );
@@ -50,7 +48,7 @@ async function setupStripeProduct(stripe: Stripe) {
 
 const PORTAL_HEADLINE = "Manage your Noisebridge donation";
 
-async function setupBillingPortalConfiguration(stripe: Stripe) {
+async function setupBillingPortalConfiguration() {
   console.log("Checking for existing billing portal configuration...");
 
   // List existing configurations
@@ -99,9 +97,8 @@ async function setupBillingPortalConfiguration(stripe: Stripe) {
 }
 
 async function main() {
-  const stripe = (await import("~/services/stripe")).default;
-  await setupStripeProduct(stripe);
-  await setupBillingPortalConfiguration(stripe);
+  await setupStripeProduct();
+  await setupBillingPortalConfiguration();
 }
 
 await main();

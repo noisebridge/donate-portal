@@ -4,9 +4,7 @@ import { execSync } from "node:child_process";
 import { mkdirSync, unlinkSync, writeFileSync } from "node:fs";
 import { basename, resolve } from "node:path";
 import { parseArgs } from "node:util";
-import dotenv from "dotenv";
 
-dotenv.config({ path: `${__dirname}/../.env` });
 // Only generate QR codes for production
 process.env["SERVER_HOST"] = "donate.noisebridge.net";
 process.env["NODE_ENV"] = "production";

@@ -1,9 +1,5 @@
 import { defineConfig, devices } from "@playwright/test";
-import dotenv from "dotenv";
-
-dotenv.config();
-
-const config = (await import("./src/config")).default;
+import config from "./src/config";
 
 export default defineConfig({
   testDir: "./e2e",
