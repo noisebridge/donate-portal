@@ -51,9 +51,9 @@ const basePolicy: PolicyEntry = {
   "script-src": ["'self'"],
   "style-src": [
     "'self'",
-    "'sha256-Xh3wDa6qwZqBwThpyOxhTUT9S+efeH5itF1geB9HuiI='",
-    "'sha256-UoLkaMG1cxqNTYg4W8anPhBTc0jLpmUI1sw6oEnx6ZI='",
-    "'sha256-pNew6JVTI7o7/vyDz1vjbfN+ELdoCcdPQhWEliKkywA='",
+    "'sha256-Xh3wDa6qwZqBwThpyOxhTUT9S+efeH5itF1geB9HuiI='", // layout.tsx <script>
+    "'sha256-UoLkaMG1cxqNTYg4W8anPhBTc0jLpmUI1sw6oEnx6ZI='", // QR SVG inline style
+    "'sha256-pNew6JVTI7o7/vyDz1vjbfN+ELdoCcdPQhWEliKkywA='", // QR SVG inline style
     "'unsafe-hashes'",
   ],
   "img-src": ["'self'"],
