@@ -153,7 +153,6 @@ export class GitHubOAuth {
   /**
    * Complete OAuth flow: exchange code for token and get user info
    * @param code - The authorization code from GitHub
-   * @returns Object containing access token, user profile, and primary email
    */
   async completeOAuthFlow(code: string) {
     const accessToken = await this.getAccessToken(code);
