@@ -515,15 +515,7 @@ export default async function routes(fastify: FastifyInstance) {
       }
 
       const { name, description } = body;
-      if (name && name.length > DonationManager.maxNameLength) {
-        return reply.send({
-          redirect: paths.index({ error: "InvalidRequest" }),
-        });
-      }
-      if (
-        description &&
-        description.length > DonationManager.maxDescriptionLength
-      ) {
+      if (!DonationManager.validateParams(name, description)) {
         return reply.send({
           redirect: paths.index({ error: "InvalidRequest" }),
         });
@@ -560,21 +552,8 @@ export default async function routes(fastify: FastifyInstance) {
       return reply.redirect(paths.index({ error: "InvalidDonationAmount" }));
     }
 
-    if (name && name.length > DonationManager.maxNameLength) {
-      return reply
-        .status(400)
-        .send(`Name length must be less than ${DonationManager.maxNameLength}`);
-    }
-
-    if (
-      description &&
-      description.length > DonationManager.maxDescriptionLength
-    ) {
-      return reply
-        .status(400)
-        .send(
-          `Description length must be less than ${DonationManager.maxDescriptionLength}`,
-        );
+    if (!DonationManager.validateParams(name, description)) {
+      return reply.status(400).send("Invalid name or description");
     }
 
     return reply.html(
@@ -603,21 +582,8 @@ export default async function routes(fastify: FastifyInstance) {
       return reply.status(400).send("Invalid amount");
     }
 
-    if (name && name.length > DonationManager.maxNameLength) {
-      return reply
-        .status(400)
-        .send(`Name length must be less than ${DonationManager.maxNameLength}`);
-    }
-
-    if (
-      description &&
-      description.length > DonationManager.maxDescriptionLength
-    ) {
-      return reply
-        .status(400)
-        .send(
-          `Description length must be less than ${DonationManager.maxDescriptionLength}`,
-        );
+    if (!DonationManager.validateParams(name, description)) {
+      return reply.status(400).send("Invalid name or description");
     }
 
     const includelogo = useLogo !== "false";
@@ -640,21 +606,8 @@ export default async function routes(fastify: FastifyInstance) {
       return reply.redirect(paths.index({ error: "InvalidDonationAmount" }));
     }
 
-    if (name && name.length > DonationManager.maxNameLength) {
-      return reply
-        .status(400)
-        .send(`Name length must be less than ${DonationManager.maxNameLength}`);
-    }
-
-    if (
-      description &&
-      description.length > DonationManager.maxDescriptionLength
-    ) {
-      return reply
-        .status(400)
-        .send(
-          `Description length must be less than ${DonationManager.maxDescriptionLength}`,
-        );
+    if (!DonationManager.validateParams(name, description)) {
+      return reply.status(400).send("Invalid name or description");
     }
 
     return reply.html(

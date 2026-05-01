@@ -13,10 +13,21 @@ export class DonationManager {
   static readonly defaultDescription = "Support our hackerspace community";
   static readonly maxDescriptionLength = 80;
 
-  /**
-   * Whether a donation product is a general donation.
-   * @param name Donation product name.
-   */
+  static validateParams(name?: string, description?: string): boolean {
+    if (name && name.length > DonationManager.maxNameLength) {
+      return false;
+    }
+
+    if (
+      description &&
+      description.length > DonationManager.maxDescriptionLength
+    ) {
+      return false;
+    }
+
+    return true;
+  }
+
   isGeneral(name?: string) {
     if (!name) {
       return true;
