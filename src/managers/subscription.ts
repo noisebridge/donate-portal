@@ -1,36 +1,23 @@
 import type Stripe from "stripe";
 import config from "~/config";
+import type { ErrorCodeKey } from "~/error-codes";
 import { baseLogger } from "~/logger";
 import paths from "~/paths";
-import { InfoCode } from "~/routes";
 import emailService from "~/services/email";
 import stripe from "~/services/stripe";
 import type { Cents } from "~/types/cents";
 
-export enum SubscriptionErrorCode {
-  InvalidAmount = "Please select a valid donation amount",
-  SameAmount = "Select a different donation amount",
-  NoCustomer = "No Stripe customer found",
-  NoSubscription = "No active monthly donation found to cancel",
-  NoLineItem = "No line items in your active subscription",
-  CreateError = "Unable to create monthly donation. Please try again.",
-  CancelError = "Unable to cancel monthly donation. Please try again.",
-  UpdateError = "Unable to update donation amount. Please try again.",
-  PortalError = "Unable to create billing portal session",
-  PastDue = "Please fix your payment details. Your current subscription is past due.",
-}
-
 export type SubscribeResult =
   | { success: true; clientSecret?: string }
-  | { success: false; error: SubscriptionErrorCode };
+  | { success: false; error: ErrorCodeKey };
 
 export type CancelResult =
   | { success: true }
-  | { success: false; error: string };
+  | { success: false; error: ErrorCodeKey };
 
 export type PortalResult =
   | { success: true; portalUrl: string }
-  | { success: false; error: string };
+  | { success: false; error: ErrorCodeKey };
 
 interface SubscriptionInfo {
   customer?: Stripe.Customer | undefined;
@@ -92,7 +79,7 @@ export class SubscriptionManager {
    */
   async subscribe(email: string, amount: Cents): Promise<SubscribeResult> {
     if (amount.cents < SubscriptionManager.minimumAmount.cents) {
-      return { success: false, error: SubscriptionErrorCode.InvalidAmount };
+      return { success: false, error: "InvalidMonthlyDonationAmount" };
     }
 
     const { customer: existingCustomer, subscription: existingSubscription } =
@@ -127,11 +114,11 @@ export class SubscriptionManager {
           quantity: 1,
         },
       ],
-      return_url: `${config.baseUrl}${paths.manage({ info: InfoCode.SubscriptionCreated })}`,
+      return_url: `${config.baseUrl}${paths.manage({ info: "SubscriptionCreated" })}`,
     });
 
     if (!session.client_secret) {
-      return { success: false, error: SubscriptionErrorCode.CreateError };
+      return { success: false, error: "CreateError" };
     }
 
     return {
@@ -145,17 +132,17 @@ export class SubscriptionManager {
     amount: Cents,
   ): Promise<SubscribeResult> {
     if (subscription.status === "past_due") {
-      return { success: false, error: SubscriptionErrorCode.PastDue };
+      return { success: false, error: "PastDue" };
     }
 
     const existingAmount = this.subscriptionAmount(subscription);
     if (existingAmount?.cents === amount.cents) {
-      return { success: false, error: SubscriptionErrorCode.SameAmount };
+      return { success: false, error: "SameAmount" };
     }
 
     const existingItemId = subscription.items.data[0]?.id;
     if (!existingItemId) {
-      return { success: false, error: SubscriptionErrorCode.NoLineItem };
+      return { success: false, error: "NoLineItem" };
     }
 
     try {
@@ -177,7 +164,7 @@ export class SubscriptionManager {
       });
     } catch (error) {
       SubscriptionManager.log.error({ error }, "Failed to update subscription");
-      return { success: false, error: SubscriptionErrorCode.UpdateError };
+      return { success: false, error: "UpdateError" };
     }
 
     return { success: true };
@@ -190,10 +177,10 @@ export class SubscriptionManager {
   async cancel(email: string): Promise<CancelResult> {
     const { customer, subscription } = await this.getSubscription(email);
     if (!customer) {
-      return { success: false, error: SubscriptionErrorCode.NoCustomer };
+      return { success: false, error: "NoCustomer" };
     }
     if (!subscription) {
-      return { success: false, error: SubscriptionErrorCode.NoSubscription };
+      return { success: false, error: "NoSubscription" };
     }
 
     try {
@@ -203,7 +190,7 @@ export class SubscriptionManager {
         { error: e },
         "Failed to cancel subscription",
       );
-      return { success: false, error: SubscriptionErrorCode.CancelError };
+      return { success: false, error: "CancelError" };
     }
 
     const amountCents = this.subscriptionAmount(subscription);
@@ -228,10 +215,10 @@ export class SubscriptionManager {
   async createPortalSession(email: string): Promise<PortalResult> {
     const { customer, subscription } = await this.getSubscription(email);
     if (!customer) {
-      return { success: false, error: SubscriptionErrorCode.NoCustomer };
+      return { success: false, error: "NoCustomer" };
     }
     if (!subscription) {
-      return { success: false, error: SubscriptionErrorCode.NoSubscription };
+      return { success: false, error: "NoSubscription" };
     }
 
     let session: Stripe.Response<Stripe.BillingPortal.Session> | undefined;
@@ -246,10 +233,10 @@ export class SubscriptionManager {
         { error: e },
         "Failed to create Stripe Portal session",
       );
-      return { success: false, error: SubscriptionErrorCode.PortalError };
+      return { success: false, error: "PortalError" };
     }
     if (!session.url) {
-      return { success: false, error: SubscriptionErrorCode.PortalError };
+      return { success: false, error: "PortalError" };
     }
 
     return { success: true, portalUrl: session.url };

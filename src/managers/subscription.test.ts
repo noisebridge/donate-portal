@@ -86,9 +86,7 @@ mock.module("~/services/email", () => ({
   },
 }));
 
-const { SubscriptionManager, SubscriptionErrorCode } = await import(
-  "./subscription"
-);
+const { SubscriptionManager } = await import("./subscription");
 
 function makeCustomer(
   overrides: Partial<Stripe.Customer> = {},
@@ -194,7 +192,7 @@ describe("SubscriptionManager", () => {
 
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error).toBe(SubscriptionErrorCode.InvalidAmount);
+        expect(result.error).toBe("InvalidMonthlyDonationAmount");
       }
     });
 
@@ -264,7 +262,7 @@ describe("SubscriptionManager", () => {
 
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error).toBe(SubscriptionErrorCode.SameAmount);
+        expect(result.error).toBe("SameAmount");
       }
     });
 
@@ -282,7 +280,7 @@ describe("SubscriptionManager", () => {
 
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error).toBe(SubscriptionErrorCode.PastDue);
+        expect(result.error).toBe("PastDue");
       }
     });
 
@@ -301,7 +299,7 @@ describe("SubscriptionManager", () => {
 
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error).toBe(SubscriptionErrorCode.UpdateError);
+        expect(result.error).toBe("UpdateError");
       }
     });
 
@@ -319,7 +317,7 @@ describe("SubscriptionManager", () => {
 
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error).toBe(SubscriptionErrorCode.CreateError);
+        expect(result.error).toBe("CreateError");
       }
     });
   });
@@ -350,7 +348,7 @@ describe("SubscriptionManager", () => {
 
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error).toBe(SubscriptionErrorCode.NoCustomer);
+        expect(result.error).toBe("NoCustomer");
       }
     });
 
@@ -362,7 +360,7 @@ describe("SubscriptionManager", () => {
 
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error).toBe(SubscriptionErrorCode.NoSubscription);
+        expect(result.error).toBe("NoSubscription");
       }
     });
 
@@ -379,7 +377,7 @@ describe("SubscriptionManager", () => {
 
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error).toBe(SubscriptionErrorCode.CancelError);
+        expect(result.error).toBe("CancelError");
       }
     });
 
@@ -425,7 +423,7 @@ describe("SubscriptionManager", () => {
 
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error).toBe(SubscriptionErrorCode.NoCustomer);
+        expect(result.error).toBe("NoCustomer");
       }
     });
 
@@ -437,7 +435,7 @@ describe("SubscriptionManager", () => {
 
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error).toBe(SubscriptionErrorCode.NoSubscription);
+        expect(result.error).toBe("NoSubscription");
       }
     });
 
@@ -454,7 +452,7 @@ describe("SubscriptionManager", () => {
 
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error).toBe(SubscriptionErrorCode.PortalError);
+        expect(result.error).toBe("PortalError");
       }
     });
 
@@ -473,7 +471,7 @@ describe("SubscriptionManager", () => {
 
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error).toBe(SubscriptionErrorCode.PortalError);
+        expect(result.error).toBe("PortalError");
       }
     });
   });

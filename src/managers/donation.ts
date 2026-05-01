@@ -1,14 +1,10 @@
+import type { ErrorCodeKey } from "~/error-codes";
 import stripe from "~/services/stripe";
 import type { Cents } from "~/types/cents";
 
-export enum DonationErrorCode {
-  InvalidAmount = "Please select a valid donation amount",
-  SessionError = "Unable to process donation. Please try again.",
-}
-
 export type DonateResult =
   | { success: true; clientSecret: string }
-  | { success: false; error: DonationErrorCode };
+  | { success: false; error: ErrorCodeKey };
 
 export class DonationManager {
   static readonly minimumAmount: Cents = { cents: 200 };
@@ -41,7 +37,7 @@ export class DonationManager {
     description?: string,
   ): Promise<DonateResult> {
     if (amount.cents < DonationManager.minimumAmount.cents) {
-      return { success: false, error: DonationErrorCode.InvalidAmount };
+      return { success: false, error: "InvalidDonationAmount" };
     }
 
     const paymentIntent = await stripe.paymentIntents.create({
@@ -55,7 +51,7 @@ export class DonationManager {
       },
     });
     if (!paymentIntent.client_secret) {
-      return { success: false, error: DonationErrorCode.SessionError };
+      return { success: false, error: "SessionError" };
     }
 
     return {

@@ -1,14 +1,17 @@
-import type { Message } from "./components/message-container";
+import type { ErrorCodeKey, InfoCodeKey } from "./error-codes";
 import type { Cents } from "./types/cents";
 
-export type MessageParams = Partial<Record<Message["type"], string>>;
+export interface MessageParams {
+  error?: ErrorCodeKey;
+  info?: InfoCodeKey;
+}
 
 /**
  * Format a page path with query params.
  */
-function formatPath(
+function formatPath<T extends string>(
   path: string,
-  params?: Record<string, string | number | undefined>,
+  params?: Partial<Record<T, string | number | undefined>>,
 ) {
   if (!params || Object.keys(params).length === 0) {
     return path;

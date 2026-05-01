@@ -7,8 +7,8 @@ import type {
   RouteShorthandOptions,
 } from "fastify";
 import type Stripe from "stripe";
-import type { Message } from "~/components/message-container";
 import config from "~/config";
+import { ErrorCode, formatMessages } from "~/error-codes";
 import chargeAlertManager from "~/managers/charge-alert";
 import donationManager, { DonationManager } from "~/managers/donation";
 import magicLinkManager from "~/managers/magic-link";
@@ -79,28 +79,6 @@ const errorReportingRateLimit = conditionalRateLimit({
  */
 function getRandomState() {
   return crypto.randomBytes(32).toString("hex");
-}
-
-enum ErrorCode {
-  InvalidState = "Invalid OAuth state parameter",
-  InvalidRequest = "Invalid request parameters",
-  GithubError = "GitHub raised an error",
-  GoogleError = "Google raised an error",
-  OAuthFailed = "Failed to perform OAuth",
-  NoEmail = "Could not find an email address for you",
-  EmailInvalid = "Invalid email address",
-  EmailSendFailed = "Failed to send email. Please try again.",
-  InvalidMagicLink = "Invalid magic link",
-  MagicLinkExpired = "Magic link has expired. Please request a new one.",
-  InvalidDonationAmount = "Please select a valid donation amount",
-  InvalidMonthlyDonationAmount = "Please select a valid donation amount",
-  PastDue = "Your subscription is past due! Click the Payment Methods button to fix it.",
-}
-
-export enum InfoCode {
-  SubscriptionCreated = "Your monthly donation has been set up. Thank you!",
-  SubscriptionUpdated = "Your donation amount has been updated. The new amount will apply to the next billing cycle.",
-  SubscriptionCancelled = "Your monthly donation has been cancelled. No further charges will be made.",
 }
 
 function isAuthenticated(
@@ -215,16 +193,10 @@ export default async function routes(fastify: FastifyInstance) {
   fastify.get<{
     Querystring: MessageParams;
   }>(paths.index(), async (request, reply) => {
-    const error = request.query.error;
-    const messages: Message[] = [];
-    if (error) {
-      messages.push({ type: "error", text: error });
-    }
-
     return reply.html(
       <IndexPage
         isAuthenticated={isAuthenticated(request, reply)}
-        messages={messages}
+        messages={formatMessages(request.query)}
       />,
     );
   });
@@ -240,16 +212,10 @@ export default async function routes(fastify: FastifyInstance) {
     cookies[CookieName.GithubOAuthState](request, reply).clear();
     cookies[CookieName.GoogleOAuthState](request, reply).clear();
 
-    const error = request.query.error;
-    const messages: Message[] = [];
-    if (error) {
-      messages.push({ type: "error", text: error });
-    }
-
     return reply.html(
       <AuthPage
         isAuthenticated={isAuthenticated(request, reply)}
-        messages={messages}
+        messages={formatMessages(request.query)}
       />,
     );
   });
@@ -272,13 +238,13 @@ export default async function routes(fastify: FastifyInstance) {
   }>(paths.githubCallback(), async (request, reply) => {
     if (request.query.error) {
       fastify.log.warn({ error: request.query.error }, "GitHub OAuth error");
-      return reply.redirect(paths.signIn({ error: ErrorCode.GithubError }));
+      return reply.redirect(paths.signIn({ error: "GithubError" }));
     }
 
     const { code, state } = request.query;
     if (!code || !state) {
       fastify.log.warn("Missing code or state parameter in callback");
-      return reply.redirect(paths.signIn({ error: ErrorCode.InvalidRequest }));
+      return reply.redirect(paths.signIn({ error: "InvalidRequest" }));
     }
 
     const githubCookie = cookies[CookieName.GithubOAuthState](request, reply);
@@ -286,12 +252,12 @@ export default async function routes(fastify: FastifyInstance) {
     githubCookie.clear();
     if (cookieValue?.state !== state) {
       fastify.log.warn("Invalid or mismatched state parameter");
-      return reply.redirect(paths.signIn({ error: ErrorCode.InvalidState }));
+      return reply.redirect(paths.signIn({ error: "InvalidState" }));
     }
 
     const oauthResult = await githubOAuth.completeOAuthFlow(code);
     if (!oauthResult) {
-      return reply.redirect(paths.signIn({ error: ErrorCode.OAuthFailed }));
+      return reply.redirect(paths.signIn({ error: "OAuthFailed" }));
     }
 
     const { user, primaryEmail } = oauthResult;
@@ -301,7 +267,7 @@ export default async function routes(fastify: FastifyInstance) {
         { userId: user.id, login: user.login },
         "No email found for GitHub user",
       );
-      return reply.redirect(paths.signIn({ error: ErrorCode.NoEmail }));
+      return reply.redirect(paths.signIn({ error: "NoEmail" }));
     }
 
     const sessionCookie = cookies[CookieName.UserSession](request, reply);
@@ -337,13 +303,13 @@ export default async function routes(fastify: FastifyInstance) {
   }>(paths.googleCallback(), async (request, reply) => {
     if (request.query.error) {
       fastify.log.warn({ error: request.query.error }, "Google OAuth error");
-      return reply.redirect(paths.signIn({ error: ErrorCode.GoogleError }));
+      return reply.redirect(paths.signIn({ error: "GoogleError" }));
     }
 
     const { code, state } = request.query;
     if (!code || !state) {
       fastify.log.warn("Missing code or state parameter in Google callback");
-      return reply.redirect(paths.signIn({ error: ErrorCode.InvalidRequest }));
+      return reply.redirect(paths.signIn({ error: "InvalidRequest" }));
     }
 
     const googleCookie = cookies[CookieName.GoogleOAuthState](request, reply);
@@ -353,12 +319,12 @@ export default async function routes(fastify: FastifyInstance) {
       fastify.log.warn(
         "Invalid or mismatched state parameter for Google OAuth",
       );
-      return reply.redirect(paths.signIn({ error: ErrorCode.InvalidState }));
+      return reply.redirect(paths.signIn({ error: "InvalidState" }));
     }
 
     const oauthResult = await googleOAuth.completeOAuthFlow(code);
     if (!oauthResult) {
-      return reply.redirect(paths.signIn({ error: ErrorCode.OAuthFailed }));
+      return reply.redirect(paths.signIn({ error: "OAuthFailed" }));
     }
 
     const { userInfo } = oauthResult;
@@ -367,7 +333,7 @@ export default async function routes(fastify: FastifyInstance) {
         { userId: userInfo.id },
         "No verified email found for Google user",
       );
-      return reply.redirect(paths.signIn({ error: ErrorCode.NoEmail }));
+      return reply.redirect(paths.signIn({ error: "NoEmail" }));
     }
 
     const sessionCookie = cookies[CookieName.UserSession](request, reply);
@@ -392,13 +358,13 @@ export default async function routes(fastify: FastifyInstance) {
 
     if (!email) {
       fastify.log.warn("Missing email in POST /auth/email");
-      return reply.redirect(paths.signIn({ error: ErrorCode.InvalidRequest }));
+      return reply.redirect(paths.signIn({ error: "InvalidRequest" }));
     }
 
     // Basic email validation
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 254) {
       fastify.log.warn({ email }, "Invalid email format");
-      return reply.redirect(paths.signIn({ error: ErrorCode.EmailInvalid }));
+      return reply.redirect(paths.signIn({ error: "EmailInvalid" }));
     }
 
     const response = await emailService.sendMagicLinkEmail(email);
@@ -407,7 +373,7 @@ export default async function routes(fastify: FastifyInstance) {
         { email, error: response.error },
         "Failed to send magic link email",
       );
-      return reply.redirect(paths.signIn({ error: ErrorCode.EmailSendFailed }));
+      return reply.redirect(paths.signIn({ error: "EmailSendFailed" }));
     }
     fastify.log.info({ email, id: response.id }, "Magic link email sent");
 
@@ -424,7 +390,7 @@ export default async function routes(fastify: FastifyInstance) {
     const email = request.query.email;
     if (!email) {
       fastify.log.warn("Missing email parameter");
-      return reply.redirect(paths.signIn({ error: ErrorCode.InvalidRequest }));
+      return reply.redirect(paths.signIn({ error: "InvalidRequest" }));
     }
 
     return reply.html(
@@ -442,15 +408,13 @@ export default async function routes(fastify: FastifyInstance) {
 
     if (!state) {
       fastify.log.warn("Missing state parameter in magic link callback");
-      return reply.redirect(paths.signIn({ error: ErrorCode.InvalidRequest }));
+      return reply.redirect(paths.signIn({ error: "InvalidRequest" }));
     }
 
     const magicLinkState = magicLinkManager.decodeMagicLinkState(state);
     if (!magicLinkState) {
       fastify.log.warn("Invalid state parameter in magic link callback");
-      return reply.redirect(
-        paths.signIn({ error: ErrorCode.InvalidMagicLink }),
-      );
+      return reply.redirect(paths.signIn({ error: "InvalidMagicLink" }));
     }
 
     const { email, code } = magicLinkState;
@@ -458,9 +422,7 @@ export default async function routes(fastify: FastifyInstance) {
     const isValid = magicLinkManager.verifyMagicLinkCode(email, code);
     if (!isValid) {
       fastify.log.warn({ email }, "Invalid or expired magic link code");
-      return reply.redirect(
-        paths.signIn({ error: ErrorCode.MagicLinkExpired }),
-      );
+      return reply.redirect(paths.signIn({ error: "MagicLinkExpired" }));
     }
 
     const sessionCookie = cookies[CookieName.UserSession](request, reply);
@@ -493,21 +455,13 @@ export default async function routes(fastify: FastifyInstance) {
       sessionData.email,
     );
 
-    const { error, info } = request.query;
-
-    const messages: Message[] = [];
-    if (error) {
-      messages.push({ type: "error", text: error });
-    }
+    const messages = formatMessages(request.query);
     if (customerSubscription.subscription?.status === "past_due") {
       messages.push({
         type: "error",
         text: ErrorCode.PastDue,
         dismissable: false,
       });
-    }
-    if (info) {
-      messages.push({ type: "info", text: info });
     }
 
     reply.header("Cache-Control", "no-store");
@@ -527,7 +481,7 @@ export default async function routes(fastify: FastifyInstance) {
     const body = request.body;
     if (!validateAmountFormData(body)) {
       return reply.send({
-        redirect: paths.index({ error: ErrorCode.InvalidRequest }),
+        redirect: paths.index({ error: "InvalidRequest" }),
       });
     }
 
@@ -535,14 +489,14 @@ export default async function routes(fastify: FastifyInstance) {
     if (amountCents === null) {
       fastify.log.warn({ body }, "Invalid donation amount");
       return reply.send({
-        redirect: paths.index({ error: ErrorCode.InvalidDonationAmount }),
+        redirect: paths.index({ error: "InvalidDonationAmount" }),
       });
     }
 
     const { name, description } = body;
     if (name && name.length > DonationManager.maxNameLength) {
       return reply.send({
-        redirect: paths.index({ error: ErrorCode.InvalidRequest }),
+        redirect: paths.index({ error: "InvalidRequest" }),
       });
     }
     if (
@@ -550,14 +504,16 @@ export default async function routes(fastify: FastifyInstance) {
       description.length > DonationManager.maxDescriptionLength
     ) {
       return reply.send({
-        redirect: paths.index({ error: ErrorCode.InvalidRequest }),
+        redirect: paths.index({ error: "InvalidRequest" }),
       });
     }
 
     const result = await donationManager.donate(amountCents, name, description);
     if (!result.success) {
       fastify.log.error(`Couldn't initiate Stripe donation: ${result.error}`);
-      return reply.send({ redirect: paths.index({ error: result.error }) });
+      return reply.send({
+        redirect: paths.index({ error: result.error }),
+      });
     }
 
     fastify.log.info(
@@ -575,9 +531,7 @@ export default async function routes(fastify: FastifyInstance) {
 
     const amountCents = parseToCents(amount ?? "");
     if (amountCents === null) {
-      return reply.redirect(
-        paths.index({ error: ErrorCode.InvalidDonationAmount }),
-      );
+      return reply.redirect(paths.index({ error: "InvalidDonationAmount" }));
     }
 
     if (name && name.length > DonationManager.maxNameLength) {
@@ -656,9 +610,7 @@ export default async function routes(fastify: FastifyInstance) {
 
     const amountCents = parseToCents(amount ?? "");
     if (amountCents === null) {
-      return reply.redirect(
-        paths.index({ error: ErrorCode.InvalidDonationAmount }),
-      );
+      return reply.redirect(paths.index({ error: "InvalidDonationAmount" }));
     }
 
     if (name && name.length > DonationManager.maxNameLength) {
@@ -705,7 +657,7 @@ export default async function routes(fastify: FastifyInstance) {
     const body = request.body;
     if (!validateAmountFormData(body)) {
       return reply.send({
-        redirect: paths.manage({ error: ErrorCode.InvalidRequest }),
+        redirect: paths.manage({ error: "InvalidRequest" }),
       });
     }
 
@@ -717,7 +669,7 @@ export default async function routes(fastify: FastifyInstance) {
       );
       return reply.send({
         redirect: paths.manage({
-          error: ErrorCode.InvalidMonthlyDonationAmount,
+          error: "InvalidMonthlyDonationAmount",
         }),
       });
     }
@@ -727,12 +679,14 @@ export default async function routes(fastify: FastifyInstance) {
       amountCents,
     );
     if (!result.success) {
-      return reply.send({ redirect: paths.manage({ error: result.error }) });
+      return reply.send({
+        redirect: paths.manage({ error: result.error }),
+      });
     }
     if (!result.clientSecret) {
       // Subscription was updated, no payment needed
       return reply.send({
-        redirect: paths.manage({ info: InfoCode.SubscriptionUpdated }),
+        redirect: paths.manage({ info: "SubscriptionUpdated" }),
       });
     }
 
@@ -794,9 +748,7 @@ export default async function routes(fastify: FastifyInstance) {
 
     fastify.log.info({ email: sessionData.email }, "Subscription canceled");
 
-    return reply.redirect(
-      paths.manage({ info: InfoCode.SubscriptionCancelled }),
-    );
+    return reply.redirect(paths.manage({ info: "SubscriptionCancelled" }));
   });
 
   fastify.get(paths.alerts(), async (request, reply) => {
