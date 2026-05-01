@@ -8,6 +8,7 @@ describe("IndexPage", () => {
       <IndexPage
         isAuthenticated={false}
         messages={[{ type: "error", text: errorMessage }]}
+        csrfToken={undefined}
       />
     );
 
@@ -17,7 +18,9 @@ describe("IndexPage", () => {
   });
 
   test("should not display message when no messages provided", async () => {
-    const result = await (<IndexPage isAuthenticated={false} />);
+    const result = await (
+      <IndexPage isAuthenticated={false} csrfToken={undefined} />
+    );
 
     expect(result).toBeTypeOf("string");
     expect(result).not.toContain('class="message ');

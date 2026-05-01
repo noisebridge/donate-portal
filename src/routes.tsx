@@ -171,6 +171,7 @@ export default async function routes(fastify: FastifyInstance) {
           <ErrorPage
             isAuthenticated={isAuthenticated(request, reply)}
             error={error}
+            csrfToken={reply.generateCsrf()}
           />,
         );
     },
@@ -187,7 +188,12 @@ export default async function routes(fastify: FastifyInstance) {
 
     reply
       .status(404)
-      .html(<NotFoundPage isAuthenticated={isAuthenticated(request, reply)} />);
+      .html(
+        <NotFoundPage
+          isAuthenticated={isAuthenticated(request, reply)}
+          csrfToken={reply.generateCsrf()}
+        />,
+      );
   });
 
   fastify.get<{
@@ -197,6 +203,7 @@ export default async function routes(fastify: FastifyInstance) {
       <IndexPage
         isAuthenticated={isAuthenticated(request, reply)}
         messages={formatMessages(request.query)}
+        csrfToken={reply.generateCsrf()}
       />,
     );
   });
@@ -216,6 +223,7 @@ export default async function routes(fastify: FastifyInstance) {
       <AuthPage
         isAuthenticated={isAuthenticated(request, reply)}
         messages={formatMessages(request.query)}
+        csrfToken={reply.generateCsrf()}
       />,
     );
   });
@@ -349,36 +357,40 @@ export default async function routes(fastify: FastifyInstance) {
 
   fastify.post<{
     Body: { email?: string };
-  }>(paths.emailAuth(), authRateLimit, async (request, reply) => {
-    if (isAuthenticated(request, reply)) {
-      return reply.redirect(paths.manage());
-    }
+  }>(
+    paths.emailAuth(),
+    { ...authRateLimit, preHandler: fastify.csrfProtection },
+    async (request, reply) => {
+      if (isAuthenticated(request, reply)) {
+        return reply.redirect(paths.manage());
+      }
 
-    const email = request.body?.email?.trim();
+      const email = request.body?.email?.trim();
 
-    if (!email) {
-      fastify.log.warn("Missing email in POST /auth/email");
-      return reply.redirect(paths.signIn({ error: "InvalidRequest" }));
-    }
+      if (!email) {
+        fastify.log.warn("Missing email in POST /auth/email");
+        return reply.redirect(paths.signIn({ error: "InvalidRequest" }));
+      }
 
-    // Basic email validation
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 254) {
-      fastify.log.warn({ email }, "Invalid email format");
-      return reply.redirect(paths.signIn({ error: "EmailInvalid" }));
-    }
+      // Basic email validation
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 254) {
+        fastify.log.warn({ email }, "Invalid email format");
+        return reply.redirect(paths.signIn({ error: "EmailInvalid" }));
+      }
 
-    const response = await emailService.sendMagicLinkEmail(email);
-    if (!response.success) {
-      fastify.log.error(
-        { email, error: response.error },
-        "Failed to send magic link email",
-      );
-      return reply.redirect(paths.signIn({ error: "EmailSendFailed" }));
-    }
-    fastify.log.info({ email, id: response.id }, "Magic link email sent");
+      const response = await emailService.sendMagicLinkEmail(email);
+      if (!response.success) {
+        fastify.log.error(
+          { email, error: response.error },
+          "Failed to send magic link email",
+        );
+        return reply.redirect(paths.signIn({ error: "EmailSendFailed" }));
+      }
+      fastify.log.info({ email, id: response.id }, "Magic link email sent");
 
-    return reply.redirect(paths.emailAuth(email));
-  });
+      return reply.redirect(paths.emailAuth(email));
+    },
+  );
 
   fastify.get<{
     Querystring: { email?: string };
@@ -397,6 +409,7 @@ export default async function routes(fastify: FastifyInstance) {
       <AuthEmailPage
         email={email}
         isAuthenticated={isAuthenticated(request, reply)}
+        csrfToken={reply.generateCsrf()}
       />,
     );
   });
@@ -433,12 +446,16 @@ export default async function routes(fastify: FastifyInstance) {
     return reply.redirect(paths.manage());
   });
 
-  fastify.post(paths.signOut(), async (request, reply) => {
-    const sessionCookie = cookies[CookieName.UserSession](request, reply);
-    sessionCookie.clear();
+  fastify.post(
+    paths.signOut(),
+    { preHandler: fastify.csrfProtection },
+    async (request, reply) => {
+      const sessionCookie = cookies[CookieName.UserSession](request, reply);
+      sessionCookie.clear();
 
-    return reply.redirect(paths.index());
-  });
+      return reply.redirect(paths.index());
+    },
+  );
 
   fastify.get<{
     Querystring: MessageParams;
@@ -471,58 +488,67 @@ export default async function routes(fastify: FastifyInstance) {
         email={sessionData.email}
         subscription={customerSubscription.subscription}
         messages={messages}
+        csrfToken={reply.generateCsrf()}
       />,
     );
   });
 
   fastify.post<{
     Body: { name?: string; description?: string };
-  }>(paths.donate(), donationRateLimit, async (request, reply) => {
-    const body = request.body;
-    if (!validateAmountFormData(body)) {
-      return reply.send({
-        redirect: paths.index({ error: "InvalidRequest" }),
-      });
-    }
+  }>(
+    paths.donate(),
+    { ...donationRateLimit, preHandler: fastify.csrfProtection },
+    async (request, reply) => {
+      const body = request.body;
+      if (!validateAmountFormData(body)) {
+        return reply.send({
+          redirect: paths.index({ error: "InvalidRequest" }),
+        });
+      }
 
-    const amountCents = parseToCents(body);
-    if (amountCents === null) {
-      fastify.log.warn({ body }, "Invalid donation amount");
-      return reply.send({
-        redirect: paths.index({ error: "InvalidDonationAmount" }),
-      });
-    }
+      const amountCents = parseToCents(body);
+      if (amountCents === null) {
+        fastify.log.warn({ body }, "Invalid donation amount");
+        return reply.send({
+          redirect: paths.index({ error: "InvalidDonationAmount" }),
+        });
+      }
 
-    const { name, description } = body;
-    if (name && name.length > DonationManager.maxNameLength) {
-      return reply.send({
-        redirect: paths.index({ error: "InvalidRequest" }),
-      });
-    }
-    if (
-      description &&
-      description.length > DonationManager.maxDescriptionLength
-    ) {
-      return reply.send({
-        redirect: paths.index({ error: "InvalidRequest" }),
-      });
-    }
+      const { name, description } = body;
+      if (name && name.length > DonationManager.maxNameLength) {
+        return reply.send({
+          redirect: paths.index({ error: "InvalidRequest" }),
+        });
+      }
+      if (
+        description &&
+        description.length > DonationManager.maxDescriptionLength
+      ) {
+        return reply.send({
+          redirect: paths.index({ error: "InvalidRequest" }),
+        });
+      }
 
-    const result = await donationManager.donate(amountCents, name, description);
-    if (!result.success) {
-      fastify.log.error(`Couldn't initiate Stripe donation: ${result.error}`);
-      return reply.send({
-        redirect: paths.index({ error: result.error }),
-      });
-    }
+      const result = await donationManager.donate(
+        amountCents,
+        name,
+        description,
+      );
+      if (!result.success) {
+        fastify.log.error(`Couldn't initiate Stripe donation: ${result.error}`);
+        return reply.send({
+          redirect: paths.index({ error: result.error }),
+        });
+      }
 
-    fastify.log.info(
-      { amount: amountCents },
-      "Stripe PaymentIntent created for donation",
-    );
+      fastify.log.info(
+        { amount: amountCents },
+        "Stripe PaymentIntent created for donation",
+      );
 
-    return reply.send({ clientSecret: result.clientSecret });
-  });
+      return reply.send({ clientSecret: result.clientSecret });
+    },
+  );
 
   fastify.get<{
     Querystring: { name?: string; description?: string; amount?: string };
@@ -557,6 +583,7 @@ export default async function routes(fastify: FastifyInstance) {
         name={name}
         description={description}
         isAuthenticated={isAuthenticated(request, reply)}
+        csrfToken={reply.generateCsrf()}
       />,
     );
   });
@@ -636,120 +663,136 @@ export default async function routes(fastify: FastifyInstance) {
         name={name}
         description={description}
         isAuthenticated={isAuthenticated(request, reply)}
+        csrfToken={reply.generateCsrf()}
       />,
     );
   });
 
   fastify.get(paths.qrEditor(), async (request, reply) => {
     return reply.html(
-      <QrEditorPage isAuthenticated={isAuthenticated(request, reply)} />,
+      <QrEditorPage
+        isAuthenticated={isAuthenticated(request, reply)}
+        csrfToken={reply.generateCsrf()}
+      />,
     );
   });
 
-  fastify.post(paths.subscribe(), donationRateLimit, async (request, reply) => {
-    const sessionCookie = cookies[CookieName.UserSession](request, reply);
-    const sessionData = sessionCookie.value;
-    if (!sessionData) {
-      fastify.log.warn("Unauthenticated subscription attempt");
-      return reply.send({ redirect: paths.signIn() });
-    }
+  fastify.post(
+    paths.subscribe(),
+    { ...donationRateLimit, preHandler: fastify.csrfProtection },
+    async (request, reply) => {
+      const sessionCookie = cookies[CookieName.UserSession](request, reply);
+      const sessionData = sessionCookie.value;
+      if (!sessionData) {
+        fastify.log.warn("Unauthenticated subscription attempt");
+        return reply.send({ redirect: paths.signIn() });
+      }
 
-    const body = request.body;
-    if (!validateAmountFormData(body)) {
-      return reply.send({
-        redirect: paths.manage({ error: "InvalidRequest" }),
-      });
-    }
+      const body = request.body;
+      if (!validateAmountFormData(body)) {
+        return reply.send({
+          redirect: paths.manage({ error: "InvalidRequest" }),
+        });
+      }
 
-    const amountCents = parseToCents(body);
-    if (amountCents === null) {
-      fastify.log.warn(
-        { body, email: sessionData.email },
-        "Invalid subscription amount",
+      const amountCents = parseToCents(body);
+      if (amountCents === null) {
+        fastify.log.warn(
+          { body, email: sessionData.email },
+          "Invalid subscription amount",
+        );
+        return reply.send({
+          redirect: paths.manage({
+            error: "InvalidMonthlyDonationAmount",
+          }),
+        });
+      }
+
+      const result = await subscriptionManager.subscribe(
+        sessionData.email,
+        amountCents,
       );
-      return reply.send({
-        redirect: paths.manage({
-          error: "InvalidMonthlyDonationAmount",
-        }),
-      });
-    }
+      if (!result.success) {
+        return reply.send({
+          redirect: paths.manage({ error: result.error }),
+        });
+      }
+      if (!result.clientSecret) {
+        // Subscription was updated, no payment needed
+        return reply.send({
+          redirect: paths.manage({ info: "SubscriptionUpdated" }),
+        });
+      }
 
-    const result = await subscriptionManager.subscribe(
-      sessionData.email,
-      amountCents,
-    );
-    if (!result.success) {
-      return reply.send({
-        redirect: paths.manage({ error: result.error }),
-      });
-    }
-    if (!result.clientSecret) {
-      // Subscription was updated, no payment needed
-      return reply.send({
-        redirect: paths.manage({ info: "SubscriptionUpdated" }),
-      });
-    }
-
-    fastify.log.info(
-      {
-        amount: amountCents,
-        email: sessionData.email,
-      },
-      "Stripe subscription created with incomplete payment",
-    );
-
-    return reply.send({ clientSecret: result.clientSecret });
-  });
-
-  fastify.post(paths.stripePortal(), async (request, reply) => {
-    const sessionCookie = cookies[CookieName.UserSession](request, reply);
-    const sessionData = sessionCookie.value;
-    if (!sessionData) {
-      fastify.log.warn("Unauthenticated portal access attempt");
-      return reply.redirect(paths.signIn());
-    }
-
-    const result = await subscriptionManager.createPortalSession(
-      sessionData.email,
-    );
-    if (!result.success) {
-      fastify.log.error(
-        { email: sessionData.email, error: result.error },
-        "Failed to create billing portal session",
+      fastify.log.info(
+        {
+          amount: amountCents,
+          email: sessionData.email,
+        },
+        "Stripe subscription created with incomplete payment",
       );
-      return reply.redirect(paths.manage({ error: result.error }));
-    }
 
-    fastify.log.info(
-      { email: sessionData.email },
-      "Billing portal session created",
-    );
+      return reply.send({ clientSecret: result.clientSecret });
+    },
+  );
 
-    return reply.redirect(result.portalUrl);
-  });
+  fastify.post(
+    paths.stripePortal(),
+    { preHandler: fastify.csrfProtection },
+    async (request, reply) => {
+      const sessionCookie = cookies[CookieName.UserSession](request, reply);
+      const sessionData = sessionCookie.value;
+      if (!sessionData) {
+        fastify.log.warn("Unauthenticated portal access attempt");
+        return reply.redirect(paths.signIn());
+      }
 
-  fastify.post(paths.cancel(), async (request, reply) => {
-    const sessionCookie = cookies[CookieName.UserSession](request, reply);
-    const sessionData = sessionCookie.value;
-    if (!sessionData) {
-      fastify.log.warn("Unauthenticated cancel attempt");
-      return reply.redirect(paths.signIn());
-    }
-
-    const result = await subscriptionManager.cancel(sessionData.email);
-
-    if (!result.success) {
-      fastify.log.warn(
-        { email: sessionData.email, error: result.error },
-        "Cancel request failed",
+      const result = await subscriptionManager.createPortalSession(
+        sessionData.email,
       );
-      return reply.redirect(paths.manage({ error: result.error }));
-    }
+      if (!result.success) {
+        fastify.log.error(
+          { email: sessionData.email, error: result.error },
+          "Failed to create billing portal session",
+        );
+        return reply.redirect(paths.manage({ error: result.error }));
+      }
 
-    fastify.log.info({ email: sessionData.email }, "Subscription canceled");
+      fastify.log.info(
+        { email: sessionData.email },
+        "Billing portal session created",
+      );
 
-    return reply.redirect(paths.manage({ info: "SubscriptionCancelled" }));
-  });
+      return reply.redirect(result.portalUrl);
+    },
+  );
+
+  fastify.post(
+    paths.cancel(),
+    { preHandler: fastify.csrfProtection },
+    async (request, reply) => {
+      const sessionCookie = cookies[CookieName.UserSession](request, reply);
+      const sessionData = sessionCookie.value;
+      if (!sessionData) {
+        fastify.log.warn("Unauthenticated cancel attempt");
+        return reply.redirect(paths.signIn());
+      }
+
+      const result = await subscriptionManager.cancel(sessionData.email);
+
+      if (!result.success) {
+        fastify.log.warn(
+          { email: sessionData.email, error: result.error },
+          "Cancel request failed",
+        );
+        return reply.redirect(paths.manage({ error: result.error }));
+      }
+
+      fastify.log.info({ email: sessionData.email }, "Subscription canceled");
+
+      return reply.redirect(paths.manage({ info: "SubscriptionCancelled" }));
+    },
+  );
 
   fastify.get(paths.alerts(), async (request, reply) => {
     if (!verifyBasicAuth(request)) {
@@ -777,7 +820,10 @@ export default async function routes(fastify: FastifyInstance) {
 
   fastify.get(paths.thankYou(), async (request, reply) => {
     return reply.html(
-      <ThankYouPage isAuthenticated={isAuthenticated(request, reply)} />,
+      <ThankYouPage
+        isAuthenticated={isAuthenticated(request, reply)}
+        csrfToken={reply.generateCsrf()}
+      />,
     );
   });
 

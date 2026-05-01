@@ -4,7 +4,11 @@ import { QrCustomPage } from "./qr-custom";
 describe("QrCustomPage", () => {
   test("should include a donate button", async () => {
     const result = await (
-      <QrCustomPage amount={{ cents: 1000 }} isAuthenticated={false} />
+      <QrCustomPage
+        amount={{ cents: 1000 }}
+        isAuthenticated={false}
+        csrfToken={undefined}
+      />
     );
 
     expect(result).toContain("Donate");
@@ -12,7 +16,11 @@ describe("QrCustomPage", () => {
 
   test("should pre-fill the amount input", async () => {
     const result = await (
-      <QrCustomPage amount={{ cents: 2500 }} isAuthenticated={false} />
+      <QrCustomPage
+        amount={{ cents: 2500 }}
+        isAuthenticated={false}
+        csrfToken={undefined}
+      />
     );
 
     expect(result).toContain('value="25.00"');
@@ -24,6 +32,7 @@ describe("QrCustomPage", () => {
         amount={{ cents: 1000 }}
         name="Coffee"
         isAuthenticated={false}
+        csrfToken={undefined}
       />
     );
 
@@ -36,6 +45,7 @@ describe("QrCustomPage", () => {
         amount={{ cents: 1000 }}
         description="Support NoiseCafe"
         isAuthenticated={false}
+        csrfToken={undefined}
       />
     );
 
@@ -48,6 +58,7 @@ describe("QrCustomPage", () => {
         amount={{ cents: 500 }}
         name="Tea"
         isAuthenticated={false}
+        csrfToken={undefined}
       />
     );
 

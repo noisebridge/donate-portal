@@ -36,6 +36,7 @@
   },
   "dependencies": {
     "@fastify/cookie": "^11.0.2",
+    "@fastify/csrf-protection": "^7.1.0",
     "@fastify/error": "^4.2.0",
     "@fastify/formbody": "^8.0.2",
     "@fastify/helmet": "^13.0.2",

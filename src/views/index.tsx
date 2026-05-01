@@ -9,15 +9,21 @@ import paths from "~/paths";
 export interface IndexProps {
   isAuthenticated: boolean;
   messages?: Message[];
+  csrfToken?: string | undefined;
 }
 
-export function IndexPage({ isAuthenticated, messages = [] }: IndexProps) {
+export function IndexPage({
+  isAuthenticated,
+  messages = [],
+  csrfToken,
+}: IndexProps) {
   return (
     <Layout
       title="Donate to Noisebridge!"
       script="index.mjs"
       styles="index.css"
       isAuthenticated={isAuthenticated}
+      csrfToken={csrfToken}
     >
       <div class="shell">
         <section class="hero">
@@ -82,6 +88,7 @@ export function IndexPage({ isAuthenticated, messages = [] }: IndexProps) {
           <SectionHead title="one_time_donation" />
 
           <form id="donate-form" method="POST" action={paths.donate()}>
+            <input type="hidden" name="_csrf" value={csrfToken} />
             <fieldset class="amount-grid">
               <legend class="visually-hidden">Donation amount</legend>
 

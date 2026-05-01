@@ -25,15 +25,17 @@ function DownloadSVG() {
 
 export interface QrEditorProps {
   isAuthenticated: boolean;
+  csrfToken?: string | undefined;
 }
 
-export function QrEditorPage({ isAuthenticated }: QrEditorProps) {
+export function QrEditorPage({ isAuthenticated, csrfToken }: QrEditorProps) {
   return (
     <Layout
       title="QR Code Creator"
       script="qr-editor.mjs"
       styles="qr-editor.css"
       isAuthenticated={isAuthenticated}
+      csrfToken={csrfToken}
     >
       <div class="container-wide">
         <PageHead title="qr_editor" />

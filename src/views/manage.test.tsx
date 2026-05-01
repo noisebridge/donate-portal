@@ -4,7 +4,9 @@ import { ManagePage } from "./manage";
 
 describe("ManagePage", () => {
   test("should render with email", async () => {
-    const result = await (<ManagePage email="test@example.com" />);
+    const result = await (
+      <ManagePage email="test@example.com" csrfToken={undefined} />
+    );
 
     expect(result).toBeTypeOf("string");
     expect(result).toContain("test@example.com");
@@ -16,6 +18,7 @@ describe("ManagePage", () => {
       <ManagePage
         email="test@example.com"
         messages={[{ type: "error", text: errorMessage }]}
+        csrfToken={undefined}
       />
     );
 
@@ -30,6 +33,7 @@ describe("ManagePage", () => {
       <ManagePage
         email="test@example.com"
         messages={[{ type: "info", text: infoMessage }]}
+        csrfToken={undefined}
       />
     );
 
@@ -39,7 +43,9 @@ describe("ManagePage", () => {
   });
 
   test("should not display message when no messages provided", async () => {
-    const result = await (<ManagePage email="test@example.com" />);
+    const result = await (
+      <ManagePage email="test@example.com" csrfToken={undefined} />
+    );
 
     expect(result).toBeTypeOf("string");
     expect(result).not.toContain('class="message ');
@@ -50,6 +56,7 @@ describe("ManagePage", () => {
       <ManagePage
         email="test@example.com"
         subscription={createMockSubscription()}
+        csrfToken={undefined}
       />
     );
 
@@ -62,6 +69,7 @@ describe("ManagePage", () => {
       <ManagePage
         email="test@example.com"
         subscription={createMockSubscription({ unitAmount: 10000 })}
+        csrfToken={undefined}
       />
     );
 
@@ -79,6 +87,7 @@ describe("ManagePage", () => {
       <ManagePage
         email="test@example.com"
         subscription={createMockSubscription({ unitAmount: 7500 })}
+        csrfToken={undefined}
       />
     );
 
@@ -87,7 +96,9 @@ describe("ManagePage", () => {
   });
 
   test("shows no-subscription notice when no subscription", async () => {
-    const result = await (<ManagePage email="test@example.com" />);
+    const result = await (
+      <ManagePage email="test@example.com" csrfToken={undefined} />
+    );
 
     expect(result).toContain('class="status-null"');
     expect(result).not.toContain('class="status-strip"');
@@ -98,6 +109,7 @@ describe("ManagePage", () => {
       <ManagePage
         email="test@example.com"
         subscription={createMockSubscription()}
+        csrfToken={undefined}
       />
     );
 
@@ -107,7 +119,9 @@ describe("ManagePage", () => {
   });
 
   test("should not display portal form without subscription", async () => {
-    const result = await (<ManagePage email="test@example.com" />);
+    const result = await (
+      <ManagePage email="test@example.com" csrfToken={undefined} />
+    );
 
     expect(result).toBeTypeOf("string");
     expect(result).not.toContain('action="/subscribe/portal"');
@@ -117,7 +131,11 @@ describe("ManagePage", () => {
     const sub = createMockSubscription();
     sub.status = "past_due";
     const result = await (
-      <ManagePage email="test@example.com" subscription={sub} />
+      <ManagePage
+        email="test@example.com"
+        subscription={sub}
+        csrfToken={undefined}
+      />
     );
 
     expect(result).toContain("pill-warn");
@@ -128,7 +146,11 @@ describe("ManagePage", () => {
     const sub = createMockSubscription();
     sub.status = "canceled";
     const result = await (
-      <ManagePage email="test@example.com" subscription={sub} />
+      <ManagePage
+        email="test@example.com"
+        subscription={sub}
+        csrfToken={undefined}
+      />
     );
 
     expect(result).toContain("pill-stopped");

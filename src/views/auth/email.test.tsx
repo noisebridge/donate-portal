@@ -5,7 +5,11 @@ describe("AuthEmailPage", () => {
   test("should display provided email address", async () => {
     const email = "user@example.com";
     const result = await (
-      <AuthEmailPage email={email} isAuthenticated={false} />
+      <AuthEmailPage
+        email={email}
+        isAuthenticated={false}
+        csrfToken={undefined}
+      />
     );
 
     expect(result).toBeTypeOf("string");

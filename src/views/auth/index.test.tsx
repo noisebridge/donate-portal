@@ -8,6 +8,7 @@ describe("AuthPage", () => {
       <AuthPage
         isAuthenticated={false}
         messages={[{ type: "error", text: errorMessage }]}
+        csrfToken={undefined}
       />
     );
 

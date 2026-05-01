@@ -5,11 +5,20 @@ import { StatusCard } from "~/components/status-card";
 export interface AuthEmailProps {
   email: string;
   isAuthenticated: boolean;
+  csrfToken?: string | undefined;
 }
 
-export function AuthEmailPage({ email, isAuthenticated }: AuthEmailProps) {
+export function AuthEmailPage({
+  email,
+  isAuthenticated,
+  csrfToken,
+}: AuthEmailProps) {
   return (
-    <Layout title="Check Your Email" isAuthenticated={isAuthenticated}>
+    <Layout
+      title="Check Your Email"
+      isAuthenticated={isAuthenticated}
+      csrfToken={csrfToken}
+    >
       <StatusCard
         icon={
           <img

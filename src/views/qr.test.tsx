@@ -5,14 +5,20 @@ import { QrPage } from "./qr";
 describe("QrPage", () => {
   test("should display the formatted amount", async () => {
     const amount = { cents: 2500 };
-    const result = await (<QrPage amount={amount} isAuthenticated={false} />);
+    const result = await (
+      <QrPage amount={amount} isAuthenticated={false} csrfToken={undefined} />
+    );
 
     expect(result).toContain(formatAmount(amount));
   });
 
   test("should include a donate button", async () => {
     const result = await (
-      <QrPage amount={{ cents: 1000 }} isAuthenticated={false} />
+      <QrPage
+        amount={{ cents: 1000 }}
+        isAuthenticated={false}
+        csrfToken={undefined}
+      />
     );
 
     expect(result).toContain("Donate");
@@ -24,6 +30,7 @@ describe("QrPage", () => {
         amount={{ cents: 1000 }}
         name="Test Event"
         isAuthenticated={false}
+        csrfToken={undefined}
       />
     );
 
@@ -36,6 +43,7 @@ describe("QrPage", () => {
         amount={{ cents: 1000 }}
         description="A test donation"
         isAuthenticated={false}
+        csrfToken={undefined}
       />
     );
 
@@ -48,6 +56,7 @@ describe("QrPage", () => {
         amount={{ cents: 1000 }}
         name="Workshop Fee"
         isAuthenticated={false}
+        csrfToken={undefined}
       />
     );
 
@@ -60,6 +69,7 @@ describe("QrPage", () => {
         amount={{ cents: 1000 }}
         name="Donation to Noisebridge"
         isAuthenticated={false}
+        csrfToken={undefined}
       />
     );
 
@@ -68,7 +78,11 @@ describe("QrPage", () => {
 
   test("should hide general donation link when no name is provided", async () => {
     const result = await (
-      <QrPage amount={{ cents: 1000 }} isAuthenticated={false} />
+      <QrPage
+        amount={{ cents: 1000 }}
+        isAuthenticated={false}
+        csrfToken={undefined}
+      />
     );
 
     expect(result).not.toContain("Make a general donation");

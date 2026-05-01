@@ -4,11 +4,21 @@ import { Layout } from "~/components/layout";
 export type ErrorPageProps = {
   error: Error;
   isAuthenticated: boolean;
+  csrfToken?: string | undefined;
 };
 
-export function ErrorPage({ error, isAuthenticated }: ErrorPageProps) {
+export function ErrorPage({
+  error,
+  isAuthenticated,
+  csrfToken,
+}: ErrorPageProps) {
   return (
-    <Layout title="Error" styles="error.css" isAuthenticated={isAuthenticated}>
+    <Layout
+      title="Error"
+      styles="error.css"
+      isAuthenticated={isAuthenticated}
+      csrfToken={csrfToken}
+    >
       <div class="container">
         <div class="error-page">
           <h1 class="error-heading">fatal_error</h1>

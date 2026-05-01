@@ -6,15 +6,21 @@ import paths from "~/paths";
 export interface AuthProps {
   isAuthenticated: boolean;
   messages?: Message[];
+  csrfToken?: string | undefined;
 }
 
-export function AuthPage({ isAuthenticated, messages = [] }: AuthProps) {
+export function AuthPage({
+  isAuthenticated,
+  messages = [],
+  csrfToken,
+}: AuthProps) {
   return (
     <Layout
       title="Sign In"
       styles="auth.css"
       script="auth.mjs"
       isAuthenticated={isAuthenticated}
+      csrfToken={csrfToken}
     >
       <main class="stage">
         <div class="center-col">
@@ -74,6 +80,7 @@ export function AuthPage({ isAuthenticated, messages = [] }: AuthProps) {
             <div class="divider">or email me a link</div>
 
             <form method="post" action={paths.emailAuth()}>
+              <input type="hidden" name="_csrf" value={csrfToken} />
               <div class="field">
                 <label for="email">Email</label>
                 <input

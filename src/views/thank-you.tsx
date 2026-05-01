@@ -5,11 +5,16 @@ import paths from "~/paths";
 
 export interface ThankYouProps {
   isAuthenticated: boolean;
+  csrfToken?: string | undefined;
 }
 
-export function ThankYouPage({ isAuthenticated }: ThankYouProps) {
+export function ThankYouPage({ isAuthenticated, csrfToken }: ThankYouProps) {
   return (
-    <Layout title="Thank You!" isAuthenticated={isAuthenticated}>
+    <Layout
+      title="Thank You!"
+      isAuthenticated={isAuthenticated}
+      csrfToken={csrfToken}
+    >
       <StatusCard
         icon={
           <img

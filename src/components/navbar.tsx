@@ -2,9 +2,10 @@ import paths from "~/paths";
 
 export interface NavbarProps {
   isAuthenticated: boolean;
+  csrfToken?: string | undefined;
 }
 
-export function Navbar({ isAuthenticated }: NavbarProps) {
+export function Navbar({ isAuthenticated, csrfToken }: NavbarProps) {
   return (
     <nav class="navbar" aria-label="Main navigation">
       <div class="navbar-content">
@@ -28,6 +29,7 @@ export function Navbar({ isAuthenticated }: NavbarProps) {
                 action={paths.signOut()}
                 class="sign-out-form"
               >
+                <input type="hidden" name="_csrf" value={csrfToken} />
                 <button type="submit" class="signin">
                   Sign Out
                 </button>

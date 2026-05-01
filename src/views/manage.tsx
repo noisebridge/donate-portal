@@ -17,6 +17,7 @@ export interface ManageProps {
   email: string;
   subscription?: Stripe.Subscription | undefined;
   messages?: Message[];
+  csrfToken?: string | undefined;
 }
 
 function subscriptionItem(subscription?: Stripe.Subscription) {
@@ -60,6 +61,7 @@ export function ManagePage({
   email,
   subscription,
   messages = [],
+  csrfToken,
 }: ManageProps) {
   const item = subscriptionItem(subscription);
   const amountCents = item?.price?.unit_amount ?? null;
@@ -74,6 +76,7 @@ export function ManagePage({
       styles="manage.css"
       script="manage.mjs"
       isAuthenticated
+      csrfToken={csrfToken}
     >
       <div class="container manage-container">
         <MessageContainer messages={messages} />
@@ -117,7 +120,10 @@ export function ManagePage({
           </div>
         )}
 
-        <DonationTierSelector subscription={subscription} />
+        <DonationTierSelector
+          subscription={subscription}
+          csrfToken={csrfToken}
+        />
 
         <section class="account-actions-section">
           <SectionHead
@@ -128,6 +134,7 @@ export function ManagePage({
           {!!subscription && (
             <div class="action-stack">
               <form method="POST" action={paths.stripePortal()}>
+                <input type="hidden" name="_csrf" value={csrfToken} />
                 <Button variant="ghost" suffix={"\u2197"} type="submit">
                   Past invoices &amp; payment method
                 </Button>
@@ -138,6 +145,7 @@ export function ManagePage({
                 action={paths.cancel()}
                 class="cancel-subscription-form"
               >
+                <input type="hidden" name="_csrf" value={csrfToken} />
                 <Button
                   variant="ghost"
                   danger

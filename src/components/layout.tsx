@@ -12,6 +12,7 @@ export type LayoutProps = PropsWithChildren<{
   script?: string;
   styles?: string;
   isAuthenticated: boolean;
+  csrfToken?: string | undefined;
 }>;
 
 export function Layout({
@@ -19,6 +20,7 @@ export function Layout({
   script,
   styles,
   isAuthenticated,
+  csrfToken,
   children,
 }: LayoutProps) {
   return (
@@ -58,7 +60,7 @@ export function Layout({
           )}
         </head>
         <body>
-          <Navbar isAuthenticated={isAuthenticated} />
+          <Navbar isAuthenticated={isAuthenticated} csrfToken={csrfToken} />
 
           <main id="main-content">{children}</main>
 

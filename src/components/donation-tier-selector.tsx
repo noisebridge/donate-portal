@@ -21,6 +21,7 @@ function tierIndex(position: number): string {
 
 interface DonationTierSelectorProps {
   subscription?: Stripe.Subscription | undefined;
+  csrfToken?: string | undefined;
 }
 
 function tierChecked(tier: Tier, existingAmount: number | null): boolean {
@@ -33,6 +34,7 @@ function tierChecked(tier: Tier, existingAmount: number | null): boolean {
 
 export function DonationTierSelector({
   subscription,
+  csrfToken,
 }: DonationTierSelectorProps) {
   const existingAmount =
     subscription?.items?.data[0]?.price?.unit_amount ?? null;
@@ -54,6 +56,7 @@ export function DonationTierSelector({
       </div>
 
       <form method="POST" action={paths.subscribe()} class="donation-tier-form">
+        <input type="hidden" name="_csrf" value={csrfToken} />
         <fieldset class="tier-options">
           <legend class="visually-hidden">
             Select a monthly donation tier

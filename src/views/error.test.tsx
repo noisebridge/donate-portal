@@ -4,7 +4,9 @@ import { ErrorPage } from "./error";
 describe("ErrorPage", () => {
   test("should render error page", async () => {
     const error = new Error("Test error message");
-    const result = await (<ErrorPage error={error} isAuthenticated />);
+    const result = await (
+      <ErrorPage error={error} isAuthenticated csrfToken={undefined} />
+    );
 
     expect(result).toBeTypeOf("string");
     expect(result).toContain("fatal_error");

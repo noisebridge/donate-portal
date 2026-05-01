@@ -12,6 +12,7 @@ export interface QrPageProps {
   name?: string | undefined;
   description?: string | undefined;
   isAuthenticated: boolean;
+  csrfToken?: string | undefined;
 }
 
 export function QrPage({
@@ -19,6 +20,7 @@ export function QrPage({
   name,
   description,
   isAuthenticated,
+  csrfToken,
 }: QrPageProps) {
   const minDollars = DonationManager.minimumAmount.cents / 100;
   const maxDollars = (amount.cents * 2) / 100;
@@ -30,6 +32,7 @@ export function QrPage({
       script="qr.mjs"
       styles="qr.css"
       isAuthenticated={isAuthenticated}
+      csrfToken={csrfToken}
     >
       <div class="container-narrow">
         <div class="card text-center">
@@ -69,6 +72,7 @@ export function QrPage({
           </div>
 
           <form id="donate-form" method="POST" action={paths.donate()}>
+            <input type="hidden" name="_csrf" value={csrfToken} />
             <input
               type="hidden"
               name="amount-dollars"

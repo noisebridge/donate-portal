@@ -1,6 +1,7 @@
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import fastifyCookie from "@fastify/cookie";
+import fastifyCsrf from "@fastify/csrf-protection";
 import createError from "@fastify/error";
 import fastifyFormbody from "@fastify/formbody";
 import fastifyHelmet from "@fastify/helmet";
@@ -36,6 +37,8 @@ const fastify = Fastify({
 fastify.register(fastifyCookie, {
   secret: config.cookieSecret,
 });
+
+fastify.register(fastifyCsrf, { sessionPlugin: "@fastify/cookie" });
 
 fastify.register(fastifyHelmet, {
   contentSecurityPolicy,
