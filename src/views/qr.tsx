@@ -32,7 +32,7 @@ export function QrPage({
       isAuthenticated={isAuthenticated}
     >
       <div class="container-narrow">
-        <div class="card text-center" style="position: relative;">
+        <div class="card text-center">
           <a
             href={paths.qrCustom(amount, name, description)}
             class="qr-corner-btn"

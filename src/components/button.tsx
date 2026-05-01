@@ -11,7 +11,6 @@ interface ButtonOwnProps {
   disabled?: boolean;
   id?: string;
   class?: string;
-  style?: string;
   "aria-label"?: string;
   "aria-live"?: "off" | "assertive" | "polite";
 }
@@ -29,7 +28,6 @@ export function Button({
   disabled,
   id,
   class: className,
-  style,
   "aria-label": ariaLabel,
   "aria-live": ariaLive,
   children,
@@ -53,13 +51,7 @@ export function Button({
 
   if (href) {
     return (
-      <a
-        href={href}
-        class={classes}
-        id={id}
-        style={style}
-        aria-label={ariaLabel}
-      >
+      <a href={href} class={classes} id={id} aria-label={ariaLabel}>
         {inner}
       </a>
     );
@@ -70,7 +62,6 @@ export function Button({
       type={type}
       class={classes}
       id={id}
-      style={style}
       disabled={disabled}
       aria-label={ariaLabel}
       aria-live={ariaLive}

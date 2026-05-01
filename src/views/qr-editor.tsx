@@ -133,12 +133,7 @@ export function QrEditorPage({ isAuthenticated }: QrEditorProps) {
 
             <div class="preview-card">
               <div class="qr-frame">
-                <img
-                  id="qr-image"
-                  src=""
-                  alt="QR Code preview"
-                  style="display: none;"
-                />
+                <img id="qr-image" src="" alt="QR Code preview" hidden />
                 <div id="qr-placeholder" class="qr-placeholder">
                   <div class="qr-placeholder-icon">[ ]</div>
                   <div class="qr-placeholder-msg">Enter an amount</div>

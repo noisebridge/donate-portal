@@ -49,7 +49,13 @@ function mergePolicies(entries: PolicyEntry[]) {
 const basePolicy: PolicyEntry = {
   "default-src": ["'self'"],
   "script-src": ["'self'"],
-  "style-src": ["'self'", "'unsafe-inline'"],
+  "style-src": [
+    "'self'",
+    "'sha256-Xh3wDa6qwZqBwThpyOxhTUT9S+efeH5itF1geB9HuiI='",
+    "'sha256-UoLkaMG1cxqNTYg4W8anPhBTc0jLpmUI1sw6oEnx6ZI='",
+    "'sha256-pNew6JVTI7o7/vyDz1vjbfN+ELdoCcdPQhWEliKkywA='",
+    "'unsafe-hashes'",
+  ],
   "img-src": ["'self'"],
   "font-src": ["'self'"],
   "connect-src": ["'self'"],

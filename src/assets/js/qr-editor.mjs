@@ -55,8 +55,8 @@ function updateQrCode(
   }
 
   if (Number.isNaN(amount) || amount < minAmount) {
-    qrImage.style.display = "none";
-    qrPlaceholder.style.display = "block";
+    qrImage.hidden = true;
+    qrPlaceholder.hidden = false;
     qrUrlInput.value = donationUrl;
     return;
   }
@@ -73,9 +73,9 @@ function updateQrCode(
   }
 
   qrImage.src = `${imageUrl}?${params.toString()}`;
-  qrImage.style.display = "block";
+  qrImage.hidden = false;
 
-  qrPlaceholder.style.display = "none";
+  qrPlaceholder.hidden = true;
 
   params.delete("use-logo");
   qrUrlInput.value = `${donationUrl}?${params.toString()}`;
@@ -89,7 +89,7 @@ function downloadPng(nameInput) {
   const qrImage = /** @type {HTMLImageElement} */ (
     document.getElementById("qr-image")
   );
-  if (!qrImage.src || qrImage.style.display === "none") {
+  if (!qrImage.src || qrImage.hidden) {
     return;
   }
 
@@ -125,7 +125,7 @@ function downloadSvg(nameInput) {
   const qrImage = /** @type {HTMLImageElement} */ (
     document.getElementById("qr-image")
   );
-  if (!qrImage.src || qrImage.style.display === "none") {
+  if (!qrImage.src || qrImage.hidden) {
     return;
   }
 
