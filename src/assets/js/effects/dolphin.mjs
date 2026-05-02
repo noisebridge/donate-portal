@@ -391,4 +391,5 @@ export const dolphinEffect = {
     showDolphin(showHyperdrive),
   stop: stopDolphin,
   showStatic: showDolphinStatic,
+  ledEffect: ledDolphin,
 };

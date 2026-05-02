@@ -177,4 +177,5 @@ export const matrixEffect = {
     showMatrix(showHyperdrive),
   stop: stopMatrix,
   showStatic: null,
+  ledEffect: ledMatrix,
 };

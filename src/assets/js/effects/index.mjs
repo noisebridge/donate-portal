@@ -8,6 +8,7 @@
  * @property {(amount: Cents, showHyperdrive: boolean) => Promise<void>} show
  * @property {() => Promise<void>} stop
  * @property {(() => void) | null} showStatic
+ * @property {(...args: never[]) => Promise<void>} ledEffect
  */
 
 import { confettiEffect } from "./confetti.mjs";

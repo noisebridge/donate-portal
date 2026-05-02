@@ -631,4 +631,5 @@ export const confettiEffect = {
     launchConfetti(amount, showHyperdrive),
   stop: stopConfetti,
   showStatic: null,
+  ledEffect: ledConfetti,
 };

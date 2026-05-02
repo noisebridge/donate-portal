@@ -581,12 +581,3 @@ export async function ledClear() {
     console.warn("LED reset failed:", e);
   }
 }
-
-export default {
-  confetti: ledConfetti,
-  dolphin: ledDolphin,
-  hyperdrive: ledHyperdrive,
-  matrix: ledMatrix,
-  snoop: ledSnoop,
-  merica: ledMerica,
-};

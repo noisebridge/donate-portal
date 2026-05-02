@@ -459,4 +459,5 @@ export const mericaEffect = {
     showMerica(amount, showHyperdrive),
   stop: stopMerica,
   showStatic: showMericaFlag,
+  ledEffect: ledMerica,
 };

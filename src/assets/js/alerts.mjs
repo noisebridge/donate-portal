@@ -1,7 +1,7 @@
 // @ts-check
 
 import effects from "./effects/index.mjs";
-import ledEffects from "./effects/led_effects.mjs";
+import { ledHyperdrive } from "./effects/led_effects.mjs";
 
 /** @typedef {import("~/types/alerts").ChargeAlertMessage} ChargeAlertMessage */
 /** @typedef {import("~/types/alerts").MemberAlertMessage} MemberAlertMessage */
@@ -425,9 +425,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     effects[activeEffect].showStatic?.();
 
     if (newIsTop) {
-      await ledEffects.hyperdrive();
+      await ledHyperdrive();
     } else if (activeEffect !== "confetti") {
-      await ledEffects[activeEffect]();
+      await effects[activeEffect].ledEffect();
     }
   }
 

@@ -462,4 +462,5 @@ export const snoopEffect = {
     showSnoop(showHyperdrive),
   stop: stopSnoop,
   showStatic: showSnoopLeaves,
+  ledEffect: ledSnoop,
 };
