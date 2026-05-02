@@ -39,8 +39,7 @@ function formatPath<T extends string>(
   return `${path}?${queryString}`;
 }
 
-// biome-ignore lint/suspicious/noExplicitAny: unknown didn't work here
-type FunctionReturnsString = (...args: any[]) => string;
+type FunctionReturnsString = (...args: never[]) => string;
 
 /**
  * Central location to define paths. This prevents inconsistencies within the
