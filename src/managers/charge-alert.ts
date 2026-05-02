@@ -1,5 +1,11 @@
 import crypto from "node:crypto";
 import type { WebSocket } from "@fastify/websocket";
+import {
+  englishDataset,
+  englishRecommendedTransformers,
+  RegExpMatcher,
+  TextCensor,
+} from "obscenity";
 import type Stripe from "stripe";
 import { baseLogger } from "~/logger";
 import stripe from "~/services/stripe";
@@ -14,6 +20,12 @@ import { SubscriptionManager } from "./subscription";
 
 const MAX_RECENT_ALERTS = 20;
 const PING_INTERVAL_MS = 30_000;
+
+const obscenityMatcher = new RegExpMatcher({
+  ...englishDataset.build(),
+  ...englishRecommendedTransformers,
+});
+const obscenityCensor = new TextCensor();
 
 export class ChargeAlertManager {
   static readonly log = baseLogger.child({ class: "ChargeAlertManager" });
@@ -201,7 +213,11 @@ export class ChargeAlertManager {
       return GENERAL_DONATION;
     }
 
-    return NAME_REMAP[name] ?? name;
+    const remapped = NAME_REMAP[name] ?? name;
+    return obscenityCensor.applyTo(
+      remapped,
+      obscenityMatcher.getAllMatches(remapped),
+    );
   }
 }
 
