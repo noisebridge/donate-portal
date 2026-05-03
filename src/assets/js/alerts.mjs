@@ -196,13 +196,14 @@ function formatDate(isoDate) {
 
 /**
  * Check whether an alert ID is already displayed.
- * @param {string} id
+ * @param {AlertMessage} alert
  * @returns {boolean}
  */
-function seenAlert(id) {
+function seenAlert(alert) {
   return (
-    currentCharge?.id === id ||
-    historyList.querySelector(`[data-alert-id="${CSS.escape(id)}"]`) !== null
+    currentCharge?.id === alert.id ||
+    historyList.querySelector(`[data-alert-id="${CSS.escape(alert.id)}"]`) !==
+      null
   );
 }
 
@@ -322,7 +323,7 @@ let currentCharge = null;
  * @param {AlertMessage} alert
  */
 async function displayAlert(alert) {
-  if (seenAlert(alert.id)) {
+  if (seenAlert(alert)) {
     return;
   }
 
@@ -368,6 +369,14 @@ function connect() {
     if (message.type === "ping") {
       resetPingTimeout();
       ws.send(JSON.stringify({ type: "pong" }));
+
+      for (const alert of message.history.reverse()) {
+        if (seenAlert(alert)) {
+          continue;
+        }
+
+        await enqueueAlert(alert);
+      }
       return;
     }
 

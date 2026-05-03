@@ -19,6 +19,7 @@ import { GENERAL_DONATION, NAME_REMAP } from "./donation";
 import { SubscriptionManager } from "./subscription";
 
 const MAX_RECENT_ALERTS = 20;
+const PING_HISTORY_SIZE = 5;
 const PING_INTERVAL_MS = 30_000;
 
 const obscenityMatcher = new RegExpMatcher({
@@ -30,10 +31,19 @@ const obscenityCensor = new TextCensor();
 export class ChargeAlertManager {
   static readonly log = baseLogger.child({ class: "ChargeAlertManager" });
 
+  private _recentAlerts: AlertMessage[] | null = null;
   private connections = new Map<WebSocket, { alive: boolean }>();
   private pingInterval: NodeJS.Timeout | null = null;
 
-  addConnection(socket: WebSocket) {
+  async getRecentAlerts() {
+    if (this._recentAlerts === null) {
+      this._recentAlerts = await this.fetchRecentAlerts();
+    }
+
+    return this._recentAlerts;
+  }
+
+  async addConnection(socket: WebSocket) {
     this.connections.set(socket, { alive: true });
 
     socket.on("message", (data) => {
@@ -59,9 +69,14 @@ export class ChargeAlertManager {
     }
   }
 
-  private sendPing(socket: WebSocket) {
+  private async sendPing(socket: WebSocket) {
+    const history = await this.getRecentAlerts();
+
     try {
-      const message: PingMessage = { type: "ping" };
+      const message: PingMessage = {
+        type: "ping",
+        history: history.slice(0, PING_HISTORY_SIZE),
+      };
       socket.send(JSON.stringify(message));
     } catch (err) {
       ChargeAlertManager.log.error({ err }, "Failed to send ping");
@@ -71,7 +86,7 @@ export class ChargeAlertManager {
   }
 
   private startPinging() {
-    this.pingInterval = setInterval(() => {
+    this.pingInterval = setInterval(async () => {
       for (const [socket, state] of this.connections) {
         if (!state.alive) {
           ChargeAlertManager.log.warn("Terminating unresponsive connection");
@@ -81,7 +96,7 @@ export class ChargeAlertManager {
         }
 
         state.alive = false;
-        this.sendPing(socket);
+        await this.sendPing(socket);
       }
 
       if (this.connections.size === 0 && this.pingInterval) {
@@ -93,29 +108,29 @@ export class ChargeAlertManager {
     this.pingInterval.unref();
   }
 
-  handlePaymentSuccess(event: Stripe.PaymentIntentSucceededEvent) {
+  async handlePaymentSuccess(event: Stripe.PaymentIntentSucceededEvent) {
     const paymentIntent = event.data.object;
     if (!this.isDonation(paymentIntent)) {
       return;
     }
 
-    this.broadcastAlert(this.formatChargeAlert(paymentIntent));
+    await this.broadcastAlert(this.formatChargeAlert(paymentIntent));
   }
 
-  handleNewSubscription(event: Stripe.CustomerSubscriptionCreatedEvent) {
+  async handleNewSubscription(event: Stripe.CustomerSubscriptionCreatedEvent) {
     const subscription = event.data.object;
     if (!this.isMembership(subscription)) {
       return;
     }
 
-    this.broadcastAlert(this.formatMemberAlert(event.data.object));
+    await this.broadcastAlert(this.formatMemberAlert(event.data.object));
   }
 
   /**
    * Fetch recent one-time payments and new subscriptions from Stripe,
    * interleaved by date descending.
    */
-  async fetchRecentAlerts(): Promise<AlertMessage[]> {
+  private async fetchRecentAlerts(): Promise<AlertMessage[]> {
     const [paymentIntents, subscriptions] = await Promise.all([
       stripe.paymentIntents.list({ limit: 3 * MAX_RECENT_ALERTS }),
       stripe.subscriptions.list({
@@ -154,11 +169,8 @@ export class ChargeAlertManager {
       return false;
     }
 
-    if (typeof product === "string") {
-      return product === SubscriptionManager.productId;
-    } else {
-      return product.id === SubscriptionManager.productId;
-    }
+    const productId = typeof product === "string" ? product : product.id;
+    return productId === SubscriptionManager.productId;
   }
 
   private formatMemberAlert(
@@ -184,7 +196,12 @@ export class ChargeAlertManager {
     };
   }
 
-  private broadcastAlert(alert: AlertMessage) {
+  private async broadcastAlert(alert: AlertMessage) {
+    const history = await this.getRecentAlerts();
+    if (history.unshift(alert) > MAX_RECENT_ALERTS) {
+      history.pop();
+    }
+
     const message = JSON.stringify(alert);
     for (const socket of this.connections.keys()) {
       try {

@@ -17,6 +17,7 @@ export interface MemberAlertMessage {
 
 export interface PingMessage {
   type: "ping";
+  history: AlertMessage[];
 }
 
 export interface PongMessage {
