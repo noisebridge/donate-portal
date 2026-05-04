@@ -49,6 +49,7 @@ const ALERT_INTERVAL_MS = 15000;
 /** @type {number | null} */
 let queueDrainInterval = null;
 
+// Sorted newest to oldest.
 /** @type {AlertMessage[]} */
 const alertQueue = [];
 
@@ -85,11 +86,32 @@ async function switchEffect(name, amount, showHyperdrive) {
 }
 
 /**
+ * Add an alert to the queue in a time-sorted position.
+ * @param {AlertMessage} alert
+ */
+function sortedQueueInsert(alert) {
+  const alertTime = new Date(alert.date).getTime();
+
+  let insertIndex = alertQueue.length;
+  for (const [index, queuedAlert] of alertQueue.entries()) {
+    const queuedAlertTime = new Date(queuedAlert.date).getTime();
+    if (queuedAlertTime > alertTime) {
+      continue;
+    }
+
+    insertIndex = index;
+    break;
+  }
+
+  alertQueue.splice(insertIndex, 0, alert);
+}
+
+/**
  * Enqueue an alert and start draining if not already in progress.
  * @param {AlertMessage} alert
  */
 async function enqueueAlert(alert) {
-  alertQueue.push(alert);
+  sortedQueueInsert(alert);
 
   if (queueDrainInterval) {
     return;
