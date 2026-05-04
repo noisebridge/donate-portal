@@ -195,16 +195,30 @@ function formatDate(isoDate) {
 }
 
 /**
- * Check whether an alert ID is already displayed.
+ * Check whether an alert has already been processed.
  * @param {AlertMessage} alert
  * @returns {boolean}
  */
 function seenAlert(alert) {
-  return (
-    currentCharge?.id === alert.id ||
-    historyList.querySelector(`[data-alert-id="${CSS.escape(alert.id)}"]`) !==
-      null
+  if (currentCharge?.id === alert.id) {
+    // This is the header alert
+    return true;
+  }
+
+  const historyElem = historyList.querySelector(
+    `[data-alert-id="${CSS.escape(alert.id)}"]`,
   );
+  if (historyElem !== null) {
+    // This alert is in the history list
+    return true;
+  }
+
+  if (alertQueue.find((queuedAlert) => queuedAlert.id === alert.id)) {
+    // This alert is queue'd up
+    return true;
+  }
+
+  return false;
 }
 
 /**
