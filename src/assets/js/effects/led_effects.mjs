@@ -95,6 +95,7 @@ async function sendLedEffect(fn, data, timeout) {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
+      signal: AbortSignal.timeout(3000),
     });
   } catch (e) {
     if (e instanceof Error) {
@@ -572,6 +573,7 @@ export async function ledClear() {
   try {
     await fetch(`${LED_API}/reset`, {
       method: "POST",
+      signal: AbortSignal.timeout(3000),
     });
   } catch (e) {
     if (e instanceof Error) {
