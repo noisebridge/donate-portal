@@ -111,28 +111,27 @@ function sortedQueueInsert(alert) {
  * @param {AlertMessage} alert
  */
 async function enqueueAlert(alert) {
-  sortedQueueInsert(alert);
-
   if (queueDrainInterval) {
+    sortedQueueInsert(alert);
     return;
   }
-
-  await displayAlert(alert);
 
   queueDrainInterval = window.setInterval(async () => {
     if (!queueDrainInterval) {
       return;
     }
 
-    alertQueue.shift();
-    if (alertQueue.length === 0) {
+    const alert = alertQueue.shift();
+    if (!alert) {
       clearInterval(queueDrainInterval);
       queueDrainInterval = null;
       return;
     }
 
-    await displayAlert(/** @type {AlertMessage} */ (alertQueue[0]));
+    await displayAlert(alert);
   }, ALERT_INTERVAL_MS);
+
+  await displayAlert(alert);
 }
 
 /**
