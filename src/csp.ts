@@ -51,10 +51,10 @@ const basePolicy: PolicyEntry = {
   "script-src": ["'self'"],
   "style-src": [
     "'self'",
+    "'unsafe-hashes'",
     "'sha256-Xh3wDa6qwZqBwThpyOxhTUT9S+efeH5itF1geB9HuiI='", // layout.tsx <style>
     "'sha256-UoLkaMG1cxqNTYg4W8anPhBTc0jLpmUI1sw6oEnx6ZI='", // QR SVG inline style
     "'sha256-pNew6JVTI7o7/vyDz1vjbfN+ELdoCcdPQhWEliKkywA='", // QR SVG inline style
-    "'unsafe-hashes'",
   ],
   "img-src": ["'self'"],
   "font-src": ["'self'"],
@@ -67,6 +67,11 @@ const basePolicy: PolicyEntry = {
 
 const stripePolicy: PolicyEntry = {
   "script-src": ["https://js.stripe.com"],
+  "style-src": [
+    "'unsafe-hashes'",
+    "'sha256-TfAwm1S5NfoR1f9QACBAkaPyKW6By6SNrlX37Leun8w='", // Stripe Elements donation iframe
+    "'sha256-GNWr3juzPocpPAOAJS3drV+HZvUat3aMpJZOpKE+avg='", // Stripe Elements subscription iframe
+  ],
   "connect-src": ["https://api.stripe.com"],
   "frame-src": ["https://js.stripe.com"],
   "form-action": ["https://billing.stripe.com"],
