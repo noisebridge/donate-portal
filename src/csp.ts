@@ -66,14 +66,22 @@ const basePolicy: PolicyEntry = {
 };
 
 const stripePolicy: PolicyEntry = {
-  "script-src": ["https://js.stripe.com"],
+  "script-src": ["https://js.stripe.com", "https://*.js.stripe.com"],
   "style-src": [
     "'unsafe-hashes'",
     "'sha256-TfAwm1S5NfoR1f9QACBAkaPyKW6By6SNrlX37Leun8w='", // Stripe Elements donation iframe
     "'sha256-GNWr3juzPocpPAOAJS3drV+HZvUat3aMpJZOpKE+avg='", // Stripe Elements subscription iframe
   ],
-  "connect-src": ["https://api.stripe.com"],
-  "frame-src": ["https://js.stripe.com"],
+  "connect-src": [
+    "https://api.stripe.com",
+    "https://r.stripe.com",
+    "https://m.stripe.network",
+  ],
+  "frame-src": [
+    "https://js.stripe.com",
+    "https://*.js.stripe.com",
+    "https://hooks.stripe.com",
+  ],
   "form-action": ["https://billing.stripe.com"],
 };
 
