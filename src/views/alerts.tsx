@@ -116,6 +116,10 @@ export function AlertsPage({ alerts }: AlertsPageProps) {
           <script id="current-charge" type="application/json">
             {JSON.stringify(latest ?? null)}
           </script>
+          <script
+            type="module"
+            src="/assets/js/util/error-reporting.mjs"
+          ></script>
           <script type="module" src="/assets/js/alerts.mjs"></script>
         </head>
         <body>
