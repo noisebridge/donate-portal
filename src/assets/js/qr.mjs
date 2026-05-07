@@ -1,6 +1,6 @@
 // @ts-check
 
-import { initCheckoutForm, openCheckoutModal } from "./util/stripe.mjs";
+import { initCheckoutForm } from "./util/stripe.mjs";
 
 /**
  * Initialize the QR donation page slider.
@@ -38,9 +38,5 @@ document.addEventListener("DOMContentLoaded", () => {
   const form = /** @type {HTMLFormElement} */ (
     document.getElementById("donate-form")
   );
-  initCheckoutForm(form, async (clientSecret) => {
-    if (clientSecret) {
-      await openCheckoutModal(clientSecret);
-    }
-  });
+  initCheckoutForm(form, "donate");
 });

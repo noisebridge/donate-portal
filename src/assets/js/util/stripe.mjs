@@ -33,13 +33,11 @@ export function startLoading(button) {
 
   const wrap = document.createElement("div");
   wrap.className = "loading-block-wrap";
-
   for (let i = 0; i < 5; i++) {
     const bar = document.createElement("div");
     bar.className = "loading-block-bar";
     wrap.appendChild(bar);
   }
-
   button.appendChild(wrap);
 
   return () => {
@@ -99,29 +97,30 @@ export function initStripe() {
   return stripePromise;
 }
 
-function showModal() {
+/** @type {(() => void) | null} */
+let modalOnClose = null;
+
+/**
+ * @param {() => void} onClose
+ */
+function showModal(onClose) {
   const modal = document.getElementById("stripe-checkout-modal");
-  if (modal) {
-    modal.hidden = false;
-    document.body.style.overflow = "hidden";
-  }
+  if (!modal) return;
+
+  modal.hidden = false;
+  document.body.style.overflow = "hidden";
+  modalOnClose = onClose;
 }
 
 function hideModal() {
   const modal = document.getElementById("stripe-checkout-modal");
-  if (modal) {
-    modal.hidden = true;
-    document.body.style.overflow = "";
-  }
+  if (!modal) return;
 
-  if (elements) {
-    elements.getElement(ELEMENT_TYPE)?.destroy();
-    elements = null;
-  }
-
-  if (embeddedCheckout) {
-    embeddedCheckout.destroy();
-    embeddedCheckout = null;
+  modal.hidden = true;
+  document.body.style.overflow = "";
+  if (modalOnClose) {
+    modalOnClose();
+    modalOnClose = null;
   }
 }
 
@@ -198,8 +197,9 @@ function initCheckoutModal() {
 /**
  * Open the checkout modal with a Stripe Payment Element for the given client secret.
  * @param {string} clientSecret
+ * @returns Cleanup function after modal closes.
  */
-export async function openCheckoutModal(clientSecret) {
+export async function initDonationCheckout(clientSecret) {
   const stripe = await initStripe();
   elements = stripe.elements({ clientSecret });
 
@@ -218,14 +218,20 @@ export async function openCheckoutModal(clientSecret) {
     paymentElement.mount(mountPoint);
   }
 
-  showModal();
+  showModal(() => {
+    if (elements) {
+      elements.getElement(ELEMENT_TYPE)?.destroy();
+      elements = null;
+    }
+  });
 }
 
 /**
  * Open the checkout modal with Stripe Embedded Checkout for subscriptions.
  * @param {string} clientSecret - Checkout Session client secret
+ * @returns Cleanup function after modal closes.
  */
-export async function openEmbeddedCheckout(clientSecret) {
+export async function initSubscriptionCheckout(clientSecret) {
   const stripe = await initStripe();
 
   const mountPoint = document.getElementById("payment-element");
@@ -236,7 +242,12 @@ export async function openEmbeddedCheckout(clientSecret) {
   embeddedCheckout = await stripe.createEmbeddedCheckoutPage({ clientSecret });
   embeddedCheckout.mount(mountPoint);
 
-  showModal();
+  showModal(() => {
+    if (embeddedCheckout) {
+      embeddedCheckout.destroy();
+      embeddedCheckout = null;
+    }
+  });
 }
 
 /**
@@ -300,9 +311,9 @@ function isCheckoutData(data) {
 
 /**
  * @param {HTMLFormElement} form
- * @param {(clientSecret?: string) => Promise<void>} onSuccess
+ * @param {"donate" | "subscribe"} type
  */
-export function initCheckoutForm(form, onSuccess) {
+export function initCheckoutForm(form, type) {
   const submitBtn = /** @type {HTMLButtonElement | null} */ (
     form.querySelector('button[type="submit"]')
   );
@@ -348,7 +359,13 @@ export function initCheckoutForm(form, onSuccess) {
     if (isRedirectData(data)) {
       window.location.href = data.redirect;
     } else if (isCheckoutData(data)) {
-      await onSuccess(data.clientSecret);
+      if (data.clientSecret) {
+        if (type === "donate") {
+          await initDonationCheckout(data.clientSecret);
+        } else if (type === "subscribe") {
+          await initSubscriptionCheckout(data.clientSecret);
+        }
+      }
     } else {
       console.error("Response contains invalid data:", data);
     }

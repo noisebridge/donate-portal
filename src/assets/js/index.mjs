@@ -5,7 +5,7 @@ import {
   activateCustomOnClick,
   activateCustomOnRadio,
 } from "./util/money-forms.mjs";
-import { initCheckoutForm, openCheckoutModal } from "./util/stripe.mjs";
+import { initCheckoutForm } from "./util/stripe.mjs";
 import {
   dollarPattern,
   enforcePattern,
@@ -36,9 +36,5 @@ document.addEventListener("DOMContentLoaded", () => {
   const form = /** @type {HTMLFormElement} */ (
     document.getElementById("donate-form")
   );
-  initCheckoutForm(form, async (clientSecret) => {
-    if (clientSecret) {
-      await openCheckoutModal(clientSecret);
-    }
-  });
+  initCheckoutForm(form, "donate");
 });

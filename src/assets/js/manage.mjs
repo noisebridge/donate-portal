@@ -5,7 +5,7 @@ import {
   activateCustomOnClick,
   activateCustomOnRadio,
 } from "./util/money-forms.mjs";
-import { initCheckoutForm, openEmbeddedCheckout } from "./util/stripe.mjs";
+import { initCheckoutForm } from "./util/stripe.mjs";
 import {
   dollarPattern,
   enforcePattern,
@@ -73,9 +73,5 @@ document.addEventListener("DOMContentLoaded", () => {
   const form = /** @type {HTMLFormElement} */ (
     document.querySelector(".donation-tier-form")
   );
-  initCheckoutForm(form, async (clientSecret) => {
-    if (clientSecret) {
-      await openEmbeddedCheckout(clientSecret);
-    }
-  });
+  initCheckoutForm(form, "subscribe");
 });
