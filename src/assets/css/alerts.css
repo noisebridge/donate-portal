@@ -55,6 +55,7 @@ body {
   margin: 0;
   overflow: hidden;
   zoom: 0.7;
+  cursor: none;
 }
 
 body.hacker {
