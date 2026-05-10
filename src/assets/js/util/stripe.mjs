@@ -197,7 +197,6 @@ function initCheckoutModal() {
 /**
  * Open the checkout modal with a Stripe Payment Element for the given client secret.
  * @param {string} clientSecret
- * @returns Cleanup function after modal closes.
  */
 export async function initDonationCheckout(clientSecret) {
   const stripe = await initStripe();
@@ -229,7 +228,6 @@ export async function initDonationCheckout(clientSecret) {
 /**
  * Open the checkout modal with Stripe Embedded Checkout for subscriptions.
  * @param {string} clientSecret - Checkout Session client secret
- * @returns Cleanup function after modal closes.
  */
 export async function initSubscriptionCheckout(clientSecret) {
   const stripe = await initStripe();
