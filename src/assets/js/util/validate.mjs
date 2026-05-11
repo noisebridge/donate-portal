@@ -55,17 +55,17 @@ export function enforcePattern(input, pattern) {
  * @param {HTMLInputElement} input
  */
 export function validateMinAmount(input) {
-  input.addEventListener("input", () => {
-    const min = parseFloat(input.dataset["min"] ?? "0");
-    if (Number.isNaN(min)) {
-      console.error(
-        input.dataset["min"],
-        " as data-min attribute is invalid for ",
-        input,
-      );
-      return;
-    }
+  const min = parseFloat(input.dataset["min"] ?? "0");
+  if (Number.isNaN(min)) {
+    console.error(
+      input.dataset["min"],
+      " as data-min attribute is invalid for ",
+      input,
+    );
+    return;
+  }
 
+  input.addEventListener("input", () => {
     const value = parseFloat(input.value);
     if (Number.isNaN(value)) {
       input.setCustomValidity("Please enter a number");
