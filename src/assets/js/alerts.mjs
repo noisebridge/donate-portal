@@ -3,9 +3,10 @@
 import effects from "./effects/index.mjs";
 import { ledHyperdrive } from "./effects/led_effects.mjs";
 
+/** @typedef {import("~/types/alerts").AlertMessage} AlertMessage */
 /** @typedef {import("~/types/alerts").ChargeAlertMessage} ChargeAlertMessage */
 /** @typedef {import("~/types/alerts").MemberAlertMessage} MemberAlertMessage */
-/** @typedef {import("~/types/alerts").AlertMessage} AlertMessage */
+/** @typedef {import("~/types/alerts").PongMessage} PongMessage */
 /** @typedef {import("~/types/alerts").WebsocketMessage} WebsocketMessage */
 /** @typedef {import("~/types/cents").Cents} Cents */
 
@@ -403,7 +404,9 @@ function connect() {
     const message = /** @type {WebsocketMessage} */ (JSON.parse(event.data));
     if (message.type === "ping") {
       resetPingTimeout();
-      ws.send(JSON.stringify({ type: "pong" }));
+      ws.send(
+        JSON.stringify(/** @satisfies {PongMessage} */ ({ type: "pong" })),
+      );
 
       for (const alert of message.history.reverse()) {
         if (seenAlert(alert)) {
