@@ -211,6 +211,8 @@ export async function initDonationCheckout(clientSecret) {
     },
     paymentMethodOrder: ["apple_pay", "google_pay", "card", "crypto"],
   });
+  paymentElement.on("escape", () => hideModal());
+  paymentElement.on("loaderror", ({ error }) => showError(error.message ?? ""));
 
   const mountPoint = document.getElementById("payment-element");
   if (mountPoint) {
