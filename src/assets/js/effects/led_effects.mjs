@@ -442,15 +442,20 @@ function snoopLedFn(_index, _num_leds, timestamp, data) {
 // ---------------------------------------------------------------------------
 
 /**
- * Send confetti LED effect with pre-computed rocket schedule.
- * @param {number} rocketCount
+ * @typedef {object} RocketScheduleEntry
+ * @property {number} delay - Launch delay in ms from effect start
+ * @property {number} explosionTime - Estimated time from launch to explosion in ms
  */
-export async function ledConfetti(rocketCount) {
+
+/**
+ * Send confetti LED effect synchronized with the canvas rocket schedule.
+ * @param {{ delay: number, explosionTime: number }[]} schedule
+ */
+export async function ledConfetti(schedule) {
   /** @type {LedRocket[]} */
   const rockets = [];
-  for (let i = 0; i < rocketCount; i++) {
-    const delay = i * 300 + Math.random() * 200;
-    const travel = 1500 + Math.random() * 2000;
+  for (const entry of schedule) {
+    const travel = entry.explosionTime / 3;
     const wraps = (0.55 + Math.random() * 0.35) * 4;
 
     /** @type {BurstPixel[]} */
@@ -468,7 +473,7 @@ export async function ledConfetti(rocketCount) {
     }
 
     rockets.push({
-      launch: Math.round(delay),
+      launch: Math.round(entry.delay),
       travel: Math.round(travel),
       wraps,
       burst,

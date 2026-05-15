@@ -339,17 +339,28 @@ export async function launchConfetti(amount, showHyperdrive) {
     Math.ceil(Math.floor(amount.cents / 1000) + 0.001),
   );
 
+  /** @type {{ delay: number, explosionTime: number }[]} */
+  const schedule = [];
+
   for (let i = 0; i < rocketCount; i++) {
     const delay = i * 300 + Math.random() * 200;
+    const speed = ROCKET_SPEED + Math.random() * 1.5;
+    const startX = Math.random() * canvas.width * 0.8 + canvas.width * 0.1;
+    const targetY = Math.random() * canvas.height * 0.35 + canvas.height * 0.1;
+    const sparklePhase = Math.random() * Math.PI * 2;
+    const flightDistance = canvas.height + 10 - targetY;
+    const estimatedFlightMs = (flightDistance / speed) * (1000 / 60);
+
+    schedule.push({ delay, explosionTime: estimatedFlightMs });
 
     pendingTimers.push(
       window.setTimeout(() => {
         rockets.push({
-          x: Math.random() * canvas.width * 0.8 + canvas.width * 0.1,
+          x: startX,
           y: canvas.height + 10,
-          targetY: Math.random() * canvas.height * 0.35 + canvas.height * 0.1,
-          vy: -(ROCKET_SPEED + Math.random() * 1.5),
-          sparklePhase: Math.random() * Math.PI * 2,
+          targetY,
+          vy: -speed,
+          sparklePhase,
           exploded: false,
           trail: [],
           amount,
@@ -368,7 +379,7 @@ export async function launchConfetti(amount, showHyperdrive) {
       await ledHyperdrive();
       break;
     case false:
-      await ledConfetti(rocketCount);
+      await ledConfetti(schedule);
       break;
     case null:
       break;
