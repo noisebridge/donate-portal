@@ -47,12 +47,16 @@ fastify.register(fastifyHelmet, {
 fastify.register(fastifyFormbody, { bodyLimit: 1024 });
 
 if (!config.disableRateLimit) {
+  const RateLimitError = createError(
+    "TOO_MANY_REQUESTS",
+    "Rate limit exceeded",
+    429,
+  );
+
   fastify.register(fastifyRateLimit, {
     max: 256,
     timeWindow: "1 minute",
-    errorResponseBuilder: (_req, _context) => {
-      return createError("TOO_MANY_REQUESTS", "Rate limit exceeded", 429);
-    },
+    errorResponseBuilder: (_req, _context) => new RateLimitError(),
   });
 }
 
