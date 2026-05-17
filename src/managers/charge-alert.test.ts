@@ -38,6 +38,15 @@ describe("ChargeAlertManager", () => {
       expect(name).toHaveLength(4);
     });
 
+    // Allow for our "Give a shit" donations to pass through the filter
+    test("allows 'shit' through the profanity filter", () => {
+      const paymentIntent = makePaymentIntent({
+        metadata: { name: "A shit" },
+      });
+
+      expect(manager["getProductName"](paymentIntent)).toBe("A shit");
+    });
+
     test("leaves clean names unchanged", () => {
       const paymentIntent = makePaymentIntent({
         metadata: { name: "Pizza Fund" },

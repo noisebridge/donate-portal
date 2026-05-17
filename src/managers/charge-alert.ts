@@ -1,6 +1,7 @@
 import crypto from "node:crypto";
 import type { WebSocket } from "@fastify/websocket";
 import {
+  DataSet,
   englishDataset,
   englishRecommendedTransformers,
   RegExpMatcher,
@@ -22,8 +23,13 @@ const MAX_RECENT_ALERTS = 20;
 const PING_HISTORY_SIZE = 5;
 const PING_INTERVAL_MS = 30_000;
 
+const obscenityDataset = new DataSet<{ originalWord: string }>()
+  .addAll(englishDataset)
+  // We have a "Give a shit" donation so we should pass that through
+  .removePhrasesIf((phrase) => phrase.metadata?.originalWord === "shit");
+
 const obscenityMatcher = new RegExpMatcher({
-  ...englishDataset.build(),
+  ...obscenityDataset.build(),
   ...englishRecommendedTransformers,
 });
 const obscenityCensor = new TextCensor();
