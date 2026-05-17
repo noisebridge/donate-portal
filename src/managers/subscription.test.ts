@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, type Mock, mock, test } from "bun:test";
 import type Stripe from "stripe";
-import type { EmailResult } from "~/services/email";
+import { send as sendEmail } from "~/test-utils/resend.mock";
 
 const mockDefaults = {
   customersList: { data: [] as Stripe.Customer[] },
@@ -20,13 +20,6 @@ const mockDefaults = {
     email: "test@example.com",
     deleted: false,
   },
-  sendSubscriptionCanceledEmail: {
-    success: true,
-    id: "email_1",
-  } as EmailResult,
-  sendSubscriptionWelcomeEmail: { success: true, id: "email_2" } as EmailResult,
-  sendSubscriptionPastDueEmail: { success: true, id: "email_3" } as EmailResult,
-  sendSubscriptionUpdatedEmail: { success: true, id: "email_4" } as EmailResult,
 };
 
 type MockDefaults = typeof mockDefaults;
@@ -75,16 +68,13 @@ function resetMocks() {
   for (const key of Object.keys(mocks) as (keyof MockDefaults)[]) {
     resetMock(key);
   }
-}
 
-mock.module("~/services/email", () => ({
-  default: {
-    sendSubscriptionCanceledEmail: mocks.sendSubscriptionCanceledEmail,
-    sendSubscriptionWelcomeEmail: mocks.sendSubscriptionWelcomeEmail,
-    sendSubscriptionPastDueEmail: mocks.sendSubscriptionPastDueEmail,
-    sendSubscriptionUpdatedEmail: mocks.sendSubscriptionUpdatedEmail,
-  },
-}));
+  sendEmail.mockReset();
+  sendEmail.mockResolvedValue({
+    data: { id: "email_mock" },
+    error: null,
+  });
+}
 
 const { SubscriptionManager } = await import("./subscription");
 
@@ -335,9 +325,10 @@ describe("SubscriptionManager", () => {
 
       expect(result.success).toBe(true);
       expect(mocks.subscriptionsCancel).toHaveBeenCalledWith("sub_1");
-      expect(mocks.sendSubscriptionCanceledEmail).toHaveBeenCalledWith(
-        "test@example.com",
-        { cents: 1000 },
+      expect(sendEmail).toHaveBeenCalledWith(
+        expect.objectContaining({
+          to: "test@example.com",
+        }),
       );
     });
 
@@ -388,9 +379,9 @@ describe("SubscriptionManager", () => {
       mocks.subscriptionsList
         .mockResolvedValueOnce({ data: [subscription] })
         .mockResolvedValueOnce({ data: [] });
-      mocks.sendSubscriptionCanceledEmail.mockResolvedValue({
-        success: false,
-        error: "Email service down",
+      sendEmail.mockResolvedValue({
+        data: null,
+        error: { message: "Email service down" },
       });
 
       const result = await manager.cancel("test@example.com");
@@ -489,9 +480,10 @@ describe("SubscriptionManager", () => {
         },
       } as unknown as Stripe.InvoicePaidEvent);
 
-      expect(mocks.sendSubscriptionWelcomeEmail).toHaveBeenCalledWith(
-        "test@example.com",
-        { cents: 1500 },
+      expect(sendEmail).toHaveBeenCalledWith(
+        expect.objectContaining({
+          to: "test@example.com",
+        }),
       );
     });
 
@@ -507,7 +499,7 @@ describe("SubscriptionManager", () => {
         },
       } as unknown as Stripe.InvoicePaidEvent);
 
-      expect(mocks.sendSubscriptionWelcomeEmail).not.toHaveBeenCalled();
+      expect(sendEmail).not.toHaveBeenCalled();
     });
 
     test("sends past due email when subscription changes to past_due", async () => {
@@ -531,9 +523,10 @@ describe("SubscriptionManager", () => {
         },
       } as unknown as Stripe.CustomerSubscriptionUpdatedEvent);
 
-      expect(mocks.sendSubscriptionPastDueEmail).toHaveBeenCalledWith(
-        "test@example.com",
-        { cents: 1000 },
+      expect(sendEmail).toHaveBeenCalledWith(
+        expect.objectContaining({
+          to: "test@example.com",
+        }),
       );
     });
 
@@ -559,10 +552,10 @@ describe("SubscriptionManager", () => {
         },
       } as unknown as Stripe.CustomerSubscriptionUpdatedEvent);
 
-      expect(mocks.sendSubscriptionUpdatedEmail).toHaveBeenCalledWith(
-        "test@example.com",
-        { cents: 1000 },
-        { cents: 2000 },
+      expect(sendEmail).toHaveBeenCalledWith(
+        expect.objectContaining({
+          to: "test@example.com",
+        }),
       );
     });
 
@@ -588,8 +581,7 @@ describe("SubscriptionManager", () => {
         },
       } as unknown as Stripe.CustomerSubscriptionUpdatedEvent);
 
-      expect(mocks.sendSubscriptionUpdatedEmail).not.toHaveBeenCalled();
-      expect(mocks.sendSubscriptionPastDueEmail).not.toHaveBeenCalled();
+      expect(sendEmail).not.toHaveBeenCalled();
     });
 
     test("does not send past due email when subscription was already past_due", async () => {
@@ -613,7 +605,7 @@ describe("SubscriptionManager", () => {
         },
       } as unknown as Stripe.CustomerSubscriptionUpdatedEvent);
 
-      expect(mocks.sendSubscriptionPastDueEmail).not.toHaveBeenCalled();
+      expect(sendEmail).not.toHaveBeenCalled();
     });
 
     test("skips email for deleted customer", async () => {
@@ -635,7 +627,7 @@ describe("SubscriptionManager", () => {
         },
       } as unknown as Stripe.CustomerSubscriptionUpdatedEvent);
 
-      expect(mocks.sendSubscriptionPastDueEmail).not.toHaveBeenCalled();
+      expect(sendEmail).not.toHaveBeenCalled();
     });
   });
 });

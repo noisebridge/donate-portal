@@ -18,6 +18,11 @@ export type EmailResult =
 class EmailService {
   static readonly log = baseLogger.child({ class: "EmailService" });
   static readonly fromAddress = `Noisebridge <${config.emailSender}>`;
+  static readonly emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  isValidEmail(email: string): boolean {
+    return email.length <= 254 && EmailService.emailPattern.test(email);
+  }
 
   private async send(params: {
     to: string;

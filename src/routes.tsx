@@ -373,8 +373,7 @@ export default async function routes(fastify: FastifyInstance) {
         return reply.redirect(paths.signIn({ error: "InvalidRequest" }));
       }
 
-      // Basic email validation
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 254) {
+      if (!emailService.isValidEmail(email)) {
         fastify.log.warn({ email }, "Invalid email format");
         return reply.redirect(paths.signIn({ error: "EmailInvalid" }));
       }
