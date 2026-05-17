@@ -1,12 +1,11 @@
 import { mock } from "bun:test";
+import type { Resend } from "resend";
 
-type SendResponse =
-  | { data: { id: string }; error: null }
-  | { data: null; error: { message: string } };
+type SendResponse = Awaited<ReturnType<Resend["emails"]["send"]>>;
 
 export const send = mock(
   (): Promise<SendResponse> =>
-    Promise.resolve({ data: { id: "email_mock" }, error: null }),
+    Promise.resolve({ data: { id: "email_mock" }, error: null, headers: null }),
 );
 
 mock.module("resend", () => ({

@@ -73,6 +73,7 @@ function resetMocks() {
   sendEmail.mockResolvedValue({
     data: { id: "email_mock" },
     error: null,
+    headers: null,
   });
 }
 
@@ -381,7 +382,12 @@ describe("SubscriptionManager", () => {
         .mockResolvedValueOnce({ data: [] });
       sendEmail.mockResolvedValue({
         data: null,
-        error: { message: "Email service down" },
+        error: {
+          message: "Email service down",
+          statusCode: null,
+          name: "internal_server_error",
+        },
+        headers: null,
       });
 
       const result = await manager.cancel("test@example.com");
