@@ -166,7 +166,7 @@ class ErrorReportingService {
     return url.toString();
   }
 
-  private async forward(dsn: URL, event: SentryEvent): Promise<boolean> {
+  async forward(dsn: URL, event: SentryEvent): Promise<boolean> {
     if (!config.production) {
       ErrorReportingService.log.warn(
         { dsn },
