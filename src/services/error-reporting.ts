@@ -2,6 +2,8 @@ import type { FastifyRequest } from "fastify";
 import config from "~/config";
 import { baseLogger } from "~/logger";
 import {
+  type CspReport,
+  cspReportSchema,
   type SentryEvent,
   type SentryException,
   type SentryFrame,
@@ -10,6 +12,11 @@ import {
 
 export function validateSentryEvent(raw: unknown): raw is SentryEvent {
   const result = sentryEventSchema.safeParse(raw);
+  return result.success;
+}
+
+export function validateCspReport(raw: unknown): raw is CspReport {
+  const result = cspReportSchema.safeParse(raw);
   return result.success;
 }
 
@@ -72,6 +79,59 @@ class ErrorReportingService {
     };
 
     return await this.forward(config.backendDSN, event);
+  }
+
+  async reportCspViolation(report: CspReport): Promise<boolean> {
+    const violation = report["csp-report"];
+    const directive =
+      violation["effective-directive"] || violation["violated-directive"];
+
+    const tags: Record<string, string> = {
+      "csp.directive": directive,
+    };
+    if (config.gitCommit) {
+      tags["commit"] = config.gitCommit;
+    }
+    if (violation["blocked-uri"]) {
+      tags["csp.blocked_uri"] = violation["blocked-uri"];
+    }
+    if (violation["document-uri"]) {
+      tags["csp.document_uri"] = violation["document-uri"];
+      tags["url"] = violation["document-uri"];
+    }
+
+    const frames: SentryFrame[] = [];
+    if (violation["source-file"]) {
+      frames.push({
+        filename: violation["source-file"],
+        function: "?",
+        lineno: violation["line-number"] ?? null,
+        colno: violation["column-number"] ?? null,
+      });
+    }
+
+    const blockedPart = violation["blocked-uri"]
+      ? ` by ${violation["blocked-uri"]}`
+      : "";
+
+    const event: SentryEvent = {
+      event_id: crypto.randomUUID().replace(/-/g, ""),
+      timestamp: new Date().toISOString(),
+      platform: "javascript",
+      level: "warning",
+      exception: {
+        values: [
+          {
+            type: "CSPViolation",
+            value: `Blocked ${directive}${blockedPart} on ${violation["document-uri"]}`,
+            stacktrace: { frames },
+          },
+        ],
+      },
+      tags,
+    };
+
+    return await this.forward(config.frontendDSN, event);
   }
 
   private parseError(error: Error): SentryException {

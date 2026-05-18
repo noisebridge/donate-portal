@@ -157,6 +157,10 @@ const paths = {
    */
   errorReporting: () => "/error-reporting",
   /**
+   * `/csp-report`
+   */
+  cspReport: () => "/csp-report",
+  /**
    * `/healthz`
    */
   healthz: () => "/healthz",

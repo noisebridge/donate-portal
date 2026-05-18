@@ -34,3 +34,19 @@ export const sentryEventSchema = z.object({
     .optional(),
 });
 export type SentryEvent = z.infer<typeof sentryEventSchema>;
+
+export const cspReportSchema = z.object({
+  "csp-report": z.object({
+    "document-uri": z.string().max(2048),
+    referrer: z.string().max(2048).optional(),
+    "violated-directive": z.string().max(256),
+    "effective-directive": z.string().max(256).optional(),
+    "original-policy": z.string().max(4096).optional(),
+    "blocked-uri": z.string().max(2048).optional(),
+    "status-code": z.number().int().optional(),
+    "source-file": z.string().max(2048).optional(),
+    "line-number": z.number().int().optional(),
+    "column-number": z.number().int().optional(),
+  }),
+});
+export type CspReport = z.infer<typeof cspReportSchema>;

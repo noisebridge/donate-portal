@@ -7,6 +7,7 @@
  */
 
 import type { FastifyHelmetOptions } from "@fastify/helmet";
+import paths from "~/paths";
 
 type Directive =
   | "default-src"
@@ -18,7 +19,8 @@ type Directive =
   | "frame-src"
   | "frame-ancestors"
   | "form-action"
-  | "base-uri";
+  | "base-uri"
+  | "report-uri";
 
 type PolicyEntry = Partial<Record<Directive, string[]>>;
 
@@ -63,6 +65,7 @@ const basePolicy: PolicyEntry = {
   "frame-ancestors": ["'none'"],
   "form-action": ["'self'"],
   "base-uri": ["'self'"],
+  "report-uri": [paths.cspReport()],
 };
 
 const stripePolicy: PolicyEntry = {

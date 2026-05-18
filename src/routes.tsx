@@ -18,6 +18,7 @@ import { parseToCents, validateAmountFormData } from "~/money";
 import paths, { type MessageParams } from "~/paths";
 import emailService from "~/services/email";
 import errorReportingService, {
+  validateCspReport,
   validateSentryEvent,
 } from "~/services/error-reporting";
 import githubOAuth from "~/services/github";
@@ -69,6 +70,15 @@ const errorReportingRateLimit = conditionalRateLimit({
   config: {
     rateLimit: {
       max: 3,
+      timeWindow: "1 minute",
+    },
+  },
+});
+
+const cspReportRateLimit = conditionalRateLimit({
+  config: {
+    rateLimit: {
+      max: 10,
       timeWindow: "1 minute",
     },
   },
@@ -872,6 +882,36 @@ export default async function routes(fastify: FastifyInstance) {
       }
 
       const success = await errorReportingService.reportFrontend(event);
+      if (!success) {
+        return reply.status(502).send();
+      }
+
+      return reply.status(204).send();
+    },
+  );
+
+  fastify.post(
+    paths.cspReport(),
+    cspReportRateLimit,
+    async (request, reply) => {
+      const contentType = request.headers["content-type"];
+      if (
+        contentType !== "application/csp-report" &&
+        contentType !== "application/json"
+      ) {
+        return reply.status(415).send();
+      }
+
+      const body = request.body;
+      if (!body || typeof body !== "object") {
+        return reply.status(400).send();
+      }
+
+      if (!validateCspReport(body)) {
+        return reply.status(400).send();
+      }
+
+      const success = await errorReportingService.reportCspViolation(body);
       if (!success) {
         return reply.status(502).send();
       }

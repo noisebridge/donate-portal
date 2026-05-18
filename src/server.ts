@@ -46,6 +46,12 @@ fastify.register(fastifyHelmet, {
 
 fastify.register(fastifyFormbody, { bodyLimit: 1024 });
 
+fastify.addContentTypeParser(
+  "application/csp-report",
+  { parseAs: "string" },
+  fastify.getDefaultJsonParser("ignore", "ignore"),
+);
+
 if (!config.disableRateLimit) {
   const RateLimitError = createError(
     "TOO_MANY_REQUESTS",
