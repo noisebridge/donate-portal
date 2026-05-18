@@ -91,7 +91,6 @@ function parseStackTrace(error) {
 export function sendErrorReport(error) {
   /** @type {SentryEvent} */
   const event = {
-    event_id: crypto.randomUUID().replace(/-/g, ""),
     timestamp: new Date().toISOString(),
     platform: "javascript",
     level: "error",

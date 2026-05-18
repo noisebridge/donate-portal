@@ -18,7 +18,6 @@ export const sentryExceptionSchema = z.object({
 export type SentryException = z.infer<typeof sentryExceptionSchema>;
 
 export const sentryEventSchema = z.object({
-  event_id: z.string().regex(/^[0-9a-f]{32}$/),
   timestamp: z.string().refine((s) => !Number.isNaN(Date.parse(s))),
   platform: z.enum(["javascript", "node"]),
   level: z.enum(["fatal", "error", "warning", "info", "debug"]),

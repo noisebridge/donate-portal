@@ -67,7 +67,6 @@ class ErrorReportingService {
     }
 
     const event: SentryEvent = {
-      event_id: crypto.randomUUID().replace(/-/g, ""),
       timestamp: new Date().toISOString(),
       platform: "node",
       level: "error",
@@ -115,7 +114,6 @@ class ErrorReportingService {
       : "";
 
     const event: SentryEvent = {
-      event_id: crypto.randomUUID().replace(/-/g, ""),
       timestamp: new Date().toISOString(),
       platform: "javascript",
       level: "warning",
@@ -183,7 +181,10 @@ class ErrorReportingService {
       response = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(event),
+        body: JSON.stringify({
+          ...event,
+          event_id: crypto.randomUUID().replace(/-/g, ""),
+        }),
       });
     } catch (err) {
       ErrorReportingService.log.error(
