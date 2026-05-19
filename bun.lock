@@ -22,20 +22,20 @@
         "obscenity": "^0.4.6",
         "pino": "^9.14.0",
         "qrcode-svg": "1.1.0",
-        "resend": "^6.12.2",
-        "stripe": "^22.1.0",
-        "zod": "^4.4.1",
+        "resend": "^6.12.3",
+        "stripe": "^22.1.1",
+        "zod": "^4.4.3",
       },
       "devDependencies": {
-        "@biomejs/biome": "^2.4.13",
+        "@biomejs/biome": "^2.4.15",
         "@kitajs/ts-html-plugin": "^4.1.4",
-        "@playwright/test": "^1.59.1",
-        "@stripe/stripe-js": "^9.4.0",
+        "@playwright/test": "^1.60.0",
+        "@stripe/stripe-js": "^9.6.0",
         "@types/bmp-js": "^0.1.2",
         "@types/bun": "1.3.14",
         "@types/mjml": "^4.7.4",
         "@types/ws": "^8.18.1",
-        "playwright": "^1.59.1",
+        "playwright": "^1.60.0",
       },
       "peerDependencies": {
         "typescript": "^5.9.3",
@@ -119,7 +119,7 @@
 
     "@stablelib/base64": ["@stablelib/base64@1.0.1", "", {}, "sha512-1bnPQqSxSuc3Ii6MhBysoWCg58j97aUjuCSZrGSmDxNqtytIi0k8utUenAwTZN4V5mXXYGsVUI9zeBqy+jBOSQ=="],
 
-    "@stripe/stripe-js": ["@stripe/stripe-js@9.5.0", "", {}, "sha512-dTQWkJRw5lhcQipPuw6qZRBK2zY5eWWZ1Srw9mSjhIXSLdsNYO3uaIV+YRMkI0/tB/D7yQdHYStrcZrbeHI5Jg=="],
+    "@stripe/stripe-js": ["@stripe/stripe-js@9.6.0", "", {}, "sha512-v5MebYvJbddSRn15fknxTVwypJPzjeIXI1Q2HBxCBrQieWna8PC+RXEVUZ3F4ANAeILEj97HzFlr0r7CXvG7ZA=="],
 
     "@types/bmp-js": ["@types/bmp-js@0.1.2", "", { "dependencies": { "@types/node": "*" } }, "sha512-BF6u+M+KySDBKfr1DQOT3+z42n4/tq62uf9ong4i2SLLpa7mJqPwEmKbNgMzlVliT/jtE6elxyD/0X1mja8jLg=="],
 
