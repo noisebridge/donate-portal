@@ -13,7 +13,7 @@ export function formatPath<T extends string>(
   path: string,
   params?: Partial<Record<T, string | number | undefined>>,
 ) {
-  if (!params || Object.keys(params).length === 0) {
+  if (!params) {
     return path;
   }
 
