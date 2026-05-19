@@ -22,9 +22,9 @@ type Directive =
   | "base-uri"
   | "report-uri";
 
-type PolicyEntry = Partial<Record<Directive, string[]>>;
+export type PolicyEntry = Partial<Record<Directive, string[]>>;
 
-function mergePolicies(entries: PolicyEntry[]) {
+export function mergePolicies(entries: PolicyEntry[]) {
   const merged: Record<string, Set<string>> = {};
 
   for (const entry of entries) {

@@ -9,7 +9,7 @@ export interface MessageParams {
 /**
  * Format a page path with query params.
  */
-function formatPath<T extends string>(
+export function formatPath<T extends string>(
   path: string,
   params?: Partial<Record<T, string | number | undefined>>,
 ) {
