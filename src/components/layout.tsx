@@ -1,5 +1,6 @@
 import type { PropsWithChildren } from "@kitajs/html";
 import config from "~/config";
+import { assetPath } from "~/paths";
 import { Navbar } from "./navbar";
 
 const githubUrl =
@@ -37,25 +38,28 @@ export function Layout({
           />
           <meta name="stripe-public" content={config.stripePublicKey} />
           <title>{title as "safe"} | Noisebridge</title>
-          <link rel="icon" href="/assets/image/favicon.svg" />
+          <link rel="icon" href={assetPath("image/favicon.svg")} />
           {/**
            * Hide all content initially. This style is reset at the end of
            * main.css to prevent a flash-of-unstyled-content.
            */}
           <style>{"html { visibility: hidden; opacity: 0; }"}</style>
-          <link rel="stylesheet" href="/assets/css/reset.css" />
-          <link rel="stylesheet" href="/assets/css/main.css" />
+          <link rel="stylesheet" href={assetPath("css/reset.css")} />
+          <link rel="stylesheet" href={assetPath("css/main.css")} />
           {!!styles && (
-            <link rel="stylesheet" href={`/assets/css/${styles}` as "safe"} />
+            <link
+              rel="stylesheet"
+              href={assetPath(`css/${styles}`) as "safe"}
+            />
           )}
           <script
             type="module"
-            src="/assets/js/util/error-reporting.mjs"
+            src={assetPath("js/util/error-reporting.mjs")}
           ></script>
           {!!script && (
             <script
               type="module"
-              src={`/assets/js/${script}` as "safe"}
+              src={assetPath(`js/${script}`) as "safe"}
             ></script>
           )}
         </head>

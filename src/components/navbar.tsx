@@ -1,4 +1,4 @@
-import paths from "~/paths";
+import paths, { assetPath } from "~/paths";
 
 export interface NavbarProps {
   isAuthenticated: boolean;
@@ -11,7 +11,7 @@ export function Navbar({ isAuthenticated, csrfToken }: NavbarProps) {
       <div class="navbar-content">
         <a href={paths.index()} class="brand">
           <img
-            src="/assets/image/logo.svg"
+            src={assetPath("image/logo.svg")}
             alt="Noisebridge logo"
             class="brand-logo"
           />

@@ -1,7 +1,7 @@
 import { Button } from "~/components/button";
 import { Layout } from "~/components/layout";
 import { type Message, MessageContainer } from "~/components/message-container";
-import paths from "~/paths";
+import paths, { assetPath } from "~/paths";
 
 export interface AuthProps {
   isAuthenticated: boolean;
@@ -50,7 +50,7 @@ export function AuthPage({
                 href={paths.googleStart()}
                 icon={
                   <img
-                    src="/assets/image/google.svg"
+                    src={assetPath("image/google.svg")}
                     alt=""
                     width="18"
                     height="18"
@@ -66,7 +66,7 @@ export function AuthPage({
                 href={paths.githubStart()}
                 icon={
                   <img
-                    src="/assets/image/github.svg"
+                    src={assetPath("image/github.svg")}
                     alt=""
                     width="18"
                     height="18"

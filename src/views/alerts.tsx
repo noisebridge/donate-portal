@@ -1,6 +1,6 @@
 import { escapeHtml } from "@kitajs/html";
 import { formatAmount } from "~/money";
-import paths from "~/paths";
+import paths, { assetPath } from "~/paths";
 import type {
   AlertMessage,
   ChargeAlertMessage,
@@ -110,17 +110,17 @@ export function AlertsPage({ alerts }: AlertsPageProps) {
             content="width=device-width, initial-scale=1.0"
           />
           <title>Donation Alerts | Noisebridge</title>
-          <link rel="icon" href="/assets/image/favicon.svg" />
-          <link rel="stylesheet" href="/assets/css/reset.css" />
-          <link rel="stylesheet" href="/assets/css/alerts.css" />
+          <link rel="icon" href={assetPath("image/favicon.svg")} />
+          <link rel="stylesheet" href={assetPath("css/reset.css")} />
+          <link rel="stylesheet" href={assetPath("css/alerts.css")} />
           <script id="current-charge" type="application/json">
             {JSON.stringify(latest ?? null)}
           </script>
           <script
             type="module"
-            src="/assets/js/util/error-reporting.mjs"
+            src={assetPath("js/util/error-reporting.mjs")}
           ></script>
-          <script type="module" src="/assets/js/alerts.mjs"></script>
+          <script type="module" src={assetPath("js/alerts.mjs")}></script>
         </head>
         <body>
           <div class="alerts-layout">
@@ -172,43 +172,43 @@ export function AlertsPage({ alerts }: AlertsPageProps) {
           <canvas id="banner-canvas"></canvas>
           <img
             id="snoop-img"
-            src="/assets/image/snoop.apng"
+            src={assetPath("image/snoop.apng")}
             alt=""
             class="snoop-img"
           />
           <img
             id="arnold-img"
-            src="/assets/image/arnold.png"
+            src={assetPath("image/arnold.png")}
             alt=""
             class="arnold-img"
           />
           <img
             id="eagle-img"
-            src="/assets/image/eagle.png"
+            src={assetPath("image/eagle.png")}
             alt=""
             class="eagle-img"
           />
           <img
             id="dolphin-fly-0"
-            src="/assets/image/dolphin-back.png"
+            src={assetPath("image/dolphin-back.png")}
             alt=""
             class="dolphin-fly"
           />
           <img
             id="dolphin-fly-1"
-            src="/assets/image/dolphin-back.png"
+            src={assetPath("image/dolphin-back.png")}
             alt=""
             class="dolphin-fly"
           />
           <img
             id="dolphin-fly-2"
-            src="/assets/image/dolphin-back.png"
+            src={assetPath("image/dolphin-back.png")}
             alt=""
             class="dolphin-fly"
           />
           <img
             id="dolphin-fly-3"
-            src="/assets/image/dolphin-back.png"
+            src={assetPath("image/dolphin-back.png")}
             alt=""
             class="dolphin-fly"
           />

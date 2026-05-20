@@ -1,3 +1,4 @@
+import config from "~/config";
 import type { ErrorCodeKey, InfoCodeKey } from "./error-codes";
 import type { Cents } from "./types/cents";
 
@@ -37,6 +38,13 @@ export function formatPath<T extends string>(
   }
 
   return `${path}?${queryString}`;
+}
+
+const assetVersion = config.gitCommit ?? Date.now().toString();
+
+/** Cache-bust asset paths */
+export function assetPath(path: string): string {
+  return `/assets/${path}?v=${assetVersion}`;
 }
 
 type FunctionReturnsString = (...args: never[]) => string;

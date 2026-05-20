@@ -1,6 +1,7 @@
 import { escapeHtml } from "@kitajs/html";
 import { Layout } from "~/components/layout";
 import { StatusCard } from "~/components/status-card";
+import { assetPath } from "~/paths";
 
 export interface AuthEmailProps {
   email: string;
@@ -23,7 +24,7 @@ export function AuthEmailPage({
         icon={
           <img
             class="page-icon"
-            src="/assets/image/email.svg"
+            src={assetPath("image/email.svg")}
             alt="Email icon"
           />
         }
