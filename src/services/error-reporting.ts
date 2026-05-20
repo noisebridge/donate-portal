@@ -80,10 +80,11 @@ class ErrorReportingService {
     return await this.forward(config.backendDSN, event);
   }
 
-  async reportCspViolation(report: CspReport): Promise<boolean> {
-    const violation = report["csp-report"];
+  async reportCspViolation({
+    "csp-report": report,
+  }: CspReport): Promise<boolean> {
     const directive =
-      violation["effective-directive"] || violation["violated-directive"];
+      report["effective-directive"] || report["violated-directive"];
 
     const tags: Record<string, string> = {
       "csp.directive": directive,
@@ -91,37 +92,37 @@ class ErrorReportingService {
     if (config.gitCommit) {
       tags["commit"] = config.gitCommit;
     }
-    if (violation["blocked-uri"]) {
-      tags["csp.blocked_uri"] = violation["blocked-uri"];
+    if (report["blocked-uri"]) {
+      tags["csp.blocked_uri"] = report["blocked-uri"];
     }
-    if (violation["document-uri"]) {
-      tags["csp.document_uri"] = violation["document-uri"];
-      tags["url"] = violation["document-uri"];
+    if (report["document-uri"]) {
+      tags["csp.document_uri"] = report["document-uri"];
+      tags["url"] = report["document-uri"];
     }
 
     const frames: SentryFrame[] = [];
-    if (violation["source-file"]) {
+    if (report["source-file"]) {
       frames.push({
-        filename: violation["source-file"],
+        filename: report["source-file"],
         function: "?",
-        lineno: violation["line-number"] ?? null,
-        colno: violation["column-number"] ?? null,
+        lineno: report["line-number"] ?? null,
+        colno: report["column-number"] ?? null,
       });
     }
 
-    const blockedPart = violation["blocked-uri"]
-      ? ` by ${violation["blocked-uri"]}`
+    const blockedPart = report["blocked-uri"]
+      ? ` by ${report["blocked-uri"]}`
       : "";
 
     const event: SentryEvent = {
       timestamp: new Date().toISOString(),
       platform: "javascript",
-      level: "warning",
+      level: "error",
       exception: {
         values: [
           {
             type: "CSPViolation",
-            value: `Blocked ${directive}${blockedPart} on ${violation["document-uri"]}`,
+            value: `Blocked ${directive}${blockedPart} on ${report["document-uri"]}`,
             stacktrace: { frames },
           },
         ],
