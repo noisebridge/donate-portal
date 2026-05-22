@@ -24,9 +24,6 @@ interface GoogleUserInfo {
   locale?: string;
 }
 
-/**
- * GoogleOAuth service for handling Google OAuth 2.0 authentication
- */
 export class GoogleOAuth {
   static readonly log = baseLogger.child({ class: "GoogleOAuth" });
   static readonly redirectUri = `${config.baseUrl}${paths.googleCallback()}`;

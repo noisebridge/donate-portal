@@ -26,9 +26,6 @@ interface GitHubEmail {
   visibility: string | null;
 }
 
-/**
- * GitHubOAuth service for handling GitHub OAuth authentication
- */
 export class GitHubOAuth {
   static readonly redirectUri = `${config.baseUrl}${paths.githubCallback()}`;
   static readonly log = baseLogger.child({ class: "GitHubOAuth" });
