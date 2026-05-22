@@ -1,5 +1,5 @@
 import config from "~/config";
-import { baseLogger } from "~/logger";
+import baseLogger from "~/logger";
 import paths from "~/paths";
 
 const userAgent = "NoisebridgeDonorPortal";

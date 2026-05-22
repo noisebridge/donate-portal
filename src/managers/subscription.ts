@@ -1,7 +1,7 @@
 import type Stripe from "stripe";
 import config from "~/config";
 import type { ErrorCodeKey } from "~/error-codes";
-import { baseLogger } from "~/logger";
+import baseLogger from "~/logger";
 import paths from "~/paths";
 import emailService from "~/services/email";
 import stripe from "~/services/stripe";

@@ -1,3 +1,5 @@
 import pino from "pino";
 
-export const baseLogger = pino();
+const baseLogger = pino();
+
+export default baseLogger;

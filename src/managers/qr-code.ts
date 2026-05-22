@@ -3,7 +3,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import bmp from "bmp-js";
 import QRCode, { type QRCodeModel } from "qrcode-svg";
-import { baseLogger } from "~/logger";
+import baseLogger from "~/logger";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

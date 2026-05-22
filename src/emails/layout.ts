@@ -1,5 +1,5 @@
 import mjml2html from "mjml";
-import { baseLogger } from "~/logger";
+import baseLogger from "~/logger";
 
 export function Layout(title: string, contents: string): string {
   const mjml = `

@@ -36,7 +36,7 @@ import { QrPage } from "~/views/qr";
 import { QrCustomPage } from "~/views/qr-custom";
 import { QrEditorPage } from "~/views/qr-editor";
 import { ThankYouPage } from "~/views/thank-you";
-import { baseLogger } from "./logger";
+import baseLogger from "./logger";
 
 function conditionalRateLimit(
   rateLimitConfig: RouteShorthandOptions,

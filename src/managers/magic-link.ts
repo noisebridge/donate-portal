@@ -1,7 +1,7 @@
 import crypto from "node:crypto";
 import { z } from "zod";
 import config from "~/config";
-import { baseLogger } from "~/logger";
+import baseLogger from "~/logger";
 import paths from "~/paths";
 
 const magicLinkStateSchema = z.object({

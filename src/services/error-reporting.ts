@@ -1,6 +1,6 @@
 import type { FastifyRequest } from "fastify";
 import config from "~/config";
-import { baseLogger } from "~/logger";
+import baseLogger from "~/logger";
 import {
   type CspReport,
   cspReportSchema,
