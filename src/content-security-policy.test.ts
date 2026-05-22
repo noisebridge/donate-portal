@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { mergePolicies, type PolicyEntry } from "./csp";
+import { mergePolicies, type PolicyEntry } from "./content-security-policy";
 
 describe("mergePolicies", () => {
   test("returns empty object for no entries", () => {

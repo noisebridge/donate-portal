@@ -11,8 +11,9 @@ import fastifyWebsocket from "@fastify/websocket";
 import html from "@kitajs/fastify-html-plugin";
 import Fastify from "fastify";
 import config from "~/config";
-import { contentSecurityPolicy } from "~/csp";
+import contentSecurityPolicy from "~/content-security-policy";
 import { baseLogger } from "~/logger";
+import permissionsPolicy from "~/permissions-policy";
 import routes from "~/routes";
 import errorReportingService from "~/services/error-reporting";
 
@@ -43,6 +44,8 @@ fastify.register(fastifyCsrf, { sessionPlugin: "@fastify/cookie" });
 fastify.register(fastifyHelmet, {
   contentSecurityPolicy,
 });
+
+fastify.register(permissionsPolicy);
 
 fastify.register(fastifyFormbody, { bodyLimit: 1024 });
 

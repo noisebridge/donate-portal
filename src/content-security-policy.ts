@@ -3,24 +3,27 @@
  *
  * Each policy entry is a partial CSP directive map. Entries are merged by
  * deduplicating sources per directive, making it easy to add per-service
- * allowlists without touching the base policy.
+ * allowlists.
  */
 
 import type { FastifyHelmetOptions } from "@fastify/helmet";
 import paths from "~/paths";
 
-type Directive =
-  | "default-src"
-  | "script-src"
-  | "style-src"
-  | "img-src"
-  | "font-src"
-  | "connect-src"
-  | "frame-src"
-  | "frame-ancestors"
-  | "form-action"
-  | "base-uri"
-  | "report-uri";
+const directives = [
+  "default-src",
+  "script-src",
+  "style-src",
+  "img-src",
+  "font-src",
+  "connect-src",
+  "frame-src",
+  "frame-ancestors",
+  "form-action",
+  "base-uri",
+  "report-uri",
+] as const;
+
+type Directive = (typeof directives)[number];
 
 export type PolicyEntry = Partial<Record<Directive, string[]>>;
 
@@ -48,7 +51,11 @@ export function mergePolicies(entries: PolicyEntry[]) {
   );
 }
 
-const basePolicy: PolicyEntry = {
+const basePolicy: PolicyEntry = Object.fromEntries(
+  directives.map((d) => [d, ["'none'"]]),
+);
+
+const sitePolicy: PolicyEntry = {
   "default-src": ["'self'"],
   "script-src": ["'self'"],
   "style-src": [
@@ -61,8 +68,6 @@ const basePolicy: PolicyEntry = {
   "img-src": ["'self'"],
   "font-src": ["'self'"],
   "connect-src": ["'self'"],
-  "frame-src": ["'none'"],
-  "frame-ancestors": ["'none'"],
   "form-action": ["'self'"],
   "base-uri": ["'self'"],
   "report-uri": [paths.cspReport()],
@@ -88,15 +93,20 @@ const stripePolicy: PolicyEntry = {
   "form-action": ["https://billing.stripe.com"],
 };
 
-const ledPolicy: PolicyEntry = {
+const ledControllerPolicy: PolicyEntry = {
   "connect-src": ["http://localhost:3000"],
 };
 
-const policies = [basePolicy, stripePolicy, ledPolicy];
+type FastifyCsp = NonNullable<FastifyHelmetOptions["contentSecurityPolicy"]>;
 
-export const contentSecurityPolicy: NonNullable<
-  FastifyHelmetOptions["contentSecurityPolicy"]
-> = {
-  directives: mergePolicies(policies),
+const contentSecurityPolicy: FastifyCsp = {
+  directives: mergePolicies([
+    basePolicy,
+    sitePolicy,
+    stripePolicy,
+    ledControllerPolicy,
+  ]),
   useDefaults: false,
 };
+
+export default contentSecurityPolicy;
