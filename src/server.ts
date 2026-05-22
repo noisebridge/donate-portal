@@ -39,7 +39,15 @@ fastify.register(fastifyCookie, {
   secret: config.cookieSecret,
 });
 
-fastify.register(fastifyCsrf, { sessionPlugin: "@fastify/cookie" });
+fastify.register(fastifyCsrf, {
+  sessionPlugin: "@fastify/cookie",
+  cookieOpts: {
+    secure: config.production,
+    httpOnly: true,
+    sameSite: "strict",
+    path: "/",
+  },
+});
 
 fastify.register(fastifyHelmet, {
   contentSecurityPolicy,
