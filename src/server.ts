@@ -88,13 +88,4 @@ fastify.register(html);
 
 fastify.register(routes);
 
-const start = async () => {
-  try {
-    await fastify.listen({ port: config.serverPort, host: "0.0.0.0" });
-  } catch (err) {
-    fastify.log.error(err);
-    process.exit(1);
-  }
-};
-
-await start();
+await fastify.listen({ port: config.serverPort, host: "0.0.0.0" });
