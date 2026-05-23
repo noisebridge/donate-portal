@@ -39,50 +39,20 @@ import { ThankYouPage } from "~/views/thank-you";
 import baseLogger from "./logger";
 
 function conditionalRateLimit(
-  rateLimitConfig: RouteShorthandOptions,
+  max: number,
+  timeWindow: string,
 ): RouteShorthandOptions {
   if (config.disableRateLimit) {
     return {};
   }
 
-  return rateLimitConfig;
+  return { config: { rateLimit: { max, timeWindow } } };
 }
 
-const authRateLimit = conditionalRateLimit({
-  config: {
-    rateLimit: {
-      max: 3,
-      timeWindow: "1 minute",
-    },
-  },
-});
-
-const donationRateLimit = conditionalRateLimit({
-  config: {
-    rateLimit: {
-      max: 3,
-      timeWindow: "1 minute",
-    },
-  },
-});
-
-const errorReportingRateLimit = conditionalRateLimit({
-  config: {
-    rateLimit: {
-      max: 3,
-      timeWindow: "1 minute",
-    },
-  },
-});
-
-const cspReportRateLimit = conditionalRateLimit({
-  config: {
-    rateLimit: {
-      max: 10,
-      timeWindow: "1 minute",
-    },
-  },
-});
+const authRateLimit = conditionalRateLimit(3, "1 minute");
+const donationRateLimit = conditionalRateLimit(3, "1 minute");
+const errorReportingRateLimit = conditionalRateLimit(3, "1 minute");
+const cspReportRateLimit = conditionalRateLimit(10, "1 minute");
 
 /**
  * Cryptographically secure random string for use with OAuth.
