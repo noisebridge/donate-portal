@@ -11,6 +11,12 @@ COPY types ./types
 COPY scripts ./scripts
 COPY tsconfig.json jsconfig.json tsconfig.base.json ./
 
+# Pre-compress static assets for @fastify/static (brotli + gzip)
+RUN apk add --no-cache brotli gzip \
+ && find src/assets -type f \
+      -exec brotli --best {} \; \
+      -exec gzip --best --keep {} \;
+
 ENV NODE_ENV=production
 EXPOSE 3000
 

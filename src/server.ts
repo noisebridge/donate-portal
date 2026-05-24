@@ -80,6 +80,7 @@ if (!config.disableRateLimit) {
 fastify.register(fastifyStatic, {
   root: path.join(__dirname, "assets"),
   prefix: "/assets/",
+  preCompressed: config.production,
 });
 
 fastify.register(fastifyWebsocket);
