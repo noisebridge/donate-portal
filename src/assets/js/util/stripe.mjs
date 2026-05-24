@@ -338,6 +338,7 @@ export function initCheckoutForm(form, type) {
           Accept: "application/json",
         },
         body: new URLSearchParams(Array.from(new FormData(form).entries())),
+        signal: AbortSignal.timeout(3000),
       });
     } catch (e) {
       console.error("Failed to initiate donation:", e);

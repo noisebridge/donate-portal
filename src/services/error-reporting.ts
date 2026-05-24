@@ -186,6 +186,7 @@ class ErrorReportingService {
           ...event,
           event_id: crypto.randomUUID().replace(/-/g, ""),
         }),
+        signal: AbortSignal.timeout(3000),
       });
     } catch (err) {
       ErrorReportingService.log.error(
