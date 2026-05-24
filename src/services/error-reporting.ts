@@ -83,6 +83,14 @@ class ErrorReportingService {
   async reportCspViolation({
     "csp-report": report,
   }: CspReport): Promise<boolean> {
+    if (report["source-file"] === "user-script") {
+      ErrorReportingService.log.debug(
+        { report },
+        "Ignoring CSP violation from user script",
+      );
+      return true;
+    }
+
     const directive =
       report["effective-directive"] || report["violated-directive"];
 
