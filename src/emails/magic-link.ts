@@ -7,8 +7,10 @@ export interface MagicLinkEmailProps {
 /**
  * Generate HTML email for magic link authentication
  */
-export function MagicLinkEmail({ magicLinkUrl }: MagicLinkEmailProps): string {
-  return Layout(
+export async function MagicLinkEmail({
+  magicLinkUrl,
+}: MagicLinkEmailProps): Promise<string> {
+  return await Layout(
     "Sign in to donate.noisebridge.net",
     `
     <mj-text font-size="24px" font-weight="700" color="#333333" align="center" padding-bottom="20px">

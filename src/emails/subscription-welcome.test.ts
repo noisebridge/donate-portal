@@ -2,8 +2,8 @@ import { describe, expect, test } from "bun:test";
 import { SubscriptionWelcomeEmail } from "./subscription-welcome";
 
 describe("SubscriptionWelcomeEmail", () => {
-  test("should generate email template with amount", () => {
-    const result = SubscriptionWelcomeEmail({
+  test("should generate email template with amount", async () => {
+    const result = await SubscriptionWelcomeEmail({
       amount: { cents: 2500 },
     });
 

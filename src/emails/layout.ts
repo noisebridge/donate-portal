@@ -1,7 +1,7 @@
 import mjml2html from "mjml";
 import baseLogger from "~/logger";
 
-export function Layout(title: string, contents: string): string {
+export async function Layout(title: string, contents: string): Promise<string> {
   const mjml = `
     <mjml>
       <mj-head>
@@ -29,7 +29,7 @@ export function Layout(title: string, contents: string): string {
     </mjml>
   `;
 
-  const { html, errors } = mjml2html(mjml);
+  const { html, errors } = await mjml2html(mjml);
   if (errors.length > 0) {
     baseLogger.error({ errors }, "MJML compilation errors");
     throw new Error("Failed to generate HTML from MJML");

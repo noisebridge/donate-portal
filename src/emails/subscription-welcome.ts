@@ -11,10 +11,10 @@ export interface SubscriptionWelcomeEmailProps {
 /**
  * Generate HTML email for new subscription welcome
  */
-export function SubscriptionWelcomeEmail({
+export async function SubscriptionWelcomeEmail({
   amount,
-}: SubscriptionWelcomeEmailProps): string {
-  return Layout(
+}: SubscriptionWelcomeEmailProps): Promise<string> {
+  return await Layout(
     "Thank You for Your Support!",
     `
     <mj-text font-size="24px" font-weight="700" color="#333333" align="center" padding-bottom="20px">

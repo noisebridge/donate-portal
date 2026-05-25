@@ -12,11 +12,11 @@ export interface SubscriptionUpdatedEmailProps {
 /**
  * Generate HTML email for subscription amount change
  */
-export function SubscriptionUpdatedEmail({
+export async function SubscriptionUpdatedEmail({
   oldAmount,
   newAmount,
-}: SubscriptionUpdatedEmailProps): string {
-  return Layout(
+}: SubscriptionUpdatedEmailProps): Promise<string> {
+  return await Layout(
     "Your Donation Has Been Updated",
     `
     <mj-text font-size="24px" font-weight="700" color="#333333" align="center" padding-bottom="20px">

@@ -2,8 +2,8 @@ import { describe, expect, test } from "bun:test";
 import { SubscriptionUpdatedEmail } from "./subscription-updated";
 
 describe("SubscriptionUpdatedEmail", () => {
-  test("should generate email template with old and new amounts", () => {
-    const result = SubscriptionUpdatedEmail({
+  test("should generate email template with old and new amounts", async () => {
+    const result = await SubscriptionUpdatedEmail({
       oldAmount: { cents: 1000 },
       newAmount: { cents: 2500 },
     });

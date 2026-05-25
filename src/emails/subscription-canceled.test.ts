@@ -2,8 +2,8 @@ import { describe, expect, test } from "bun:test";
 import { SubscriptionCanceledEmail } from "./subscription-canceled";
 
 describe("SubscriptionCanceledEmail", () => {
-  test("should generate email template", () => {
-    const result = SubscriptionCanceledEmail({
+  test("should generate email template", async () => {
+    const result = await SubscriptionCanceledEmail({
       amount: { cents: 2500 },
     });
 

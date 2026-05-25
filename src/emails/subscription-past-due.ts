@@ -11,10 +11,10 @@ export interface SubscriptionPastDueEmailProps {
 /**
  * Generate HTML email for subscription payment past due
  */
-export function SubscriptionPastDueEmail({
+export async function SubscriptionPastDueEmail({
   amount,
-}: SubscriptionPastDueEmailProps): string {
-  return Layout(
+}: SubscriptionPastDueEmailProps): Promise<string> {
+  return await Layout(
     "Payment Issue with Your Donation",
     `
     <mj-text font-size="24px" font-weight="700" color="#333333" align="center" padding-bottom="20px">

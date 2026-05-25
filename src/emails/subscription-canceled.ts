@@ -10,10 +10,10 @@ export interface SubscriptionCanceledEmailProps {
 /**
  * Generate HTML email for subscription cancellation
  */
-export function SubscriptionCanceledEmail({
+export async function SubscriptionCanceledEmail({
   amount,
-}: SubscriptionCanceledEmailProps): string {
-  return Layout(
+}: SubscriptionCanceledEmailProps): Promise<string> {
+  return await Layout(
     "Your Donation Has Been Canceled",
     `
     <mj-text font-size="24px" font-weight="700" color="#333333" align="center" padding-bottom="20px">
