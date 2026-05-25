@@ -18,6 +18,7 @@ export function enforcePattern(input, pattern) {
     const start = input.selectionStart ?? value.length;
     const end = input.selectionEnd ?? start;
 
+    /** @type {string} */
     let simulated;
     switch (event.inputType) {
       case "insertText":
