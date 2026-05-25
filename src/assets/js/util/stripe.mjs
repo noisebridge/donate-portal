@@ -2,11 +2,18 @@
 
 import { sendErrorReport } from "./error-reporting.mjs";
 
+/** @typedef {import("@stripe/stripe-js").ReleaseTrain} StripeRelease */
 /** @typedef {import("@stripe/stripe-js").Stripe} Stripe */
 /** @typedef {import("@stripe/stripe-js").StripeElements} StripeElements */
 /** @typedef {import("@stripe/stripe-js").StripeElementType} StripeElementType */
 /** @typedef {import("@stripe/stripe-js").StripeEmbeddedCheckout} StripeEmbeddedCheckout */
-/** @typedef {import("@stripe/stripe-js").ReleaseTrain} StripeRelease */
+
+/**
+ * Release code-name, type-checked for alignment with the `@stripe/stripe-js`
+ * npm module which is used only for type imports.
+ * @satisfies {StripeRelease}
+ */
+const RELEASE = "dahlia";
 
 /** @satisfies {StripeElementType} */
 const ELEMENT_TYPE = "payment";
@@ -74,7 +81,7 @@ export function initStripe() {
 
   stripePromise = new Promise((resolve, reject) => {
     const script = document.createElement("script");
-    script.src = `https://js.stripe.com/${/** @satisfies {StripeRelease} */ ("dahlia")}/stripe.js`;
+    script.src = `https://js.stripe.com/${RELEASE}/stripe.js`;
 
     script.addEventListener("load", () => {
       if (!window.Stripe) {
