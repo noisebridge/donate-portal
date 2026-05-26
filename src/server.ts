@@ -79,6 +79,8 @@ fastify.register(fastifyStatic, {
   root: path.join(path.dirname(fileURLToPath(import.meta.url)), "assets"),
   prefix: "/assets/",
   preCompressed: config.production,
+  maxAge: "1y",
+  immutable: true,
 });
 
 fastify.register(fastifyWebsocket);
