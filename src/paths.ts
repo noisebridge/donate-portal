@@ -1,4 +1,6 @@
-import config from "~/config";
+import { createHash } from "node:crypto";
+import { readFileSync } from "node:fs";
+import nodePath from "node:path";
 import type { ErrorCodeKey, InfoCodeKey } from "./error-codes";
 import type { Cents } from "./types/cents";
 
@@ -40,11 +42,35 @@ export function formatPath<T extends string>(
   return `${path}?${queryString}`;
 }
 
-const assetVersion = config.gitCommit ?? Date.now().toString();
+function computeAssetHashes(assetsDir: string): Map<string, string> {
+  const hashes = new Map<string, string>();
+  const glob = new Bun.Glob(`${assetsDir}/**/*.{css,mjs,svg,png,apng,woff2}`);
 
-/** Cache-bust asset paths */
-export function assetPath(path: string): string {
-  return `/assets/${path}?v=${assetVersion}`;
+  for (const fullPath of glob.scanSync({ onlyFiles: true })) {
+    const relativePath = nodePath.relative(assetsDir, fullPath);
+    const content = readFileSync(fullPath);
+    const hash = createHash("sha256")
+      .update(content)
+      .digest("hex")
+      .slice(0, 10);
+    hashes.set(relativePath, hash);
+  }
+
+  return hashes;
+}
+
+const assetHashes = computeAssetHashes(
+  nodePath.join(import.meta.dir, "assets"),
+);
+
+export function assetPath(filePath: string): string {
+  const path = `/assets/${filePath}`;
+  const hash = assetHashes.get(filePath);
+  if (!hash) {
+    return path;
+  }
+
+  return `${path}?v=${hash}`;
 }
 
 type FunctionReturnsString = (...args: never[]) => string;
