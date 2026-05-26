@@ -12,6 +12,7 @@ import html from "@kitajs/fastify-html-plugin";
 import Fastify from "fastify";
 import config from "~/config";
 import contentSecurityPolicy from "~/content-security-policy";
+import earlyHints from "~/early-hints";
 import baseLogger from "~/logger";
 import permissionsPolicy from "~/permissions-policy";
 import routes from "~/routes";
@@ -86,6 +87,8 @@ fastify.register(fastifyStatic, {
 fastify.register(fastifyWebsocket);
 
 fastify.register(html);
+
+fastify.register(earlyHints);
 
 fastify.register(routes);
 
