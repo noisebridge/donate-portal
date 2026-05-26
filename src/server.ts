@@ -1,4 +1,5 @@
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import fastifyCookie from "@fastify/cookie";
 import fastifyCsrf from "@fastify/csrf-protection";
 import createError from "@fastify/error";
@@ -75,7 +76,7 @@ if (!config.disableRateLimit) {
 }
 
 fastify.register(fastifyStatic, {
-  root: path.join(import.meta.dir, "assets"),
+  root: path.join(path.dirname(fileURLToPath(import.meta.url)), "assets"),
   prefix: "/assets/",
   preCompressed: config.production,
 });

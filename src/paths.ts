@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import nodePath from "node:path";
+import { fileURLToPath } from "node:url";
 import type { ErrorCodeKey, InfoCodeKey } from "./error-codes";
 import type { Cents } from "./types/cents";
 
@@ -60,7 +61,7 @@ function computeAssetHashes(assetsDir: string): Map<string, string> {
 }
 
 const assetHashes = computeAssetHashes(
-  nodePath.join(import.meta.dir, "assets"),
+  nodePath.join(nodePath.dirname(fileURLToPath(import.meta.url)), "assets"),
 );
 
 export function assetPath(filePath: string): string {
