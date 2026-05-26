@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import nodePath from "node:path";
 import { fileURLToPath } from "node:url";
 import type { ErrorCodeKey, InfoCodeKey } from "./error-codes";
@@ -43,13 +43,25 @@ export function formatPath<T extends string>(
   return `${path}?${queryString}`;
 }
 
+const assetExtensions = new Set([
+  ".css",
+  ".mjs",
+  ".svg",
+  ".png",
+  ".apng",
+  ".woff2",
+]);
+
 function computeAssetHashes(assetsDir: string): Map<string, string> {
   const hashes = new Map<string, string>();
-  const glob = new Bun.Glob(`${assetsDir}/**/*.{css,mjs,svg,png,apng,woff2}`);
 
-  for (const fullPath of glob.scanSync({ onlyFiles: true })) {
-    const relativePath = nodePath.relative(assetsDir, fullPath);
-    const content = readFileSync(fullPath);
+  for (const entry of readdirSync(assetsDir, { recursive: true })) {
+    const relativePath = entry.toString();
+    if (!assetExtensions.has(nodePath.extname(relativePath))) {
+      continue;
+    }
+
+    const content = readFileSync(nodePath.join(assetsDir, relativePath));
     const hash = createHash("sha256")
       .update(content)
       .digest("hex")
