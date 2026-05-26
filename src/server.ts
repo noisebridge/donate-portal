@@ -1,5 +1,4 @@
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 import fastifyCookie from "@fastify/cookie";
 import fastifyCsrf from "@fastify/csrf-protection";
 import createError from "@fastify/error";
@@ -28,9 +27,6 @@ process.on("unhandledRejection", (reason) => {
   baseLogger.fatal(err, "Unhandled rejection");
   errorReportingService.reportBackend(err).finally(() => process.exit(1));
 });
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 const fastify = Fastify({
   loggerInstance: baseLogger,
@@ -79,7 +75,7 @@ if (!config.disableRateLimit) {
 }
 
 fastify.register(fastifyStatic, {
-  root: path.join(__dirname, "assets"),
+  root: path.join(import.meta.dir, "assets"),
   prefix: "/assets/",
   preCompressed: config.production,
 });
