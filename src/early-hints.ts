@@ -4,9 +4,9 @@ import { assetPath } from "~/paths";
 const links = [
   `<${assetPath("css/reset.css")}>; rel=preload; as=style`,
   `<${assetPath("css/main.css")}>; rel=preload; as=style`,
-  `</assets/font/inter/latin.woff2>; rel=preload; as=font; type=font/woff2; crossorigin`,
-  `</assets/font/jetbrains_mono/latin_normal.woff2>; rel=preload; as=font; type=font/woff2; crossorigin`,
-  `</assets/font/jetbrains_mono/latin_italic.woff2>; rel=preload; as=font; type=font/woff2; crossorigin`,
+  `<${assetPath("font/inter/latin.woff2")}>; rel=preload; as=font; type=font/woff2; crossorigin`,
+  `<${assetPath("font/jetbrains_mono/latin_normal.woff2")}>; rel=preload; as=font; type=font/woff2; crossorigin`,
+  `<${assetPath("font/jetbrains_mono/latin_italic.woff2")}>; rel=preload; as=font; type=font/woff2; crossorigin`,
 ].join(", ");
 
 export default fp(async (fastify) => {

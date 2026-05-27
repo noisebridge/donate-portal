@@ -43,14 +43,7 @@ export function formatPath<T extends string>(
   return `${path}?${queryString}`;
 }
 
-const assetExtensions = new Set([
-  ".css",
-  ".mjs",
-  ".svg",
-  ".png",
-  ".apng",
-  ".woff2",
-]);
+const assetExtensions = new Set([".css", ".mjs", ".svg", ".png", ".apng"]);
 
 function computeAssetHashes(assetsDir: string): Map<string, string> {
   const hashes = new Map<string, string>();
