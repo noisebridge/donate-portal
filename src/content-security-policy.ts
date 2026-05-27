@@ -7,7 +7,7 @@
  */
 
 import type { FastifyHelmetOptions } from "@fastify/helmet";
-import paths from "~/paths";
+import paths, { importMapCspHash } from "~/paths";
 
 const directives = [
   "default-src",
@@ -57,7 +57,7 @@ const basePolicy: PolicyEntry = Object.fromEntries(
 
 const sitePolicy: PolicyEntry = {
   "default-src": ["'self'"],
-  "script-src": ["'self'"],
+  "script-src": ["'self'", importMapCspHash],
   "style-src": [
     "'self'",
     "'unsafe-hashes'",

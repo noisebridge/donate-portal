@@ -1,6 +1,6 @@
 import type { PropsWithChildren } from "@kitajs/html";
 import config from "~/config";
-import { assetPath } from "~/paths";
+import { assetPath, importMapJson } from "~/paths";
 import { Navbar } from "./navbar";
 
 const githubUrl =
@@ -78,20 +78,15 @@ export function Layout({
           <link rel="stylesheet" href={assetPath("css/reset.css")} />
           <link rel="stylesheet" href={assetPath("css/main.css")} />
           {!!styles && (
-            <link
-              rel="stylesheet"
-              href={assetPath(`css/${styles}`) as "safe"}
-            />
+            <link rel="stylesheet" href={assetPath(`css/${styles}`)} />
           )}
+          <script type="importmap">{importMapJson}</script>
           <script
             type="module"
             src={assetPath("js/util/error-reporting.mjs")}
           ></script>
           {!!script && (
-            <script
-              type="module"
-              src={assetPath(`js/${script}`) as "safe"}
-            ></script>
+            <script type="module" src={assetPath(`js/${script}`)}></script>
           )}
         </head>
         <body>
