@@ -12,6 +12,28 @@ Donation portal for Noisebridge hackerspace.
 curl -fsSL https://bun.sh/install | bash
 ```
 
+### Install `watchexec`
+
+**macOS:**
+
+```bash
+brew install watchexec
+```
+
+**Linux:**
+
+```bash
+# Arch
+pacman -S watchexec
+
+# Debian/Ubuntu/Fedora — download binary from GitHub releases
+curl -fsSL https://github.com/watchexec/watchexec/releases/latest/download/watchexec-*-x86_64-unknown-linux-gnu.tar.xz \
+  | tar -xJ --strip-components=1 -C /usr/local/bin/
+
+# Or via cargo
+cargo install watchexec-cli
+```
+
 ### Install dependencies
 
 ```bash
