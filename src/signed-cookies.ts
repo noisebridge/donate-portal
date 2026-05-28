@@ -109,7 +109,7 @@ export const cookies = {
       SessionDataSchema,
       request,
       reply,
-      60 * 60 * 24 * 7,
+      60 * 60 * 24,
     ),
   [CookieName.GithubOAuthState]: (
     request: FastifyRequest,
