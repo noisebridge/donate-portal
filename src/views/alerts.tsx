@@ -113,6 +113,20 @@ export function AlertsPage({ alerts }: AlertsPageProps) {
           <link rel="icon" href={assetPath("image/favicon.svg")} />
           <link rel="stylesheet" href={assetPath("css/reset.css")} />
           <link rel="stylesheet" href={assetPath("css/alerts.css")} />
+          <link
+            rel="preload"
+            href={assetPath("font/bitcount/bitcount-latin.woff2")}
+            as="font"
+            type="font/woff2"
+            crossorigin=""
+          />
+          <link
+            rel="preload"
+            href={assetPath("font/bitcount/bitcount-latin-ext.woff2")}
+            as="font"
+            type="font/woff2"
+            crossorigin=""
+          />
           <script id="current-charge" type="application/json">
             {JSON.stringify(latest ?? null)}
           </script>
