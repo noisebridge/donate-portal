@@ -216,7 +216,7 @@ export default async function routes(fastify: FastifyInstance) {
 
     const state = getRandomState();
     const githubCookie = cookies[CookieName.GithubOAuthState](request, reply);
-    githubCookie.value = { state };
+    githubCookie.value = { state, issued: Date.now() };
 
     const authUrl = githubOAuth.getAuthorizationUrl(state, ["user:email"]);
     return reply.redirect(authUrl);
@@ -260,7 +260,11 @@ export default async function routes(fastify: FastifyInstance) {
     }
 
     const sessionCookie = cookies[CookieName.UserSession](request, reply);
-    sessionCookie.value = { email: email, provider: "github" };
+    sessionCookie.value = {
+      email: email,
+      provider: "github",
+      issued: Date.now(),
+    };
 
     fastify.log.info(
       { userId: user.id, login: user.login, email },
@@ -277,7 +281,7 @@ export default async function routes(fastify: FastifyInstance) {
 
     const state = getRandomState();
     const googleCookie = cookies[CookieName.GoogleOAuthState](request, reply);
-    googleCookie.value = { state };
+    googleCookie.value = { state, issued: Date.now() };
 
     const authUrl = googleOAuth.getAuthorizationUrl(state, [
       "openid",
@@ -326,7 +330,11 @@ export default async function routes(fastify: FastifyInstance) {
     }
 
     const sessionCookie = cookies[CookieName.UserSession](request, reply);
-    sessionCookie.value = { email: userInfo.email, provider: "google" };
+    sessionCookie.value = {
+      email: userInfo.email,
+      provider: "google",
+      issued: Date.now(),
+    };
 
     fastify.log.info(
       { userId: userInfo.id, email: userInfo.email },
@@ -419,7 +427,11 @@ export default async function routes(fastify: FastifyInstance) {
     }
 
     const sessionCookie = cookies[CookieName.UserSession](request, reply);
-    sessionCookie.value = { email, provider: "magic_link" };
+    sessionCookie.value = {
+      email,
+      provider: "magic_link",
+      issued: Date.now(),
+    };
 
     fastify.log.info({ email }, "User authenticated via magic link");
 

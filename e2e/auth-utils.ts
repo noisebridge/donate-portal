@@ -11,7 +11,7 @@ export async function setAuthCookie(
   email: string,
   provider: SessionData["provider"],
 ): Promise<void> {
-  const sessionData: SessionData = { email, provider };
+  const sessionData: SessionData = { email, provider, issued: Date.now() };
   const signed = sign(JSON.stringify(sessionData), config.cookieSecret);
 
   await context.addCookies([

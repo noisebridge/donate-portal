@@ -1,15 +1,22 @@
 import type { CookieSerializeOptions } from "@fastify/cookie";
 import type { FastifyReply, FastifyRequest } from "fastify";
+import { z } from "zod";
 import config from "~/config";
 
-export interface SessionData {
-  email: string;
-  provider: "github" | "google" | "magic_link";
-}
+export const SessionDataSchema = z.object({
+  email: z.string(),
+  provider: z.enum(["github", "google", "magic_link"]),
+  issued: z.number(),
+});
 
-export interface OAuthData {
-  state: string;
-}
+export type SessionData = z.infer<typeof SessionDataSchema>;
+
+export const OAuthDataSchema = z.object({
+  state: z.string(),
+  issued: z.number(),
+});
+
+export type OAuthData = z.infer<typeof OAuthDataSchema>;
 
 export enum CookieName {
   GithubOAuthState = "github_oauth_state",
@@ -17,7 +24,7 @@ export enum CookieName {
   UserSession = "user_session",
 }
 
-class SignedCookie<T> {
+class SignedCookie<T extends { issued: number }> {
   static readonly baseOptions: CookieSerializeOptions = {
     secure: config.serverProtocol === "https",
     sameSite: "lax",
@@ -30,27 +37,24 @@ class SignedCookie<T> {
   private readonly reply: FastifyReply;
   private readonly name: CookieName;
   private readonly maxAge: number;
+  private readonly schema: z.ZodType<T>;
 
   constructor(
+    name: CookieName,
+    schema: z.ZodType<T>,
     request: FastifyRequest,
     reply: FastifyReply,
-    name: CookieName,
     maxAge: number,
   ) {
     this.request = request;
     this.reply = reply;
     this.name = name;
     this.maxAge = maxAge;
+    this.schema = schema;
   }
 
   valid(): boolean {
-    const signedValue = this.request.cookies[this.name];
-    if (!signedValue) {
-      return false;
-    }
-
-    const { valid, value } = this.request.unsignCookie(signedValue);
-    return valid && value !== null;
+    return this.value !== null;
   }
 
   get value(): T | null {
@@ -60,10 +64,7 @@ class SignedCookie<T> {
     }
 
     const { valid, value: rawValue } = this.request.unsignCookie(signedValue);
-    if (!valid) {
-      return null;
-    }
-    if (rawValue === null) {
+    if (!valid || rawValue === null) {
       return null;
     }
 
@@ -75,7 +76,18 @@ class SignedCookie<T> {
       return null;
     }
 
-    return parsedValue as T;
+    const result = this.schema.safeParse(parsedValue);
+    if (!result.success) {
+      this.request.log.error(result.error, `Invalid ${this.name} cookie data`);
+      return null;
+    }
+
+    if (Date.now() - result.data.issued > this.maxAge * 1000) {
+      this.clear();
+      return null;
+    }
+
+    return result.data;
   }
 
   set value(newValue: T) {
@@ -92,30 +104,33 @@ class SignedCookie<T> {
 
 export const cookies = {
   [CookieName.UserSession]: (request: FastifyRequest, reply: FastifyReply) =>
-    new SignedCookie<SessionData>(
+    new SignedCookie(
+      CookieName.UserSession,
+      SessionDataSchema,
       request,
       reply,
-      CookieName.UserSession,
       60 * 60 * 24 * 7,
     ),
   [CookieName.GithubOAuthState]: (
     request: FastifyRequest,
     reply: FastifyReply,
   ) =>
-    new SignedCookie<OAuthData>(
+    new SignedCookie(
+      CookieName.GithubOAuthState,
+      OAuthDataSchema,
       request,
       reply,
-      CookieName.GithubOAuthState,
       60 * 10,
     ),
   [CookieName.GoogleOAuthState]: (
     request: FastifyRequest,
     reply: FastifyReply,
   ) =>
-    new SignedCookie<OAuthData>(
+    new SignedCookie(
+      CookieName.GoogleOAuthState,
+      OAuthDataSchema,
       request,
       reply,
-      CookieName.GoogleOAuthState,
       60 * 10,
     ),
 } as const;
