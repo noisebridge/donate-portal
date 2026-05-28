@@ -1,15 +1,13 @@
-import path from "node:path";
-import { fileURLToPath } from "node:url";
 import fastifyCookie from "@fastify/cookie";
 import fastifyCsrf from "@fastify/csrf-protection";
 import createError from "@fastify/error";
 import fastifyFormbody from "@fastify/formbody";
 import fastifyHelmet from "@fastify/helmet";
 import fastifyRateLimit from "@fastify/rate-limit";
-import fastifyStatic from "@fastify/static";
 import fastifyWebsocket from "@fastify/websocket";
 import html from "@kitajs/fastify-html-plugin";
 import Fastify from "fastify";
+import assets from "~/assets";
 import config from "~/config";
 import contentSecurityPolicy from "~/content-security-policy";
 import earlyHints from "~/early-hints";
@@ -75,13 +73,7 @@ if (!config.disableRateLimit) {
   });
 }
 
-fastify.register(fastifyStatic, {
-  root: path.join(path.dirname(fileURLToPath(import.meta.url)), "assets"),
-  prefix: "/assets/",
-  preCompressed: config.production,
-  maxAge: "1y",
-  immutable: true,
-});
+fastify.register(assets);
 
 fastify.register(fastifyWebsocket);
 

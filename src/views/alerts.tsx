@@ -1,6 +1,7 @@
 import { escapeHtml } from "@kitajs/html";
+import { assetPath } from "~/assets";
 import { formatAmount } from "~/money";
-import paths, { assetPath } from "~/paths";
+import paths from "~/paths";
 import type {
   AlertMessage,
   ChargeAlertMessage,

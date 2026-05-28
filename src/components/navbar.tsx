@@ -1,4 +1,5 @@
-import paths, { assetPath } from "~/paths";
+import { assetPath } from "~/assets";
+import paths from "~/paths";
 
 export interface NavbarProps {
   isAuthenticated: boolean;

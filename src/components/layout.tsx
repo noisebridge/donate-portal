@@ -1,6 +1,6 @@
 import type { PropsWithChildren } from "@kitajs/html";
+import { assetPath, importMapJson } from "~/assets";
 import config from "~/config";
-import { assetPath, importMapJson } from "~/paths";
 import { Navbar } from "./navbar";
 
 const githubUrl =
