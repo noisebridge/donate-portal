@@ -1,5 +1,9 @@
 import { describe, expect, test } from "bun:test";
-import { mergePolicies, type PolicyEntry } from "./content-security-policy";
+import {
+  buildHeader,
+  mergePolicies,
+  type PolicyEntry,
+} from "./content-security-policy";
 
 describe("mergePolicies", () => {
   test("returns empty object for no entries", () => {
@@ -62,5 +66,34 @@ describe("mergePolicies", () => {
       { "frame-src": ["'none'"] },
     ]);
     expect(result["frame-src"]).toEqual(["'none'"]);
+  });
+});
+
+describe("buildHeader", () => {
+  test("formats a single directive with one source", () => {
+    expect(buildHeader([{ "script-src": ["'self'"] }])).toBe(
+      "script-src 'self'",
+    );
+  });
+
+  test("joins multiple sources with spaces", () => {
+    expect(
+      buildHeader([{ "script-src": ["'self'", "https://cdn.example.com"] }]),
+    ).toBe("script-src 'self' https://cdn.example.com");
+  });
+
+  test("joins multiple directives with semicolons", () => {
+    const header = buildHeader([
+      { "script-src": ["'self'"], "img-src": ["'self'"] },
+    ]);
+    expect(header).toBe("script-src 'self'; img-src 'self'");
+  });
+
+  test("merges entries before formatting", () => {
+    const header = buildHeader([
+      { "script-src": ["'self'"] },
+      { "script-src": ["https://cdn.example.com"] },
+    ]);
+    expect(header).toBe("script-src 'self' https://cdn.example.com");
   });
 });

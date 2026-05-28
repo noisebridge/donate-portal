@@ -47,9 +47,9 @@ fastify.register(fastifyCsrf, {
   },
 });
 
-fastify.register(fastifyHelmet, {
-  contentSecurityPolicy,
-});
+fastify.register(fastifyHelmet, { contentSecurityPolicy: false });
+
+fastify.register(contentSecurityPolicy);
 
 fastify.register(permissionsPolicy);
 

@@ -6,7 +6,7 @@
  * allowlists.
  */
 
-import type { FastifyHelmetOptions } from "@fastify/helmet";
+import fp from "fastify-plugin";
 import paths, { importMapCspHash } from "~/paths";
 
 const directives = [
@@ -97,16 +97,27 @@ const ledControllerPolicy: PolicyEntry = {
   "connect-src": ["http://localhost:3000"],
 };
 
-type FastifyCsp = NonNullable<FastifyHelmetOptions["contentSecurityPolicy"]>;
+export function buildHeader(entries: PolicyEntry[]): string {
+  const merged = mergePolicies(entries);
+  return Object.entries(merged)
+    .map(([k, sources]) => `${k} ${sources.join(" ")}`)
+    .join("; ");
+}
 
-const contentSecurityPolicy: FastifyCsp = {
-  directives: mergePolicies([
-    basePolicy,
-    sitePolicy,
-    stripePolicy,
-    ledControllerPolicy,
-  ]),
-  useDefaults: false,
-};
+const cspHeader = buildHeader([
+  basePolicy,
+  sitePolicy,
+  stripePolicy,
+  ledControllerPolicy,
+]);
 
-export default contentSecurityPolicy;
+export default fp(async (fastify) => {
+  fastify.addHook("onSend", async (_request, reply, payload) => {
+    const contentType = reply.getHeader("content-type");
+    if (contentType?.toString().includes("text/html")) {
+      reply.header("Content-Security-Policy", cspHeader);
+    }
+
+    return payload;
+  });
+});

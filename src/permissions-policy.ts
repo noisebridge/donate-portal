@@ -72,7 +72,12 @@ export function buildHeader(entries: PolicyEntry[]): string {
 const permissionsPolicyHeader = buildHeader([basePolicy, stripePolicy]);
 
 export default fp(async (fastify) => {
-  fastify.addHook("onSend", async (_request, reply) => {
-    reply.header("Permissions-Policy", permissionsPolicyHeader);
+  fastify.addHook("onSend", async (_request, reply, payload) => {
+    const contentType = reply.getHeader("content-type");
+    if (contentType?.toString().includes("text/html")) {
+      reply.header("Permissions-Policy", permissionsPolicyHeader);
+    }
+
+    return payload;
   });
 });
