@@ -48,10 +48,7 @@ export function Layout({
           <meta property="og:type" content="website" />
           <meta property="og:locale" content="en_US" />
           <meta property="og:site_name" content="Noisebridge" />
-          <meta
-            property="og:title"
-            content={`${title} | Noisebridge` as "safe"}
-          />
+          <meta property="og:title" content={`${title} | Noisebridge`} />
           <meta property="og:description" content={description} />
           <meta
             property="og:image"
@@ -59,10 +56,7 @@ export function Layout({
           />
 
           <meta name="twitter:card" content="summary" />
-          <meta
-            name="twitter:title"
-            content={`${title} | Noisebridge` as "safe"}
-          />
+          <meta name="twitter:title" content={`${title} | Noisebridge`} />
           <meta name="twitter:description" content={description} />
           <meta
             name="twitter:image"

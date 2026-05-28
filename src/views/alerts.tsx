@@ -147,11 +147,9 @@ export function AlertsPage({ alerts }: AlertsPageProps) {
                 data-amount={latestAmountCents.toString()}
               >
                 {amountDisplayText(latest) as "safe"}
-                {
-                  (latest?.type === "charge_alert" && isNice(latest.amount) && (
-                    <NiceBadge />
-                  )) as "safe"
-                }
+                {latest?.type === "charge_alert" && isNice(latest.amount) && (
+                  <NiceBadge />
+                )}
               </p>
               <p id="alert-product" class="alert-product">
                 {latest

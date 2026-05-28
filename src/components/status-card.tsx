@@ -10,7 +10,7 @@ export function StatusCard({ icon, title, children }: StatusCardProps) {
   return (
     <div class="container-narrow">
       <div class="card text-center">
-        <div class="page-icon-wrapper">{icon as "safe"}</div>
+        <div class="page-icon-wrapper">{icon}</div>
 
         <h1 class="page-title">{escapeHtml(title)}</h1>
 

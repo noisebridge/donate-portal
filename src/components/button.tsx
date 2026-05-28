@@ -40,7 +40,7 @@ export function Button({
     <>
       {!!icon && (
         <span class="btn-icon" aria-hidden="true">
-          {icon as "safe"}
+          {icon}
         </span>
       )}
       <span>{children}</span>
