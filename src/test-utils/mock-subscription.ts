@@ -31,6 +31,7 @@ export function createMockSubscription(
       flexible: null,
     },
     billing_thresholds: null,
+    billing_schedules: [],
     cancel_at: null,
     cancel_at_period_end: false,
     canceled_at: null,
