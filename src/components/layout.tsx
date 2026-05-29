@@ -1,6 +1,7 @@
 import type { PropsWithChildren } from "@kitajs/html";
-import { assetPath, importMapJson } from "~/assets";
 import config from "~/config";
+import { importMapJson } from "~/import-map";
+import paths from "~/paths";
 import { Navbar } from "./navbar";
 
 const githubUrl =
@@ -52,7 +53,7 @@ export function Layout({
           <meta property="og:description" content={description} />
           <meta
             property="og:image"
-            content={`${config.baseUrl}${assetPath("image/logo.svg")}`}
+            content={`${config.baseUrl}${paths.assetWithHash("image/logo.svg")}`}
           />
 
           <meta name="twitter:card" content="summary" />
@@ -60,27 +61,33 @@ export function Layout({
           <meta name="twitter:description" content={description} />
           <meta
             name="twitter:image"
-            content={`${config.baseUrl}${assetPath("image/logo.svg")}`}
+            content={`${config.baseUrl}${paths.assetWithHash("image/logo.svg")}`}
           />
 
-          <link rel="icon" href={assetPath("image/favicon.svg")} />
+          <link rel="icon" href={paths.assetWithHash("image/favicon.svg")} />
           {/**
            * Hide all content initially. This style is reset at the end of
            * main.css to prevent a flash-of-unstyled-content.
            */}
           <style>{"html { visibility: hidden; opacity: 0; }"}</style>
-          <link rel="stylesheet" href={assetPath("css/reset.css")} />
-          <link rel="stylesheet" href={assetPath("css/main.css")} />
+          <link rel="stylesheet" href={paths.assetWithHash("css/reset.css")} />
+          <link rel="stylesheet" href={paths.assetWithHash("css/main.css")} />
           {!!styles && (
-            <link rel="stylesheet" href={assetPath(`css/${styles}`)} />
+            <link
+              rel="stylesheet"
+              href={paths.assetWithHash(`css/${styles}`)}
+            />
           )}
           <script type="importmap">{importMapJson}</script>
           <script
             type="module"
-            src={assetPath("js/util/error-reporting.mjs")}
+            src={paths.assetWithHash("js/util/error-reporting.mjs")}
           ></script>
           {!!script && (
-            <script type="module" src={assetPath(`js/${script}`)}></script>
+            <script
+              type="module"
+              src={paths.assetWithHash(`js/${script}`)}
+            ></script>
           )}
         </head>
         <body>

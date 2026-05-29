@@ -1,4 +1,3 @@
-import { assetPath } from "~/assets";
 import { Button } from "~/components/button";
 import { Layout } from "~/components/layout";
 import { StatusCard } from "~/components/status-card";
@@ -20,7 +19,7 @@ export function ThankYouPage({ isAuthenticated, csrfToken }: ThankYouProps) {
         icon={
           <img
             class="page-icon"
-            src={assetPath("image/checkmark.svg")}
+            src={paths.assetWithHash("image/checkmark.svg")}
             alt="Success checkmark"
           />
         }

@@ -5,7 +5,6 @@ import { fileURLToPath } from "node:url";
 import fastifyStatic from "@fastify/static";
 import fp from "fastify-plugin";
 import config from "~/config";
-import type { ImportMap, ModuleSpecifierMap } from "./types/import-map";
 
 const assetsDir = nodePath.join(
   nodePath.dirname(fileURLToPath(import.meta.url)),
@@ -36,36 +35,10 @@ function computeAssetHashes(dir: string): Map<string, string> {
   return hashes;
 }
 
-const assetHashes = computeAssetHashes(assetsDir);
-
-function generateImportMap(): ImportMap {
-  const imports: ModuleSpecifierMap = {};
-
-  for (const [assetPath, hash] of assetHashes.entries()) {
-    if (!assetPath.endsWith(".mjs")) {
-      continue;
-    }
-
-    imports[`/assets/${assetPath}`] = `/assets/${assetPath}?v=${hash}`;
-  }
-
-  return { imports };
-}
-
-const importMap = generateImportMap();
-export const importMapJson = JSON.stringify(importMap);
-export const importMapCspHash =
-  `'sha256-${createHash("sha256").update(importMapJson).digest("base64")}'` as const;
-
-export function assetPath(filePath: string): string {
-  const path = `/assets/${filePath}`;
-  const hash = assetHashes.get(filePath);
-  if (!hash) {
-    return path;
-  }
-
-  return `${path}?v=${hash}`;
-}
+/**
+ * Map from file paths (relative to `/assets`) to truncated content hashes.
+ */
+export const assetHashes = computeAssetHashes(assetsDir);
 
 export default fp(async (fastify) => {
   fastify.register(fastifyStatic, {

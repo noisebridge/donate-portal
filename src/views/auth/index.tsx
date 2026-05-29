@@ -1,4 +1,3 @@
-import { assetPath } from "~/assets";
 import { Button } from "~/components/button";
 import { Layout } from "~/components/layout";
 import { type Message, MessageContainer } from "~/components/message-container";
@@ -51,7 +50,7 @@ export function AuthPage({
                 href={paths.googleStart()}
                 icon={
                   <img
-                    src={assetPath("image/google.svg")}
+                    src={paths.assetWithHash("image/google.svg")}
                     alt=""
                     width="18"
                     height="18"
@@ -67,7 +66,7 @@ export function AuthPage({
                 href={paths.githubStart()}
                 icon={
                   <img
-                    src={assetPath("image/github.svg")}
+                    src={paths.assetWithHash("image/github.svg")}
                     alt=""
                     width="18"
                     height="18"

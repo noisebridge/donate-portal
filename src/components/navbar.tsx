@@ -1,4 +1,3 @@
-import { assetPath } from "~/assets";
 import paths from "~/paths";
 
 export interface NavbarProps {
@@ -12,7 +11,7 @@ export function Navbar({ isAuthenticated, csrfToken }: NavbarProps) {
       <div class="navbar-content">
         <a href={paths.index()} class="brand">
           <img
-            src={assetPath("image/logo.svg")}
+            src={paths.assetWithHash("image/logo.svg")}
             alt="Noisebridge logo"
             class="brand-logo"
           />

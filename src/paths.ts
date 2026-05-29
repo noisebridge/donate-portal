@@ -1,3 +1,4 @@
+import { assetHashes } from "./assets";
 import type { ErrorCodeKey, InfoCodeKey } from "./error-codes";
 import type { Cents } from "./types/cents";
 
@@ -164,6 +165,15 @@ const paths = {
    * `/healthz`
    */
   healthz: () => "/healthz",
+  /**
+   * `/assets/:filePath`
+   */
+  asset: (filePath: string) => `/assets/${filePath}`,
+  /**
+   * `/assets/:filePath?v=$hash`
+   */
+  assetWithHash: (filePath: string) =>
+    formatPath(`/assets/${filePath}`, { v: assetHashes.get(filePath) }),
 } as const satisfies Record<string, FunctionReturnsString>;
 
 export default paths;

@@ -1,5 +1,5 @@
 import { escapeHtml } from "@kitajs/html";
-import { assetPath } from "~/assets";
+import { importMapJson } from "~/import-map";
 import { formatAmount } from "~/money";
 import paths from "~/paths";
 import type {
@@ -111,19 +111,19 @@ export function AlertsPage({ alerts }: AlertsPageProps) {
             content="width=device-width, initial-scale=1.0"
           />
           <title>Donation Alerts | Noisebridge</title>
-          <link rel="icon" href={assetPath("image/favicon.svg")} />
-          <link rel="stylesheet" href={assetPath("css/reset.css")} />
-          <link rel="stylesheet" href={assetPath("css/alerts.css")} />
+          <link rel="icon" href={paths.assetWithHash("image/favicon.svg")} />
+          <link rel="stylesheet" href={paths.assetWithHash("css/reset.css")} />
+          <link rel="stylesheet" href={paths.assetWithHash("css/alerts.css")} />
           <link
             rel="preload"
-            href={assetPath("font/bitcount/bitcount-latin.woff2")}
+            href={paths.asset("font/bitcount/bitcount-latin.woff2")}
             as="font"
             type="font/woff2"
             crossorigin=""
           />
           <link
             rel="preload"
-            href={assetPath("font/bitcount/bitcount-latin-ext.woff2")}
+            href={paths.asset("font/bitcount/bitcount-latin-ext.woff2")}
             as="font"
             type="font/woff2"
             crossorigin=""
@@ -131,11 +131,15 @@ export function AlertsPage({ alerts }: AlertsPageProps) {
           <script id="current-charge" type="application/json">
             {JSON.stringify(latest ?? null)}
           </script>
+          <script type="importmap">{importMapJson}</script>
           <script
             type="module"
-            src={assetPath("js/util/error-reporting.mjs")}
+            src={paths.assetWithHash("js/util/error-reporting.mjs")}
           ></script>
-          <script type="module" src={assetPath("js/alerts.mjs")}></script>
+          <script
+            type="module"
+            src={paths.assetWithHash("js/alerts.mjs")}
+          ></script>
         </head>
         <body>
           <div class="alerts-layout">
@@ -185,43 +189,43 @@ export function AlertsPage({ alerts }: AlertsPageProps) {
           <canvas id="banner-canvas"></canvas>
           <img
             id="snoop-img"
-            src={assetPath("image/snoop.apng")}
+            src={paths.assetWithHash("image/snoop.apng")}
             alt=""
             class="snoop-img"
           />
           <img
             id="arnold-img"
-            src={assetPath("image/arnold.png")}
+            src={paths.assetWithHash("image/arnold.png")}
             alt=""
             class="arnold-img"
           />
           <img
             id="eagle-img"
-            src={assetPath("image/eagle.png")}
+            src={paths.assetWithHash("image/eagle.png")}
             alt=""
             class="eagle-img"
           />
           <img
             id="dolphin-fly-0"
-            src={assetPath("image/dolphin-back.png")}
+            src={paths.assetWithHash("image/dolphin-back.png")}
             alt=""
             class="dolphin-fly"
           />
           <img
             id="dolphin-fly-1"
-            src={assetPath("image/dolphin-back.png")}
+            src={paths.assetWithHash("image/dolphin-back.png")}
             alt=""
             class="dolphin-fly"
           />
           <img
             id="dolphin-fly-2"
-            src={assetPath("image/dolphin-back.png")}
+            src={paths.assetWithHash("image/dolphin-back.png")}
             alt=""
             class="dolphin-fly"
           />
           <img
             id="dolphin-fly-3"
-            src={assetPath("image/dolphin-back.png")}
+            src={paths.assetWithHash("image/dolphin-back.png")}
             alt=""
             class="dolphin-fly"
           />
