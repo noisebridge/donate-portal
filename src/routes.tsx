@@ -15,10 +15,10 @@ import paths, { type MessageParams } from "~/lib/paths";
 import { CookieName, cookies } from "~/lib/signed-cookies";
 import chargeAlertManager from "~/managers/charge-alert";
 import donationManager, { DonationManager } from "~/managers/donation";
+import emailManager from "~/managers/email";
 import magicLinkManager from "~/managers/magic-link";
 import qrCodeManager from "~/managers/qr-code";
 import subscriptionManager from "~/managers/subscription";
-import emailService from "~/services/email";
 import errorReportingService, {
   validateCspReport,
   validateSentryEvent,
@@ -361,12 +361,12 @@ export default async function routes(fastify: FastifyInstance) {
         return reply.redirect(paths.signIn({ error: "InvalidRequest" }));
       }
 
-      if (!emailService.isValidEmail(email)) {
+      if (!emailManager.isValidEmail(email)) {
         fastify.log.warn({ email }, "Invalid email format");
         return reply.redirect(paths.signIn({ error: "EmailInvalid" }));
       }
 
-      const response = await emailService.sendMagicLinkEmail(email);
+      const response = await emailManager.sendMagicLinkEmail(email);
       if (!response.success) {
         fastify.log.error(
           { email, error: response.error },

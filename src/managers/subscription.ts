@@ -3,7 +3,7 @@ import config from "~/config";
 import type { ErrorCodeKey } from "~/lib/error-codes";
 import baseLogger from "~/lib/logger";
 import paths from "~/lib/paths";
-import emailService from "~/services/email";
+import emailManager from "~/managers/email";
 import stripe from "~/services/stripe";
 import type { Cents } from "~/types/cents";
 
@@ -194,7 +194,7 @@ export class SubscriptionManager {
     }
 
     const amountCents = this.subscriptionAmount(subscription);
-    const emailResult = await emailService.sendSubscriptionCanceledEmail(
+    const emailResult = await emailManager.sendSubscriptionCanceledEmail(
       email,
       amountCents,
     );
@@ -270,7 +270,7 @@ export class SubscriptionManager {
       return;
     }
 
-    const emailResult = await emailService.sendSubscriptionWelcomeEmail(email, {
+    const emailResult = await emailManager.sendSubscriptionWelcomeEmail(email, {
       cents: amountCents,
     });
     if (!emailResult.success) {
@@ -297,7 +297,7 @@ export class SubscriptionManager {
     if (this.changedToPastDue(subscription, previousAttributes)) {
       // Handle subscription becoming past due
       const amount = this.subscriptionAmount(subscription);
-      const emailResult = await emailService.sendSubscriptionPastDueEmail(
+      const emailResult = await emailManager.sendSubscriptionPastDueEmail(
         customer.email,
         amount,
       );
@@ -320,7 +320,7 @@ export class SubscriptionManager {
       }
 
       if (previousAmount.cents !== currentAmount.cents) {
-        const emailResult = await emailService.sendSubscriptionUpdatedEmail(
+        const emailResult = await emailManager.sendSubscriptionUpdatedEmail(
           customer.email,
           previousAmount,
           currentAmount,
