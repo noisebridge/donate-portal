@@ -1,5 +1,5 @@
 import mjml2html from "mjml";
-import baseLogger from "~/logger";
+import baseLogger from "~/lib/logger";
 
 export async function Layout(title: string, contents: string): Promise<string> {
   const mjml = `

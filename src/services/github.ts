@@ -1,6 +1,6 @@
 import config from "~/config";
-import baseLogger from "~/logger";
-import paths from "~/paths";
+import baseLogger from "~/lib/logger";
+import paths from "~/lib/paths";
 
 const userAgent = "NoisebridgeDonorPortal";
 const fetchTimeoutMs = 10_000;

@@ -1,7 +1,7 @@
 import type { PropsWithChildren } from "@kitajs/html";
 import config from "~/config";
-import { importMapJson } from "~/import-map";
-import paths from "~/paths";
+import { importMapJson } from "~/lib/import-map";
+import paths from "~/lib/paths";
 import { Navbar } from "./navbar";
 
 const githubUrl =

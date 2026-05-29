@@ -1,5 +1,5 @@
 import fp from "fastify-plugin";
-import paths from "~/paths";
+import paths from "./paths";
 
 const links = [
   `<${paths.assetWithHash("css/reset.css")}>; rel=preload; as=style`,

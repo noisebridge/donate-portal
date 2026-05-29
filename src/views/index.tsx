@@ -3,8 +3,8 @@ import { Layout } from "~/components/layout";
 import { type Message, MessageContainer } from "~/components/message-container";
 import { SectionHead } from "~/components/section-head";
 import { StripeCheckoutModal } from "~/components/stripe-checkout-modal";
+import paths from "~/lib/paths";
 import { DonationManager } from "~/managers/donation";
-import paths from "~/paths";
 
 export interface IndexProps {
   isAuthenticated: boolean;

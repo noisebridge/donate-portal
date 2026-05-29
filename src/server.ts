@@ -7,12 +7,12 @@ import fastifyRateLimit from "@fastify/rate-limit";
 import fastifyWebsocket from "@fastify/websocket";
 import html from "@kitajs/fastify-html-plugin";
 import Fastify from "fastify";
-import assets from "~/assets";
 import config from "~/config";
-import contentSecurityPolicy from "~/content-security-policy";
-import earlyHints from "~/early-hints";
-import baseLogger from "~/logger";
-import permissionsPolicy from "~/permissions-policy";
+import assets from "~/lib/assets";
+import contentSecurityPolicy from "~/lib/content-security-policy";
+import earlyHints from "~/lib/early-hints";
+import baseLogger from "~/lib/logger";
+import permissionsPolicy from "~/lib/permissions-policy";
 import routes from "~/routes";
 import errorReportingService from "~/services/error-reporting";
 

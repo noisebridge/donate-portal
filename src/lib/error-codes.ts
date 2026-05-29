@@ -1,5 +1,5 @@
-import type { MessageParams } from "./paths";
-import type { Message } from "./types/message";
+import type { MessageParams } from "~/lib/paths";
+import type { Message } from "~/types/message";
 
 export enum ErrorCode {
   InvalidState = "Invalid OAuth state parameter",

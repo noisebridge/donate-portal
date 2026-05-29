@@ -1,6 +1,6 @@
 import config from "~/config";
-import { formatAmount } from "~/money";
-import paths from "~/paths";
+import { formatAmount } from "~/lib/money";
+import paths from "~/lib/paths";
 import type { Cents } from "~/types/cents";
 import { Layout } from "./layout";
 

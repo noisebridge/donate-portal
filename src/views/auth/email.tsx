@@ -1,7 +1,7 @@
 import { escapeHtml } from "@kitajs/html";
 import { Layout } from "~/components/layout";
 import { StatusCard } from "~/components/status-card";
-import paths from "~/paths";
+import paths from "~/lib/paths";
 
 export interface AuthEmailProps {
   email: string;

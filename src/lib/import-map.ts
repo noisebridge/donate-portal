@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
-import { assetHashes } from "~/assets";
-import paths from "~/paths";
+import { assetHashes } from "./assets";
+import paths from "./paths";
 
 /**
  * Maps module specifiers to resolvable URLs.

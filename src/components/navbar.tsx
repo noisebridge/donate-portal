@@ -1,4 +1,4 @@
-import paths from "~/paths";
+import paths from "~/lib/paths";
 
 export interface NavbarProps {
   isAuthenticated: boolean;

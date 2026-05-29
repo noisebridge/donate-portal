@@ -1,7 +1,7 @@
 import { Button } from "~/components/button";
 import { Layout } from "~/components/layout";
 import { StatusCard } from "~/components/status-card";
-import paths from "~/paths";
+import paths from "~/lib/paths";
 
 export interface ThankYouProps {
   isAuthenticated: boolean;

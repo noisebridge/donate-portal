@@ -5,7 +5,7 @@ import { SubscriptionCanceledEmail } from "~/emails/subscription-canceled";
 import { SubscriptionPastDueEmail } from "~/emails/subscription-past-due";
 import { SubscriptionUpdatedEmail } from "~/emails/subscription-updated";
 import { SubscriptionWelcomeEmail } from "~/emails/subscription-welcome";
-import baseLogger from "~/logger";
+import baseLogger from "~/lib/logger";
 import magicLinkManager from "~/managers/magic-link";
 import type { Cents } from "~/types/cents";
 

@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { formatAmount } from "~/money";
+import { formatAmount } from "~/lib/money";
 import { QrPage } from "./qr";
 
 describe("QrPage", () => {

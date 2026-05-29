@@ -3,9 +3,9 @@ import { Layout } from "~/components/layout";
 import { PageHead } from "~/components/page-head";
 import { SectionHead } from "~/components/section-head";
 import config from "~/config";
+import { formatAmount } from "~/lib/money";
+import paths from "~/lib/paths";
 import { DonationManager } from "~/managers/donation";
-import { formatAmount } from "~/money";
-import paths from "~/paths";
 
 function DownloadSVG() {
   return (

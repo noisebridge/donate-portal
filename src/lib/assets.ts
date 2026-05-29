@@ -8,6 +8,7 @@ import config from "~/config";
 
 const assetsDir = nodePath.join(
   nodePath.dirname(fileURLToPath(import.meta.url)),
+  "..",
   "assets",
 );
 

@@ -1,7 +1,7 @@
 import { escapeHtml } from "@kitajs/html";
-import { importMapJson } from "~/import-map";
-import { formatAmount } from "~/money";
-import paths from "~/paths";
+import { importMapJson } from "~/lib/import-map";
+import { formatAmount } from "~/lib/money";
+import paths from "~/lib/paths";
 import type {
   AlertMessage,
   ChargeAlertMessage,

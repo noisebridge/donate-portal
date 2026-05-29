@@ -1,7 +1,7 @@
 import { Button } from "~/components/button";
 import { Layout } from "~/components/layout";
 import { type Message, MessageContainer } from "~/components/message-container";
-import paths from "~/paths";
+import paths from "~/lib/paths";
 
 export interface AuthProps {
   isAuthenticated: boolean;

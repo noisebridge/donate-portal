@@ -1,5 +1,5 @@
 import config from "~/config";
-import { formatAmount } from "~/money";
+import { formatAmount } from "~/lib/money";
 import type { Cents } from "~/types/cents";
 import { Layout } from "./layout";
 

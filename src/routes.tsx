@@ -8,14 +8,16 @@ import type {
 } from "fastify";
 import type Stripe from "stripe";
 import config from "~/config";
-import { ErrorCode, formatMessages } from "~/error-codes";
+import { ErrorCode, formatMessages } from "~/lib/error-codes";
+import baseLogger from "~/lib/logger";
+import { parseToCents, validateAmountFormData } from "~/lib/money";
+import paths, { type MessageParams } from "~/lib/paths";
+import { CookieName, cookies } from "~/lib/signed-cookies";
 import chargeAlertManager from "~/managers/charge-alert";
 import donationManager, { DonationManager } from "~/managers/donation";
 import magicLinkManager from "~/managers/magic-link";
 import qrCodeManager from "~/managers/qr-code";
 import subscriptionManager from "~/managers/subscription";
-import { parseToCents, validateAmountFormData } from "~/money";
-import paths, { type MessageParams } from "~/paths";
 import emailService from "~/services/email";
 import errorReportingService, {
   validateCspReport,
@@ -24,7 +26,6 @@ import errorReportingService, {
 import githubOAuth from "~/services/github";
 import googleOAuth from "~/services/google";
 import stripe from "~/services/stripe";
-import { CookieName, cookies } from "~/signed-cookies";
 import { AlertsPage } from "~/views/alerts";
 import { AuthPage } from "~/views/auth";
 import { AuthEmailPage } from "~/views/auth/email";
@@ -36,7 +37,6 @@ import { QrPage } from "~/views/qr";
 import { QrCustomPage } from "~/views/qr-custom";
 import { QrEditorPage } from "~/views/qr-editor";
 import { ThankYouPage } from "~/views/thank-you";
-import baseLogger from "./logger";
 
 function conditionalRateLimit(
   max: number,

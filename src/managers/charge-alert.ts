@@ -8,7 +8,7 @@ import {
   TextCensor,
 } from "obscenity";
 import type Stripe from "stripe";
-import baseLogger from "~/logger";
+import baseLogger from "~/lib/logger";
 import stripe from "~/services/stripe";
 import type {
   AlertMessage,

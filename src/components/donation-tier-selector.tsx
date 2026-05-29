@@ -1,7 +1,7 @@
 import type Stripe from "stripe";
 import { Button } from "~/components/button";
+import paths from "~/lib/paths";
 import { SubscriptionManager } from "~/managers/subscription";
-import paths from "~/paths";
 
 export interface Tier {
   id: string;

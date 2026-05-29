@@ -1,7 +1,7 @@
 import { sign } from "@fastify/cookie";
 import type { BrowserContext } from "@playwright/test";
 import config from "~/config";
-import { CookieName, type SessionData } from "~/signed-cookies";
+import { CookieName, type SessionData } from "~/lib/signed-cookies";
 
 /**
  * Set a signed session cookie on the browser context to authenticate.

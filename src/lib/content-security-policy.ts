@@ -7,8 +7,8 @@
  */
 
 import fp from "fastify-plugin";
-import { importMapCspHash } from "~/import-map";
-import paths from "~/paths";
+import { importMapCspHash } from "./import-map";
+import paths from "./paths";
 
 const directives = [
   "default-src",

@@ -10,8 +10,8 @@ import { type Message, MessageContainer } from "~/components/message-container";
 import { PageHead } from "~/components/page-head";
 import { SectionHead } from "~/components/section-head";
 import { StripeCheckoutModal } from "~/components/stripe-checkout-modal";
-import { formatAmount } from "~/money";
-import paths from "~/paths";
+import { formatAmount } from "~/lib/money";
+import paths from "~/lib/paths";
 
 export interface ManageProps {
   email: string;

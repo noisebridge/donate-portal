@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import config from "~/config";
-import paths from "~/paths";
+import paths from "~/lib/paths";
 import { MagicLinkManager } from "./magic-link";
 
 /**

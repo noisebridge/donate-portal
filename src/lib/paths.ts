@@ -1,6 +1,6 @@
+import type { Cents } from "~/types/cents";
 import { assetHashes } from "./assets";
 import type { ErrorCodeKey, InfoCodeKey } from "./error-codes";
-import type { Cents } from "./types/cents";
 
 export interface MessageParams {
   error?: ErrorCodeKey;

@@ -1,4 +1,4 @@
-import type { ErrorCodeKey } from "~/error-codes";
+import type { ErrorCodeKey } from "~/lib/error-codes";
 import stripe from "~/services/stripe";
 import type { Cents } from "~/types/cents";
 

@@ -11,7 +11,7 @@ process.env["NODE_ENV"] = "production";
 
 const { QRCodeManager } = await import("~/managers/qr-code");
 const { default: config } = await import("~/config");
-const { default: paths } = await import("~/paths");
+const { default: paths } = await import("~/lib/paths");
 
 // --- String helpers ---
 
