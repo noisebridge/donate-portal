@@ -83,7 +83,7 @@ class ErrorReportingService {
   async reportCspViolation({
     "csp-report": report,
   }: CspReport): Promise<boolean> {
-    if (report["source-file"] === "user-script") {
+    if (!this.recordViolation(report)) {
       ErrorReportingService.log.debug(
         { report },
         "Ignoring CSP violation from user script",
@@ -122,6 +122,10 @@ class ErrorReportingService {
       ? ` by ${report["blocked-uri"]}`
       : "";
 
+    const documentUri = report["document-uri"]
+      ? report["document-uri"].split("?")[0]
+      : "Unknown";
+
     const event: SentryEvent = {
       timestamp: new Date().toISOString(),
       platform: "javascript",
@@ -130,7 +134,7 @@ class ErrorReportingService {
         values: [
           {
             type: "CSPViolation",
-            value: `Blocked ${directive}${blockedPart} on ${report["document-uri"]}`,
+            value: `Blocked ${directive}${blockedPart} on ${documentUri}`,
             stacktrace: { frames },
           },
         ],
@@ -139,6 +143,22 @@ class ErrorReportingService {
     };
 
     return await this.forward(config.frontendDSN, event);
+  }
+
+  private recordViolation(report: CspReport["csp-report"]): boolean {
+    const sourceFile = report["source-file"];
+    if (!sourceFile) {
+      return true;
+    }
+
+    if (
+      sourceFile.startsWith("chrome-extension") ||
+      sourceFile.startsWith("user-script")
+    ) {
+      return false;
+    }
+
+    return true;
   }
 
   private parseError(error: Error): SentryException {
