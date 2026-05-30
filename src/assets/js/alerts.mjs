@@ -62,13 +62,21 @@ let activeEffect = null;
  * @returns {keyof typeof effects}
  */
 function effectForAlert(alert) {
-  if (alert.type === "charge_alert") {
-    if (MERICA_AMOUNTS.includes(alert.amount.cents)) return "merica";
-    if (DOLPHIN_AMOUNTS.includes(alert.amount.cents)) return "dolphin";
-    if (SNOOP_AMOUNTS.includes(alert.amount.cents)) return "snoop";
-    if (HACKER_AMOUNTS.includes(alert.amount.cents)) return "matrix";
+  if (alert.type === "member_alert") {
+    return "confetti";
   }
-  return "confetti";
+
+  if (MERICA_AMOUNTS.includes(alert.amount.cents)) {
+    return "merica";
+  } else if (DOLPHIN_AMOUNTS.includes(alert.amount.cents)) {
+    return "dolphin";
+  } else if (SNOOP_AMOUNTS.includes(alert.amount.cents)) {
+    return "snoop";
+  } else if (HACKER_AMOUNTS.includes(alert.amount.cents)) {
+    return "matrix";
+  } else {
+    return "confetti";
+  }
 }
 
 /**
