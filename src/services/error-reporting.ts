@@ -97,14 +97,20 @@ class ErrorReportingService {
     const tags: Record<string, string> = {
       "csp.directive": directive,
     };
+
     if (config.gitCommit) {
       tags["commit"] = config.gitCommit;
     }
-    if (report["blocked-uri"]) {
-      tags["csp.blocked_uri"] = report["blocked-uri"];
+
+    for (const [key, value] of Object.entries(report)) {
+      if (value == null) {
+        continue;
+      }
+
+      tags[`csp.${key.replace(/-/g, "_")}`] = String(value);
     }
+
     if (report["document-uri"]) {
-      tags["csp.document_uri"] = report["document-uri"];
       tags["url"] = report["document-uri"];
     }
 
@@ -187,12 +193,12 @@ class ErrorReportingService {
     };
   }
 
-  private storeUrl(dsn: URL): string {
+  private storeUrl(dsn: URL): URL {
     const url = new URL(`https://${dsn.host}`);
     url.pathname = `/api/${dsn.pathname.slice(1)}/store/`;
     url.searchParams.set("sentry_key", dsn.username);
 
-    return url.toString();
+    return url;
   }
 
   async forward(dsn: URL, event: SentryEvent): Promise<boolean> {
