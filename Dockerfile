@@ -13,7 +13,7 @@ COPY tsconfig.json jsconfig.json tsconfig.base.json ./
 
 # Pre-compress static assets for @fastify/static (brotli + gzip)
 RUN apk add --no-cache brotli gzip \
- && find src/assets -type f \
+ && find src/assets -type f -regex '.*\.\(mjs\|css\|svg\)' \
       -exec brotli --best {} \; \
       -exec gzip --best --keep {} \;
 
