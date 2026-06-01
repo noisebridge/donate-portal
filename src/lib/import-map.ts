@@ -1,4 +1,3 @@
-import { createHash } from "node:crypto";
 import { assetHashes } from "./assets";
 import paths from "./paths";
 
@@ -42,5 +41,3 @@ function generateImportMap(): ImportMap {
 
 const importMap = generateImportMap();
 export const importMapJson = JSON.stringify(importMap);
-export const importMapCspHash =
-  `'sha256-${createHash("sha256").update(importMapJson).digest("base64")}'` as const;

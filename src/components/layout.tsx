@@ -12,6 +12,8 @@ const githubUrl =
 const description =
   "Support Noisebridge, San Francisco's anarchist hackerspace. Donate to help keep the space open and accessible to all.";
 
+export const layoutStyleBody = "html { visibility: hidden; opacity: 0; }";
+
 export type LayoutProps = PropsWithChildren<{
   title: string;
   description?: string;
@@ -69,7 +71,7 @@ export function Layout({
            * Hide all content initially. This style is reset at the end of
            * main.css to prevent a flash-of-unstyled-content.
            */}
-          <style>{"html { visibility: hidden; opacity: 0; }"}</style>
+          <style>{layoutStyleBody}</style>
           <link rel="stylesheet" href={paths.assetWithHash("css/reset.css")} />
           <link rel="stylesheet" href={paths.assetWithHash("css/main.css")} />
           {!!styles && (

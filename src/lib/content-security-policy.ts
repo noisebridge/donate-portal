@@ -6,9 +6,17 @@
  * allowlists.
  */
 
+import { createHash } from "node:crypto";
 import fp from "fastify-plugin";
-import { importMapCspHash } from "./import-map";
+import { layoutStyleBody } from "~/components/layout";
+import { qrBackground, qrForeground } from "~/managers/qr-code";
+import { importMapJson } from "./import-map";
 import paths from "./paths";
+import { qrSvgStyle } from "./qrcode-svg";
+
+export function cspHash(content: string) {
+  return `'sha256-${createHash("sha256").update(content).digest("base64")}'`;
+}
 
 const directives = [
   "default-src",
@@ -58,13 +66,13 @@ const basePolicy: PolicyEntry = Object.fromEntries(
 
 const sitePolicy: PolicyEntry = {
   "default-src": ["'self'"],
-  "script-src": ["'self'", importMapCspHash],
+  "script-src": ["'self'", cspHash(importMapJson)],
   "style-src": [
     "'self'",
     "'unsafe-hashes'",
-    "'sha256-Xh3wDa6qwZqBwThpyOxhTUT9S+efeH5itF1geB9HuiI='", // layout.tsx <style>
-    "'sha256-UoLkaMG1cxqNTYg4W8anPhBTc0jLpmUI1sw6oEnx6ZI='", // QR SVG inline style
-    "'sha256-pNew6JVTI7o7/vyDz1vjbfN+ELdoCcdPQhWEliKkywA='", // QR SVG inline style
+    cspHash(layoutStyleBody),
+    cspHash(qrSvgStyle(qrForeground)),
+    cspHash(qrSvgStyle(qrBackground)),
   ],
   "img-src": ["'self'"],
   "font-src": ["'self'"],
@@ -78,8 +86,8 @@ const stripePolicy: PolicyEntry = {
   "script-src": ["https://js.stripe.com", "https://*.js.stripe.com"],
   "style-src": [
     "'unsafe-hashes'",
-    "'sha256-TfAwm1S5NfoR1f9QACBAkaPyKW6By6SNrlX37Leun8w='", // Stripe Elements donation iframe
-    "'sha256-GNWr3juzPocpPAOAJS3drV+HZvUat3aMpJZOpKE+avg='", // Stripe Elements subscription iframe
+    "'sha256-TfAwm1S5NfoR1f9QACBAkaPyKW6By6SNrlX37Leun8w='", // Stripe Elements loader
+    "'sha256-GNWr3juzPocpPAOAJS3drV+HZvUat3aMpJZOpKE+avg='", // Stripe Elements iframe
   ],
   "connect-src": [
     "https://api.stripe.com",

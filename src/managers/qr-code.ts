@@ -2,8 +2,8 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import bmp from "bmp-js";
-import QRCode, { type QRCodeModel } from "qrcode-svg";
 import baseLogger from "~/lib/logger";
+import QRCode, { type QRCodeModel } from "~/lib/qrcode-svg";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -14,6 +14,9 @@ function clone<T>(object: T): T {
     structuredClone(object),
   );
 }
+
+export const qrForeground = "black";
+export const qrBackground = "transparent";
 
 type BMPColor = "transparent" | "white" | "black";
 
@@ -111,7 +114,8 @@ export class QRCodeManager {
       padding: 0,
       join: true,
       ecl: "H",
-      background: "transparent",
+      color: qrForeground,
+      background: qrBackground,
     });
 
     if (!useLogo) {
