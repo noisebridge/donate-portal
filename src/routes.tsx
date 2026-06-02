@@ -530,7 +530,10 @@ export default async function routes(fastify: FastifyInstance) {
         "Stripe PaymentIntent created for donation",
       );
 
-      return reply.send({ clientSecret: result.clientSecret });
+      const sessionCookie = cookies[CookieName.UserSession](request, reply);
+      const emailAddress = sessionCookie.value?.email ?? null;
+
+      return reply.send({ clientSecret: result.clientSecret, emailAddress });
     },
   );
 
@@ -677,7 +680,10 @@ export default async function routes(fastify: FastifyInstance) {
         "Stripe subscription created with incomplete payment",
       );
 
-      return reply.send({ clientSecret: result.clientSecret });
+      return reply.send({
+        clientSecret: result.clientSecret,
+        emailAddress: sessionData.email ?? null,
+      });
     },
   );
 
