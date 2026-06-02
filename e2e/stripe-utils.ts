@@ -103,6 +103,15 @@ export async function fillEmbeddedCheckoutForm(
   await frame
     .locator("#billingPostalCode")
     .fill(options.zip, { timeout: 10000 });
+
+  // Stripe Link's "Save my information" checkbox is checked by default,
+  // which makes the phone number field required and blocks submission.
+  const linkCheckbox = frame.getByRole("checkbox", {
+    name: "Save my information",
+  });
+  if (await linkCheckbox.isChecked()) {
+    await linkCheckbox.uncheck();
+  }
 }
 
 /**
