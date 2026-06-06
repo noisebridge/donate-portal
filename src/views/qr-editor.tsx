@@ -91,6 +91,14 @@ export function QrEditorPage({ isAuthenticated, csrfToken }: QrEditorProps) {
                     name="name"
                     placeholder={DonationManager.defaultName}
                     maxlength={DonationManager.maxNameLength}
+                    autocomplete="off"
+                    autocapitalize="off"
+                    autocorrect="off"
+                    spellcheck={false}
+                    data-1p-ignore
+                    data-lpignore="true"
+                    data-form-type="other"
+                    data-bwignore
                   />
                 </div>
                 <span class="field-hint">
