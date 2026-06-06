@@ -2,7 +2,7 @@
 
 import effects from "./effects/index.mjs";
 import { ledHyperdrive } from "./effects/led_effects.mjs";
-import { formatAmount, splitAmount } from "./util/money-forms.mjs";
+import { formatAmount } from "./util/money-forms.mjs";
 
 /** @typedef {import("~/types/alerts").AlertMessage} AlertMessage */
 /** @typedef {import("~/types/alerts").ChargeAlertMessage} ChargeAlertMessage */
@@ -165,6 +165,19 @@ function span(className, text) {
  */
 function isNice(amount) {
   return String(amount.cents).includes("69");
+}
+
+/**
+ * Split cents into its dollar and cent parts for aligned display.
+ * @param {Cents} amount
+ * @returns {{ dollars: string, cents: string }}
+ */
+export function splitAmount(amount) {
+  const parts = (amount.cents / 100).toFixed(2).split(".");
+  return {
+    dollars: /** @type {string} */ (parts[0]),
+    cents: /** @type {string} */ (parts[1]),
+  };
 }
 
 /**

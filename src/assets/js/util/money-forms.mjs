@@ -3,35 +3,12 @@
 /** @typedef {import("~/types/cents").Cents} Cents */
 
 /**
- * Format a dollar value for display.
- * @param {string} value
- * @returns {string}
- */
-export function formatDollarLabel(value) {
-  const dollars = parseFloat(value);
-  return Number.isNaN(dollars) ? "$0.00" : `$${dollars.toFixed(2)}`;
-}
-
-/**
  * Format cents as a dollar amount.
  * @param {Cents} amount
  * @returns {string}
  */
 export function formatAmount(amount) {
   return `$${(amount.cents / 100).toFixed(2)}`;
-}
-
-/**
- * Split cents into its dollar and cent parts for aligned display.
- * @param {Cents} amount
- * @returns {{ dollars: string, cents: string }}
- */
-export function splitAmount(amount) {
-  const parts = (amount.cents / 100).toFixed(2).split(".");
-  return {
-    dollars: /** @type {string} */ (parts[0]),
-    cents: /** @type {string} */ (parts[1]),
-  };
 }
 
 /**
