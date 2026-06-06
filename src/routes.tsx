@@ -34,7 +34,6 @@ import { IndexPage } from "~/views/index";
 import { ManagePage } from "~/views/manage";
 import { NotFoundPage } from "~/views/not-found";
 import { QrPage } from "~/views/qr";
-import { QrCustomPage } from "~/views/qr-custom";
 import { QrEditorPage } from "~/views/qr-editor";
 import { ThankYouPage } from "~/views/thank-you";
 
@@ -589,31 +588,6 @@ export default async function routes(fastify: FastifyInstance) {
       .header("Cache-Control", "no-cache, no-store, must-revalidate")
       .type("image/svg+xml")
       .send(qrCode.svg({ container: "svg-viewbox" }));
-  });
-
-  fastify.get<{
-    Querystring: { name?: string; description?: string; amount?: string };
-  }>(paths.qrCustom(), async (request, reply) => {
-    const { name, description, amount } = request.query;
-
-    const amountCents = parseToCents(amount ?? "");
-    if (amountCents === null) {
-      return reply.redirect(paths.index({ error: "InvalidDonationAmount" }));
-    }
-
-    if (!DonationManager.validateParams(name, description)) {
-      return reply.status(400).send("Invalid name or description");
-    }
-
-    return reply.html(
-      <QrCustomPage
-        amount={amountCents}
-        name={name}
-        description={description}
-        isAuthenticated={isAuthenticated(request, reply)}
-        csrfToken={reply.generateCsrf()}
-      />,
-    );
   });
 
   fastify.get(paths.qrEditor(), async (request, reply) => {

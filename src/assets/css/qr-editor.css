@@ -181,18 +181,7 @@
 .preview-card {
   border: 1px solid var(--color-border);
   background: var(--color-panel);
-  position: relative;
   padding: 28px;
-}
-
-.preview-card::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border: 1px solid var(--color-border);
-  transform: translate(6px, 6px);
-  z-index: -1;
-  opacity: 0.5;
 }
 
 /* QR Frame */
@@ -353,11 +342,6 @@
     font-size: 30px;
   }
 
-  .crumbs {
-    font-size: 10px;
-    letter-spacing: 0.08em;
-  }
-
   .page-desc {
     font-size: 11.5px;
     margin: 14px 0 30px;
@@ -408,11 +392,8 @@
   }
 
   .preview-card {
+    --frame-offset: 4px;
     padding: 20px;
-  }
-
-  .preview-card::before {
-    transform: translate(4px, 4px);
   }
 
   .qr-placeholder-icon {

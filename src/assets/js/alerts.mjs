@@ -2,6 +2,7 @@
 
 import effects from "./effects/index.mjs";
 import { ledHyperdrive } from "./effects/led_effects.mjs";
+import { formatAmount, splitAmount } from "./util/money-forms.mjs";
 
 /** @typedef {import("~/types/alerts").AlertMessage} AlertMessage */
 /** @typedef {import("~/types/alerts").ChargeAlertMessage} ChargeAlertMessage */
@@ -144,15 +145,6 @@ async function enqueueAlert(alert) {
 }
 
 /**
- * Format cents as a dollar amount.
- * @param {Cents} amount
- * @returns {string}
- */
-function formatAmount(amount) {
-  return `$${(amount.cents / 100).toFixed(2)}`;
-}
-
-/**
  * Create a span element with the given class and text content.
  * @param {string} className
  * @param {string} text
@@ -181,9 +173,7 @@ function isNice(amount) {
  * @returns {HTMLSpanElement}
  */
 function buildAmountAligned(amount) {
-  const parts = (amount.cents / 100).toFixed(2).split(".");
-  const dollars = /** @type {string} */ (parts[0]);
-  const cents = /** @type {string} */ (parts[1]);
+  const { dollars, cents } = splitAmount(amount);
 
   const centsSpan = span("history-amount-cents", cents);
   if (isNice(amount)) {

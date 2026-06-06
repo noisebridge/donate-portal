@@ -80,15 +80,6 @@ const paths = {
       description,
     }),
   /**
-   * `/qr-custom`
-   */
-  qrCustom: (amount?: Cents, name?: string, description?: string) =>
-    formatPath("/qr-custom", {
-      amount: amount && amount.cents / 100,
-      name,
-      description,
-    }),
-  /**
    * `/qr-editor`
    */
   qrEditor: () => "/qr-editor",

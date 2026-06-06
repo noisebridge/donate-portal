@@ -1,5 +1,4 @@
 import { escapeHtml } from "@kitajs/html";
-import { Button } from "~/components/button";
 import { Layout } from "~/components/layout";
 import { StripeCheckoutModal } from "~/components/stripe-checkout-modal";
 import { formatAmount } from "~/lib/money";
@@ -23,8 +22,9 @@ export function QrPage({
   csrfToken,
 }: QrPageProps) {
   const minDollars = DonationManager.minimumAmount.cents / 100;
-  const maxDollars = (amount.cents * 2) / 100;
   const initialDollars = amount.cents / 100;
+  const maxDollars = initialDollars * 2;
+  const maxAmount: Cents = { cents: amount.cents * 2 };
 
   return (
     <Layout
@@ -34,79 +34,132 @@ export function QrPage({
       isAuthenticated={isAuthenticated}
       csrfToken={csrfToken}
     >
-      <div class="container-narrow">
-        <div class="card text-center">
-          <a
-            href={paths.qrCustom(amount, name, description)}
-            class="qr-corner-btn"
-          >
-            Custom
-          </a>
-          <div class="qr-product-details">
-            {!!name && <h1 class="qr-donate-name">{escapeHtml(name)}</h1>}
-            {!!description && (
-              <p class="qr-donate-description">{escapeHtml(description)}</p>
-            )}
-          </div>
+      <div class="donate">
+        <form id="donate-form" method="POST" action={paths.donate()}>
+          <input type="hidden" name="_csrf" value={csrfToken} />
 
-          <div class="qr-amount-display">
-            <span id="current-amount">{formatAmount(amount) as "safe"}</span>
-          </div>
-
-          <div class="qr-slider-container">
-            <input
-              type="range"
-              id="amount-slider"
-              min={minDollars.toString()}
-              max={maxDollars.toString()}
-              value={initialDollars.toString()}
-              step="1"
-              aria-label="Donation amount"
-            />
-            <div class="qr-slider-labels">
-              <span>
-                {formatAmount(DonationManager.minimumAmount) as "safe"}
-              </span>
-              <span>{formatAmount({ cents: amount.cents * 2 }) as "safe"}</span>
+          <div class="product-card offset-frame">
+            <div class="product-card-head">
+              <span class="editable-label">Product</span>
+              <label class="toggle">
+                <input type="checkbox" id="custom-toggle" />
+                <span class="toggle-track">
+                  <span class="toggle-thumb"></span>
+                </span>
+                <span class="toggle-label">Custom</span>
+              </label>
             </div>
-          </div>
-
-          <form id="donate-form" method="POST" action={paths.donate()}>
-            <input type="hidden" name="_csrf" value={csrfToken} />
-            <input
-              type="hidden"
-              name="amount-dollars"
-              id="hidden-amount"
-              value={initialDollars.toString()}
-            />
-            {!!name && (
-              <input type="hidden" name="name" value={escapeHtml(name)} />
-            )}
-            {!!description && (
+            <label class="editable-field">
               <input
-                type="hidden"
-                name="description"
-                value={escapeHtml(description)}
+                type="text"
+                id="name"
+                name="name"
+                class="product-name-input"
+                value={name ? escapeHtml(name) : ""}
+                placeholder={DonationManager.defaultName}
+                maxlength={DonationManager.maxNameLength}
+                autocomplete="off"
+                autocapitalize="off"
+                autocorrect="off"
+                spellcheck={false}
+                data-1p-ignore
+                data-lpignore="true"
+                data-form-type="other"
+                data-bwignore
+                readonly
               />
-            )}
-            <Button variant="primary" type="submit">
-              Donate
-            </Button>
-          </form>
-
-          <div class="divider">or</div>
-
-          <div class="qr-actions">
-            {!DonationManager.isGeneral(name) && (
-              <Button variant="outline" href={`${paths.index()}#donate`}>
-                Make a general donation
-              </Button>
-            )}
-
-            <Button variant="outline" href={paths.signIn()}>
-              Give monthly
-            </Button>
+            </label>
+            <label class="editable-field">
+              <span class="editable-label">Description</span>
+              <textarea
+                id="description"
+                name="description"
+                class="product-desc-input"
+                rows="2"
+                placeholder={DonationManager.defaultDescription}
+                maxlength={DonationManager.maxDescriptionLength}
+                readonly
+              >
+                {description ? escapeHtml(description) : ""}
+              </textarea>
+            </label>
           </div>
+
+          <section class="adjust">
+            <div class="your-amount-display">
+              <span class="dol">$</span>
+              <input
+                type="text"
+                inputmode="decimal"
+                id="amount-input"
+                name="amount-dollars"
+                class="val val-input"
+                value={initialDollars.toFixed(2)}
+                data-min={minDollars}
+                aria-label="Donation amount"
+                required
+              />
+            </div>
+
+            <div class="slider-wrap">
+              <input
+                type="range"
+                id="amount-slider"
+                class="slider"
+                min={minDollars.toString()}
+                max={maxDollars.toString()}
+                step="1"
+                value={initialDollars.toString()}
+                aria-label="Donation amount"
+              />
+              <div class="slider-ticks" id="slider-ticks">
+                {minDollars !== initialDollars && (
+                  <button type="button" class="tick" data-amt={minDollars}>
+                    <span class="pip"></span>
+                    <span class="label">
+                      {formatAmount(DonationManager.minimumAmount) as "safe"}
+                    </span>
+                  </button>
+                )}
+                <button type="button" class="tick" data-amt={initialDollars}>
+                  <span class="pip"></span>
+                  <span class="label">{formatAmount(amount) as "safe"}</span>
+                </button>
+                <button type="button" class="tick" data-amt={maxDollars}>
+                  <span class="pip"></span>
+                  <span class="label">{formatAmount(maxAmount) as "safe"}</span>
+                </button>
+              </div>
+            </div>
+          </section>
+
+          <button type="submit" class="btn btn-primary">
+            <span id="donate-label">
+              {`Donate · ${formatAmount(amount)}` as "safe"}
+            </span>
+            <span aria-hidden="true">{"→"}</span>
+          </button>
+        </form>
+
+        <div class="divider">or</div>
+
+        <div class="alt-stack">
+          {!DonationManager.isGeneral(name) && (
+            <a class="btn btn-ghost" href={`${paths.index()}#donate`}>
+              <span class="lead">
+                <span class="lbl">Make a general donation</span>
+                <span class="sub">unrestricted · keeps the lights on</span>
+              </span>
+              <span class="arrow">{"→"}</span>
+            </a>
+          )}
+          <a class="btn btn-ghost" href={paths.signIn()}>
+            <span class="lead">
+              <span class="lbl">Give monthly</span>
+              <span class="sub">become a sustaining member</span>
+            </span>
+            <span class="arrow">{"→"}</span>
+          </a>
         </div>
       </div>
 

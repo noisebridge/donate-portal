@@ -1,6 +1,4 @@
-import { Button } from "~/components/button";
 import { Layout } from "~/components/layout";
-import { StatusCard } from "~/components/status-card";
 import paths from "~/lib/paths";
 
 export interface ThankYouProps {
@@ -12,28 +10,29 @@ export function ThankYouPage({ isAuthenticated, csrfToken }: ThankYouProps) {
   return (
     <Layout
       title="Thank You!"
+      styles="thank-you.css"
       isAuthenticated={isAuthenticated}
       csrfToken={csrfToken}
     >
-      <StatusCard
-        icon={
-          <img
-            class="page-icon"
-            src={paths.assetWithHash("image/checkmark.svg")}
-            alt="Success checkmark"
-          />
-        }
-        title="Donation Complete!"
-      >
-        <p class="page-message">
-          Your support helps keep Noisebridge running and accessible to
-          everyone.
+      <section class="confirm">
+        <h1 class="confirm-title">
+          Thank you,
+          <br />
+          <span class="accent">you keep us running.</span>
+        </h1>
+
+        <p class="confirm-lede">
+          Your gift keeps Noisebridge alive. We depend on people like you to
+          continue serving the public without any outside influences.
         </p>
 
-        <Button variant="primary" href={paths.index()}>
-          Return Home
-        </Button>
-      </StatusCard>
+        <div class="confirm-actions">
+          <a href={paths.index()} class="btn btn-primary confirm-btn">
+            <span>Back to site</span>
+            <span class="arrow">←</span>
+          </a>
+        </div>
+      </section>
     </Layout>
   );
 }

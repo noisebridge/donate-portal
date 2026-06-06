@@ -133,7 +133,7 @@ export function QrEditorPage({ isAuthenticated, csrfToken }: QrEditorProps) {
           <section>
             <SectionHead title="preview" />
 
-            <div class="preview-card">
+            <div class="preview-card offset-frame">
               <div class="qr-frame">
                 <img id="qr-image" src="" alt="QR Code preview" hidden />
                 <div id="qr-placeholder" class="qr-placeholder">

@@ -89,7 +89,7 @@ export function ManagePage({
         </div>
 
         {!!subscription && (
-          <div class="status-strip">
+          <div class="status-strip offset-frame">
             <div class="cell">
               <span class="lbl">Status</span>
               <span class={pillClass(subscription.status)}>

@@ -1,0 +1,57 @@
+.confirm {
+  width: 100%;
+  max-width: 540px;
+  margin: 0 auto;
+  padding: 64px 20px 40px;
+}
+
+.confirm-title {
+  font-family: var(--font-mono);
+  font-size: 52px;
+  line-height: 1.02;
+  margin: 0 0 20px;
+  letter-spacing: -0.025em;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.confirm-lede {
+  font-size: 17px;
+  line-height: 1.6;
+  color: var(--color-text-light);
+  margin: 0 0 40px;
+  max-width: 52ch;
+}
+
+.confirm-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 36px;
+}
+
+/* Extends .btn .btn-primary from main.css */
+.confirm-btn {
+  flex: 1;
+  min-width: 200px;
+  justify-content: space-between;
+}
+
+.confirm-btn .arrow {
+  font-weight: 400;
+  opacity: 0.8;
+}
+
+@media (max-width: 700px) {
+  .confirm {
+    padding: 40px 20px;
+  }
+
+  .confirm-title {
+    font-size: 38px;
+  }
+
+  .confirm-actions .confirm-btn {
+    min-width: 100%;
+  }
+}

@@ -52,26 +52,6 @@ h1.hero-title {
   color: var(--color-text);
 }
 
-h1.hero-title .accent {
-  color: var(--color-primary);
-}
-
-h1.hero-title .cursor {
-  display: inline-block;
-  width: 0.55ch;
-  height: 0.95em;
-  background: var(--color-primary);
-  vertical-align: -0.08em;
-  animation: blink 1s step-end infinite;
-  margin-left: 4px;
-}
-
-@keyframes blink {
-  50% {
-    opacity: 0;
-  }
-}
-
 p.hero-lede {
   font-size: 17px;
   line-height: 1.55;

@@ -73,7 +73,7 @@ describe("ManagePage", () => {
       />
     );
 
-    expect(result).toContain('class="status-strip"');
+    expect(result).toContain('class="status-strip offset-frame"');
     expect(result).toContain("Employed Hacker");
     expect(result).toContain("$100.00");
     expect(result).toContain("Jan");

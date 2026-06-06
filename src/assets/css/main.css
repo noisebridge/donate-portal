@@ -98,35 +98,6 @@ body::before {
   padding: 2.5rem 1.5rem;
 }
 
-.container-narrow > .card::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border: 1px solid var(--color-border);
-  transform: translate(6px, 6px);
-  z-index: -1;
-  opacity: 0.5;
-}
-
-.qr-corner-btn {
-  position: absolute;
-  top: var(--spacing-sm);
-  right: var(--spacing-sm);
-  font-family: var(--font-mono);
-  font-size: 11px;
-  padding: 6px 12px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--color-text);
-  text-decoration: none;
-  border: 1px solid var(--color-border);
-  transition: border-color 120ms ease;
-}
-
-.qr-corner-btn:hover {
-  border-color: var(--color-primary);
-}
-
 /* Navigation */
 .navbar {
   position: relative;
@@ -288,6 +259,43 @@ body::before {
   text-align: center;
 }
 
+.accent {
+  color: var(--color-primary);
+}
+
+/* Blinking terminal cursor */
+.cursor {
+  display: inline-block;
+  width: 0.55ch;
+  height: 0.95em;
+  background: var(--color-primary);
+  vertical-align: -0.08em;
+  animation: blink 1s step-end infinite;
+  margin-left: 4px;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+/* Decorative offset frame drawn behind a card (the double-border shadow look).
+   Tune per use via --frame-color, --frame-offset, and --frame-opacity. */
+.offset-frame {
+  position: relative;
+}
+
+.offset-frame::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: 1px solid var(--frame-color, var(--color-border));
+  transform: translate(var(--frame-offset, 6px), var(--frame-offset, 6px));
+  z-index: -1;
+  opacity: var(--frame-opacity, 0.5);
+}
+
 /* Visually hidden but accessible to screen readers */
 .visually-hidden {
   position: absolute;
@@ -305,21 +313,11 @@ body::before {
   display: none;
 }
 
-.mt-sm {
-  margin-top: var(--spacing-sm);
-}
-
 .page-icon-wrapper {
   display: flex;
   justify-content: center;
   align-items: center;
   margin-bottom: var(--spacing-lg);
-}
-
-.page-icon {
-  width: 80px;
-  height: 80px;
-  opacity: 0.9;
 }
 
 .page-title {
@@ -329,22 +327,6 @@ body::before {
   margin: 0 0 var(--spacing-md) 0;
   color: var(--color-text);
   letter-spacing: -0.01em;
-}
-
-.page-message {
-  color: var(--color-text);
-  font-size: 1rem;
-  line-height: 1.6;
-  margin: 0 0 var(--spacing-md) 0;
-}
-
-.page-message-muted {
-  color: var(--color-text-light);
-  font-size: 0.9375rem;
-  line-height: 1.5;
-  margin: 0;
-  padding-top: var(--spacing-md);
-  border-top: 1px solid var(--color-border);
 }
 
 .btn {
@@ -386,24 +368,6 @@ body::before {
   .btn-primary:hover:not(:disabled) {
     transform: translate(-2px, -2px);
     box-shadow: 6px 6px 0 var(--color-text);
-  }
-}
-
-.btn-secondary {
-  padding: 16px 20px;
-  background: var(--color-text);
-  color: #fff;
-  border-color: var(--color-text);
-  font-size: 14px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-}
-
-@media (hover: hover) {
-  .btn-secondary:hover:not(:disabled) {
-    transform: translate(-2px, -2px);
-    box-shadow: 6px 6px 0 var(--color-primary);
   }
 }
 
@@ -558,34 +522,6 @@ body::before {
   text-transform: uppercase;
 }
 
-/* Breadcrumbs */
-.crumbs {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  color: var(--color-text-light);
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  white-space: nowrap;
-}
-
-.crumbs a {
-  color: var(--color-text-light);
-  text-decoration: none;
-}
-
-.crumbs a:hover {
-  color: var(--color-text);
-}
-
-.crumbs .sep {
-  color: var(--color-text-mute);
-  margin: 0 8px;
-}
-
-.crumb-current {
-  color: var(--color-text);
-}
-
 footer {
   margin-top: 80px;
   padding: 24px 0;
@@ -625,21 +561,8 @@ footer {
     padding: var(--spacing-lg);
   }
 
-  .page-icon {
-    width: 64px;
-    height: 64px;
-  }
-
   .page-title {
     font-size: 1.75rem;
-  }
-
-  .page-message {
-    font-size: 0.9375rem;
-  }
-
-  .page-message-muted {
-    font-size: 0.875rem;
   }
 
   .footer-content {
@@ -664,68 +587,6 @@ footer {
     flex-direction: column;
     gap: 6px;
   }
-}
-
-/* Form Styles (shared) */
-.form-group {
-  margin-bottom: var(--spacing-md);
-}
-
-.form-group label {
-  display: block;
-  font-family: var(--font-mono);
-  font-size: 11px;
-  font-weight: 500;
-  color: var(--color-text-light);
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  margin-bottom: var(--spacing-xs);
-}
-
-.form-group input {
-  width: 100%;
-  padding: 12px 14px;
-  font-size: 14px;
-  font-family: var(--font-mono);
-  border: 1px solid var(--color-border);
-  background-color: transparent;
-  transition: border-color 120ms ease;
-  color: var(--color-text);
-}
-
-.form-group input:hover:not(:read-only) {
-  border-color: var(--color-text-light);
-}
-
-.form-group input:focus {
-  outline: none;
-  border-color: var(--color-primary);
-}
-
-.form-group input::placeholder {
-  color: var(--color-text-mute);
-}
-
-.form-group input:read-only {
-  background-color: var(--color-background);
-  cursor: default;
-  opacity: 0.8;
-}
-
-/* Input Group (shared) */
-.input-group {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.input-prefix {
-  position: absolute;
-  left: 1rem;
-  font-size: 1.125rem;
-  font-weight: 500;
-  color: var(--color-text-light);
-  pointer-events: none;
 }
 
 /* Stripe Checkout Modal */

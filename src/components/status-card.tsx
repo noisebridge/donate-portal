@@ -9,7 +9,7 @@ export type StatusCardProps = PropsWithChildren<{
 export function StatusCard({ icon, title, children }: StatusCardProps) {
   return (
     <div class="container-narrow">
-      <div class="card text-center">
+      <div class="card text-center offset-frame">
         <div class="page-icon-wrapper">{icon}</div>
 
         <h1 class="page-title">{escapeHtml(title)}</h1>

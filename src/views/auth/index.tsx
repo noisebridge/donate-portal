@@ -33,7 +33,7 @@ export function AuthPage({
             </h1>
           </div>
 
-          <div class="form-card">
+          <div class="form-card offset-frame">
             <div class="card-head">
               <div>~/auth/sign_in</div>
             </div>

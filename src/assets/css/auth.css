@@ -25,42 +25,11 @@
   font-weight: 700;
 }
 
-.center-intro .accent {
-  color: var(--color-primary);
-}
-
-.center-intro .cursor {
-  display: inline-block;
-  width: 0.55ch;
-  height: 0.95em;
-  background: var(--color-primary);
-  vertical-align: -0.08em;
-  animation: blink 1s step-end infinite;
-  margin-left: 4px;
-}
-
-@keyframes blink {
-  50% {
-    opacity: 0;
-  }
-}
-
 /* Form Card */
 .form-card {
   border: 1px solid var(--color-border);
   background: var(--color-panel);
   padding: 40px 38px 32px;
-  position: relative;
-}
-
-.form-card::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border: 1px solid var(--color-border);
-  transform: translate(6px, 6px);
-  z-index: -1;
-  opacity: 0.5;
 }
 
 .form-card .card-head {
@@ -146,6 +115,88 @@
   color: var(--color-text-mute);
   line-height: 1.55;
   margin-top: 14px;
+}
+
+/* Magic Link Sent Card */
+.sent-card {
+  --frame-color: var(--color-primary);
+  --frame-opacity: 0.35;
+  border: 1px solid var(--color-border);
+  background: var(--color-panel);
+  padding: 32px 26px 28px;
+}
+
+.sent-glyph {
+  display: block;
+  margin-bottom: 24px;
+}
+
+.sent-card h1 {
+  font-family: var(--font-mono);
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin: 0 0 12px;
+  line-height: 1.15;
+}
+
+.sent-card p {
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--color-text-light);
+  margin: 0 0 18px;
+}
+
+.sent-card p:last-of-type {
+  margin-bottom: 0;
+}
+
+.sent-email {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  color: var(--color-text);
+  background: color-mix(in oklab, var(--color-primary) 8%, var(--color-panel));
+  border-bottom: 1px solid var(--color-primary);
+  padding: 1px 4px;
+  word-break: break-all;
+}
+
+.sent-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.06em;
+  color: var(--color-text-mute);
+  text-transform: uppercase;
+  padding-top: 18px;
+  margin-top: 22px;
+  border-top: 1px dashed var(--color-border);
+}
+
+.sent-meta .dot {
+  width: 4px;
+  height: 4px;
+  background: var(--color-text-mute);
+}
+
+.sent-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 30px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-light);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.sent-back:hover {
+  color: var(--color-primary);
 }
 
 /* Responsive */

@@ -1,15 +1,18 @@
 import { describe, expect, test } from "bun:test";
-import { formatAmount } from "~/lib/money";
 import { QrPage } from "./qr";
 
 describe("QrPage", () => {
-  test("should display the formatted amount", async () => {
-    const amount = { cents: 2500 };
+  test("should display the donation amount", async () => {
     const result = await (
-      <QrPage amount={amount} isAuthenticated={false} csrfToken={undefined} />
+      <QrPage
+        amount={{ cents: 2500 }}
+        isAuthenticated={false}
+        csrfToken={undefined}
+      />
     );
 
-    expect(result).toContain(formatAmount(amount));
+    expect(result).toContain("Donate · $25");
+    expect(result).toContain('value="25.00"');
   });
 
   test("should include a donate button", async () => {
