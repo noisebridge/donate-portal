@@ -119,14 +119,14 @@ export function AlertsPage({ alerts }: AlertsPageProps) {
             href={paths.asset("font/bitcount/bitcount-latin.woff2")}
             as="font"
             type="font/woff2"
-            crossorigin=""
+            crossorigin="anonymous"
           />
           <link
             rel="preload"
             href={paths.asset("font/bitcount/bitcount-latin-ext.woff2")}
             as="font"
             type="font/woff2"
-            crossorigin=""
+            crossorigin="anonymous"
           />
           <script id="current-charge" type="application/json">
             {JSON.stringify(latest ?? null)}
