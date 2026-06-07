@@ -25,7 +25,7 @@ export function StripeCheckoutModal({
         <div id="payment-message" class="checkout-modal-message" hidden></div>
         {donateButton && (
           <Button
-            variant="secondary"
+            variant="primary"
             id="payment-submit"
             class="checkout-modal-submit"
           >
