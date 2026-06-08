@@ -117,11 +117,9 @@ export function Layout({
                 {"&copy;"} {new Date().getFullYear()} Noisebridge
               </div>
               {githubUrl && (
-                <div>
-                  <a href={githubUrl} target="_blank" rel="noopener noreferrer">
-                    Source
-                  </a>
-                </div>
+                <a href={githubUrl} target="_blank" rel="noopener noreferrer">
+                  Source
+                </a>
               )}
             </div>
           </footer>
