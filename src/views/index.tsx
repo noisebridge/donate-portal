@@ -85,7 +85,7 @@ export function IndexPage({
         <MessageContainer messages={messages} />
 
         <section>
-          <SectionHead title="one_time_donation" />
+          <SectionHead title="one_time_donation" anchor="donate" />
 
           <form id="donate-form" method="POST" action={paths.donate()}>
             <input type="hidden" name="_csrf" value={csrfToken} />

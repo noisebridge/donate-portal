@@ -152,7 +152,7 @@ export function QrPage({
             <a class="btn btn-ghost" href={`${paths.index()}#donate`}>
               <span class="lead">
                 <span class="lbl">Make a general donation</span>
-                <span class="sub">unrestricted · keeps the lights on</span>
+                <span class="sub">keeps the lights on</span>
               </span>
               <span class="arrow">{"→"}</span>
             </a>
@@ -160,7 +160,7 @@ export function QrPage({
           <a class="btn btn-ghost" href={paths.signIn()}>
             <span class="lead">
               <span class="lbl">Give monthly</span>
-              <span class="sub">become a sustaining member</span>
+              <span class="sub">become a supporting member</span>
             </span>
             <span class="arrow">{"→"}</span>
           </a>

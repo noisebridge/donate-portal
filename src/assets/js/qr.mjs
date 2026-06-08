@@ -130,7 +130,7 @@ function initAmountControls() {
     const frac = max > min ? (value - min) / (max - min) : 0;
     tick.style.setProperty("--frac", String(frac));
 
-    // Clicking a tick jumps to that preset amount.
+    // Clicking a tick sets that preset amount.
     tick.addEventListener("click", () => {
       currentAmount.cents = value * 100;
       update();
@@ -175,11 +175,11 @@ function initCustomToggle() {
   const originalDescription = descInput.value;
 
   customToggle.addEventListener("change", () => {
-    const on = customToggle.checked;
-    nameInput.readOnly = !on;
-    descInput.readOnly = !on;
+    const custom = customToggle.checked;
+    nameInput.readOnly = !custom;
+    descInput.readOnly = !custom;
 
-    if (!on) {
+    if (!custom) {
       nameInput.value = originalName;
       descInput.value = originalDescription;
       return;
