@@ -11,6 +11,54 @@ import {
 /** @typedef {import("~/types/cents").Cents} Cents */
 
 /**
+ * Update the hint text to a playful suggestion based on the current dollar
+ * amount, falling back to the original hint when nothing matches.
+ * @param {HTMLElement} hint
+ * @param {string} originalHint
+ * @param {string} rawValue
+ */
+function updateHint(hint, originalHint, rawValue) {
+  const dollars = parseFloat(rawValue);
+  if (rawValue.endsWith(".69")) {
+    hint.textContent = "Nice.";
+  } else if (dollars >= 4 && dollars < 4.2) {
+    hint.textContent = "Why not $4.20 (blaze it)?";
+  } else if (dollars === 4.2) {
+    hint.textContent = "Hell yeah 🤘";
+  } else if (dollars >= 10 && dollars < 13.37) {
+    hint.textContent = "Why not $13.37?";
+  } else if (dollars === 13.37) {
+    hint.textContent = "Hack the planet!";
+  } else if (dollars >= 16 && dollars < 17.76) {
+    hint.textContent = "Why not $17.76?";
+  } else if (dollars === 17.76) {
+    hint.textContent = "'Merica, baby!";
+  } else if (dollars >= 40 && dollars < 42) {
+    hint.textContent = "Why not $42.00?";
+  } else if (dollars === 42) {
+    hint.textContent = "Thanks for all the fish! 🐬";
+  } else if (dollars >= 60 && dollars < 69) {
+    hint.textContent = "Why not $69?";
+  } else if (dollars === 69) {
+    hint.textContent = "Nice.";
+  } else if (dollars >= 100 && dollars < 133.7) {
+    hint.textContent = "Why not $133.70?";
+  } else if (dollars === 133.7) {
+    hint.textContent = "Hack the planet!";
+  } else if (dollars >= 400 && dollars < 420) {
+    hint.textContent = "Why not $420 (blaze it)?";
+  } else if (dollars === 420) {
+    hint.textContent = "Hell yeah 🤘";
+  } else if (dollars >= 1000 && dollars < 1337) {
+    hint.textContent = "Why not $1,337?";
+  } else if (dollars === 1337) {
+    hint.textContent = "Hack the planet!";
+  } else {
+    hint.textContent = originalHint;
+  }
+}
+
+/**
  * Wire up the amount slider, the editable amount input and the preset ticks so
  * they all stay in sync and keep the donate button label current.
  */
@@ -29,6 +77,9 @@ function initAmountControls() {
   enforcePattern(amountInput, dollarPattern);
   validateMinAmount(amountInput);
 
+  const hint = document.getElementById("amount-hint");
+  const originalHint = hint?.textContent ?? "";
+
   /** @type {Cents} */
   const currentAmount = { cents: parseFloat(amountInput.value) * 100 };
   const min = parseFloat(slider.min) || 0;
@@ -42,6 +93,10 @@ function initAmountControls() {
     buttonText.textContent = `Donate · ${formatAmount(currentAmount)}`;
     // Update slider
     slider.value = String(Math.min(max, Math.max(min, dollars)));
+    // Update hint
+    if (hint) {
+      updateHint(hint, originalHint, amountInput.value);
+    }
   };
   slider.addEventListener("input", () => {
     currentAmount.cents = Math.floor(parseFloat(slider.value) * 100);
@@ -49,6 +104,9 @@ function initAmountControls() {
   });
   amountInput.addEventListener("input", () => {
     currentAmount.cents = Math.floor(parseFloat(amountInput.value) * 100);
+    if (hint) {
+      updateHint(hint, originalHint, amountInput.value);
+    }
   });
   amountInput.addEventListener("blur", update);
 

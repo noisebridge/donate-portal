@@ -183,7 +183,7 @@
   padding: 18px 20px;
   border: 1px solid var(--color-border);
   background: var(--color-panel);
-  margin-bottom: 18px;
+  margin-bottom: 6px;
   position: relative;
 }
 .your-amount-display .dol {
@@ -200,6 +200,17 @@
   color: var(--color-text);
   line-height: 1;
   flex: 1;
+}
+
+.form-hint {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-text-mute);
+  letter-spacing: 0.04em;
+  /* The amount box leaves a small gap above; the hint carries the rhythm down
+     to the slider. */
+  margin-bottom: 18px;
 }
 
 /* Slider */

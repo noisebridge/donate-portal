@@ -101,6 +101,10 @@ export function QrPage({
               />
             </div>
 
+            <span class="form-hint" id="amount-hint">
+              Minimum {formatAmount(DonationManager.minimumAmount) as "safe"}
+            </span>
+
             <div class="slider-wrap">
               <input
                 type="range"
