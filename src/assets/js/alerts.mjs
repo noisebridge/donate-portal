@@ -164,7 +164,7 @@ function span(className, text) {
  * @returns {boolean}
  */
 function isNice(amount) {
-  return String(amount.cents).includes("69");
+  return formatAmount(amount).includes("69");
 }
 
 /**

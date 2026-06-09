@@ -7,6 +7,7 @@ import type {
   ChargeAlertMessage,
   MemberAlertMessage,
 } from "~/types/alerts";
+import type { Cents } from "~/types/cents";
 
 function formatDate(isoDate: string): string {
   return new Date(isoDate).toLocaleString("en-US", {
@@ -23,8 +24,8 @@ function NiceBadge() {
   return <span class="nice-badge">NICE</span>;
 }
 
-function isNice(amount: { cents: number }): boolean {
-  return String(amount.cents).includes("69");
+function isNice(amount: Cents): boolean {
+  return formatAmount(amount).includes("69");
 }
 
 interface ChargeHistoryItemProps {
