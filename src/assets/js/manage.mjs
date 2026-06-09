@@ -52,17 +52,24 @@ function initCancelForm() {
     }
   });
 
-  // Reset if user clicks away
-  cancelForm.addEventListener(
-    "blur",
-    () => {
-      if (confirmClicked) {
-        confirmClicked = false;
-        cancelButton.textContent = originalText;
-      }
-    },
-    true,
-  );
+  const reset = () => {
+    if (confirmClicked) {
+      confirmClicked = false;
+      cancelButton.textContent = originalText;
+    }
+  };
+
+  // Reset if the user tabs away or clicks elsewhere. The pointerdown listener
+  // is needed because Safari doesn't focus buttons on click, so clicking away
+  // never fires a blur there.
+  cancelForm.addEventListener("blur", reset, true);
+  document.addEventListener("pointerdown", (event) => {
+    if (event.target instanceof Node && cancelForm.contains(event.target)) {
+      return;
+    }
+
+    reset();
+  });
 }
 
 document.addEventListener("DOMContentLoaded", () => {
