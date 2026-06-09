@@ -15,11 +15,10 @@ import {
  * amount, falling back to the original hint when nothing matches.
  * @param {HTMLElement} hint
  * @param {string} originalHint
- * @param {string} rawValue
+ * @param {number} dollars
  */
-function updateHint(hint, originalHint, rawValue) {
-  const dollars = parseFloat(rawValue);
-  if (rawValue.endsWith(".69")) {
+function updateHint(hint, originalHint, dollars) {
+  if (Math.round(dollars * 100) % 100 === 69) {
     hint.textContent = "Nice.";
   } else if (dollars >= 4 && dollars < 4.2) {
     hint.textContent = "Why not $4.20 (blaze it)?";
@@ -70,18 +69,20 @@ function initAmountControls() {
     document.getElementById("amount-input")
   );
   const buttonText = document.getElementById("donate-label");
-  if (!slider || !amountInput || !buttonText) {
+  const hint = document.getElementById("amount-hint");
+  if (!slider || !amountInput || !buttonText || !hint) {
     return;
   }
 
   enforcePattern(amountInput, dollarPattern);
   validateMinAmount(amountInput);
 
-  const hint = document.getElementById("amount-hint");
   const originalHint = hint?.textContent ?? "";
 
   /** @type {Cents} */
-  const currentAmount = { cents: parseFloat(amountInput.value) * 100 };
+  const currentAmount = {
+    cents: Math.round(parseFloat(amountInput.value) * 100),
+  };
   const min = parseFloat(slider.min) || 0;
   const max = parseFloat(slider.max) || 0;
 
@@ -94,19 +95,20 @@ function initAmountControls() {
     // Update slider
     slider.value = String(Math.min(max, Math.max(min, dollars)));
     // Update hint
-    if (hint) {
-      updateHint(hint, originalHint, amountInput.value);
-    }
+    updateHint(hint, originalHint, dollars);
   };
   slider.addEventListener("input", () => {
-    currentAmount.cents = Math.floor(parseFloat(slider.value) * 100);
+    currentAmount.cents = Math.round(parseFloat(slider.value) * 100);
     update();
   });
   amountInput.addEventListener("input", () => {
-    currentAmount.cents = Math.floor(parseFloat(amountInput.value) * 100);
-    if (hint) {
-      updateHint(hint, originalHint, amountInput.value);
+    const dollars = parseFloat(amountInput.value);
+    if (Number.isNaN(dollars)) {
+      // Keep the last valid amount so blur restores it instead of "NaN".
+      return;
     }
+    currentAmount.cents = Math.round(dollars * 100);
+    updateHint(hint, originalHint, dollars);
   });
   amountInput.addEventListener("blur", update);
 
@@ -132,7 +134,7 @@ function initAmountControls() {
 
     // Clicking a tick sets that preset amount.
     tick.addEventListener("click", () => {
-      currentAmount.cents = value * 100;
+      currentAmount.cents = Math.round(value * 100);
       update();
     });
   });
