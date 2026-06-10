@@ -11,4 +11,14 @@ describe("ErrorPage", () => {
     expect(result).toBeTypeOf("string");
     expect(result).toContain("fatal_error");
   });
+
+  test("should show error details", async () => {
+    const error = new Error("Test error message");
+    const result = await (
+      <ErrorPage error={error} isAuthenticated csrfToken={undefined} />
+    );
+
+    expect(result).toContain("Test error message");
+    expect(result).toContain("Stack trace");
+  });
 });

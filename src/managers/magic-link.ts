@@ -3,6 +3,7 @@ import { z } from "zod";
 import config from "~/config";
 import baseLogger from "~/lib/logger";
 import paths from "~/lib/paths";
+import { timingSafeStringEqual } from "~/lib/timing-safe-equal";
 
 const magicLinkStateSchema = z.object({
   email: z.string(),
@@ -24,19 +25,11 @@ export class MagicLinkManager {
     code: string,
     timestamp: number = Date.now(),
   ) {
-    // Hashing both sides gives equal-length buffers for timingSafeEqual
-    // regardless of what the caller-supplied code looks like.
-    const codeDigest = crypto.createHash("sha256").update(code).digest();
-
     // Check 1 past, current, and 1 future time window
     for (let offset = -1; offset <= 1; offset++) {
       const checkTimestamp = timestamp + offset * totpWindow;
       const windowCode = this.generateMagicLinkCode(email, checkTimestamp);
-      const windowDigest = crypto
-        .createHash("sha256")
-        .update(windowCode)
-        .digest();
-      if (crypto.timingSafeEqual(windowDigest, codeDigest)) {
+      if (timingSafeStringEqual(windowCode, code)) {
         return true;
       }
     }

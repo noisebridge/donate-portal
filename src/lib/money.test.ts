@@ -192,6 +192,15 @@ describe("parseToCents", () => {
       expect(parseToCents("999999.99")).toEqual({ cents: 99999999 });
     });
 
+    test("should reject amounts above the Stripe maximum", () => {
+      expect(parseToCents("1000000")).toBeNull();
+      expect(parseToCents("1e10")).toBeNull();
+    });
+
+    test("should reject non-finite amounts", () => {
+      expect(parseToCents("Infinity")).toBeNull();
+    });
+
     test("should handle very small amounts", () => {
       expect(parseToCents("0.01")).toEqual({ cents: 1 });
     });

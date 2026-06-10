@@ -38,6 +38,11 @@ function getAmount(amountFormData: AmountFormData) {
   return amountFormData["amount-dollars"];
 }
 
+/**
+ * Largest amount Stripe accepts for a single USD charge ($999,999.99).
+ */
+const STRIPE_MAX_CENTS = 99_999_999;
+
 export function parseToCents(
   amountFormData: string | AmountFormData,
 ): Cents | null {
@@ -46,14 +51,19 @@ export function parseToCents(
       ? amountFormData
       : getAmount(amountFormData),
   );
-  if (Number.isNaN(parsedDollars)) {
+  if (!Number.isFinite(parsedDollars)) {
     return null;
   }
   if (parsedDollars <= 0) {
     return null;
   }
 
-  return { cents: Math.round(parsedDollars * 100) };
+  const cents = Math.round(parsedDollars * 100);
+  if (cents > STRIPE_MAX_CENTS) {
+    return null;
+  }
+
+  return { cents };
 }
 
 /**

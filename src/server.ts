@@ -13,7 +13,7 @@ import contentSecurityPolicy from "~/lib/content-security-policy";
 import earlyHints from "~/lib/early-hints";
 import baseLogger from "~/lib/logger";
 import permissionsPolicy from "~/lib/permissions-policy";
-import routes from "~/routes";
+import routes, { maxRawBodyBytes } from "~/routes";
 import errorReportingService from "~/services/error-reporting";
 
 process.on("uncaughtException", (err) => {
@@ -29,6 +29,7 @@ process.on("unhandledRejection", (reason) => {
 
 const fastify = Fastify({
   loggerInstance: baseLogger,
+  bodyLimit: maxRawBodyBytes,
 });
 
 fastify.register(fastifyCookie, {
@@ -69,6 +70,10 @@ if (!config.disableRateLimit) {
   fastify.register(fastifyRateLimit, {
     max: 256,
     timeWindow: "1 minute",
+    keyGenerator: (req) => {
+      const cf = req.headers["cf-connecting-ip"];
+      return typeof cf === "string" ? cf : req.ip;
+    },
     errorResponseBuilder: (_req, _context) => new RateLimitError(),
   });
 }

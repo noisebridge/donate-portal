@@ -1,5 +1,6 @@
 import crypto from "node:crypto";
 import stream from "node:stream";
+import createError from "@fastify/error";
 import type {
   FastifyInstance,
   FastifyReply,
@@ -13,6 +14,7 @@ import baseLogger from "~/lib/logger";
 import { parseToCents, validateAmountFormData } from "~/lib/money";
 import paths, { type MessageParams } from "~/lib/paths";
 import { CookieName, cookies } from "~/lib/signed-cookies";
+import { timingSafeStringEqual } from "~/lib/timing-safe-equal";
 import chargeAlertManager from "~/managers/charge-alert";
 import donationManager, { DonationManager } from "~/managers/donation";
 import emailManager from "~/managers/email";
@@ -52,6 +54,7 @@ const authRateLimit = conditionalRateLimit(3, "1 minute");
 const donationRateLimit = conditionalRateLimit(3, "1 minute");
 const errorReportingRateLimit = conditionalRateLimit(3, "1 minute");
 const cspReportRateLimit = conditionalRateLimit(10, "1 minute");
+const alertsRateLimit = conditionalRateLimit(10, "1 minute");
 
 /**
  * Cryptographically secure random string for use with OAuth.
@@ -74,33 +77,30 @@ function verifyBasicAuth(request: FastifyRequest) {
   }
 
   const decoded = Buffer.from(auth.slice("Basic ".length), "base64").toString();
-  const [username, password] = decoded.split(":", 2) as [
-    string,
-    string | undefined,
-  ];
-
-  if (
-    username.length !== config.alertsUsername.length ||
-    password?.length !== config.alertsPassword.length
-  ) {
+  const separator = decoded.indexOf(":");
+  if (separator === -1) {
     return false;
   }
 
-  if (
-    !crypto.timingSafeEqual(
-      Buffer.from(username),
-      Buffer.from(config.alertsUsername),
-    ) ||
-    !crypto.timingSafeEqual(
-      Buffer.from(password),
-      Buffer.from(config.alertsPassword),
-    )
-  ) {
-    return false;
-  }
+  const usernameValid = timingSafeStringEqual(
+    decoded.slice(0, separator),
+    config.alertsUsername,
+  );
+  const passwordValid = timingSafeStringEqual(
+    decoded.slice(separator + 1),
+    config.alertsPassword,
+  );
 
-  return true;
+  return usernameValid && passwordValid;
 }
+
+const PayloadTooLargeError = createError(
+  "PAYLOAD_TOO_LARGE",
+  "Request body is too large",
+  413,
+);
+
+export const maxRawBodyBytes = 256 * 1024;
 
 /**
  * Fastify preParsing hook to capture raw request body for webhook signature verification.
@@ -111,12 +111,27 @@ async function rawBody(
   payload: stream.Readable,
 ): Promise<stream.Readable> {
   const chunks: Buffer[] = [];
+  // bodyLimit is enforced by the content type parser, which runs after this
+  // hook has already buffered the whole stream — so cap the size here too.
+  // Drain (rather than abort) past the cap; destroying the stream mid-upload
+  // tears down the socket before the 413 response can be written.
+  let received = 0;
   for await (const chunk of payload) {
     if (!Buffer.isBuffer(chunk)) {
       throw new Error("Expected chunk to be a Buffer");
     }
 
+    received += chunk.length;
+    if (received > maxRawBodyBytes) {
+      chunks.length = 0;
+      continue;
+    }
+
     chunks.push(chunk);
+  }
+
+  if (received > maxRawBodyBytes) {
+    throw new PayloadTooLargeError();
   }
 
   request.rawBody = Buffer.concat(chunks);
@@ -131,6 +146,15 @@ export default async function routes(fastify: FastifyInstance) {
         thrown instanceof Error
           ? thrown
           : new Error(`Unknown error: ${thrown}`);
+
+      const statusCode =
+        "statusCode" in error &&
+        typeof error.statusCode === "number" &&
+        error.statusCode >= 400 &&
+        error.statusCode < 600
+          ? error.statusCode
+          : 500;
+
       fastify.log.error(
         {
           err: error,
@@ -140,12 +164,16 @@ export default async function routes(fastify: FastifyInstance) {
         "Unhandled error in route",
       );
 
-      errorReportingService
-        .reportBackend(error, request)
-        .catch((err) => baseLogger.error({ err }, "Failed to report error"));
+      // Client errors (CSRF failures, rate limits, oversized bodies) are
+      // attacker-triggerable, so only forward server errors to Sentry.
+      if (statusCode >= 500) {
+        errorReportingService
+          .reportBackend(error, request)
+          .catch((err) => baseLogger.error({ err }, "Failed to report error"));
+      }
 
       reply
-        .status(500)
+        .status(statusCode)
         .html(
           <ErrorPage
             isAuthenticated={isAuthenticated(request, reply)}
@@ -249,11 +277,11 @@ export default async function routes(fastify: FastifyInstance) {
     }
 
     const { user, primaryEmail } = oauthResult;
-    const email = primaryEmail || user.email;
+    const email = primaryEmail;
     if (!email) {
       fastify.log.warn(
         { userId: user.id, login: user.login },
-        "No email found for GitHub user",
+        "No verified primary email found for GitHub user",
       );
       return reply.redirect(paths.signIn({ error: "NoEmail" }));
     }
@@ -387,8 +415,8 @@ export default async function routes(fastify: FastifyInstance) {
     }
 
     const email = request.query.email;
-    if (!email) {
-      fastify.log.warn("Missing email parameter");
+    if (!email || !emailManager.isValidEmail(email)) {
+      fastify.log.warn("Missing or invalid email parameter");
       return reply.redirect(paths.signIn({ error: "InvalidRequest" }));
     }
 
@@ -719,7 +747,7 @@ export default async function routes(fastify: FastifyInstance) {
     },
   );
 
-  fastify.get(paths.alerts(), async (request, reply) => {
+  fastify.get(paths.alerts(), alertsRateLimit, async (request, reply) => {
     if (!verifyBasicAuth(request)) {
       return reply
         .status(401)
@@ -733,9 +761,10 @@ export default async function routes(fastify: FastifyInstance) {
 
   fastify.get(
     paths.alertsWs(),
-    { websocket: true },
+    { ...alertsRateLimit, websocket: true },
     async (socket, request) => {
       if (!verifyBasicAuth(request)) {
+        socket.close(1008, "Unauthorized");
         return;
       }
 
@@ -782,10 +811,9 @@ export default async function routes(fastify: FastifyInstance) {
           webhookSecret,
         );
       } catch (err) {
+        // Anyone can POST garbage here, so log instead of forwarding to
+        // Sentry — otherwise this is a vector for flooding error reports.
         fastify.log.warn({ err }, "Webhook signature verification failed");
-        if (err instanceof Error) {
-          await errorReportingService.reportBackend(err, request);
-        }
         return reply.status(400).send({ error: "Invalid signature" });
       }
 
