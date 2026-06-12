@@ -13,7 +13,7 @@ export enum ErrorCode {
   InvalidMagicLink = "Invalid magic link",
   MagicLinkExpired = "Magic link has expired. Please request a new one.",
   InvalidDonationAmount = "Please select a valid donation amount",
-  InvalidMonthlyDonationAmount = "Please select a valid donation amount",
+  InvalidMonthlyDonationAmount = "Please select a valid monthly donation amount",
   SessionError = "Unable to process donation. Please try again.",
   SameAmount = "Select a different donation amount",
   NoCustomer = "No Stripe customer found",
