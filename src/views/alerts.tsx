@@ -9,6 +9,16 @@ import type {
 } from "~/types/alerts";
 import type { Cents } from "~/types/cents";
 
+/**
+ * Serialize a value as JSON for safe embedding inside a `<script>` tag.
+ */
+function sanitizeJson(value: unknown): string {
+  return JSON.stringify(value)
+    .replace(/</g, "\\u003c")
+    .replace(/>/g, "\\u003e")
+    .replace(/&/g, "\\u0026");
+}
+
 function formatDate(isoDate: string): string {
   return new Date(isoDate).toLocaleString("en-US", {
     year: "numeric",
@@ -130,7 +140,7 @@ export function AlertsPage({ alerts }: AlertsPageProps) {
             crossorigin="anonymous"
           />
           <script id="current-charge" type="application/json">
-            {JSON.stringify(latest ?? null)}
+            {sanitizeJson(latest ?? null)}
           </script>
           <script type="importmap">{importMapJson}</script>
           <script

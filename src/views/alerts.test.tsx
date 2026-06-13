@@ -54,4 +54,21 @@ describe("AlertsPage", () => {
 
     expect(result).toContain("Waiting for donations");
   });
+
+  test("should not let a product name break out of the JSON script tag", async () => {
+    const payload = "</script><svg onload=alert(1)>";
+    const result = await (<AlertsPage alerts={[makeCharge(2000, payload)]} />);
+
+    // The literal closing tag must not appear inside the bootstrap JSON island,
+    // otherwise the browser ends the <script> early and the rest is live HTML.
+    expect(result).not.toContain("</script><svg");
+    expect(result).toContain("\\u003c/script\\u003e\\u003csvg");
+    // The escaped form is valid JSON that round-trips back to the original.
+    const json = result.slice(
+      result.indexOf('type="application/json">') +
+        'type="application/json">'.length,
+    );
+    const parsed = JSON.parse(json.slice(0, json.indexOf("</script>")));
+    expect(parsed.productName).toBe(payload);
+  });
 });
