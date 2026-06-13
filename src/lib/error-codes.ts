@@ -25,7 +25,6 @@ export enum ErrorCode {
   PortalError = "Unable to create billing portal session",
   PastDue = "Your subscription is past due! Click the Payment Methods button to fix it.",
 }
-
 export type ErrorCodeKey = keyof typeof ErrorCode;
 
 export enum InfoCode {
@@ -33,35 +32,19 @@ export enum InfoCode {
   SubscriptionUpdated = "Your donation amount has been updated. The new amount will apply to the next billing cycle.",
   SubscriptionCancelled = "Your monthly donation has been cancelled. No further charges will be made.",
 }
-
 export type InfoCodeKey = keyof typeof InfoCode;
-
-function getDisplayText(
-  enumObj: Record<string, string>,
-  key: string,
-): string | undefined {
-  if (!(key in enumObj)) {
-    return undefined;
-  }
-
-  return enumObj[key];
-}
 
 export function formatMessages({ info, error }: MessageParams) {
   const messages: Message[] = [];
 
   if (error) {
-    const text = getDisplayText(ErrorCode, error);
-    if (text) {
-      messages.push({ type: "error", text });
-    }
+    const text = ErrorCode[error];
+    messages.push({ type: "error", text });
   }
 
   if (info) {
-    const text = getDisplayText(InfoCode, info);
-    if (text) {
-      messages.push({ type: "info", text });
-    }
+    const text = InfoCode[info];
+    messages.push({ type: "info", text });
   }
 
   return messages;
