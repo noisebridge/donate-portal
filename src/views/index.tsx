@@ -26,6 +26,8 @@ export function IndexPage({
       csrfToken={csrfToken}
     >
       <div class="shell">
+        <MessageContainer messages={messages} />
+
         <section class="hero">
           <div>
             <div class="kicker">{"501(c)(3) · EST. 2007 · San Francisco"}</div>
@@ -81,8 +83,6 @@ export function IndexPage({
             </Button>
           </aside>
         </section>
-
-        <MessageContainer messages={messages} />
 
         <section>
           <SectionHead title="one_time_donation" anchor="donate" />
