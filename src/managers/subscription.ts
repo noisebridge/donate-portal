@@ -172,7 +172,6 @@ export class SubscriptionManager {
 
   /**
    * Cancel an active subscription for the given email.
-   * Issues a prorated refund to the original payment method.
    */
   async cancel(email: string): Promise<CancelResult> {
     const { customer, subscription } = await this.getSubscription(email);
