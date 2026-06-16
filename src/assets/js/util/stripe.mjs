@@ -204,8 +204,9 @@ function initCheckoutModal() {
 /**
  * Open the checkout modal with a Stripe Payment Element for the given client secret.
  * @param {string} clientSecret
+ * @param {string | null} email - Email to prefill for Stripe Link and billing details.
  */
-export async function initDonationCheckout(clientSecret) {
+export async function initDonationCheckout(clientSecret, email) {
   const stripe = await initStripe();
   elements = stripe.elements({ clientSecret });
 
@@ -217,6 +218,7 @@ export async function initDonationCheckout(clientSecret) {
       spacedAccordionItems: true,
     },
     paymentMethodOrder: ["apple_pay", "google_pay", "card", "crypto"],
+    ...(email ? { defaultValues: { billingDetails: { email } } } : {}),
   });
   paymentElement.on("escape", () => hideModal());
   paymentElement.on("loaderror", ({ error }) => showError(error.message ?? ""));
@@ -289,7 +291,8 @@ function isRedirectData(data) {
 
 /**
  * @typedef {Object} CheckoutData
- * @property {string} [clientSecret]
+ * @property {string} clientSecret
+ * @property {string | null} emailAddress
  */
 
 /**
@@ -308,8 +311,19 @@ function isCheckoutData(data) {
   }
 
   const clientSecret = data["clientSecret"];
-  if (typeof clientSecret !== "undefined" && typeof clientSecret !== "string") {
+  if (typeof clientSecret !== "string") {
     console.debug("Response contains an invalid clientSecret:", clientSecret);
+    return false;
+  }
+
+  if (!("emailAddress" in data)) {
+    console.debug("Response does not contain an emailAddress:", data);
+    return false;
+  }
+
+  const emailAddress = data["emailAddress"];
+  if (emailAddress !== null && typeof emailAddress !== "string") {
+    console.debug("Response contains an invalid emailAddress:", emailAddress);
     return false;
   }
 
@@ -367,12 +381,10 @@ export function initCheckoutForm(form, type) {
     if (isRedirectData(data)) {
       window.location.href = data.redirect;
     } else if (isCheckoutData(data)) {
-      if (data.clientSecret) {
-        if (type === "donate") {
-          await initDonationCheckout(data.clientSecret);
-        } else if (type === "subscribe") {
-          await initSubscriptionCheckout(data.clientSecret);
-        }
+      if (type === "donate") {
+        await initDonationCheckout(data.clientSecret, data.emailAddress);
+      } else if (type === "subscribe") {
+        await initSubscriptionCheckout(data.clientSecret);
       }
     } else {
       console.error("Response contains invalid data:", data);
