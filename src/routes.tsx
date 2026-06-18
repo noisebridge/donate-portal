@@ -294,7 +294,7 @@ export default async function routes(fastify: FastifyInstance) {
     };
 
     fastify.log.info(
-      { userId: user.id, login: user.login, email },
+      { userId: user.id, login: user.login, email, ip: request.ip },
       "User authenticated via GitHub",
     );
 
@@ -364,7 +364,7 @@ export default async function routes(fastify: FastifyInstance) {
     };
 
     fastify.log.info(
-      { userId: userInfo.id, email: userInfo.email },
+      { userId: userInfo.id, email: userInfo.email, ip: request.ip },
       "User authenticated via Google",
     );
 
@@ -460,7 +460,10 @@ export default async function routes(fastify: FastifyInstance) {
       issued: Date.now(),
     };
 
-    fastify.log.info({ email }, "User authenticated via magic link");
+    fastify.log.info(
+      { email, ip: request.ip },
+      "User authenticated via magic link",
+    );
 
     return reply.redirect(paths.manage());
   });
