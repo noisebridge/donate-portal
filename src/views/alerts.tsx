@@ -240,7 +240,6 @@ export function AlertsPage({ alerts }: AlertsPageProps) {
             alt=""
             class="dolphin-fly"
           />
-          <input type="hidden" id="alerts-ws-path" value={paths.alertsWs()} />
         </body>
       </html>
     </>

@@ -4,7 +4,11 @@
  * @typedef {import("~/types/error-reporting").SentryException} SentryException
  * @typedef {import("~/types/error-reporting").SentryFrame} SentryFrame
  * @typedef {import("~/types/error-reporting").SentryEvent} SentryEvent
+ * @typedef {import("~/lib/paths").Paths} Paths
  */
+
+/** @satisfies {Paths['errorReporting']} */
+const ERROR_REPORTING_PATH = "/error-reporting";
 
 const CHROME_RE =
   /^\s*at (?:(.*?) ?\()?((?:file|https?|blob|chrome-extension|address|native|eval|webpack|<anonymous>|[-a-z]+:|.*bundle|\/).*?)(?::(\d+))?(?::(\d+))?\)?\s*$/i;
@@ -111,7 +115,7 @@ export function sendErrorReport(error) {
 
   const body = JSON.stringify(event);
 
-  const success = navigator.sendBeacon("/error-reporting", body);
+  const success = navigator.sendBeacon(ERROR_REPORTING_PATH, body);
   if (!success) {
     console.error("Failed to log error to server");
   }

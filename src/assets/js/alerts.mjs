@@ -10,6 +10,10 @@ import { formatAmount } from "./util/money-forms.mjs";
 /** @typedef {import("~/types/alerts").PongMessage} PongMessage */
 /** @typedef {import("~/types/alerts").WebsocketMessage} WebsocketMessage */
 /** @typedef {import("~/types/cents").Cents} Cents */
+/** @typedef {import("~/lib/paths").Paths} Paths */
+
+/** @satisfies {Paths['alertsWs']} */
+const WS_PATH = "/alerts/ws";
 
 const effectCanvas = /** @type {HTMLCanvasElement} */ (
   document.getElementById("effect-canvas")
@@ -32,9 +36,6 @@ const container = /** @type {HTMLElement} */ (
 const historyList = /** @type {HTMLElement} */ (
   document.getElementById("history-list")
 );
-const wsPath = /** @type {HTMLInputElement} */ (
-  document.getElementById("alerts-ws-path")
-).value;
 
 const MAX_RECONNECT_DELAY = 30000;
 const DEFAULT_RECONNECT_DELAY = 1000;
@@ -392,7 +393,7 @@ async function displayAlert(alert) {
 
 function connect() {
   const protocol = location.protocol === "https:" ? "wss:" : "ws:";
-  const url = `${protocol}//${location.host}${wsPath}`;
+  const url = `${protocol}//${location.host}${WS_PATH}`;
 
   const ws = new WebSocket(url);
   /** @type {number | null} */

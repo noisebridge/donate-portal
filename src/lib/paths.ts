@@ -10,10 +10,10 @@ export interface MessageParams {
 /**
  * Format a page path with query params.
  */
-export function formatPath<T extends string>(
-  path: string,
-  params?: Partial<Record<T, string | number | undefined>>,
-) {
+export function formatPath<
+  Path extends string,
+  Params extends { [K in keyof Params]?: string | number | undefined },
+>(path: Path, params?: Params) {
   if (!params) {
     return path;
   }
@@ -37,7 +37,7 @@ export function formatPath<T extends string>(
     return path;
   }
 
-  return `${path}?${queryString}`;
+  return `${path}?${queryString}` as const;
 }
 
 type FunctionReturnsString = (...args: never[]) => string;
@@ -56,11 +56,11 @@ const paths = {
   /**
    * `/donate`
    */
-  donate: () => "/donate",
+  donate: () => "/donate" as const,
   /**
    * `/thank-you`
    */
-  thankYou: () => "/thank-you",
+  thankYou: () => "/thank-you" as const,
   /**
    * `/qr`
    */
@@ -82,7 +82,7 @@ const paths = {
   /**
    * `/qr-editor`
    */
-  qrEditor: () => "/qr-editor",
+  qrEditor: () => "/qr-editor" as const,
   /**
    * `/auth`
    */
@@ -99,23 +99,23 @@ const paths = {
   /**
    * `/auth/signout`
    */
-  signOut: () => "/auth/signout",
+  signOut: () => "/auth/signout" as const,
   /**
    * `/auth/github/start`
    */
-  githubStart: () => "/auth/github/start",
+  githubStart: () => "/auth/github/start" as const,
   /**
    * `/auth/github/callback`
    */
-  githubCallback: () => "/auth/github/callback",
+  githubCallback: () => "/auth/github/callback" as const,
   /**
    * `/auth/google/start`
    */
-  googleStart: () => "/auth/google/start",
+  googleStart: () => "/auth/google/start" as const,
   /**
    * `/auth/google/callback`
    */
-  googleCallback: () => "/auth/google/callback",
+  googleCallback: () => "/auth/google/callback" as const,
   /**
    * `/manage`
    */
@@ -123,48 +123,53 @@ const paths = {
   /**
    * `/subscribe`
    */
-  subscribe: () => "/subscribe",
+  subscribe: () => "/subscribe" as const,
   /**
    * `/subscribe/portal`
    */
-  stripePortal: () => "/subscribe/portal",
+  stripePortal: () => "/subscribe/portal" as const,
   /**
    * `/cancel`
    */
-  cancel: () => "/cancel",
+  cancel: () => "/cancel" as const,
   /**
    * `/alerts`
    */
-  alerts: () => "/alerts",
+  alerts: () => "/alerts" as const,
   /**
    * `/alerts/ws`
    */
-  alertsWs: () => "/alerts/ws",
+  alertsWs: () => "/alerts/ws" as const,
   /**
    * `/webhook`
    */
-  webhook: () => "/webhook",
+  webhook: () => "/webhook" as const,
   /**
    * `/error-reporting`
    */
-  errorReporting: () => "/error-reporting",
+  errorReporting: () => "/error-reporting" as const,
   /**
    * `/csp-report`
    */
-  cspReport: () => "/csp-report",
+  cspReport: () => "/csp-report" as const,
   /**
    * `/healthz`
    */
-  healthz: () => "/healthz",
+  healthz: () => "/healthz" as const,
   /**
    * `/assets/:filePath`
    */
-  asset: (filePath: string) => `/assets/${filePath}`,
+  asset: (filePath: string) => `/assets/${filePath}` as const,
   /**
    * `/assets/:filePath?v=$hash`
    */
   assetWithHash: (filePath: string) =>
     formatPath(`/assets/${filePath}`, { v: assetHashes.get(filePath) }),
 } as const satisfies Record<string, FunctionReturnsString>;
+
+type PathMap = typeof paths;
+export type Paths = {
+  [K in keyof PathMap]: ReturnType<PathMap[K]>;
+};
 
 export default paths;

@@ -3,6 +3,10 @@
 import { sendErrorReport } from "./error-reporting.mjs";
 
 /** @typedef {import("@stripe/stripe-js").ReleaseTrain} StripeRelease */
+/** @typedef {import("~/lib/paths").Paths} Paths */
+
+/** @satisfies {Paths['thankYou']} */
+const THANK_YOU_PATH = "/thank-you";
 /** @typedef {import("@stripe/stripe-js").Stripe} Stripe */
 /** @typedef {import("@stripe/stripe-js").StripeElements} StripeElements */
 /** @typedef {import("@stripe/stripe-js").StripeElementType} StripeElementType */
@@ -189,7 +193,7 @@ function initCheckoutModal() {
       const { error } = await stripe.confirmPayment({
         elements,
         confirmParams: {
-          return_url: `${window.location.origin}/thank-you`,
+          return_url: `${window.location.origin}${THANK_YOU_PATH}`,
         },
       });
 
