@@ -55,18 +55,11 @@ function parseLine(line) {
  * @returns {SentryException}
  */
 function parseStackTrace(error) {
-  if (!error.stack) {
-    return {
-      type: error.name || "Error",
-      value: error.message || "No error message",
-      stacktrace: { frames: [] },
-    };
-  }
-
   /** @type {SentryFrame[]} */
   const frames = [];
 
-  for (const line of error.stack.split("\n")) {
+  const stackLines = error.stack?.split("\n") ?? [];
+  for (const line of stackLines) {
     const frame = parseLine(line);
     if (!frame) {
       continue;
@@ -81,9 +74,7 @@ function parseStackTrace(error) {
 
   return {
     type: error.name || "Error",
-    value:
-      (error.message || "No error message").split("\n")[0] ||
-      "No error message",
+    value: error.message.split("\n")[0] || "No error message",
     stacktrace: { frames: frames.reverse() },
   };
 }
