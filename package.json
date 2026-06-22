@@ -44,7 +44,9 @@
     "picomatch": "^2.3.2",
     "@isaacs/brace-expansion": "^5.0.1",
     "brace-expansion": "^2.0.3",
-    "minimatch": ">=10.2.1"
+    "minimatch": ">=10.2.1",
+    "undici": ">=6.27.0",
+    "js-yaml": ">=4.1.2"
   },
   "dependencies": {
     "@fastify/cookie": "^11.0.2",
