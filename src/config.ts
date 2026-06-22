@@ -11,12 +11,13 @@ function assertEnvVar(key: string) {
   return value;
 }
 
-const serverProtocol = process.env.NODE_ENV === "production" ? "https" : "http";
+const serverProtocol =
+  process.env["NODE_ENV"] === "production" ? "https" : "http";
 const serverHost = assertEnvVar("SERVER_HOST");
 
 export default {
   disableRateLimit: process.env["DISABLE_RATE_LIMIT"] === "true",
-  production: process.env.NODE_ENV === "production",
+  production: process.env["NODE_ENV"] === "production",
   gitRepo: process.env["RENDER_GIT_REPO_SLUG"],
   gitCommit: process.env["RENDER_GIT_COMMIT"],
   serverProtocol,

@@ -1,4 +1,5 @@
 // @ts-check
+/// <reference types="bun-types" />
 import { afterEach, beforeEach, describe, expect, it, jest } from "bun:test";
 import { Window } from "happy-dom";
 import { initMessages } from "./messages.mjs";
