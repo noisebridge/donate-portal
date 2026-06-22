@@ -1,5 +1,4 @@
-import { Decimal } from "node_modules/stripe/esm/Decimal";
-import type Stripe from "stripe";
+import Stripe from "stripe";
 
 // Mid-January 2025 — deterministic date that renders as "Jan 2025" in any timezone.
 const DEFAULT_PERIOD_END = 1737504000;
@@ -66,7 +65,7 @@ export function createMockSubscription(
             object: "plan",
             active: true,
             amount: unitAmount,
-            amount_decimal: Decimal.from(unitAmount),
+            amount_decimal: Stripe.Decimal.from(unitAmount),
             billing_scheme: "per_unit",
             created: 1234567890,
             currency: "usd",
@@ -107,7 +106,7 @@ export function createMockSubscription(
             transform_quantity: null,
             type: "recurring",
             unit_amount: unitAmount,
-            unit_amount_decimal: Decimal.from(unitAmount),
+            unit_amount_decimal: Stripe.Decimal.from(unitAmount),
           },
           quantity: 1,
           subscription: "sub_123",
