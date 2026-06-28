@@ -48,6 +48,9 @@ export function createMockSubscription(
     ended_at: null,
     invoice_settings: {
       account_tax_ids: null,
+      custom_fields: null,
+      description: null,
+      footer: null,
       issuer: { type: "self" },
     },
     items: {
