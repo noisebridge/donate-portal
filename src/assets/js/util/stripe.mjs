@@ -5,8 +5,6 @@ import { sendErrorReport } from "./error-reporting.mjs";
 /** @typedef {import("@stripe/stripe-js").ReleaseTrain} StripeRelease */
 /** @typedef {import("@stripe/stripe-js").Stripe} Stripe */
 /** @typedef {import("@stripe/stripe-js").StripeElements} StripeElements */
-/** @typedef {import("@stripe/stripe-js").StripeElementType} StripeElementType */
-/** @typedef {import("@stripe/stripe-js").StripeEmbeddedCheckout} StripeEmbeddedCheckout */
 /** @typedef {import("~/lib/paths").Paths} Paths */
 
 /** @satisfies {Paths['thankYou']} */
@@ -18,18 +16,11 @@ const THANK_YOU_PATH = "/thank-you";
  * @satisfies {StripeRelease}
  */
 const RELEASE = "dahlia";
-
-/** @satisfies {StripeElementType} */
-const ELEMENT_TYPE = "payment";
-
 /** @type {Promise<Stripe> | null} */
 let stripePromise = null;
 
 /** @type {StripeElements | null} */
 let elements = null;
-
-/** @type {StripeEmbeddedCheckout | null} */
-let embeddedCheckout = null;
 
 /**
  * Replace a button's content with animated loading bars.
@@ -214,7 +205,7 @@ export async function initDonationCheckout(clientSecret, email) {
   const stripe = await initStripe();
   elements = stripe.elements({ clientSecret });
 
-  const paymentElement = elements.create(ELEMENT_TYPE, {
+  const paymentElement = elements.create("payment", {
     layout: {
       type: "accordion",
       defaultCollapsed: false,
@@ -233,10 +224,8 @@ export async function initDonationCheckout(clientSecret, email) {
   }
 
   showModal(() => {
-    if (elements) {
-      elements.getElement(ELEMENT_TYPE)?.destroy();
-      elements = null;
-    }
+    paymentElement.destroy();
+    elements = null;
   });
 }
 
@@ -252,14 +241,13 @@ export async function initSubscriptionCheckout(clientSecret) {
     return;
   }
 
-  embeddedCheckout = await stripe.createEmbeddedCheckoutPage({ clientSecret });
+  const embeddedCheckout = await stripe.createEmbeddedCheckoutPage({
+    clientSecret,
+  });
   embeddedCheckout.mount(mountPoint);
 
   showModal(() => {
-    if (embeddedCheckout) {
-      embeddedCheckout.destroy();
-      embeddedCheckout = null;
-    }
+    embeddedCheckout.destroy();
   });
 }
 
