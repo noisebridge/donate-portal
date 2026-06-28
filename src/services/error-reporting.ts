@@ -152,6 +152,11 @@ class ErrorReportingService {
   }
 
   private recordViolation(report: CspReport["csp-report"]): boolean {
+    const blockedUri = report["blocked-uri"];
+    if (blockedUri === "eval") {
+      return false;
+    }
+
     const sourceFile = report["source-file"];
     if (!sourceFile) {
       return true;
@@ -159,6 +164,7 @@ class ErrorReportingService {
 
     if (
       sourceFile.startsWith("chrome-extension") ||
+      sourceFile.startsWith("safari-web-extension") ||
       sourceFile.startsWith("user-script")
     ) {
       return false;
