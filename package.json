@@ -63,7 +63,7 @@
     "dotenv": "^17.4.2",
     "fastify": "^5.8.5",
     "fastify-plugin": "^6.0.0",
-    "mjml": "^5.3.0",
+    "mjml": "^5.4.0",
     "obscenity": "^0.4.6",
     "pino": "^9.14.0",
     "resend": "^6.16.0",
