@@ -1,4 +1,4 @@
-import { DonationManager } from "~/managers/donation";
+import * as donationManager from "~/managers/donation";
 import { expect, test } from "./fixtures";
 import {
   fillStripePaymentElement,
@@ -172,7 +172,7 @@ test.describe("QR Donation Endpoint", () => {
   });
 
   test("returns 400 when name exceeds max length", async ({ page }) => {
-    const longName = "a".repeat(DonationManager.maxNameLength + 1);
+    const longName = "a".repeat(donationManager.MAX_NAME_LENGTH + 1);
     const response = await page.goto(`/qr?amount=5.00&name=${longName}`);
 
     expect(response?.status()).toBe(400);
@@ -180,7 +180,7 @@ test.describe("QR Donation Endpoint", () => {
 
   test("returns 400 when description exceeds max length", async ({ page }) => {
     const longDescription = "a".repeat(
-      DonationManager.maxDescriptionLength + 1,
+      donationManager.MAX_DESCRIPTION_LENGTH + 1,
     );
     const response = await page.goto(
       `/qr?amount=5.00&description=${longDescription}`,

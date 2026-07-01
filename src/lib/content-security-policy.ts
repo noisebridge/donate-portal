@@ -9,7 +9,7 @@
 import { createHash } from "node:crypto";
 import fp from "fastify-plugin";
 import { layoutStyleBody } from "~/components/layout";
-import { qrBackground, qrForeground } from "~/managers/qr-code";
+import { QR_BACKGROUND, QR_FOREGROUND } from "~/managers/qr-code";
 import { importMapJson } from "./import-map";
 import paths from "./paths";
 import { qrSvgStyle } from "./qrcode-svg";
@@ -71,8 +71,8 @@ const sitePolicy: PolicyEntry = {
     "'self'",
     "'unsafe-hashes'",
     cspHash(layoutStyleBody),
-    cspHash(qrSvgStyle(qrForeground)),
-    cspHash(qrSvgStyle(qrBackground)),
+    cspHash(qrSvgStyle(QR_FOREGROUND)),
+    cspHash(qrSvgStyle(QR_BACKGROUND)),
   ],
   "img-src": ["'self'"],
   "font-src": ["'self'"],

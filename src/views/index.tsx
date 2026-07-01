@@ -4,7 +4,7 @@ import { type Message, MessageContainer } from "~/components/message-container";
 import { SectionHead } from "~/components/section-head";
 import { StripeCheckoutModal } from "~/components/stripe-checkout-modal";
 import paths from "~/lib/paths";
-import { DonationManager } from "~/managers/donation";
+import * as donationManager from "~/managers/donation";
 
 export interface IndexProps {
   isAuthenticated: boolean;
@@ -191,7 +191,7 @@ export function IndexPage({
                     name="custom-amount"
                     placeholder="0"
                     aria-describedby="custom-amount-hint"
-                    data-min={DonationManager.minimumAmount.cents / 100}
+                    data-min={donationManager.MINIMUM_AMOUNT.cents / 100}
                     required
                     readonly
                   />

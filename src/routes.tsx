@@ -16,17 +16,14 @@ import paths, { type MessageParams } from "~/lib/paths";
 import { CookieName, cookies } from "~/lib/signed-cookies";
 import { timingSafeStringEqual } from "~/lib/timing-safe-equal";
 import chargeAlertManager from "~/managers/charge-alert";
-import donationManager, { DonationManager } from "~/managers/donation";
-import emailManager from "~/managers/email";
-import magicLinkManager from "~/managers/magic-link";
-import qrCodeManager from "~/managers/qr-code";
-import subscriptionManager from "~/managers/subscription";
-import errorReportingService, {
-  validateCspReport,
-  validateSentryEvent,
-} from "~/services/error-reporting";
-import githubOAuth from "~/services/github";
-import googleOAuth from "~/services/google";
+import * as donationManager from "~/managers/donation";
+import * as emailManager from "~/managers/email";
+import * as magicLinkManager from "~/managers/magic-link";
+import * as qrCodeManager from "~/managers/qr-code";
+import * as subscriptionManager from "~/managers/subscription";
+import * as errorReportingService from "~/services/error-reporting";
+import * as githubOAuth from "~/services/github";
+import * as googleOAuth from "~/services/google";
 import stripe from "~/services/stripe";
 import { AlertsPage } from "~/views/alerts";
 import { AuthPage } from "~/views/auth";
@@ -271,7 +268,7 @@ export default async function routes(fastify: FastifyInstance) {
       return reply.redirect(paths.signIn({ error: "InvalidState" }));
     }
 
-    const oauthResult = await githubOAuth.completeOAuthFlow(code);
+    const oauthResult = await githubOAuth.completeFlow(code);
     if (!oauthResult) {
       return reply.redirect(paths.signIn({ error: "OAuthFailed" }));
     }
@@ -342,7 +339,7 @@ export default async function routes(fastify: FastifyInstance) {
       return reply.redirect(paths.signIn({ error: "InvalidState" }));
     }
 
-    const oauthResult = await googleOAuth.completeOAuthFlow(code);
+    const oauthResult = await googleOAuth.completeFlow(code);
     if (!oauthResult) {
       return reply.redirect(paths.signIn({ error: "OAuthFailed" }));
     }
@@ -388,12 +385,12 @@ export default async function routes(fastify: FastifyInstance) {
         return reply.redirect(paths.signIn({ error: "InvalidRequest" }));
       }
 
-      if (!emailManager.isValidEmail(email)) {
+      if (!emailManager.isValid(email)) {
         fastify.log.warn({ email }, "Invalid email format");
         return reply.redirect(paths.signIn({ error: "EmailInvalid" }));
       }
 
-      const response = await emailManager.sendMagicLinkEmail(email);
+      const response = await emailManager.sendMagicLink(email);
       if (!response.success) {
         fastify.log.error(
           { email, error: response.error },
@@ -415,7 +412,7 @@ export default async function routes(fastify: FastifyInstance) {
     }
 
     const email = request.query.email;
-    if (!email || !emailManager.isValidEmail(email)) {
+    if (!email || !emailManager.isValid(email)) {
       fastify.log.warn("Missing or invalid email parameter");
       return reply.redirect(paths.signIn({ error: "InvalidRequest" }));
     }
@@ -439,7 +436,7 @@ export default async function routes(fastify: FastifyInstance) {
       return reply.redirect(paths.signIn({ error: "InvalidRequest" }));
     }
 
-    const magicLinkState = magicLinkManager.decodeMagicLinkState(state);
+    const magicLinkState = magicLinkManager.decodeState(state);
     if (!magicLinkState) {
       fastify.log.warn("Invalid state parameter in magic link callback");
       return reply.redirect(paths.signIn({ error: "InvalidMagicLink" }));
@@ -447,7 +444,7 @@ export default async function routes(fastify: FastifyInstance) {
 
     const { email, code } = magicLinkState;
 
-    const isValid = magicLinkManager.verifyMagicLinkCode(email, code);
+    const isValid = magicLinkManager.verifyCode(email, code);
     if (!isValid) {
       fastify.log.warn({ email }, "Invalid or expired magic link code");
       return reply.redirect(paths.signIn({ error: "MagicLinkExpired" }));
@@ -490,7 +487,7 @@ export default async function routes(fastify: FastifyInstance) {
       return reply.redirect(paths.index());
     }
 
-    const customerSubscription = await subscriptionManager.getSubscription(
+    const customerSubscription = await subscriptionManager.get(
       sessionData.email,
     );
 
@@ -537,7 +534,7 @@ export default async function routes(fastify: FastifyInstance) {
       }
 
       const { name, description } = body;
-      if (!DonationManager.validateParams(name, description)) {
+      if (!donationManager.validateParams(name, description)) {
         return reply.send({
           redirect: paths.index({ error: "InvalidRequest" }),
         });
@@ -577,7 +574,7 @@ export default async function routes(fastify: FastifyInstance) {
       return reply.redirect(paths.index({ error: "InvalidDonationAmount" }));
     }
 
-    if (!DonationManager.validateParams(name, description)) {
+    if (!donationManager.validateParams(name, description)) {
       return reply.status(400).send("Invalid name or description");
     }
 
@@ -607,13 +604,13 @@ export default async function routes(fastify: FastifyInstance) {
       return reply.status(400).send("Invalid amount");
     }
 
-    if (!DonationManager.validateParams(name, description)) {
+    if (!donationManager.validateParams(name, description)) {
       return reply.status(400).send("Invalid name or description");
     }
 
     const includelogo = useLogo !== "false";
     const url = `${config.baseUrl}${paths.qr(amountCents, name, description)}`;
-    const qrCode = qrCodeManager.createQRCode(url, includelogo);
+    const qrCode = qrCodeManager.create(url, includelogo);
 
     return reply
       .header("Cache-Control", "no-cache, no-store, must-revalidate")
@@ -870,7 +867,7 @@ export default async function routes(fastify: FastifyInstance) {
         return reply.status(400).send();
       }
 
-      if (!validateSentryEvent(event)) {
+      if (!errorReportingService.validateSentryEvent(event)) {
         return reply.status(400).send();
       }
 
@@ -900,7 +897,7 @@ export default async function routes(fastify: FastifyInstance) {
         return reply.status(400).send();
       }
 
-      if (!validateCspReport(body)) {
+      if (!errorReportingService.validateCspReport(body)) {
         return reply.status(400).send();
       }
 

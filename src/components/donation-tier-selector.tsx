@@ -1,7 +1,7 @@
 import type Stripe from "stripe";
 import { Button } from "~/components/button";
 import paths from "~/lib/paths";
-import { SubscriptionManager } from "~/managers/subscription";
+import * as subscriptionManager from "~/managers/subscription";
 
 export interface Tier {
   id: string;
@@ -103,7 +103,7 @@ export function DonationTierSelector({
                   inputmode="decimal"
                   name="custom-amount"
                   id="custom-amount"
-                  data-min={SubscriptionManager.minimumAmount.cents / 100}
+                  data-min={subscriptionManager.MINIMUM_AMOUNT.cents / 100}
                   class="custom-input"
                   placeholder="0"
                   aria-describedby="custom-amount-monthly-hint"

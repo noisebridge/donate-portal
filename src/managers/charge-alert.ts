@@ -17,25 +17,33 @@ import type {
   PingMessage,
 } from "~/types/alerts";
 import { GENERAL_DONATION, NAME_REMAP } from "./donation";
-import { SubscriptionManager } from "./subscription";
+import { PRODUCT_ID } from "./subscription";
 
 const MAX_RECENT_ALERTS = 20;
 const PING_HISTORY_SIZE = 5;
 const PING_INTERVAL_MS = 30_000;
 
-const obscenityDataset = new DataSet<{ originalWord: string }>()
-  .addAll(englishDataset)
-  // We have a "Give a shit" donation so we should pass that through
-  .removePhrasesIf((phrase) => phrase.metadata?.originalWord === "shit");
+function buildObscenityFilter() {
+  const obscenityDataset = new DataSet<{ originalWord: string }>()
+    .addAll(englishDataset)
+    // We have a "Give a shit" donation so we should pass that through
+    .removePhrasesIf((phrase) => phrase.metadata?.originalWord === "shit");
 
-const obscenityMatcher = new RegExpMatcher({
-  ...obscenityDataset.build(),
-  ...englishRecommendedTransformers,
-});
-const obscenityCensor = new TextCensor();
+  const obscenityMatcher = new RegExpMatcher({
+    ...obscenityDataset.build(),
+    ...englishRecommendedTransformers,
+  });
+
+  const textCensor = new TextCensor();
+
+  return (input: string) => {
+    return textCensor.applyTo(input, obscenityMatcher.getAllMatches(input));
+  };
+}
+const obscenityFilter = buildObscenityFilter();
 
 export class ChargeAlertManager {
-  static readonly log = baseLogger.child({ class: "ChargeAlertManager" });
+  static readonly log = baseLogger.child({ module: "charge-alert" });
 
   private _recentAlerts: AlertMessage[] | null = null;
   private connections = new Map<WebSocket, { alive: boolean }>();
@@ -182,7 +190,7 @@ export class ChargeAlertManager {
     }
 
     const productId = typeof product === "string" ? product : product.id;
-    return productId === SubscriptionManager.productId;
+    return productId === PRODUCT_ID;
   }
 
   private formatMemberAlert(
@@ -243,10 +251,7 @@ export class ChargeAlertManager {
     }
 
     const remapped = NAME_REMAP[name] ?? name;
-    return obscenityCensor.applyTo(
-      remapped,
-      obscenityMatcher.getAllMatches(remapped),
-    );
+    return obscenityFilter(remapped);
   }
 }
 

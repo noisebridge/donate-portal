@@ -1,34 +1,36 @@
 import { describe, expect, test } from "bun:test";
-import { DonationManager } from "./donation";
+import * as donationManager from "./donation";
 
-describe("DonationManager", () => {
-  describe("maxNameLength", () => {
+describe("donation", () => {
+  describe("MAX_NAME_LENGTH", () => {
     test("is defined as a positive number", () => {
-      expect(DonationManager.maxNameLength).toBeGreaterThan(0);
+      expect(donationManager.MAX_NAME_LENGTH).toBeGreaterThan(0);
     });
   });
 
-  describe("maxDescriptionLength", () => {
+  describe("MAX_DESCRIPTION_LENGTH", () => {
     test("is defined as a positive number", () => {
-      expect(DonationManager.maxDescriptionLength).toBeGreaterThan(0);
+      expect(donationManager.MAX_DESCRIPTION_LENGTH).toBeGreaterThan(0);
     });
   });
 
   describe("isGeneral", () => {
     test("returns true when name is undefined", () => {
-      expect(DonationManager.isGeneral()).toBe(true);
+      expect(donationManager.isGeneral()).toBe(true);
     });
 
     test("returns true for the default donation name", () => {
-      expect(DonationManager.isGeneral(DonationManager.defaultName)).toBe(true);
+      expect(donationManager.isGeneral(donationManager.DEFAULT_NAME)).toBe(
+        true,
+      );
     });
 
     test("returns true for 'Support Us'", () => {
-      expect(DonationManager.isGeneral("Support Us")).toBe(true);
+      expect(donationManager.isGeneral("Support Us")).toBe(true);
     });
 
     test("returns false for a custom product name", () => {
-      expect(DonationManager.isGeneral("Laser Cutter")).toBe(false);
+      expect(donationManager.isGeneral("Laser Cutter")).toBe(false);
     });
   });
 });

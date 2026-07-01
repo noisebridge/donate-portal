@@ -1,10 +1,9 @@
 #!/usr/bin/env bun
 
 import Stripe from "stripe";
-import { SubscriptionManager } from "~/managers/subscription";
+import { PRODUCT_ID } from "~/managers/subscription";
 import stripe from "~/services/stripe";
 
-const PRODUCT_ID = SubscriptionManager.productId;
 const PRODUCT_NAME = "Monthly Donation";
 
 async function setupStripeProduct() {

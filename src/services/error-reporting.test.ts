@@ -1,7 +1,19 @@
-import { afterEach, describe, expect, spyOn, test } from "bun:test";
+import {
+  afterAll,
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  spyOn,
+  test,
+} from "bun:test";
 import type { FastifyRequest } from "fastify";
+import config from "~/config";
 import type { CspReport, SentryEvent } from "~/types/error-reporting";
-import errorReportingService, {
+import {
+  reportBackend,
+  reportCspViolation,
+  reportFrontend,
   validateCspReport,
   validateSentryEvent,
 } from "./error-reporting";
@@ -94,38 +106,49 @@ describe("validateCspReport", () => {
   });
 });
 
-describe("ErrorReportingService", () => {
-  const forwardSpy = spyOn(errorReportingService, "forward");
+describe("error reporting", () => {
+  // Force the production branch so `forward` actually attempts to POST, then
+  // intercept the network call with a fetch spy to observe forwarding.
+  const originalProduction = config.production;
+  const fetchSpy = spyOn(globalThis, "fetch").mockResolvedValue(
+    new Response(null, { status: 200 }),
+  );
+
+  beforeEach(() => {
+    config.production = true;
+    fetchSpy.mockClear();
+    fetchSpy.mockResolvedValue(new Response(null, { status: 200 }));
+  });
 
   afterEach(() => {
-    forwardSpy.mockClear();
+    config.production = originalProduction;
+  });
+
+  afterAll(() => {
+    fetchSpy.mockRestore();
   });
 
   describe("reportFrontend", () => {
     test("forwards a valid javascript event", async () => {
-      const result = await errorReportingService.reportFrontend(
-        makeSentryEvent(),
-      );
+      const result = await reportFrontend(makeSentryEvent());
       expect(result).toBe(true);
-      expect(forwardSpy).toHaveBeenCalledTimes(1);
+      expect(fetchSpy).toHaveBeenCalledTimes(1);
     });
 
     test("returns false for non-javascript platform without forwarding", async () => {
-      const result = await errorReportingService.reportFrontend(
+      const result = await reportFrontend(
         makeSentryEvent({ platform: "node" }),
       );
       expect(result).toBe(false);
-      expect(forwardSpy).not.toHaveBeenCalled();
+      expect(fetchSpy).not.toHaveBeenCalled();
     });
   });
 
   describe("reportBackend", () => {
     test("forwards error report", async () => {
-      const result = await errorReportingService.reportBackend(
-        new Error("test"),
-      );
+      const result = await reportBackend(new Error("test"));
       expect(result).toBe(true);
-      expect(forwardSpy).toHaveBeenCalledTimes(1);
+      expect(fetchSpy).toHaveBeenCalledTimes(1);
     });
 
     test("forwards error report with request context", async () => {
@@ -137,26 +160,21 @@ describe("ErrorReportingService", () => {
           "content-length": "42",
         },
       } as unknown as FastifyRequest;
-      const result = await errorReportingService.reportBackend(
-        new Error("test"),
-        fakeRequest,
-      );
+      const result = await reportBackend(new Error("test"), fakeRequest);
       expect(result).toBe(true);
-      expect(forwardSpy).toHaveBeenCalledTimes(1);
+      expect(fetchSpy).toHaveBeenCalledTimes(1);
     });
   });
 
   describe("reportCspViolation", () => {
     test("forwards CSP violation report", async () => {
-      const result = await errorReportingService.reportCspViolation(
-        makeCspReport(),
-      );
+      const result = await reportCspViolation(makeCspReport());
       expect(result).toBe(true);
-      expect(forwardSpy).toHaveBeenCalledTimes(1);
+      expect(fetchSpy).toHaveBeenCalledTimes(1);
     });
 
     test("forwards CSP violation with source-file info", async () => {
-      const result = await errorReportingService.reportCspViolation(
+      const result = await reportCspViolation(
         makeCspReport({
           "source-file": "https://example.com/app.js",
           "line-number": 42,
@@ -164,16 +182,16 @@ describe("ErrorReportingService", () => {
         }),
       );
       expect(result).toBe(true);
-      expect(forwardSpy).toHaveBeenCalledTimes(1);
+      expect(fetchSpy).toHaveBeenCalledTimes(1);
     });
 
     test("forwards CSP violation without blocked-uri", async () => {
       const report = makeCspReport();
       delete report["csp-report"]["blocked-uri"];
 
-      const result = await errorReportingService.reportCspViolation(report);
+      const result = await reportCspViolation(report);
       expect(result).toBe(true);
-      expect(forwardSpy).toHaveBeenCalledTimes(1);
+      expect(fetchSpy).toHaveBeenCalledTimes(1);
     });
   });
 });

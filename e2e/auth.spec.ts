@@ -1,4 +1,4 @@
-import magicLinkManager from "~/managers/magic-link";
+import * as magicLinkManager from "~/managers/magic-link";
 import { setAuthCookie } from "./auth-utils";
 import { expect, test } from "./fixtures";
 
@@ -39,7 +39,7 @@ test.describe("Auth Flow Tests", () => {
     const testEmail = "test@example.com";
 
     // Generate a magic link using the manager
-    const magicLinkUrl = magicLinkManager.generateMagicLinkUrl(testEmail);
+    const magicLinkUrl = magicLinkManager.generateUrl(testEmail);
 
     // Navigate to the magic link
     await page.goto(magicLinkUrl);

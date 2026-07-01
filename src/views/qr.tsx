@@ -3,7 +3,7 @@ import { Layout } from "~/components/layout";
 import { StripeCheckoutModal } from "~/components/stripe-checkout-modal";
 import { formatAmount } from "~/lib/money";
 import paths from "~/lib/paths";
-import { DonationManager } from "~/managers/donation";
+import * as donationManager from "~/managers/donation";
 import type { Cents } from "~/types/cents";
 
 export interface QrPageProps {
@@ -21,7 +21,7 @@ export function QrPage({
   isAuthenticated,
   csrfToken,
 }: QrPageProps) {
-  const minDollars = DonationManager.minimumAmount.cents / 100;
+  const minDollars = donationManager.MINIMUM_AMOUNT.cents / 100;
   const initialDollars = amount.cents / 100;
   const maxDollars = initialDollars * 2;
   const maxAmount: Cents = { cents: amount.cents * 2 };
@@ -56,8 +56,8 @@ export function QrPage({
                 name="name"
                 class="product-name-input"
                 value={name ? escapeHtml(name) : ""}
-                placeholder={DonationManager.defaultName}
-                maxlength={DonationManager.maxNameLength}
+                placeholder={donationManager.DEFAULT_NAME}
+                maxlength={donationManager.MAX_NAME_LENGTH}
                 autocomplete="off"
                 autocapitalize="off"
                 autocorrect="off"
@@ -76,8 +76,8 @@ export function QrPage({
                 name="description"
                 class="product-desc-input"
                 rows="2"
-                placeholder={DonationManager.defaultDescription}
-                maxlength={DonationManager.maxDescriptionLength}
+                placeholder={donationManager.DEFAULT_DESCRIPTION}
+                maxlength={donationManager.MAX_DESCRIPTION_LENGTH}
                 readonly
               >
                 {description ? escapeHtml(description) : ""}
@@ -102,7 +102,7 @@ export function QrPage({
             </div>
 
             <span class="form-hint" id="amount-hint">
-              Minimum {formatAmount(DonationManager.minimumAmount) as "safe"}
+              Minimum {formatAmount(donationManager.MINIMUM_AMOUNT) as "safe"}
             </span>
 
             <div class="slider-wrap">
@@ -121,7 +121,7 @@ export function QrPage({
                   <button type="button" class="tick" data-amt={minDollars}>
                     <span class="pip"></span>
                     <span class="label">
-                      {formatAmount(DonationManager.minimumAmount) as "safe"}
+                      {formatAmount(donationManager.MINIMUM_AMOUNT) as "safe"}
                     </span>
                   </button>
                 )}
@@ -148,7 +148,7 @@ export function QrPage({
         <div class="divider">or</div>
 
         <div class="alt-stack">
-          {!DonationManager.isGeneral(name) && (
+          {!donationManager.isGeneral(name) && (
             <a class="btn btn-ghost" href={`${paths.index()}#donate`}>
               <span class="lead">
                 <span class="lbl">Make a general donation</span>

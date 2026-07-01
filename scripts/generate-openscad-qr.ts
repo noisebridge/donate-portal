@@ -9,7 +9,7 @@ import { parseArgs } from "node:util";
 process.env["SERVER_HOST"] = "donate.noisebridge.net";
 process.env["NODE_ENV"] = "production";
 
-const { QRCodeManager } = await import("~/managers/qr-code");
+const qrManager = await import("~/managers/qr-code");
 const { default: config } = await import("~/config");
 const { default: paths } = await import("~/lib/paths");
 
@@ -321,9 +321,8 @@ function main() {
   checkOpenscad();
   const args = parseCliArgs();
 
-  const qrManager = new QRCodeManager();
   const url = `${config.baseUrl}${paths.qr({ cents: args.cents }, args.name, args.description)}`;
-  const qrCode = qrManager.createQRCode(url);
+  const qrCode = qrManager.create(url);
 
   const { modules: qrData, moduleCount } = qrCode.qrcode;
   if (moduleCount !== 53) {
@@ -338,7 +337,7 @@ function main() {
   }
 
   const qrInsertCentered = centerBooleanArray(
-    bmpColorToBoolean(QRCodeManager.qrInsert),
+    bmpColorToBoolean(qrManager.QR_INSERT),
     moduleCount,
   );
   const qrDataWithoutInsert = subtract(qrData, qrInsertCentered);

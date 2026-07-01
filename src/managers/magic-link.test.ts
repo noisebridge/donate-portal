@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import config from "~/config";
 import paths from "~/lib/paths";
-import { MagicLinkManager } from "./magic-link";
+import * as magicLinkManager from "./magic-link";
 
 /**
  * Encode a value as base64 JSON string
@@ -15,7 +15,7 @@ function encodeBase64Json(value: unknown): string {
  * Returns the decoded state containing email and code.
  */
 function extractMagicLinkCode(
-  manager: MagicLinkManager,
+  manager: typeof magicLinkManager,
   url: string,
 ): { email: string; code: string } {
   const stateMatch = url.match(/\?state=([^&]+)/);
@@ -23,7 +23,7 @@ function extractMagicLinkCode(
     throw new Error("No state parameter found in URL");
   }
 
-  const decodedState = manager.decodeMagicLinkState(stateMatch[1]);
+  const decodedState = manager.decodeState(stateMatch[1]);
   if (!decodedState) {
     throw new Error("Failed to decode magic link state");
   }
@@ -31,25 +31,25 @@ function extractMagicLinkCode(
   return decodedState;
 }
 
-describe("MagicLinkManager", () => {
-  const manager = new MagicLinkManager();
+describe("magic-link", () => {
+  const manager = magicLinkManager;
 
-  describe("generateMagicLinkUrl", () => {
+  describe("generateUrl", () => {
     test("returns URL starting with config.baseUrl + emailCallback path", () => {
-      const url = manager.generateMagicLinkUrl("test@example.com");
+      const url = manager.generateUrl("test@example.com");
 
       expect(url).toStartWith(config.baseUrl);
       expect(url).toStartWith(`${config.baseUrl}${paths.emailCallback()}`);
     });
 
     test("URL contains ?state= query parameter", () => {
-      const url = manager.generateMagicLinkUrl("test@example.com");
+      const url = manager.generateUrl("test@example.com");
 
       expect(url).toContain("?state=");
     });
 
     test("state is valid base64", () => {
-      const url = manager.generateMagicLinkUrl("test@example.com");
+      const url = manager.generateUrl("test@example.com");
 
       const stateMatch = url.match(/\?state=([^&]+)/);
       if (stateMatch === null) {
@@ -74,14 +74,14 @@ describe("MagicLinkManager", () => {
     });
   });
 
-  describe("decodeMagicLinkState", () => {
+  describe("decodeState", () => {
     test("decodes valid state and returns { email, code }", () => {
       const encoded = encodeBase64Json({
         email: "test@example.com",
         code: "abc123",
       });
 
-      const result = manager.decodeMagicLinkState(encoded);
+      const result = manager.decodeState(encoded);
 
       if (result === null) {
         expect(result).not.toBeNull();
@@ -93,7 +93,7 @@ describe("MagicLinkManager", () => {
     });
 
     test("returns null for invalid base64", () => {
-      const result = manager.decodeMagicLinkState("!!!invalid!!!");
+      const result = manager.decodeState("!!!invalid!!!");
 
       expect(result).toBeNull();
     });
@@ -101,74 +101,62 @@ describe("MagicLinkManager", () => {
     test("returns null for valid base64 but invalid JSON", () => {
       const encoded = Buffer.from("not valid json {{{").toString("base64");
 
-      const result = manager.decodeMagicLinkState(encoded);
+      const result = manager.decodeState(encoded);
 
       expect(result).toBeNull();
     });
 
     test("returns null for JSON missing required fields", () => {
       expect(
-        manager.decodeMagicLinkState(
-          encodeBase64Json({ email: "test@example.com" }),
-        ),
+        manager.decodeState(encodeBase64Json({ email: "test@example.com" })),
       ).toBeNull();
       expect(
-        manager.decodeMagicLinkState(encodeBase64Json({ code: "abc123" })),
+        manager.decodeState(encodeBase64Json({ code: "abc123" })),
       ).toBeNull();
-      expect(manager.decodeMagicLinkState(encodeBase64Json({}))).toBeNull();
+      expect(manager.decodeState(encodeBase64Json({}))).toBeNull();
     });
 
     test("returns null for non-object JSON", () => {
-      expect(
-        manager.decodeMagicLinkState(encodeBase64Json(["a", "b"])),
-      ).toBeNull();
-      expect(
-        manager.decodeMagicLinkState(encodeBase64Json("hello")),
-      ).toBeNull();
-      expect(manager.decodeMagicLinkState(encodeBase64Json(123))).toBeNull();
-      expect(manager.decodeMagicLinkState(encodeBase64Json(null))).toBeNull();
+      expect(manager.decodeState(encodeBase64Json(["a", "b"]))).toBeNull();
+      expect(manager.decodeState(encodeBase64Json("hello"))).toBeNull();
+      expect(manager.decodeState(encodeBase64Json(123))).toBeNull();
+      expect(manager.decodeState(encodeBase64Json(null))).toBeNull();
     });
 
     test("returns null for non-string email or code", () => {
       expect(
-        manager.decodeMagicLinkState(
-          encodeBase64Json({ email: 123, code: "abc" }),
-        ),
+        manager.decodeState(encodeBase64Json({ email: 123, code: "abc" })),
       ).toBeNull();
       expect(
-        manager.decodeMagicLinkState(
+        manager.decodeState(
           encodeBase64Json({ email: "test@example.com", code: 123 }),
         ),
       ).toBeNull();
     });
   });
 
-  describe("verifyMagicLinkCode", () => {
+  describe("verifyCode", () => {
     test("returns true for valid code with matching email and recent timestamp", () => {
       const email = "test@example.com";
-      const url = manager.generateMagicLinkUrl(email);
+      const url = manager.generateUrl(email);
       const { code } = extractMagicLinkCode(manager, url);
 
-      const result = manager.verifyMagicLinkCode(email, code, Date.now());
+      const result = manager.verifyCode(email, code, Date.now());
 
       expect(result).toBe(true);
     });
 
     test("returns false for wrong email", () => {
-      const url = manager.generateMagicLinkUrl("test@example.com");
+      const url = manager.generateUrl("test@example.com");
       const { code } = extractMagicLinkCode(manager, url);
 
-      const result = manager.verifyMagicLinkCode(
-        "wrong@example.com",
-        code,
-        Date.now(),
-      );
+      const result = manager.verifyCode("wrong@example.com", code, Date.now());
 
       expect(result).toBe(false);
     });
 
     test("returns false for wrong code", () => {
-      const result = manager.verifyMagicLinkCode(
+      const result = manager.verifyCode(
         "test@example.com",
         "wrongcode123",
         Date.now(),
@@ -179,39 +167,39 @@ describe("MagicLinkManager", () => {
 
     test("returns false for timestamp older than allowed window", () => {
       const email = "test@example.com";
-      const url = manager.generateMagicLinkUrl(email);
+      const url = manager.generateUrl(email);
       const { code } = extractMagicLinkCode(manager, url);
 
       // 15 minutes in the past (beyond the 5-minute window + 1 past window = 10 min)
       const oldTimestamp = Date.now() - 15 * 60 * 1000;
 
-      const result = manager.verifyMagicLinkCode(email, code, oldTimestamp);
+      const result = manager.verifyCode(email, code, oldTimestamp);
 
       expect(result).toBe(false);
     });
 
     test("accepts code within one past time window", () => {
       const email = "test@example.com";
-      const url = manager.generateMagicLinkUrl(email);
+      const url = manager.generateUrl(email);
       const { code } = extractMagicLinkCode(manager, url);
 
       // 4 minutes ago (within the -1 window check)
       const pastTimestamp = Date.now() - 4 * 60 * 1000;
 
-      const result = manager.verifyMagicLinkCode(email, code, pastTimestamp);
+      const result = manager.verifyCode(email, code, pastTimestamp);
 
       expect(result).toBe(true);
     });
 
     test("accepts code within one future time window", () => {
       const email = "test@example.com";
-      const url = manager.generateMagicLinkUrl(email);
+      const url = manager.generateUrl(email);
       const { code } = extractMagicLinkCode(manager, url);
 
       // 4 minutes in the future
       const futureTimestamp = Date.now() + 4 * 60 * 1000;
 
-      const result = manager.verifyMagicLinkCode(email, code, futureTimestamp);
+      const result = manager.verifyCode(email, code, futureTimestamp);
 
       expect(result).toBe(true);
     });

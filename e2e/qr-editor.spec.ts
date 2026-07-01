@@ -1,4 +1,4 @@
-import { DonationManager } from "~/managers/donation";
+import * as donationManager from "~/managers/donation";
 import { expect, test } from "./fixtures";
 
 test.describe("QR Editor Page", () => {
@@ -191,7 +191,7 @@ test.describe("QR SVG Endpoint", () => {
   });
 
   test("returns 400 when name exceeds max length", async ({ page }) => {
-    const longName = "a".repeat(DonationManager.maxNameLength + 1);
+    const longName = "a".repeat(donationManager.MAX_NAME_LENGTH + 1);
     const response = await page.goto(`/qr.svg?amount=5.00&name=${longName}`, {
       waitUntil: "commit",
     });
@@ -200,7 +200,7 @@ test.describe("QR SVG Endpoint", () => {
   });
 
   test("accepts name at exactly max length", async ({ page }) => {
-    const name = "a".repeat(DonationManager.maxNameLength);
+    const name = "a".repeat(donationManager.MAX_NAME_LENGTH);
     const response = await page.goto(`/qr.svg?amount=5.00&name=${name}`, {
       waitUntil: "commit",
     });
@@ -210,7 +210,7 @@ test.describe("QR SVG Endpoint", () => {
 
   test("returns 400 when description exceeds max length", async ({ page }) => {
     const longDescription = "a".repeat(
-      DonationManager.maxDescriptionLength + 1,
+      donationManager.MAX_DESCRIPTION_LENGTH + 1,
     );
     const response = await page.goto(
       `/qr.svg?amount=5.00&description=${longDescription}`,
@@ -221,7 +221,7 @@ test.describe("QR SVG Endpoint", () => {
   });
 
   test("accepts description at exactly max length", async ({ page }) => {
-    const description = "a".repeat(DonationManager.maxDescriptionLength);
+    const description = "a".repeat(donationManager.MAX_DESCRIPTION_LENGTH);
     const response = await page.goto(
       `/qr.svg?amount=5.00&description=${description}`,
       { waitUntil: "commit" },

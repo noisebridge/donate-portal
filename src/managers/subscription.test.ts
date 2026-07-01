@@ -77,7 +77,7 @@ function resetMocks() {
   });
 }
 
-const { SubscriptionManager } = await import("./subscription");
+const subscriptionManager = await import("./subscription");
 
 function makeCustomer(
   overrides: Partial<Stripe.Customer> = {},
@@ -110,18 +110,16 @@ function makeSubscription(
   } as Stripe.Subscription;
 }
 
-describe("SubscriptionManager", () => {
-  const manager = new SubscriptionManager();
-
+describe("subscription", () => {
   beforeEach(() => {
     resetMocks();
   });
 
-  describe("getSubscription", () => {
+  describe("get", () => {
     test("returns empty when no customer found", async () => {
       mocks.customersList.mockResolvedValue({ data: [] });
 
-      const result = await manager.getSubscription("nobody@example.com");
+      const result = await subscriptionManager.get("nobody@example.com");
 
       expect(result.customer).toBeUndefined();
       expect(result.subscription).toBeUndefined();
@@ -132,7 +130,7 @@ describe("SubscriptionManager", () => {
       mocks.customersList.mockResolvedValue({ data: [customer] });
       mocks.subscriptionsList.mockResolvedValue({ data: [] });
 
-      const result = await manager.getSubscription("test@example.com");
+      const result = await subscriptionManager.get("test@example.com");
 
       expect(result.customer).toEqual(customer);
       expect(result.subscription).toBeUndefined();
@@ -147,7 +145,7 @@ describe("SubscriptionManager", () => {
         .mockResolvedValueOnce({ data: [subscription] })
         .mockResolvedValueOnce({ data: [] });
 
-      const result = await manager.getSubscription("test@example.com");
+      const result = await subscriptionManager.get("test@example.com");
 
       expect(result.customer).toEqual(customer);
       expect(result.subscription).toEqual(subscription);
@@ -158,7 +156,7 @@ describe("SubscriptionManager", () => {
         data: [makeCustomer({ id: "cus_1" }), makeCustomer({ id: "cus_2" })],
       });
 
-      expect(manager.getSubscription("test@example.com")).rejects.toThrow(
+      expect(subscriptionManager.get("test@example.com")).rejects.toThrow(
         "Multiple customers found",
       );
     });
@@ -169,7 +167,7 @@ describe("SubscriptionManager", () => {
         .mockResolvedValueOnce({ data: [makeSubscription({ id: "sub_1" })] })
         .mockResolvedValueOnce({ data: [makeSubscription({ id: "sub_2" })] });
 
-      expect(manager.getSubscription("test@example.com")).rejects.toThrow(
+      expect(subscriptionManager.get("test@example.com")).rejects.toThrow(
         "Multiple active subscriptions found",
       );
     });
@@ -177,7 +175,7 @@ describe("SubscriptionManager", () => {
 
   describe("subscribe", () => {
     test("rejects amount below minimum", async () => {
-      const result = await manager.subscribe("test@example.com", {
+      const result = await subscriptionManager.subscribe("test@example.com", {
         cents: 100,
       });
 
@@ -191,7 +189,7 @@ describe("SubscriptionManager", () => {
       mocks.customersList.mockResolvedValue({ data: [] });
       mocks.customersCreate.mockResolvedValue({ id: "cus_new" });
 
-      const result = await manager.subscribe("new@example.com", {
+      const result = await subscriptionManager.subscribe("new@example.com", {
         cents: 1000,
       });
 
@@ -209,7 +207,7 @@ describe("SubscriptionManager", () => {
       mocks.customersList.mockResolvedValue({ data: [customer] });
       mocks.subscriptionsList.mockResolvedValue({ data: [] });
 
-      const result = await manager.subscribe("test@example.com", {
+      const result = await subscriptionManager.subscribe("test@example.com", {
         cents: 1000,
       });
 
@@ -228,7 +226,7 @@ describe("SubscriptionManager", () => {
         .mockResolvedValueOnce({ data: [subscription] })
         .mockResolvedValueOnce({ data: [] });
 
-      const result = await manager.subscribe("test@example.com", {
+      const result = await subscriptionManager.subscribe("test@example.com", {
         cents: 2000,
       });
 
@@ -247,7 +245,7 @@ describe("SubscriptionManager", () => {
         .mockResolvedValueOnce({ data: [subscription] })
         .mockResolvedValueOnce({ data: [] });
 
-      const result = await manager.subscribe("test@example.com", {
+      const result = await subscriptionManager.subscribe("test@example.com", {
         cents: 1000,
       });
 
@@ -265,7 +263,7 @@ describe("SubscriptionManager", () => {
         .mockResolvedValueOnce({ data: [] })
         .mockResolvedValueOnce({ data: [subscription] });
 
-      const result = await manager.subscribe("test@example.com", {
+      const result = await subscriptionManager.subscribe("test@example.com", {
         cents: 2000,
       });
 
@@ -284,7 +282,7 @@ describe("SubscriptionManager", () => {
         .mockResolvedValueOnce({ data: [] });
       mocks.subscriptionsUpdate.mockRejectedValue(new Error("Stripe error"));
 
-      const result = await manager.subscribe("test@example.com", {
+      const result = await subscriptionManager.subscribe("test@example.com", {
         cents: 2000,
       });
 
@@ -302,7 +300,7 @@ describe("SubscriptionManager", () => {
         id: "cs_1",
       } as unknown as Stripe.Checkout.Session);
 
-      const result = await manager.subscribe("new@example.com", {
+      const result = await subscriptionManager.subscribe("new@example.com", {
         cents: 1000,
       });
 
@@ -322,7 +320,7 @@ describe("SubscriptionManager", () => {
         .mockResolvedValueOnce({ data: [subscription] })
         .mockResolvedValueOnce({ data: [] });
 
-      const result = await manager.cancel("test@example.com");
+      const result = await subscriptionManager.cancel("test@example.com");
 
       expect(result.success).toBe(true);
       expect(mocks.subscriptionsCancel).toHaveBeenCalledWith("sub_1");
@@ -336,7 +334,7 @@ describe("SubscriptionManager", () => {
     test("returns error when no customer", async () => {
       mocks.customersList.mockResolvedValue({ data: [] });
 
-      const result = await manager.cancel("nobody@example.com");
+      const result = await subscriptionManager.cancel("nobody@example.com");
 
       expect(result.success).toBe(false);
       if (!result.success) {
@@ -348,7 +346,7 @@ describe("SubscriptionManager", () => {
       mocks.customersList.mockResolvedValue({ data: [makeCustomer()] });
       mocks.subscriptionsList.mockResolvedValue({ data: [] });
 
-      const result = await manager.cancel("test@example.com");
+      const result = await subscriptionManager.cancel("test@example.com");
 
       expect(result.success).toBe(false);
       if (!result.success) {
@@ -365,7 +363,7 @@ describe("SubscriptionManager", () => {
         .mockResolvedValueOnce({ data: [] });
       mocks.subscriptionsCancel.mockRejectedValue(new Error("Stripe error"));
 
-      const result = await manager.cancel("test@example.com");
+      const result = await subscriptionManager.cancel("test@example.com");
 
       expect(result.success).toBe(false);
       if (!result.success) {
@@ -390,7 +388,7 @@ describe("SubscriptionManager", () => {
         headers: null,
       });
 
-      const result = await manager.cancel("test@example.com");
+      const result = await subscriptionManager.cancel("test@example.com");
 
       expect(result.success).toBe(true);
     });
@@ -405,7 +403,8 @@ describe("SubscriptionManager", () => {
         .mockResolvedValueOnce({ data: [subscription] })
         .mockResolvedValueOnce({ data: [] });
 
-      const result = await manager.createPortalSession("test@example.com");
+      const result =
+        await subscriptionManager.createPortalSession("test@example.com");
 
       expect(result.success).toBe(true);
       if (result.success) {
@@ -416,7 +415,8 @@ describe("SubscriptionManager", () => {
     test("returns error when no customer", async () => {
       mocks.customersList.mockResolvedValue({ data: [] });
 
-      const result = await manager.createPortalSession("nobody@example.com");
+      const result =
+        await subscriptionManager.createPortalSession("nobody@example.com");
 
       expect(result.success).toBe(false);
       if (!result.success) {
@@ -428,7 +428,8 @@ describe("SubscriptionManager", () => {
       mocks.customersList.mockResolvedValue({ data: [makeCustomer()] });
       mocks.subscriptionsList.mockResolvedValue({ data: [] });
 
-      const result = await manager.createPortalSession("test@example.com");
+      const result =
+        await subscriptionManager.createPortalSession("test@example.com");
 
       expect(result.success).toBe(false);
       if (!result.success) {
@@ -445,7 +446,8 @@ describe("SubscriptionManager", () => {
         .mockResolvedValueOnce({ data: [] });
       mocks.portalSessionsCreate.mockRejectedValue(new Error("Stripe error"));
 
-      const result = await manager.createPortalSession("test@example.com");
+      const result =
+        await subscriptionManager.createPortalSession("test@example.com");
 
       expect(result.success).toBe(false);
       if (!result.success) {
@@ -464,7 +466,8 @@ describe("SubscriptionManager", () => {
         url: "",
       } as Stripe.BillingPortal.Session);
 
-      const result = await manager.createPortalSession("test@example.com");
+      const result =
+        await subscriptionManager.createPortalSession("test@example.com");
 
       expect(result.success).toBe(false);
       if (!result.success) {
@@ -475,7 +478,7 @@ describe("SubscriptionManager", () => {
 
   describe("processWebhook", () => {
     test("sends welcome email on subscription_create invoice", async () => {
-      await manager.handleInvoicePaid({
+      await subscriptionManager.handleInvoicePaid({
         type: "invoice.paid",
         data: {
           object: {
@@ -494,7 +497,7 @@ describe("SubscriptionManager", () => {
     });
 
     test("ignores non-subscription_create invoices", async () => {
-      await manager.handleInvoicePaid({
+      await subscriptionManager.handleInvoicePaid({
         type: "invoice.paid",
         data: {
           object: {
@@ -515,7 +518,7 @@ describe("SubscriptionManager", () => {
         deleted: false,
       });
 
-      await manager.handleSubscriptionUpdated({
+      await subscriptionManager.handleSubscriptionUpdated({
         type: "customer.subscription.updated",
         data: {
           object: {
@@ -543,7 +546,7 @@ describe("SubscriptionManager", () => {
         deleted: false,
       });
 
-      await manager.handleSubscriptionUpdated({
+      await subscriptionManager.handleSubscriptionUpdated({
         type: "customer.subscription.updated",
         data: {
           object: {
@@ -572,7 +575,7 @@ describe("SubscriptionManager", () => {
         deleted: false,
       });
 
-      await manager.handleSubscriptionUpdated({
+      await subscriptionManager.handleSubscriptionUpdated({
         type: "customer.subscription.updated",
         data: {
           object: {
@@ -597,7 +600,7 @@ describe("SubscriptionManager", () => {
         deleted: false,
       });
 
-      await manager.handleSubscriptionUpdated({
+      await subscriptionManager.handleSubscriptionUpdated({
         type: "customer.subscription.updated",
         data: {
           object: {
@@ -621,7 +624,7 @@ describe("SubscriptionManager", () => {
         deleted: true,
       });
 
-      await manager.handleSubscriptionUpdated({
+      await subscriptionManager.handleSubscriptionUpdated({
         type: "customer.subscription.updated",
         data: {
           object: {

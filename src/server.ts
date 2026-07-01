@@ -15,7 +15,7 @@ import earlyHints from "~/lib/early-hints";
 import baseLogger from "~/lib/logger";
 import permissionsPolicy from "~/lib/permissions-policy";
 import routes, { maxRawBodyBytes } from "~/routes";
-import errorReportingService from "~/services/error-reporting";
+import * as errorReportingService from "~/services/error-reporting";
 
 process.on("uncaughtException", (err) => {
   baseLogger.fatal(err, "Uncaught exception");

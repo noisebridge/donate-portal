@@ -1,43 +1,43 @@
 import { describe, expect, test } from "bun:test";
-import emailManager from "./email";
+import * as emailManager from "./email";
 
-describe("EmailManager.isValidEmail", () => {
+describe("email", () => {
   test("accepts a standard address", () => {
-    expect(emailManager.isValidEmail("user@example.com")).toBe(true);
+    expect(emailManager.isValid("user@example.com")).toBe(true);
   });
 
   test("accepts addresses with plus tags and subdomains", () => {
-    expect(emailManager.isValidEmail("user+tag@mail.example.co.uk")).toBe(true);
+    expect(emailManager.isValid("user+tag@mail.example.co.uk")).toBe(true);
   });
 
   test("rejects an empty string", () => {
-    expect(emailManager.isValidEmail("")).toBe(false);
+    expect(emailManager.isValid("")).toBe(false);
   });
 
   test("rejects addresses missing an @", () => {
-    expect(emailManager.isValidEmail("user.example.com")).toBe(false);
+    expect(emailManager.isValid("user.example.com")).toBe(false);
   });
 
   test("rejects addresses missing a TLD", () => {
-    expect(emailManager.isValidEmail("user@example")).toBe(false);
+    expect(emailManager.isValid("user@example")).toBe(false);
   });
 
   test("rejects addresses with whitespace", () => {
-    expect(emailManager.isValidEmail("user @example.com")).toBe(false);
-    expect(emailManager.isValidEmail("user@exa mple.com")).toBe(false);
+    expect(emailManager.isValid("user @example.com")).toBe(false);
+    expect(emailManager.isValid("user@exa mple.com")).toBe(false);
   });
 
   test("rejects addresses longer than 254 characters", () => {
     const local = "a".repeat(250);
     const tooLong = `${local}@b.co`;
     expect(tooLong.length).toBeGreaterThan(254);
-    expect(emailManager.isValidEmail(tooLong)).toBe(false);
+    expect(emailManager.isValid(tooLong)).toBe(false);
   });
 
   test("accepts addresses at the 254 character boundary", () => {
     const local = "a".repeat(248);
     const atLimit = `${local}@b.com`;
     expect(atLimit.length).toBe(254);
-    expect(emailManager.isValidEmail(atLimit)).toBe(true);
+    expect(emailManager.isValid(atLimit)).toBe(true);
   });
 });

@@ -2,7 +2,7 @@ import { describe, expect, test } from "bun:test";
 import type Stripe from "stripe";
 import { ChargeAlertManager } from "./charge-alert";
 import { GENERAL_DONATION } from "./donation";
-import { SubscriptionManager } from "./subscription";
+import { PRODUCT_ID } from "./subscription";
 
 describe("ChargeAlertManager", () => {
   const manager = new ChargeAlertManager();
@@ -89,14 +89,14 @@ describe("ChargeAlertManager", () => {
 
   describe("isMembership", () => {
     test("returns true when product is the matching string id", () => {
-      const subscription = makeSubscription(SubscriptionManager.productId);
+      const subscription = makeSubscription(PRODUCT_ID);
 
       expect(manager["isMembership"](subscription)).toBe(true);
     });
 
     test("returns true when product is an expanded object with the matching id", () => {
       const subscription = makeSubscription({
-        id: SubscriptionManager.productId,
+        id: PRODUCT_ID,
       } as Stripe.Product);
 
       expect(manager["isMembership"](subscription)).toBe(true);
