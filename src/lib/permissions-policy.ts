@@ -32,11 +32,11 @@ type Directive = (typeof directives)[number];
 
 export type PolicyEntry = Partial<Record<Directive, string[]>>;
 
-export function mergePolicies(entries: PolicyEntry[]) {
+export function mergePolicies(policies: PolicyEntry[]) {
   const merged: Record<string, Set<string>> = {};
 
-  for (const entry of entries) {
-    for (const [directive, sources] of Object.entries(entry)) {
+  for (const policy of policies) {
+    for (const [directive, sources] of Object.entries(policy)) {
       merged[directive] ??= new Set();
       for (const source of sources) {
         merged[directive].add(source);

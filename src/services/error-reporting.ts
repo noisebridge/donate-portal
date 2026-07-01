@@ -83,10 +83,10 @@ class ErrorReportingService {
   async reportCspViolation({
     "csp-report": report,
   }: CspReport): Promise<boolean> {
-    if (!this.recordViolation(report)) {
+    if (!this.isAppCode(report)) {
       ErrorReportingService.log.debug(
         { report },
-        "Ignoring CSP violation from user script",
+        "Ignoring CSP violation from non-app code",
       );
       return true;
     }
@@ -151,20 +151,23 @@ class ErrorReportingService {
     return await this.forward(config.frontendDSN, event);
   }
 
-  private recordViolation(report: CspReport["csp-report"]): boolean {
+  private isAppCode(report: CspReport["csp-report"]): boolean {
     const blockedUri = report["blocked-uri"];
     if (blockedUri === "eval") {
+      // Javascript console
       return false;
     }
 
     const sourceFile = report["source-file"];
     if (!sourceFile) {
+      // Can't determine. Default to true to be safe.
       return true;
     }
 
     if (
       sourceFile.startsWith("chrome-extension") ||
       sourceFile.startsWith("safari-web-extension") ||
+      sourceFile.startsWith("moz-extension") ||
       sourceFile.startsWith("user-script")
     ) {
       return false;
