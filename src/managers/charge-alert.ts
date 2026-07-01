@@ -66,6 +66,12 @@ export class ChargeAlertManager {
       }
     });
 
+    socket.on("error", (err) => {
+      ChargeAlertManager.log.error({ err }, "Error on socket");
+      this.connections.delete(socket);
+      socket.terminate();
+    });
+
     socket.on("close", () => {
       this.connections.delete(socket);
     });
