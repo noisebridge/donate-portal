@@ -26,7 +26,7 @@ export function IndexPage({
       csrfToken={csrfToken}
     >
       <div class="shell">
-        <a class="afterparty-banner" href={paths.afterparty()}>
+        {/*<a class="afterparty-banner" href={paths.afterparty()}>
           <span class="afterparty-banner-text">
             <strong>OpenSauce Afterparty</strong>
             <span class="afterparty-banner-meta">
@@ -36,7 +36,7 @@ export function IndexPage({
           <span class="afterparty-banner-cta">
             Tickets <span aria-hidden="true">→</span>
           </span>
-        </a>
+          </a>*/}
 
         <MessageContainer messages={messages} />
 
