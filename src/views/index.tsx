@@ -26,6 +26,18 @@ export function IndexPage({
       csrfToken={csrfToken}
     >
       <div class="shell">
+        <a class="afterparty-banner" href={paths.afterparty()}>
+          <span class="afterparty-banner-text">
+            <strong>OpenSauce Afterparty</strong>
+            <span class="afterparty-banner-meta">
+              Sat Jul 19 · 8PM · 272 Capp St
+            </span>
+          </span>
+          <span class="afterparty-banner-cta">
+            Tickets <span aria-hidden="true">→</span>
+          </span>
+        </a>
+
         <MessageContainer messages={messages} />
 
         <section class="hero">

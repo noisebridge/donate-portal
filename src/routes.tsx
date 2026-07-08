@@ -21,10 +21,12 @@ import * as emailManager from "~/managers/email";
 import * as magicLinkManager from "~/managers/magic-link";
 import * as qrCodeManager from "~/managers/qr-code";
 import * as subscriptionManager from "~/managers/subscription";
+import * as ticketingManager from "~/managers/ticketing";
 import * as errorReportingService from "~/services/error-reporting";
 import * as githubOAuth from "~/services/github";
 import * as googleOAuth from "~/services/google";
 import stripe from "~/services/stripe";
+import { AfterpartyPage } from "~/views/afterparty";
 import { AlertsPage } from "~/views/alerts";
 import { AuthPage } from "~/views/auth";
 import { AuthEmailPage } from "~/views/auth/email";
@@ -627,6 +629,77 @@ export default async function routes(fastify: FastifyInstance) {
     );
   });
 
+  fastify.get<{
+    Querystring: { price?: string } & MessageParams;
+  }>(paths.afterparty(), async (request, reply) => {
+    const priceCents =
+      parseToCents(request.query.price ?? "") ?? ticketingManager.DEFAULT_PRICE;
+    const price =
+      priceCents.cents < ticketingManager.MINIMUM_PRICE.cents
+        ? ticketingManager.DEFAULT_PRICE
+        : priceCents;
+
+    return reply.html(
+      <AfterpartyPage
+        price={price}
+        isAuthenticated={isAuthenticated(request, reply)}
+        messages={formatMessages(request.query)}
+        csrfToken={reply.generateCsrf()}
+      />,
+    );
+  });
+
+  fastify.post<{
+    Body: { quantity?: string; "price-dollars"?: string; email?: string };
+  }>(
+    paths.afterparty(),
+    { ...donationRateLimit, preHandler: fastify.csrfProtection },
+    async (request, reply) => {
+      const body = request.body ?? {};
+
+      const email = body.email?.trim();
+      if (!email || !emailManager.isValid(email)) {
+        return reply.send({
+          redirect: paths.afterparty({ error: "EmailInvalid" }),
+        });
+      }
+
+      const price = parseToCents(body["price-dollars"] ?? "");
+      if (price === null) {
+        return reply.send({
+          redirect: paths.afterparty({ error: "InvalidDonationAmount" }),
+        });
+      }
+
+      const quantity = Number.parseInt(body.quantity ?? "", 10);
+      if (!ticketingManager.validateQuantity(quantity)) {
+        return reply.send({
+          redirect: paths.afterparty({ error: "InvalidRequest" }),
+        });
+      }
+
+      const result = await ticketingManager.purchase(price, quantity, email);
+      if (!result.success) {
+        fastify.log.error(
+          `Couldn't initiate afterparty purchase: ${result.error}`,
+        );
+        return reply.send({
+          redirect: paths.afterparty({ error: result.error }),
+        });
+      }
+
+      fastify.log.info(
+        { quantity, price },
+        "Stripe PaymentIntent created for afterparty tickets",
+      );
+
+      return reply.send({
+        clientSecret: result.clientSecret,
+        emailAddress: email,
+      });
+    },
+  );
+
   fastify.post(
     paths.subscribe(),
     { ...donationRateLimit, preHandler: fastify.csrfProtection },
@@ -821,6 +894,7 @@ export default async function routes(fastify: FastifyInstance) {
         switch (event.type) {
           case "payment_intent.succeeded":
             await chargeAlertManager.handlePaymentSuccess(event);
+            await ticketingManager.handlePaymentSuccess(event);
             break;
           case "customer.subscription.created":
             await chargeAlertManager.handleNewSubscription(event);

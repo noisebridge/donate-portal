@@ -1,6 +1,7 @@
 // @ts-check
 
 import { formatAmount } from "./util/money-forms.mjs";
+import { initSliderTicks } from "./util/slider.mjs";
 import { initCheckoutForm } from "./util/stripe.mjs";
 import {
   dollarPattern,
@@ -112,31 +113,9 @@ function initAmountControls() {
   });
   amountInput.addEventListener("blur", update);
 
-  const ticks = /** @type {NodeListOf<HTMLElement>} */ (
-    document.querySelectorAll("#slider-ticks .tick")
-  );
-  ticks.forEach((tick) => {
-    const amount = tick.dataset["amt"];
-    if (amount === undefined) {
-      return;
-    }
-
-    const value = parseFloat(amount);
-    if (Number.isNaN(value)) {
-      return;
-    }
-
-    // Position each tick at the fraction of the track matching its amount, so the
-    // pips line up with where the slider thumb actually sits. CSP blocks inline
-    // style attributes, so this is set here rather than in the rendered markup.
-    const frac = max > min ? (value - min) / (max - min) : 0;
-    tick.style.setProperty("--frac", String(frac));
-
-    // Clicking a tick sets that preset amount.
-    tick.addEventListener("click", () => {
-      currentAmount.cents = Math.round(value * 100);
-      update();
-    });
+  initSliderTicks(min, max, (value) => {
+    currentAmount.cents = Math.round(value * 100);
+    update();
   });
 
   update();

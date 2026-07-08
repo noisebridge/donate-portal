@@ -1,4 +1,5 @@
 import config from "~/config";
+import { AfterpartyTicketEmail } from "~/emails/afterparty-ticket";
 import { MagicLinkEmail } from "~/emails/magic-link";
 import { SubscriptionCanceledEmail } from "~/emails/subscription-canceled";
 import { SubscriptionPastDueEmail } from "~/emails/subscription-past-due";
@@ -46,6 +47,20 @@ export async function sendMagicLink(email: string): Promise<EmailResult> {
   return await send({
     to: email,
     subject: "Sign in to donate.noisebridge.net",
+    html: emailHtml,
+  });
+}
+
+export async function sendAfterpartyTicket(
+  email: string,
+  quantity: number,
+  amount: Cents,
+): Promise<EmailResult> {
+  const emailHtml = await AfterpartyTicketEmail({ quantity, amount });
+
+  return await send({
+    to: email,
+    subject: "Your Noisebridge OpenSauce Afterparty tickets",
     html: emailHtml,
   });
 }

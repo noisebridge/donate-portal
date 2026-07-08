@@ -84,6 +84,11 @@ const paths = {
    */
   qrEditor: () => "/qr-editor" as const,
   /**
+   * `/afterparty`
+   */
+  afterparty: (params?: MessageParams & { price?: number }) =>
+    formatPath("/afterparty", params),
+  /**
    * `/auth`
    */
   signIn: (params?: MessageParams) => formatPath("/auth", params),

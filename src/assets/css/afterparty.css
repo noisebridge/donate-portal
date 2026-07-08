@@ -1,0 +1,365 @@
+.afterparty {
+  --color-ok: #1a6b22;
+  max-width: 540px;
+  margin: 0 auto;
+  padding: 22px 22px 60px;
+  position: relative;
+  z-index: 2;
+}
+
+/* === EVENT HEADER === */
+.event-title {
+  font-family: var(--font-mono);
+  font-size: 34px;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.05;
+  color: var(--color-text);
+  margin: 0 0 16px;
+}
+.event-title .accent {
+  color: var(--color-primary);
+}
+
+.event-meta {
+  border: 1px solid var(--color-border);
+  background: var(--color-panel);
+  margin-bottom: 28px;
+}
+.event-meta .cell {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--color-border);
+}
+.event-meta .cell:last-child {
+  border-bottom: none;
+}
+.event-meta .k {
+  flex: 0 0 44px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--color-text-mute);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.event-meta .v {
+  flex: 1;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  font-family: var(--font-mono);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-text);
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+.event-meta .v small {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--color-text-light);
+  text-align: right;
+  letter-spacing: 0;
+}
+
+.event-blurb {
+  font-size: 14px;
+  color: var(--color-text-light);
+  line-height: 1.6;
+  margin: 0 0 30px;
+}
+
+/* === SECTION LABEL === */
+.field-label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-text);
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+.field-label::before {
+  content: "$ ";
+  color: var(--color-primary);
+}
+
+/* === QUANTITY STEPPER === */
+.qty-block {
+  margin-bottom: 30px;
+}
+.stepper {
+  display: flex;
+  align-items: stretch;
+  border: 1px solid var(--color-border);
+  background: var(--color-panel);
+}
+.stepper button {
+  width: 58px;
+  background: transparent;
+  border: none;
+  border-right: 1px solid var(--color-border);
+  font-family: var(--font-mono);
+  font-size: 26px;
+  font-weight: 600;
+  color: var(--color-text);
+  cursor: pointer;
+  transition:
+    background 120ms ease,
+    color 120ms ease;
+  line-height: 1;
+}
+.stepper button:last-child {
+  border-right: none;
+  border-left: 1px solid var(--color-border);
+}
+.stepper button:hover:not(:disabled) {
+  background: color-mix(in oklab, var(--color-primary) 10%, var(--color-panel));
+  color: var(--color-primary);
+}
+.stepper button:disabled {
+  color: var(--color-text-mute);
+  cursor: not-allowed;
+}
+.qty-field {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 16px 8px;
+  gap: 3px;
+}
+.qty-field input {
+  width: 100%;
+  text-align: center;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-family: var(--font-mono);
+  font-size: 40px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: var(--color-text);
+  line-height: 1;
+}
+.qty-field .sub {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--color-text-mute);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* === PRICE PANEL === */
+.price-block {
+  margin-bottom: 30px;
+}
+.price-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.price-head .field-label {
+  margin-bottom: 0;
+}
+.price-head .hint {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--color-text-light);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.price-display {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 16px 20px;
+  border: 1px solid var(--color-border);
+  background: var(--color-panel);
+  margin-bottom: 6px;
+  position: relative;
+}
+.price-display:focus-within {
+  border-color: var(--color-primary);
+}
+.price-display .dol {
+  font-family: var(--font-mono);
+  font-size: 20px;
+  font-weight: 500;
+  color: var(--color-text-light);
+}
+.price-display .val {
+  font-family: var(--font-mono);
+  font-size: 40px;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  color: var(--color-text);
+  line-height: 1;
+  flex: 1;
+}
+.price-display .per {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--color-text-light);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-align: right;
+  line-height: 1.4;
+}
+.price-display .per .tag {
+  display: block;
+  font-size: 10px;
+  margin-top: 3px;
+  color: var(--color-primary);
+  font-weight: 700;
+}
+.price-display .per .tag.low {
+  color: var(--color-text-light);
+}
+.price-display .per .tag.high {
+  color: var(--color-ok);
+}
+
+/* === EMAIL === */
+.email-field {
+  display: block;
+  margin: 0 0 30px;
+}
+.editable-label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-text-mute);
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+.email-input {
+  width: 100%;
+  padding: 15px 18px;
+  background: var(--color-panel);
+  border: 1px solid var(--color-border);
+  font-family: var(--font-mono);
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--color-text);
+  outline: none;
+  transition: border-color 120ms ease;
+}
+.email-input:focus {
+  border-color: var(--color-primary);
+}
+.email-input::placeholder {
+  color: var(--color-text-mute);
+}
+
+/* === RECEIPT / TOTAL === */
+.receipt {
+  --frame-color: var(--color-primary);
+  border: 1px solid var(--color-border);
+  background: var(--color-panel);
+  padding: 20px 22px;
+  margin-bottom: 24px;
+  position: relative;
+}
+.receipt::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: 1px solid var(--frame-color);
+  transform: translate(6px, 6px);
+  z-index: -1;
+  opacity: 0.35;
+}
+.receipt .line {
+  display: flex;
+  justify-content: flex-end;
+  align-items: baseline;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--color-text-light);
+  padding: 4px 0;
+}
+.receipt .line .calc {
+  color: var(--color-text);
+}
+.receipt .rule {
+  height: 1px;
+  background: var(--color-border);
+  margin: 12px 0;
+  border: 0;
+}
+.receipt .total {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+.receipt .total .lbl {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-text-light);
+  font-weight: 700;
+}
+.receipt .total .amt {
+  font-family: var(--font-mono);
+  font-size: 38px;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  color: var(--color-text);
+  line-height: 1;
+}
+
+/* === PRIMARY BUTTON (extends base in main.css) === */
+.btn-primary {
+  justify-content: space-between;
+  padding: 18px 22px;
+  letter-spacing: 0.06em;
+  margin-bottom: 26px;
+}
+
+/* === TAX NOTE === */
+.tax-note {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--color-text-mute);
+  line-height: 1.6;
+  margin: 0;
+  padding-top: 20px;
+  border-top: 1px dashed var(--color-border);
+}
+
+@media (max-width: 440px) {
+  .afterparty {
+    padding: 18px 18px 50px;
+  }
+  .event-title {
+    font-size: 27px;
+  }
+  .event-meta .v {
+    font-size: 13px;
+  }
+  .qty-field input {
+    font-size: 34px;
+  }
+  .price-display .val {
+    font-size: 34px;
+  }
+  .receipt .total .amt {
+    font-size: 32px;
+  }
+  .btn-primary {
+    padding: 16px 18px;
+    font-size: 13px;
+  }
+}

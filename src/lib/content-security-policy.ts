@@ -109,7 +109,7 @@ const ledControllerPolicy: PolicyEntry = {
 export function buildHeader(policies: PolicyEntry[]): string {
   const merged = mergePolicies(policies);
   return Object.entries(merged)
-    .map(([k, sources]) => `${k} ${sources.join(" ")}`)
+    .map(([directive, sources]) => `${directive} ${sources.join(" ")}`)
     .join("; ");
 }
 

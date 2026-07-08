@@ -3,11 +3,13 @@ import { Button } from "~/components/button";
 interface StripeCheckoutModalProps {
   title: string;
   donateButton?: boolean;
+  submitLabel?: string;
 }
 
 export function StripeCheckoutModal({
   title,
   donateButton = true,
+  submitLabel = "Donate Now",
 }: StripeCheckoutModalProps) {
   return (
     <div id="stripe-checkout-modal" class="checkout-modal" hidden>
@@ -29,7 +31,7 @@ export function StripeCheckoutModal({
             id="payment-submit"
             class="checkout-modal-submit"
           >
-            Donate Now
+            {submitLabel as "safe"}
           </Button>
         )}
       </div>
