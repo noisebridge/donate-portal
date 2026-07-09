@@ -1,6 +1,7 @@
 import type Stripe from "stripe";
 import type { ErrorCodeKey } from "~/lib/error-codes";
 import baseLogger from "~/lib/logger";
+import { timingSafeStringEqual } from "~/lib/timing-safe-equal";
 import * as emailManager from "~/managers/email";
 import stripe from "~/services/stripe";
 import type { Cents } from "~/types/cents";
@@ -8,6 +9,10 @@ import type { Cents } from "~/types/cents";
 export type PurchaseResult =
   | { success: true; clientSecret: string }
   | { success: false; error: ErrorCodeKey };
+
+export interface TicketConfirmation {
+  email: string;
+}
 
 const log = baseLogger.child({ module: "afterparty" });
 
@@ -78,6 +83,52 @@ export async function purchase(
  */
 export function isTicketPurchase(paymentIntent: Stripe.PaymentIntent): boolean {
   return paymentIntent.metadata?.["type"] === TICKET_TYPE;
+}
+
+/**
+ * Resolve the buyer details for a completed ticket purchase from the identifiers
+ * Stripe appends to the checkout return URL. The client secret gates access:
+ * only someone who actually completed this specific checkout holds it, so we
+ * compare it against the PaymentIntent before trusting the request. Returns null
+ * for anything that isn't a verified afterparty ticket purchase, so the caller
+ * can fall back to generic copy.
+ */
+export async function getPurchaseConfirmation(
+  paymentIntentId: string | undefined,
+  clientSecret: string | undefined,
+): Promise<TicketConfirmation | null> {
+  if (!paymentIntentId || !clientSecret) {
+    return null;
+  }
+
+  let paymentIntent: Stripe.PaymentIntent;
+  try {
+    paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+  } catch (err) {
+    log.warn(
+      { err, id: paymentIntentId },
+      "Failed to retrieve payment intent for ticket confirmation",
+    );
+    return null;
+  }
+
+  if (
+    !paymentIntent.client_secret ||
+    !timingSafeStringEqual(paymentIntent.client_secret, clientSecret)
+  ) {
+    return null;
+  }
+
+  if (!isTicketPurchase(paymentIntent)) {
+    return null;
+  }
+
+  const email = paymentIntent.metadata["email"];
+  if (!email) {
+    return null;
+  }
+
+  return { email };
 }
 
 /**

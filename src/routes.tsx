@@ -845,9 +845,21 @@ export default async function routes(fastify: FastifyInstance) {
     },
   );
 
-  fastify.get(paths.thankYou(), async (request, reply) => {
+  fastify.get<{
+    Querystring: {
+      payment_intent?: string;
+      payment_intent_client_secret?: string;
+    };
+  }>(paths.thankYou(), async (request, reply) => {
+    const ticket = await ticketingManager.getPurchaseConfirmation(
+      request.query.payment_intent,
+      request.query.payment_intent_client_secret,
+    );
+
     return reply.html(
       <ThankYouPage
+        isTicket={ticket !== null}
+        email={ticket?.email}
         isAuthenticated={isAuthenticated(request, reply)}
         csrfToken={reply.generateCsrf()}
       />,

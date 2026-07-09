@@ -1,7 +1,18 @@
-import { beforeEach, describe, expect, test } from "bun:test";
+import { beforeEach, describe, expect, mock, test } from "bun:test";
 import type Stripe from "stripe";
 import { send as sendEmail } from "~/test-utils/resend.mock";
 import * as ticketingManager from "./ticketing";
+
+const paymentIntentsRetrieve = mock(
+  (): Promise<Stripe.PaymentIntent> =>
+    Promise.resolve({} as Stripe.PaymentIntent),
+);
+
+mock.module("~/services/stripe", () => ({
+  default: {
+    paymentIntents: { retrieve: paymentIntentsRetrieve },
+  },
+}));
 
 function makeSucceededEvent(
   overrides: Partial<
@@ -33,6 +44,21 @@ function ticketMetadata(
   };
 }
 
+function makePaymentIntent(
+  overrides: Partial<
+    Pick<Stripe.PaymentIntent, "id" | "client_secret" | "metadata">
+  > = {},
+): Stripe.PaymentIntent {
+  return {
+    id: overrides.id ?? "pi_1",
+    client_secret:
+      "client_secret" in overrides
+        ? overrides.client_secret
+        : "pi_1_secret_abc",
+    metadata: overrides.metadata ?? ticketMetadata(),
+  } as unknown as Stripe.PaymentIntent;
+}
+
 beforeEach(() => {
   sendEmail.mockReset();
   sendEmail.mockResolvedValue({
@@ -40,6 +66,7 @@ beforeEach(() => {
     error: null,
     headers: null,
   });
+  paymentIntentsRetrieve.mockReset();
 });
 
 describe("afterparty", () => {
@@ -72,6 +99,88 @@ describe("afterparty", () => {
     test("is false for a plain donation", () => {
       const paymentIntent = { metadata: {} } as unknown as Stripe.PaymentIntent;
       expect(ticketingManager.isTicketPurchase(paymentIntent)).toBe(false);
+    });
+  });
+
+  describe("getPurchaseConfirmation", () => {
+    test("returns the buyer email when the client secret matches", async () => {
+      paymentIntentsRetrieve.mockResolvedValue(makePaymentIntent());
+
+      const result = await ticketingManager.getPurchaseConfirmation(
+        "pi_1",
+        "pi_1_secret_abc",
+      );
+
+      expect(result).toEqual({ email: "buyer@example.com" });
+      expect(paymentIntentsRetrieve).toHaveBeenCalledWith("pi_1");
+    });
+
+    test("returns null when the payment intent id is missing", async () => {
+      const result = await ticketingManager.getPurchaseConfirmation(
+        undefined,
+        "pi_1_secret_abc",
+      );
+
+      expect(result).toBeNull();
+      expect(paymentIntentsRetrieve).not.toHaveBeenCalled();
+    });
+
+    test("returns null when the client secret is missing", async () => {
+      const result = await ticketingManager.getPurchaseConfirmation(
+        "pi_1",
+        undefined,
+      );
+
+      expect(result).toBeNull();
+      expect(paymentIntentsRetrieve).not.toHaveBeenCalled();
+    });
+
+    test("returns null when the client secret does not match", async () => {
+      paymentIntentsRetrieve.mockResolvedValue(makePaymentIntent());
+
+      const result = await ticketingManager.getPurchaseConfirmation(
+        "pi_1",
+        "pi_1_secret_wrong",
+      );
+
+      expect(result).toBeNull();
+    });
+
+    test("returns null when the purchase is not a ticket", async () => {
+      paymentIntentsRetrieve.mockResolvedValue(
+        makePaymentIntent({ metadata: {} }),
+      );
+
+      const result = await ticketingManager.getPurchaseConfirmation(
+        "pi_1",
+        "pi_1_secret_abc",
+      );
+
+      expect(result).toBeNull();
+    });
+
+    test("returns null when the ticket has no email", async () => {
+      paymentIntentsRetrieve.mockResolvedValue(
+        makePaymentIntent({ metadata: ticketMetadata({ email: "" }) }),
+      );
+
+      const result = await ticketingManager.getPurchaseConfirmation(
+        "pi_1",
+        "pi_1_secret_abc",
+      );
+
+      expect(result).toBeNull();
+    });
+
+    test("returns null when retrieving the payment intent fails", async () => {
+      paymentIntentsRetrieve.mockRejectedValue(new Error("Stripe error"));
+
+      const result = await ticketingManager.getPurchaseConfirmation(
+        "pi_1",
+        "pi_1_secret_abc",
+      );
+
+      expect(result).toBeNull();
     });
   });
 
