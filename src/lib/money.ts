@@ -45,6 +45,7 @@ const STRIPE_MAX_CENTS = 99_999_999;
 
 export function parseToCents(
   amountFormData: string | AmountFormData,
+  options: { allowZero?: boolean } = {},
 ): Cents | null {
   const parsedDollars = Number.parseFloat(
     typeof amountFormData === "string"
@@ -54,7 +55,7 @@ export function parseToCents(
   if (!Number.isFinite(parsedDollars)) {
     return null;
   }
-  if (parsedDollars <= 0) {
+  if (parsedDollars < 0 || (!options.allowZero && parsedDollars === 0)) {
     return null;
   }
 

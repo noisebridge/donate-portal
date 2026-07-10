@@ -629,19 +629,32 @@ export default async function routes(fastify: FastifyInstance) {
     );
   });
 
+  fastify.get(paths.afterpartyCalendar(), async (_request, reply) => {
+    return reply
+      .type("text/calendar; charset=utf-8")
+      .header(
+        "Content-Disposition",
+        'attachment; filename="noisebridge-open-sauce-afterparty.ics"',
+      )
+      .send(ticketingManager.calendarEvent());
+  });
+
   fastify.get<{
     Querystring: { price?: string } & MessageParams;
   }>(paths.afterparty(), async (request, reply) => {
     const priceCents =
-      parseToCents(request.query.price ?? "") ?? ticketingManager.DEFAULT_PRICE;
+      parseToCents(request.query.price ?? "", { allowZero: true }) ??
+      ticketingManager.DEFAULT_PRICE;
     const price =
       priceCents.cents < ticketingManager.MINIMUM_PRICE.cents
         ? ticketingManager.DEFAULT_PRICE
         : priceCents;
+    const availability = await ticketingManager.getAvailability();
 
     return reply.html(
       <AfterpartyPage
         price={price}
+        remainingTickets={availability.remaining}
         isAuthenticated={isAuthenticated(request, reply)}
         messages={formatMessages(request.query)}
         csrfToken={reply.generateCsrf()}
@@ -664,7 +677,9 @@ export default async function routes(fastify: FastifyInstance) {
         });
       }
 
-      const price = parseToCents(body["price-dollars"] ?? "");
+      const price = parseToCents(body["price-dollars"] ?? "", {
+        allowZero: true,
+      });
       if (price === null) {
         return reply.send({
           redirect: paths.afterparty({ error: "InvalidDonationAmount" }),
@@ -690,8 +705,14 @@ export default async function routes(fastify: FastifyInstance) {
 
       fastify.log.info(
         { quantity, price },
-        "Stripe PaymentIntent created for afterparty tickets",
+        "Afterparty ticket purchase initiated",
       );
+
+      if ("free" in result) {
+        return reply.send({
+          redirect: paths.thankYou({ ticket: "free", email }),
+        });
+      }
 
       return reply.send({
         clientSecret: result.clientSecret,
@@ -849,12 +870,17 @@ export default async function routes(fastify: FastifyInstance) {
     Querystring: {
       payment_intent?: string;
       payment_intent_client_secret?: string;
+      ticket?: "free";
+      email?: string;
     };
   }>(paths.thankYou(), async (request, reply) => {
-    const ticket = await ticketingManager.getPurchaseConfirmation(
-      request.query.payment_intent,
-      request.query.payment_intent_client_secret,
-    );
+    const ticket =
+      request.query.ticket === "free" && request.query.email
+        ? { email: request.query.email }
+        : await ticketingManager.getPurchaseConfirmation(
+            request.query.payment_intent,
+            request.query.payment_intent_client_secret,
+          );
 
     return reply.html(
       <ThankYouPage

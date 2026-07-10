@@ -1,365 +1,418 @@
-.afterparty {
-  --color-ok: #1a6b22;
-  max-width: 540px;
+@font-face {
+  font-family: "OpenSauced";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/assets/font/afterparty/OpenSauced-Font.otf") format("opentype");
+}
+
+@font-face {
+  font-family: "Poppins";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/assets/font/afterparty/Poppins-Regular.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "Poppins";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/assets/font/afterparty/Poppins-Bold.ttf") format("truetype");
+}
+
+:root,
+body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  color: #000;
+  background: #ff0000;
+  font-family: "Poppins", sans-serif;
+}
+
+#main-content {
+  height: 100%;
+  background: #ff0000;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+.afterparty-foundation {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: min(100% - 1.25rem, 1100px);
+  height: 100svh;
   margin: 0 auto;
-  padding: 22px 22px 60px;
-  position: relative;
-  z-index: 2;
+  padding: clamp(0.6rem, 1.8svh, 1rem) 0;
+  overflow: hidden;
 }
 
-/* === EVENT HEADER === */
-.event-title {
-  font-family: var(--font-mono);
-  font-size: 34px;
-  font-weight: 700;
-  letter-spacing: -0.025em;
-  line-height: 1.05;
-  color: var(--color-text);
-  margin: 0 0 16px;
-}
-.event-title .accent {
-  color: var(--color-primary);
+.afterparty-foundation > h1 {
+  max-width: 1100px;
+  margin-bottom: clamp(0.25rem, 1svh, 0.6rem);
+  font-family: "OpenSauced", sans-serif;
+  font-size: clamp(4rem, min(10vw, 11svh), 9rem);
+  font-weight: 400;
+  line-height: 0.9;
+  text-align: center;
 }
 
-.event-meta {
-  border: 1px solid var(--color-border);
-  background: var(--color-panel);
-  margin-bottom: 28px;
-}
-.event-meta .cell {
-  display: flex;
-  align-items: baseline;
-  gap: 14px;
-  padding: 14px 18px;
-  border-bottom: 1px solid var(--color-border);
-}
-.event-meta .cell:last-child {
-  border-bottom: none;
-}
-.event-meta .k {
-  flex: 0 0 44px;
-  font-family: var(--font-mono);
-  font-size: 9px;
-  color: var(--color-text-mute);
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
-.event-meta .v {
-  flex: 1;
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 12px;
-  font-family: var(--font-mono);
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--color-text);
-  letter-spacing: -0.01em;
-  line-height: 1.2;
-}
-.event-meta .v small {
-  font-size: 11px;
-  font-weight: 500;
-  color: var(--color-text-light);
-  text-align: right;
-  letter-spacing: 0;
-}
-
-.event-blurb {
-  font-size: 14px;
-  color: var(--color-text-light);
-  line-height: 1.6;
-  margin: 0 0 30px;
-}
-
-/* === SECTION LABEL === */
-.field-label {
+.title-line {
   display: block;
-  font-family: var(--font-mono);
-  font-size: 11px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--color-text);
-  font-weight: 700;
-  margin-bottom: 12px;
-}
-.field-label::before {
-  content: "$ ";
-  color: var(--color-primary);
 }
 
-/* === QUANTITY STEPPER === */
-.qty-block {
-  margin-bottom: 30px;
+.title-line + .title-line {
+  margin-top: -0.4em;
 }
-.stepper {
+
+.title-possessive {
+  position: relative;
+  display: inline-block;
+  margin-right: 0.09em;
+}
+
+.title-apostrophe {
+  position: absolute;
+  top: 0.39em;
+  right: -0.07em;
+  width: 0.045em;
+  height: 0.16em;
+  background: #000;
+  transform: skew(-8deg);
+}
+
+.afterparty-logo {
+  width: auto;
+  max-width: 100%;
+  height: min(29svh, 300px);
+  object-fit: contain;
+}
+
+.message-container {
+  width: min(100%, 650px);
+}
+
+.message {
   display: flex;
-  align-items: stretch;
-  border: 1px solid var(--color-border);
-  background: var(--color-panel);
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.4rem;
+  padding: 0.5rem;
+  border: 3px solid #000;
+  background: #ff0000;
 }
-.stepper button {
-  width: 58px;
+
+.message-dismiss {
+  border: 0;
   background: transparent;
-  border: none;
-  border-right: 1px solid var(--color-border);
-  font-family: var(--font-mono);
-  font-size: 26px;
-  font-weight: 600;
-  color: var(--color-text);
   cursor: pointer;
-  transition:
-    background 120ms ease,
-    color 120ms ease;
+}
+
+.ticket-section {
+  width: min(100%, 580px);
+  margin-top: clamp(0.5rem, 1.5svh, 0.9rem);
+  padding-top: clamp(0.4rem, 1svh, 0.65rem);
+}
+
+.ticket-section h2 {
+  font-size: clamp(2rem, min(6vw, 5svh), 3.25rem);
   line-height: 1;
 }
+
+.ticket-heading,
+.ticket-meta {
+  display: flex;
+  align-items: baseline;
+}
+
+.ticket-heading {
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.ticket-meta {
+  gap: 0.75rem;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.ticket-meta a {
+  color: #000;
+  text-underline-offset: 0.2em;
+}
+
+.sold-out {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-top: 0.65rem;
+  padding: 1rem;
+  border: 3px solid #000;
+}
+
+.sold-out strong {
+  font-size: 1.5rem;
+  text-transform: uppercase;
+}
+
+.form-field {
+  margin-bottom: clamp(0.45rem, 1.2svh, 0.75rem);
+}
+
+.form-field > label {
+  display: block;
+  margin-bottom: 0.25rem;
+  font-size: clamp(0.75rem, 1.6svh, 0.9rem);
+  font-weight: 700;
+}
+
+.ticket-options {
+  display: grid;
+  grid-template-columns: minmax(180px, 0.75fr) minmax(0, 1.25fr);
+  gap: 0.6rem;
+  margin-top: clamp(0.4rem, 1svh, 0.65rem);
+}
+
+.stepper {
+  --stepper-button-width: 48px;
+  display: grid;
+  grid-template-columns: var(--stepper-button-width) 1fr var(
+      --stepper-button-width
+    );
+  min-height: clamp(50px, 6.8svh, 60px);
+  border: 3px solid #000;
+}
+
+.stepper button {
+  border: 0;
+  color: #000;
+  background: transparent;
+  font-size: 1.5rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.stepper button:first-child {
+  border-right: 3px solid #000;
+}
+
 .stepper button:last-child {
-  border-right: none;
-  border-left: 1px solid var(--color-border);
+  border-left: 3px solid #000;
 }
-.stepper button:hover:not(:disabled) {
-  background: color-mix(in oklab, var(--color-primary) 10%, var(--color-panel));
-  color: var(--color-primary);
+
+.stepper button:hover:not(:disabled),
+.ticket-submit:hover,
+.checkout-modal-submit:hover {
+  color: #ff0000;
+  background: #000;
 }
+
 .stepper button:disabled {
-  color: var(--color-text-mute);
-  cursor: not-allowed;
+  display: none;
 }
+
+.stepper:has(#qty-minus:disabled) {
+  grid-template-columns: 1fr var(--stepper-button-width);
+}
+
 .qty-field {
-  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 16px 8px;
-  gap: 3px;
 }
+
 .qty-field input {
   width: 100%;
-  text-align: center;
+  border: 0;
+  outline: 0;
+  color: #000;
   background: transparent;
-  border: none;
-  outline: none;
-  font-family: var(--font-mono);
-  font-size: 40px;
+  font-size: clamp(1.4rem, 3svh, 1.8rem);
   font-weight: 700;
-  letter-spacing: -0.03em;
-  color: var(--color-text);
   line-height: 1;
+  text-align: center;
 }
-.qty-field .sub {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  color: var(--color-text-mute);
-  letter-spacing: 0.12em;
+
+.qty-field span {
+  font-size: 0.55rem;
   text-transform: uppercase;
 }
 
-/* === PRICE PANEL === */
-.price-block {
-  margin-bottom: 30px;
+.price-input-wrap {
+  --amount-font-size: clamp(1.5rem, min(5vw, 3.6svh), 2rem);
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  min-height: clamp(50px, 6.8svh, 60px);
+  padding: 0 0.7rem;
+  border: 3px solid #000;
 }
-.price-head {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 12px;
+
+.price-input-wrap > span:first-child {
+  font-size: var(--amount-font-size);
+  font-weight: 700;
+  line-height: 1;
 }
-.price-head .field-label {
-  margin-bottom: 0;
+
+.price-input-wrap input {
+  min-width: 0;
+  width: 100%;
+  border: 0;
+  outline: 0;
+  color: #000;
+  background: transparent;
+  font-size: var(--amount-font-size);
+  font-weight: 700;
+  line-height: 1;
 }
-.price-head .hint {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  color: var(--color-text-light);
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  white-space: nowrap;
-}
-.price-display {
-  display: flex;
-  align-items: baseline;
-  gap: 10px;
-  padding: 16px 20px;
-  border: 1px solid var(--color-border);
-  background: var(--color-panel);
-  margin-bottom: 6px;
+
+.price-guidance {
   position: relative;
-}
-.price-display:focus-within {
-  border-color: var(--color-primary);
-}
-.price-display .dol {
-  font-family: var(--font-mono);
-  font-size: 20px;
-  font-weight: 500;
-  color: var(--color-text-light);
-}
-.price-display .val {
-  font-family: var(--font-mono);
-  font-size: 40px;
-  font-weight: 700;
-  letter-spacing: -0.025em;
-  color: var(--color-text);
-  line-height: 1;
-  flex: 1;
-}
-.price-display .per {
-  font-family: var(--font-mono);
-  font-size: 12px;
-  color: var(--color-text-light);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  text-align: right;
-  line-height: 1.4;
-}
-.price-display .per .tag {
-  display: block;
-  font-size: 10px;
-  margin-top: 3px;
-  color: var(--color-primary);
-  font-weight: 700;
-}
-.price-display .per .tag.low {
-  color: var(--color-text-light);
-}
-.price-display .per .tag.high {
-  color: var(--color-ok);
+  height: 1.1rem;
 }
 
-/* === EMAIL === */
-.email-field {
-  display: block;
-  margin: 0 0 30px;
+.form-hint {
+  position: absolute;
+  top: 0.2rem;
+  left: 0;
+  width: 100%;
 }
-.editable-label {
-  display: block;
-  font-family: var(--font-mono);
-  font-size: 9.5px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--color-text-mute);
-  margin-bottom: 8px;
-  font-weight: 600;
+
+.form-hint {
+  font-size: 0.65rem;
 }
+
 .email-input {
   width: 100%;
-  padding: 15px 18px;
-  background: var(--color-panel);
-  border: 1px solid var(--color-border);
-  font-family: var(--font-mono);
-  font-size: 16px;
-  font-weight: 500;
-  color: var(--color-text);
-  outline: none;
-  transition: border-color 120ms ease;
-}
-.email-input:focus {
-  border-color: var(--color-primary);
-}
-.email-input::placeholder {
-  color: var(--color-text-mute);
+  padding: clamp(0.55rem, 1.2svh, 0.7rem) 0.8rem;
+  border: 3px solid #000;
+  border-radius: 0;
+  outline: 0;
+  color: #000;
+  background: #ff0000;
 }
 
-/* === RECEIPT / TOTAL === */
-.receipt {
-  --frame-color: var(--color-primary);
-  border: 1px solid var(--color-border);
-  background: var(--color-panel);
-  padding: 20px 22px;
-  margin-bottom: 24px;
-  position: relative;
+.email-input::placeholder {
+  color: #000;
 }
-.receipt::before {
-  content: "";
+
+.ticket-submit,
+.checkout-modal-submit {
+  width: 100%;
+  min-height: clamp(46px, 6svh, 54px);
+  padding: 0.55rem;
+  border: 3px solid #000;
+  color: #000;
+  background: #ff0000;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.checkout-modal[hidden] {
+  display: none;
+}
+
+.checkout-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+}
+
+.checkout-modal-backdrop {
   position: absolute;
   inset: 0;
-  border: 1px solid var(--frame-color);
-  transform: translate(6px, 6px);
-  z-index: -1;
-  opacity: 0.35;
+  background: #000;
 }
-.receipt .line {
-  display: flex;
-  justify-content: flex-end;
-  align-items: baseline;
-  font-family: var(--font-mono);
-  font-size: 13px;
-  color: var(--color-text-light);
-  padding: 4px 0;
+
+.checkout-modal-content {
+  position: relative;
+  width: min(100%, 480px);
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 2rem;
+  border: 3px solid #000;
+  background: #ff0000;
 }
-.receipt .line .calc {
-  color: var(--color-text);
-}
-.receipt .rule {
-  height: 1px;
-  background: var(--color-border);
-  margin: 12px 0;
+
+.checkout-modal-close {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
   border: 0;
+  color: #000;
+  background: transparent;
+  font-size: 1.75rem;
+  cursor: pointer;
 }
-.receipt .total {
+
+.checkout-modal-title {
+  margin-bottom: 1.5rem;
+  padding-right: 2rem;
+}
+
+.checkout-modal-submit {
+  margin-top: 1.5rem;
+}
+
+.checkout-modal-message {
+  margin-top: 0.75rem;
+  font-weight: 700;
+}
+
+.loading-block-wrap {
   display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-}
-.receipt .total .lbl {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--color-text-light);
-  font-weight: 700;
-}
-.receipt .total .amt {
-  font-family: var(--font-mono);
-  font-size: 38px;
-  font-weight: 700;
-  letter-spacing: -0.025em;
-  color: var(--color-text);
-  line-height: 1;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  height: 18px;
 }
 
-/* === PRIMARY BUTTON (extends base in main.css) === */
-.btn-primary {
-  justify-content: space-between;
-  padding: 18px 22px;
-  letter-spacing: 0.06em;
-  margin-bottom: 26px;
+.loading-block-bar {
+  width: 4px;
+  height: 18px;
+  background: currentColor;
 }
 
-/* === TAX NOTE === */
-.tax-note {
-  font-family: var(--font-mono);
-  font-size: 10.5px;
-  color: var(--color-text-mute);
-  line-height: 1.6;
-  margin: 0;
-  padding-top: 20px;
-  border-top: 1px dashed var(--color-border);
+@media (max-width: 560px) {
+  .afterparty-foundation {
+    width: min(100% - 1rem, 900px);
+  }
+
+  .afterparty-foundation > h1 {
+    font-size: clamp(3.5rem, min(15vw, 9svh), 5.5rem);
+  }
+
+  .afterparty-logo {
+    height: min(30svh, 270px);
+  }
+
+  .ticket-options {
+    grid-template-columns: minmax(140px, 0.85fr) minmax(0, 1.15fr);
+    gap: 0.6rem;
+  }
+
+  .stepper {
+    --stepper-button-width: 42px;
+  }
 }
 
-@media (max-width: 440px) {
-  .afterparty {
-    padding: 18px 18px 50px;
+@media (max-height: 700px) {
+  .afterparty-logo {
+    height: 25svh;
   }
-  .event-title {
-    font-size: 27px;
-  }
-  .event-meta .v {
-    font-size: 13px;
-  }
-  .qty-field input {
-    font-size: 34px;
-  }
-  .price-display .val {
-    font-size: 34px;
-  }
-  .receipt .total .amt {
-    font-size: 32px;
-  }
-  .btn-primary {
-    padding: 16px 18px;
-    font-size: 13px;
+
+  .afterparty-foundation > h1 {
+    font-size: min(9svh, 5rem);
   }
 }

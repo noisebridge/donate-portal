@@ -5,6 +5,7 @@ import { sendErrorReport } from "./error-reporting.mjs";
 /** @typedef {import("@stripe/stripe-js").ReleaseTrain} StripeRelease */
 /** @typedef {import("@stripe/stripe-js").Stripe} Stripe */
 /** @typedef {import("@stripe/stripe-js").StripeElements} StripeElements */
+/** @typedef {import("@stripe/stripe-js").Appearance} Appearance */
 /** @typedef {import("~/lib/paths").Paths} Paths */
 
 /** @satisfies {Paths['thankYou']} */
@@ -200,10 +201,14 @@ function initCheckoutModal() {
  * Open the checkout modal with a Stripe Payment Element for the given client secret.
  * @param {string} clientSecret
  * @param {string | null} email - Email to prefill for Stripe Link and billing details.
+ * @param {Appearance} [appearance]
  */
-export async function initDonationCheckout(clientSecret, email) {
+export async function initDonationCheckout(clientSecret, email, appearance) {
   const stripe = await initStripe();
-  elements = stripe.elements({ clientSecret });
+  elements = stripe.elements({
+    clientSecret,
+    ...(appearance ? { appearance } : {}),
+  });
 
   const paymentElement = elements.create("payment", {
     layout: {
@@ -325,8 +330,9 @@ function isCheckoutData(data) {
 /**
  * @param {HTMLFormElement} form
  * @param {"donate" | "subscribe"} type
+ * @param {Appearance} [appearance]
  */
-export function initCheckoutForm(form, type) {
+export function initCheckoutForm(form, type, appearance) {
   const submitBtn = /** @type {HTMLButtonElement | null} */ (
     form.querySelector('button[type="submit"]')
   );
@@ -374,7 +380,11 @@ export function initCheckoutForm(form, type) {
       window.location.href = data.redirect;
     } else if (isCheckoutData(data)) {
       if (type === "donate") {
-        await initDonationCheckout(data.clientSecret, data.emailAddress);
+        await initDonationCheckout(
+          data.clientSecret,
+          data.emailAddress,
+          appearance,
+        );
       } else if (type === "subscribe") {
         await initSubscriptionCheckout(data.clientSecret);
       }

@@ -9,28 +9,41 @@ const githubUrl =
   config.gitCommit &&
   (`https://github.com/${config.gitRepo}/tree/${config.gitCommit}` as "safe");
 
-const description =
+const defaultDescription =
   "Support Noisebridge, San Francisco's anarchist hackerspace. Donate to help keep the space open and accessible to all.";
 
 export const layoutStyleBody = "html { visibility: hidden; opacity: 0; }";
 
 export type LayoutProps = PropsWithChildren<{
   title: string;
+  titleSuffix?: string;
   description?: string;
+  favicon?: string;
+  socialImage?: string;
+  themeColor?: string;
   script?: string;
   styles?: string;
+  bare?: boolean;
   isAuthenticated: boolean;
   csrfToken?: string | undefined;
 }>;
 
 export function Layout({
   title,
+  titleSuffix = " | Noisebridge",
+  description = defaultDescription,
+  favicon = "image/favicon.svg",
+  socialImage = "image/logo.svg",
+  themeColor = "#000000",
   script,
   styles,
+  bare = false,
   isAuthenticated,
   csrfToken,
   children,
 }: LayoutProps) {
+  const documentTitle = `${title}${titleSuffix}`;
+
   return (
     <>
       {"<!DOCTYPE html>"}
@@ -44,34 +57,38 @@ export function Layout({
             content="width=device-width, initial-scale=1.0"
           />
           <meta name="description" content={description} />
-          <meta name="theme-color" content="#000000" />
+          <meta name="theme-color" content={themeColor} />
           <meta name="stripe-public" content={config.stripePublicKey} />
-          <title>{title as "safe"} | Noisebridge</title>
+          <title>{documentTitle as "safe"}</title>
 
           <meta property="og:type" content="website" />
           <meta property="og:locale" content="en_US" />
           <meta property="og:site_name" content="Noisebridge" />
-          <meta property="og:title" content={`${title} | Noisebridge`} />
+          <meta property="og:title" content={documentTitle} />
           <meta property="og:description" content={description} />
           <meta
             property="og:image"
-            content={`${config.baseUrl}${paths.assetWithHash("image/logo.svg")}`}
+            content={`${config.baseUrl}${paths.assetWithHash(socialImage)}`}
           />
 
           <meta name="twitter:card" content="summary" />
-          <meta name="twitter:title" content={`${title} | Noisebridge`} />
+          <meta name="twitter:title" content={documentTitle} />
           <meta name="twitter:description" content={description} />
           <meta
             name="twitter:image"
-            content={`${config.baseUrl}${paths.assetWithHash("image/logo.svg")}`}
+            content={`${config.baseUrl}${paths.assetWithHash(socialImage)}`}
           />
 
-          <link rel="icon" href={paths.assetWithHash("image/favicon.svg")} />
-          {/**
-           * Hide all content initially. This style is reset at the end of
-           * main.css to prevent a flash-of-unstyled-content.
-           */}
-          <style>{layoutStyleBody}</style>
+          <link rel="icon" href={paths.assetWithHash(favicon)} />
+          {!bare && (
+            <>
+              {/**
+               * Hide all content initially. This style is reset at the end of
+               * main.css to prevent a flash-of-unstyled-content.
+               */}
+              <style>{layoutStyleBody}</style>
+            </>
+          )}
           <link
             rel="preload"
             href={paths.asset("font/inter/latin.woff2")}
@@ -87,7 +104,9 @@ export function Layout({
             crossorigin="anonymous"
           />
           <link rel="stylesheet" href={paths.assetWithHash("css/reset.css")} />
-          <link rel="stylesheet" href={paths.assetWithHash("css/main.css")} />
+          {!bare && (
+            <link rel="stylesheet" href={paths.assetWithHash("css/main.css")} />
+          )}
           {!!styles && (
             <link
               rel="stylesheet"
@@ -107,22 +126,26 @@ export function Layout({
           )}
         </head>
         <body>
-          <Navbar isAuthenticated={isAuthenticated} csrfToken={csrfToken} />
+          {!bare && (
+            <Navbar isAuthenticated={isAuthenticated} csrfToken={csrfToken} />
+          )}
 
           <main id="main-content">{children}</main>
 
-          <footer>
-            <div class="footer-content">
-              <div>
-                {"&copy;"} {new Date().getFullYear()} Noisebridge
+          {!bare && (
+            <footer>
+              <div class="footer-content">
+                <div>
+                  {"&copy;"} {new Date().getFullYear()} Noisebridge
+                </div>
+                {githubUrl && (
+                  <a href={githubUrl} target="_blank" rel="noopener noreferrer">
+                    Source
+                  </a>
+                )}
               </div>
-              {githubUrl && (
-                <a href={githubUrl} target="_blank" rel="noopener noreferrer">
-                  Source
-                </a>
-              )}
-            </div>
-          </footer>
+            </footer>
+          )}
         </body>
       </html>
     </>

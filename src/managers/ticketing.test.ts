@@ -7,10 +7,23 @@ const paymentIntentsRetrieve = mock(
   (): Promise<Stripe.PaymentIntent> =>
     Promise.resolve({} as Stripe.PaymentIntent),
 );
+const paymentIntentsCreate = mock(
+  (): Promise<Stripe.PaymentIntent> =>
+    Promise.resolve({
+      client_secret: "pi_1_secret_abc",
+    } as Stripe.PaymentIntent),
+);
+const customersUpdate = mock(
+  (): Promise<Stripe.Customer> => Promise.resolve({} as Stripe.Customer),
+);
 
 mock.module("~/services/stripe", () => ({
   default: {
-    paymentIntents: { retrieve: paymentIntentsRetrieve },
+    customers: { update: customersUpdate },
+    paymentIntents: {
+      create: paymentIntentsCreate,
+      retrieve: paymentIntentsRetrieve,
+    },
   },
 }));
 
@@ -67,25 +80,42 @@ beforeEach(() => {
     headers: null,
   });
   paymentIntentsRetrieve.mockReset();
+  paymentIntentsCreate.mockReset();
+  paymentIntentsCreate.mockResolvedValue({
+    client_secret: "pi_1_secret_abc",
+  } as Stripe.PaymentIntent);
+  customersUpdate.mockReset();
 });
 
 describe("afterparty", () => {
   describe("validateQuantity", () => {
     test("accepts quantities within bounds", () => {
       expect(ticketingManager.validateQuantity(1)).toBe(true);
-      expect(ticketingManager.validateQuantity(20)).toBe(true);
+      expect(ticketingManager.validateQuantity(10)).toBe(true);
     });
 
     test("rejects zero, negatives and out-of-range values", () => {
       expect(ticketingManager.validateQuantity(0)).toBe(false);
       expect(ticketingManager.validateQuantity(-1)).toBe(false);
-      expect(ticketingManager.validateQuantity(21)).toBe(false);
+      expect(ticketingManager.validateQuantity(11)).toBe(false);
     });
 
     test("rejects non-integers", () => {
       expect(ticketingManager.validateQuantity(1.5)).toBe(false);
       expect(ticketingManager.validateQuantity(Number.NaN)).toBe(false);
     });
+  });
+
+  test("builds the confirmed calendar event", () => {
+    const calendar = ticketingManager.calendarEvent();
+
+    expect(calendar).toContain(
+      "DTSTART;TZID=America/Los_Angeles:20260719T200000",
+    );
+    expect(calendar).toContain(
+      "SUMMARY:Noisebridge's Unofficial Open Sauce Afterparty",
+    );
+    expect(calendar).toContain("LOCATION:Noisebridge\\, 272 Capp St");
   });
 
   describe("isTicketPurchase", () => {
@@ -99,6 +129,65 @@ describe("afterparty", () => {
     test("is false for a plain donation", () => {
       const paymentIntent = { metadata: {} } as unknown as Stripe.PaymentIntent;
       expect(ticketingManager.isTicketPurchase(paymentIntent)).toBe(false);
+    });
+  });
+
+  describe("purchase", () => {
+    test("emails zero-dollar tickets without creating a payment", async () => {
+      const result = await ticketingManager.purchase(
+        { cents: 0 },
+        2,
+        "buyer@example.com",
+      );
+
+      expect(result).toEqual({ success: true, free: true });
+      expect(paymentIntentsCreate).not.toHaveBeenCalled();
+      expect(sendEmail).toHaveBeenCalledWith(
+        expect.objectContaining({
+          to: "buyer@example.com",
+          html: expect.stringContaining("2 tickets"),
+        }),
+      );
+    });
+
+    test("creates a Stripe PaymentIntent for paid tickets", async () => {
+      const result = await ticketingManager.purchase(
+        { cents: 2500 },
+        2,
+        "buyer@example.com",
+      );
+
+      expect(result).toEqual({
+        success: true,
+        clientSecret: "pi_1_secret_abc",
+      });
+      expect(paymentIntentsCreate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          amount: 5000,
+          currency: "usd",
+          metadata: expect.objectContaining({
+            email: "buyer@example.com",
+            quantity: "2",
+            unitPrice: "2500",
+          }),
+        }),
+      );
+      expect(sendEmail).not.toHaveBeenCalled();
+    });
+
+    test("rejects a paid total below Stripe's minimum", async () => {
+      const result = await ticketingManager.purchase(
+        { cents: 49 },
+        1,
+        "buyer@example.com",
+      );
+
+      expect(result).toEqual({
+        success: false,
+        error: "InvalidDonationAmount",
+      });
+      expect(paymentIntentsCreate).not.toHaveBeenCalled();
+      expect(sendEmail).not.toHaveBeenCalled();
     });
   });
 
@@ -197,6 +286,18 @@ describe("afterparty", () => {
           html: expect.stringContaining("3 tickets"),
         }),
       );
+    });
+
+    test("confirms the capacity reservation for a paid ticket", async () => {
+      await ticketingManager.handlePaymentSuccess(
+        makeSucceededEvent({
+          metadata: ticketMetadata({ registrationId: "cus_registration" }),
+        }),
+      );
+
+      expect(customersUpdate).toHaveBeenCalledWith("cus_registration", {
+        metadata: { status: "confirmed" },
+      });
     });
 
     test("ignores payment intents that aren't tickets", async () => {

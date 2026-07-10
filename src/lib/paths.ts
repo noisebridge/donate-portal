@@ -60,7 +60,8 @@ const paths = {
   /**
    * `/thank-you`
    */
-  thankYou: () => "/thank-you" as const,
+  thankYou: (params?: { ticket?: "free"; email?: string }) =>
+    formatPath("/thank-you", params),
   /**
    * `/qr`
    */
@@ -88,6 +89,10 @@ const paths = {
    */
   afterparty: (params?: MessageParams & { price?: number }) =>
     formatPath("/afterparty", params),
+  /**
+   * `/afterparty.ics`
+   */
+  afterpartyCalendar: () => "/afterparty.ics" as const,
   /**
    * `/auth`
    */

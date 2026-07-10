@@ -8,17 +8,17 @@ import type { Cents } from "~/types/cents";
 
 export interface AfterpartyPageProps {
   price: Cents;
+  remainingTickets: number;
   isAuthenticated: boolean;
   messages?: Message[];
   csrfToken?: string | undefined;
 }
 
-/** Fixed slider bounds for the per-ticket price, in whole dollars. */
-const SLIDER_MIN = ticketingManager.MINIMUM_PRICE.cents / 100;
-const SLIDER_MAX = 100;
+const MINIMUM_PRICE_DOLLARS = ticketingManager.MINIMUM_PRICE.cents / 100;
 
 export function AfterpartyPage({
   price,
+  remainingTickets,
   isAuthenticated,
   messages = [],
   csrfToken,
@@ -26,189 +26,154 @@ export function AfterpartyPage({
   const priceDollars = price.cents / 100;
   const initialQty = ticketingManager.MIN_QUANTITY;
   const initialTotal: Cents = { cents: price.cents * initialQty };
-
-  const midPrice: Cents = { cents: ticketingManager.DEFAULT_PRICE.cents };
-  const maxPrice: Cents = { cents: SLIDER_MAX * 100 };
+  const maxQuantity = Math.min(ticketingManager.MAX_QUANTITY, remainingTickets);
 
   return (
     <Layout
-      title="OpenSauce Afterparty"
-      script="afterparty.mjs"
+      title="Noisebridge's Unofficial Open Sauce Afterparty"
+      titleSuffix=""
+      description="The unofficial Open Sauce afterparty at Noisebridge in San Francisco, with live sets, blinkenlights, and Club-Maté on ice."
+      favicon="image/afterparty-favicon.svg"
+      socialImage="image/afterparty-logo.svg"
+      themeColor="#FF0000"
       styles="afterparty.css"
+      script="afterparty.mjs"
+      bare
       isAuthenticated={isAuthenticated}
       csrfToken={csrfToken}
     >
-      <div class="afterparty">
+      <div class="afterparty-foundation">
         <MessageContainer messages={messages} />
 
-        <h1 class="event-title">
-          Noisebridge
-          <br />
-          <span class="accent">Open Sauce Afterparty</span>
+        <h1 aria-label="Noisebridge's Unofficial Open Sauce Afterparty">
+          <span aria-hidden="true">
+            <span class="title-line">
+              <span class="title-possessive">
+                Noisebridge<span class="title-apostrophe"></span>
+              </span>
+              s Unofficial
+            </span>
+            <span class="title-line">Open Sauce Afterparty</span>
+          </span>
         </h1>
 
-        <div class="event-meta">
-          <div class="cell">
-            <div class="k">Date</div>
-            <div class="v">
-              Sun Jul 19<small>8PM – late</small>
+        <img
+          class="afterparty-logo"
+          src={paths.assetWithHash("image/afterparty-logo.svg")}
+          alt="Noisebridge Open Sauce afterparty logo"
+        />
+
+        <section class="ticket-section" aria-labelledby="ticket-heading">
+          <div class="ticket-heading">
+            <h2 id="ticket-heading">Tickets</h2>
+            <div class="ticket-meta">
+              <span>{remainingTickets} left</span>
+              <a
+                href={paths.afterpartyCalendar()}
+                download="noisebridge-open-sauce-afterparty.ics"
+              >
+                Add to calendar
+              </a>
             </div>
           </div>
-          <div class="cell">
-            <div class="k">Where</div>
-            <div class="v">
-              Noisebridge<small>272 Capp St, SF</small>
-            </div>
-          </div>
-        </div>
 
-        <p class="event-blurb">
-          The unofficial afterparty for Open Sauce. Live sets, blinkenlights,
-          and Club-Maté on ice. Tickets are pay-what-you-can — every dollar over
-          cost covers for those that can't pay full price.
-        </p>
+          {remainingTickets > 0 ? (
+            <form
+              id="afterparty-form"
+              method="POST"
+              action={paths.afterparty()}
+            >
+              <input type="hidden" name="_csrf" value={csrfToken} />
 
-        <form id="afterparty-form" method="POST" action={paths.afterparty()}>
-          <input type="hidden" name="_csrf" value={csrfToken} />
+              <div class="ticket-options">
+                <div class="form-field quantity-field">
+                  <label for="qty-input">Quantity</label>
+                  <div class="stepper">
+                    <button
+                      type="button"
+                      id="qty-minus"
+                      aria-label="Fewer tickets"
+                      disabled
+                    >
+                      -
+                    </button>
+                    <div class="qty-field">
+                      <input
+                        type="text"
+                        inputmode="numeric"
+                        id="qty-input"
+                        name="quantity"
+                        value={initialQty.toString()}
+                        data-max={maxQuantity}
+                        autocomplete="off"
+                        required
+                      />
+                      <span id="qty-sub">ticket</span>
+                    </div>
+                    <button
+                      type="button"
+                      id="qty-plus"
+                      aria-label="More tickets"
+                      disabled={maxQuantity === initialQty}
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
 
-          <div class="qty-block">
-            <span class="field-label">How many tickets?</span>
-            <div class="stepper">
-              <button type="button" id="qty-minus" aria-label="Fewer tickets">
-                {"−"}
-              </button>
-              <div class="qty-field">
+                <div class="form-field price-field">
+                  <label for="price-input">Pay what you can</label>
+                  <div class="price-input-wrap">
+                    <span>$</span>
+                    <input
+                      type="text"
+                      inputmode="decimal"
+                      id="price-input"
+                      name="price-dollars"
+                      value={priceDollars.toFixed(2)}
+                      data-min={MINIMUM_PRICE_DOLLARS}
+                      data-minimum-paid-total-cents={
+                        ticketingManager.MINIMUM_PAID_TOTAL.cents
+                      }
+                      required
+                    />
+                  </div>
+                  <div class="price-guidance">
+                    <span class="form-hint" id="price-hint">
+                      Enter any amount, including $0
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-field">
+                <label for="email">Email for your tickets</label>
                 <input
-                  type="text"
-                  inputmode="numeric"
-                  id="qty-input"
-                  name="quantity"
-                  value={initialQty.toString()}
-                  aria-label="Number of tickets"
-                  autocomplete="off"
+                  type="email"
+                  id="email"
+                  name="email"
+                  class="email-input"
+                  placeholder="you@example.com"
+                  autocomplete="email"
                   required
                 />
-                <span class="sub" id="qty-sub">
-                  ticket
-                </span>
               </div>
-              <button type="button" id="qty-plus" aria-label="More tickets">
-                +
+
+              <button type="submit" class="ticket-submit">
+                <span id="continue-label">
+                  {
+                    `Pay ${formatAmount(initialTotal)} - Get ${initialQty} ticket` as "safe"
+                  }
+                </span>
               </button>
+            </form>
+          ) : (
+            <div class="sold-out">
+              <strong>Sold out</strong>
+              <span>All 10 tickets have been claimed.</span>
             </div>
-          </div>
-
-          <div class="price-block">
-            <div class="price-head">
-              <span class="field-label">Price per ticket</span>
-              <span class="hint">
-                {
-                  `Suggested ${formatAmount(ticketingManager.DEFAULT_PRICE)}` as "safe"
-                }
-              </span>
-            </div>
-
-            <div class="price-display">
-              <span class="dol">$</span>
-              <input
-                type="text"
-                inputmode="decimal"
-                id="price-input"
-                name="price-dollars"
-                class="val val-input"
-                value={priceDollars.toFixed(2)}
-                data-min={SLIDER_MIN}
-                aria-label="Price per ticket"
-                required
-              />
-              <span class="per">
-                per ticket
-                <span class="tag" id="price-tag">
-                  suggested
-                </span>
-              </span>
-            </div>
-
-            <span class="form-hint" id="price-hint">
-              Minimum {formatAmount(ticketingManager.MINIMUM_PRICE) as "safe"}
-            </span>
-
-            <div class="slider-wrap">
-              <input
-                type="range"
-                id="price-slider"
-                class="slider"
-                min={SLIDER_MIN.toString()}
-                max={SLIDER_MAX.toString()}
-                step="1"
-                value={priceDollars.toString()}
-                aria-label="Price per ticket"
-              />
-              <div class="slider-ticks" id="slider-ticks">
-                <button type="button" class="tick" data-amt={SLIDER_MIN}>
-                  <span class="pip"></span>
-                  <span class="label">
-                    {formatAmount(ticketingManager.MINIMUM_PRICE) as "safe"}
-                  </span>
-                </button>
-                <button
-                  type="button"
-                  class="tick"
-                  data-amt={midPrice.cents / 100}
-                >
-                  <span class="pip"></span>
-                  <span class="label">{formatAmount(midPrice) as "safe"}</span>
-                </button>
-                <button type="button" class="tick" data-amt={SLIDER_MAX}>
-                  <span class="pip"></span>
-                  <span class="label">{formatAmount(maxPrice) as "safe"}</span>
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <label class="email-field">
-            <span class="editable-label">Where do we send your tickets?</span>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              class="email-input"
-              placeholder="you@example.com"
-              autocomplete="email"
-              required
-            />
-          </label>
-
-          <div class="receipt">
-            <div class="line">
-              <span id="receipt-calc" class="calc">
-                {`${initialQty} × ${formatAmount(price)}` as "safe"}
-              </span>
-            </div>
-            <hr class="rule" />
-            <div class="total">
-              <span class="lbl">Total due</span>
-              <span class="amt" id="total-amt">
-                {formatAmount(initialTotal) as "safe"}
-              </span>
-            </div>
-          </div>
-
-          <button type="submit" class="btn btn-primary">
-            <span id="continue-label">
-              {
-                `Get ${initialQty} ticket · ${formatAmount(initialTotal)}` as "safe"
-              }
-            </span>
-            <span aria-hidden="true">{"→"}</span>
-          </button>
-        </form>
-
-        <p class="tax-note">
-          Noisebridge is a 501(c)(3) nonprofit. Ticket sales are a
-          tax-deductible donation. EIN 26-3507741.
-        </p>
+          )}
+        </section>
       </div>
 
       <StripeCheckoutModal

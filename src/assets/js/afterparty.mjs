@@ -1,7 +1,6 @@
 // @ts-check
 
 import { formatAmount } from "./util/money-forms.mjs";
-import { initSliderTicks } from "./util/slider.mjs";
 import { initCheckoutForm } from "./util/stripe.mjs";
 import {
   dollarPattern,
@@ -12,21 +11,43 @@ import {
 /** @typedef {import("~/types/cents").Cents} Cents */
 
 const MIN_QUANTITY = 1;
-const MAX_QUANTITY = 20;
+
+/** @type {import("@stripe/stripe-js").Appearance} */
+const STRIPE_APPEARANCE = {
+  disableAnimations: true,
+  theme: "flat",
+  variables: {
+    colorPrimary: "#000000",
+    colorBackground: "#ff0000",
+    colorText: "#000000",
+    colorSuccess: "#000000",
+    colorDanger: "#000000",
+    colorWarning: "#000000",
+    colorTextSecondary: "#000000",
+    colorTextPlaceholder: "#000000",
+    accessibleColorOnColorPrimary: "#ff0000",
+    accessibleColorOnColorBackground: "#000000",
+    accessibleColorOnColorSuccess: "#ff0000",
+    accessibleColorOnColorDanger: "#ff0000",
+    accessibleColorOnColorWarning: "#ff0000",
+    iconColor: "#000000",
+    iconHoverColor: "#000000",
+    inputColorBorder: "#000000",
+    inputFocusColorBorder: "#000000",
+    focusBoxShadow: "0 0 0 2px #000000",
+    borderRadius: "0px",
+  },
+};
 
 /**
  * Wire up the quantity stepper (minus / plus buttons and the editable field),
- * the price slider / input / preset ticks and the receipt so they all stay in
- * sync and keep the submit button label current.
+ * the editable price and the receipt so they stay in sync and keep the submit
+ * button label current.
  */
 function initTicketControls() {
-  const slider = /** @type {HTMLInputElement | null} */ (
-    document.getElementById("price-slider")
-  );
   const priceInput = /** @type {HTMLInputElement | null} */ (
     document.getElementById("price-input")
   );
-  const priceTag = document.getElementById("price-tag");
   const qtyInput = /** @type {HTMLInputElement | null} */ (
     document.getElementById("qty-input")
   );
@@ -37,19 +58,13 @@ function initTicketControls() {
     document.getElementById("qty-plus")
   );
   const qtySub = document.getElementById("qty-sub");
-  const receiptCalc = document.getElementById("receipt-calc");
-  const totalAmt = document.getElementById("total-amt");
   const continueLabel = document.getElementById("continue-label");
   if (
-    !slider ||
     !priceInput ||
-    !priceTag ||
     !qtyInput ||
     !qtyMinus ||
     !qtyPlus ||
     !qtySub ||
-    !receiptCalc ||
-    !totalAmt ||
     !continueLabel
   ) {
     return;
@@ -58,45 +73,34 @@ function initTicketControls() {
   enforcePattern(priceInput, dollarPattern);
   validateMinAmount(priceInput);
 
-  const min = parseFloat(slider.min) || 0;
-  const max = parseFloat(slider.max) || 0;
-  const suggested = parseFloat(priceInput.value) || min;
-
+  const min = parseFloat(priceInput.dataset["min"] ?? "") || 0;
+  const maxQuantity =
+    parseInt(qtyInput.dataset["max"] ?? "", 10) || MIN_QUANTITY;
+  const minimumPaidTotalCents =
+    parseInt(priceInput.dataset["minimumPaidTotalCents"] ?? "", 10) || 0;
   /** @type {Cents} */
   const price = { cents: Math.round(parseFloat(priceInput.value) * 100) };
   let quantity = Math.min(
-    MAX_QUANTITY,
+    maxQuantity,
     Math.max(MIN_QUANTITY, parseInt(qtyInput.value, 10) || MIN_QUANTITY),
   );
 
   const render = () => {
-    const dollars = price.cents / 100;
-
-    // Keep slider handle within its track bounds even for typed-in prices that
-    // exceed the max.
-    slider.value = String(Math.min(max, Math.max(min, dollars)));
-
-    // Price tag hints whether the buyer is under, at, or over the suggestion.
-    priceTag.classList.remove("low", "high");
-    if (dollars < suggested) {
-      priceTag.textContent = "pay-what-you-can";
-      priceTag.classList.add("low");
-    } else if (dollars > suggested) {
-      priceTag.textContent = `+${formatAmount({ cents: price.cents - Math.round(suggested * 100) })} extra`;
-      priceTag.classList.add("high");
-    } else {
-      priceTag.textContent = "suggested";
-    }
-
     qtyMinus.disabled = quantity <= MIN_QUANTITY;
-    qtyPlus.disabled = quantity >= MAX_QUANTITY;
+    qtyPlus.disabled = quantity >= maxQuantity;
     qtySub.textContent = quantity === 1 ? "ticket" : "tickets";
 
     /** @type {Cents} */
     const total = { cents: price.cents * quantity };
-    receiptCalc.textContent = `${quantity} × ${formatAmount(price)}`;
-    totalAmt.textContent = formatAmount(total);
-    continueLabel.textContent = `Get ${quantity} ${quantity === 1 ? "ticket" : "tickets"} · ${formatAmount(total)}`;
+    priceInput.setCustomValidity(
+      total.cents > 0 && total.cents < minimumPaidTotalCents
+        ? "Enter $0 or an amount that totals at least $0.50"
+        : "",
+    );
+    const free = total.cents === 0;
+    continueLabel.textContent = free
+      ? `Get ${quantity} free ${quantity === 1 ? "ticket" : "tickets"}`
+      : `Pay ${formatAmount(total)} - Get ${quantity} ${quantity === 1 ? "ticket" : "tickets"}`;
   };
 
   /** @param {number} dollars */
@@ -108,14 +112,10 @@ function initTicketControls() {
 
   /** @param {number} next */
   const setQuantity = (next) => {
-    quantity = Math.min(MAX_QUANTITY, Math.max(MIN_QUANTITY, Math.round(next)));
+    quantity = Math.min(maxQuantity, Math.max(MIN_QUANTITY, Math.round(next)));
     qtyInput.value = String(quantity);
     render();
   };
-
-  slider.addEventListener("input", () => {
-    setPrice(parseFloat(slider.value) || min);
-  });
 
   priceInput.addEventListener("input", () => {
     const dollars = parseFloat(priceInput.value);
@@ -141,16 +141,16 @@ function initTicketControls() {
   });
   qtyInput.addEventListener("blur", () => setQuantity(quantity));
 
-  initSliderTicks(min, max, setPrice);
-
   render();
 }
 
 document.addEventListener("DOMContentLoaded", () => {
   initTicketControls();
 
-  const form = /** @type {HTMLFormElement} */ (
+  const form = /** @type {HTMLFormElement | null} */ (
     document.getElementById("afterparty-form")
   );
-  initCheckoutForm(form, "donate");
+  if (form) {
+    initCheckoutForm(form, "donate", STRIPE_APPEARANCE);
+  }
 });
