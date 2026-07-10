@@ -34,6 +34,7 @@ const REGISTRATION_TYPE = "afterparty_ticket_registration";
 const REGISTRATION_PENDING = "pending";
 const REGISTRATION_CONFIRMED = "confirmed";
 const PENDING_RESERVATION_SECONDS = 30 * 60;
+const REGISTRATION_OPENED_AT = Math.floor(Date.UTC(2026, 6, 1) / 1000);
 export const PRODUCT_NAME = "OpenSauce Afterparty";
 export const DEFAULT_PRICE: Cents = { cents: 2500 };
 export const MINIMUM_PRICE: Cents = { cents: 0 };
@@ -85,7 +86,10 @@ async function calculateAvailability(): Promise<TicketAvailability> {
   const pendingCutoff =
     Math.floor(Date.now() / 1000) - PENDING_RESERVATION_SECONDS;
 
-  for await (const customer of stripe.customers.list({ limit: 100 })) {
+  for await (const customer of stripe.customers.list({
+    created: { gte: REGISTRATION_OPENED_AT },
+    limit: 100,
+  })) {
     if (customer.metadata["type"] !== REGISTRATION_TYPE) {
       continue;
     }
