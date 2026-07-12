@@ -60,20 +60,6 @@ body {
   text-rendering: optimizeLegibility;
 }
 
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  background-image: radial-gradient(
-    circle at 1px 1px,
-    rgba(0, 0, 0, 0.04) 1px,
-    transparent 0
-  );
-  background-size: 22px 22px;
-  z-index: 0;
-}
-
 #main-content {
   flex: 1;
 }
