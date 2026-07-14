@@ -121,6 +121,27 @@ beforeEach(() => {
 });
 
 describe("afterparty", () => {
+  describe("calendar", () => {
+    test("uses the 9 PM to 1 AM event hours", () => {
+      expect(ticketingManager.calendarEvent()).toContain(
+        "DTSTART:20260720T040000Z",
+      );
+      expect(ticketingManager.calendarEvent()).toContain(
+        "DTEND:20260720T080000Z",
+      );
+
+      const links = ticketingManager.calendarLinks();
+      expect(links.google).toContain(
+        "dates=20260720T040000Z%2F20260720T080000Z",
+      );
+      expect(links.outlook).toContain("startdt=2026-07-20T04%3A00%3A00Z");
+      expect(links.outlook).toContain("enddt=2026-07-20T08%3A00%3A00Z");
+      expect(links.microsoft365).toContain("startdt=2026-07-20T04%3A00%3A00Z");
+      expect(links.yahoo).toContain("st=20260720T040000Z");
+      expect(links.yahoo).toContain("et=20260720T080000Z");
+    });
+  });
+
   describe("validateQuantity", () => {
     test("accepts quantities within bounds", () => {
       expect(ticketingManager.validateQuantity(1)).toBe(true);

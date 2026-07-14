@@ -46,7 +46,7 @@ export async function AfterpartyTicketEmail({
     <mj-table padding="0 20px">
       <tr>
         <td style="padding: 10px 0; border-bottom: 1px solid #eeeeee; color: #888888; font-size: 13px;">When</td>
-        <td style="padding: 10px 0; border-bottom: 1px solid #eeeeee; text-align: right; color: #333333; font-size: 14px; font-weight: 600;">Sun Jul 19 · 8PM–late</td>
+        <td style="padding: 10px 0; border-bottom: 1px solid #eeeeee; text-align: right; color: #333333; font-size: 14px; font-weight: 600;">Sun Jul 19 · 9PM–1AM</td>
       </tr>
       <tr>
         <td style="padding: 10px 0; border-bottom: 1px solid #eeeeee; color: #888888; font-size: 13px;">Where</td>

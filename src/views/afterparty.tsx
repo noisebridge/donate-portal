@@ -147,10 +147,10 @@ export function AfterpartyPage({
 
           <details class="poster-calendar">
             <summary aria-label="Event date and time; open calendar options">
-              <time class="poster-date" datetime="2026-07-19T20:00:00-07:00">
+              <time class="poster-date" datetime="2026-07-19T21:00:00-07:00">
                 Jul 19
               </time>
-              <span class="poster-time">8pm-2am</span>
+              <span class="poster-time">9pm-1am</span>
             </summary>
             <CalendarMenu links={calendarLinks} />
           </details>

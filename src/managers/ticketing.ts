@@ -33,10 +33,10 @@ const EVENT_TITLE = "Noisebridge's Unofficial Open Sauce Afterparty";
 export const EVENT_DESCRIPTION =
   "Noisebridge welcomes the participants of Open Sauce to come and celebrate our 20th year hacking and making in the Mission. We are an anarchist, non-profit hacker space full of makers like you. Bring your exhibits, projects, and we will provide music, food, drinks, and a great time <3";
 const EVENT_LOCATION = "Noisebridge, 272 Capp St, San Francisco, CA";
-const EVENT_START_COMPACT = "20260720T030000Z";
-const EVENT_END_COMPACT = "20260720T090000Z";
-const EVENT_START_ISO = "2026-07-20T03:00:00Z";
-const EVENT_END_ISO = "2026-07-20T09:00:00Z";
+const EVENT_START_COMPACT = "20260720T040000Z";
+const EVENT_END_COMPACT = "20260720T080000Z";
+const EVENT_START_ISO = "2026-07-20T04:00:00Z";
+const EVENT_END_ISO = "2026-07-20T08:00:00Z";
 export const PRODUCT_NAME = "OpenSauce Afterparty";
 export const DEFAULT_PRICE: Cents = { cents: 6400 };
 export const MINIMUM_PRICE: Cents = { cents: 1337 };

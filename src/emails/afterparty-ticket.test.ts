@@ -11,6 +11,7 @@ describe("AfterpartyTicketEmail", () => {
     expect(result).toBeTypeOf("string");
     expect(result).toInclude("$75.00");
     expect(result).toInclude("3 tickets");
+    expect(result).toInclude("Sun Jul 19 · 9PM–1AM");
   });
 
   test("uses singular wording for a single ticket", async () => {

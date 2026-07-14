@@ -17,6 +17,8 @@ describe("AfterpartyPage", () => {
     expect(result).toContain("Minimum $13.37 per");
     expect(result).toContain('href="https://noisebridge.net/"');
     expect(result).toContain('class="poster-calendar"');
+    expect(result).toContain('datetime="2026-07-19T21:00:00-07:00"');
+    expect(result).toContain("9pm-1am");
     expect(result).not.toContain("Add to calendar");
   });
 
