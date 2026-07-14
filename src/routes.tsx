@@ -916,6 +916,9 @@ export default async function routes(fastify: FastifyInstance) {
             await chargeAlertManager.handlePaymentSuccess(event);
             await ticketingManager.handlePaymentSuccess(event);
             break;
+          case "charge.refunded":
+            ticketingManager.invalidateAvailabilityCache();
+            break;
           case "customer.subscription.created":
             await chargeAlertManager.handleNewSubscription(event);
             break;

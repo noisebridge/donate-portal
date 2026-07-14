@@ -14,6 +14,13 @@ export interface TicketConfirmation {
   email: string;
 }
 
+export interface TicketAvailability {
+  capacity: number;
+  sold: number;
+  claimed: number;
+  remaining: number;
+}
+
 const log = baseLogger.child({ module: "afterparty" });
 
 /**
@@ -32,9 +39,141 @@ const EVENT_START_ISO = "2026-07-20T03:00:00Z";
 const EVENT_END_ISO = "2026-07-20T09:00:00Z";
 export const PRODUCT_NAME = "OpenSauce Afterparty";
 export const DEFAULT_PRICE: Cents = { cents: 6400 };
-export const MINIMUM_PRICE: Cents = { cents: 1000 };
+export const MINIMUM_PRICE: Cents = { cents: 1337 };
 export const MIN_QUANTITY = 1;
 export const MAX_QUANTITY = 20;
+export const CAPACITY = 150;
+const PENDING_RESERVATION_SECONDS = 30 * 60;
+const AVAILABILITY_CACHE_MILLISECONDS = 60 * 1000;
+const TICKET_SALES_OPENED_AT = Math.floor(Date.UTC(2026, 6, 1) / 1000);
+
+let purchaseQueue = Promise.resolve();
+let availabilityCache:
+  | { value: TicketAvailability; expiresAt: number }
+  | undefined;
+
+async function withPurchaseLock<T>(callback: () => Promise<T>): Promise<T> {
+  const previous = purchaseQueue;
+  let release = () => {};
+  purchaseQueue = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+
+  await previous;
+  try {
+    return await callback();
+  } finally {
+    release();
+  }
+}
+
+export function invalidateAvailabilityCache(): void {
+  availabilityCache = undefined;
+}
+
+async function isFullyRefunded(
+  paymentIntent: Stripe.PaymentIntent,
+): Promise<boolean> {
+  const latestCharge = paymentIntent.latest_charge;
+  if (!latestCharge) {
+    return false;
+  }
+
+  const charge =
+    typeof latestCharge === "string"
+      ? await stripe.charges.retrieve(latestCharge)
+      : latestCharge;
+  return charge.refunded;
+}
+
+async function calculateAvailability(): Promise<TicketAvailability> {
+  let sold = 0;
+  let claimed = 0;
+  const pendingCutoff =
+    Math.floor(Date.now() / 1000) - PENDING_RESERVATION_SECONDS;
+
+  for await (const paymentIntent of stripe.paymentIntents.list({
+    created: { gte: TICKET_SALES_OPENED_AT },
+    expand: ["data.latest_charge"],
+    limit: 100,
+  })) {
+    if (!isTicketPurchase(paymentIntent)) {
+      continue;
+    }
+
+    const quantity = Number.parseInt(
+      paymentIntent.metadata["quantity"] ?? "",
+      10,
+    );
+    if (!validateQuantity(quantity)) {
+      throw new Error(
+        `Ticket PaymentIntent ${paymentIntent.id} has invalid quantity metadata`,
+      );
+    }
+
+    switch (paymentIntent.status) {
+      case "succeeded":
+        if (await isFullyRefunded(paymentIntent)) {
+          break;
+        }
+        sold += quantity;
+        claimed += quantity;
+        break;
+      case "processing":
+      case "requires_capture":
+        claimed += quantity;
+        break;
+      case "requires_action":
+      case "requires_confirmation":
+      case "requires_payment_method":
+        if (paymentIntent.created >= pendingCutoff) {
+          claimed += quantity;
+          break;
+        }
+        try {
+          await stripe.paymentIntents.cancel(paymentIntent.id);
+        } catch (err) {
+          claimed += quantity;
+          log.error(
+            { err, id: paymentIntent.id },
+            "Failed to release expired ticket reservation",
+          );
+        }
+        break;
+      case "canceled":
+        break;
+      default:
+        throw new Error(
+          `Ticket PaymentIntent ${paymentIntent.id} has unknown status`,
+        );
+    }
+  }
+
+  return {
+    capacity: CAPACITY,
+    sold,
+    claimed,
+    remaining: Math.max(0, CAPACITY - claimed),
+  };
+}
+
+export async function getAvailability(): Promise<TicketAvailability | null> {
+  if (availabilityCache && availabilityCache.expiresAt > Date.now()) {
+    return availabilityCache.value;
+  }
+
+  try {
+    const value = await calculateAvailability();
+    availabilityCache = {
+      value,
+      expiresAt: Date.now() + AVAILABILITY_CACHE_MILLISECONDS,
+    };
+    return value;
+  } catch (err) {
+    log.error({ err }, "Failed to calculate afterparty ticket availability");
+    return availabilityCache?.value ?? null;
+  }
+}
 
 function escapeCalendarText(value: string): string {
   return value
@@ -161,27 +300,49 @@ export async function purchase(
     return { success: false, error: "InvalidRequest" };
   }
 
-  const paymentIntent = await stripe.paymentIntents.create({
-    amount: pricePerTicket.cents * quantity,
-    currency: "usd",
-    automatic_payment_methods: { enabled: true },
-    description: PRODUCT_NAME,
-    metadata: {
-      name: PRODUCT_NAME,
-      type: TICKET_TYPE,
-      quantity: String(quantity),
-      unitPrice: String(pricePerTicket.cents),
-      email,
-    },
-  });
-  if (!paymentIntent.client_secret) {
-    return { success: false, error: "SessionError" };
-  }
+  return await withPurchaseLock(async () => {
+    let availability: TicketAvailability;
+    try {
+      availability = await calculateAvailability();
+    } catch (err) {
+      log.error({ err }, "Failed to check ticket availability before purchase");
+      return { success: false, error: "SessionError" };
+    }
 
-  return {
-    success: true,
-    clientSecret: paymentIntent.client_secret,
-  };
+    if (quantity > availability.remaining) {
+      return { success: false, error: "TicketsSoldOut" };
+    }
+
+    let paymentIntent: Stripe.PaymentIntent;
+    try {
+      paymentIntent = await stripe.paymentIntents.create({
+        amount: pricePerTicket.cents * quantity,
+        currency: "usd",
+        automatic_payment_methods: { enabled: true },
+        description: PRODUCT_NAME,
+        metadata: {
+          name: PRODUCT_NAME,
+          type: TICKET_TYPE,
+          quantity: String(quantity),
+          unitPrice: String(pricePerTicket.cents),
+          email,
+        },
+      });
+    } catch (err) {
+      log.error({ err }, "Failed to create ticket PaymentIntent");
+      return { success: false, error: "SessionError" };
+    }
+
+    if (!paymentIntent.client_secret) {
+      return { success: false, error: "SessionError" };
+    }
+
+    invalidateAvailabilityCache();
+    return {
+      success: true,
+      clientSecret: paymentIntent.client_secret,
+    };
+  });
 }
 
 /**
@@ -248,6 +409,8 @@ export async function handlePaymentSuccess(
   if (!isTicketPurchase(paymentIntent)) {
     return;
   }
+
+  invalidateAvailabilityCache();
 
   const email = paymentIntent.metadata["email"];
   if (!email) {
