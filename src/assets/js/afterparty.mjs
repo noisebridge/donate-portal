@@ -128,5 +128,5 @@ document.addEventListener("DOMContentLoaded", () => {
   if (ticketControls) {
     initTicketAvailability(form, ticketControls);
   }
-  initCheckoutForm(form, "donate");
+  initCheckoutForm(form, "donate", 60_000);
 });

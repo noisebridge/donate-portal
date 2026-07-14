@@ -23,15 +23,21 @@ export function isValid(email: string): boolean {
   return email.length <= 254 && EMAIL_PATTERN.test(email);
 }
 
-async function send(params: {
-  to: string;
-  subject: string;
-  html: string;
-}): Promise<EmailResult> {
-  const { data, error } = await resend.emails.send({
+async function send(
+  params: {
+    to: string;
+    subject: string;
+    html: string;
+  },
+  idempotencyKey?: string,
+): Promise<EmailResult> {
+  const message = {
     from: FROM_ADDRESS,
     ...params,
-  });
+  };
+  const { data, error } = idempotencyKey
+    ? await resend.emails.send(message, { idempotencyKey })
+    : await resend.emails.send(message);
   if (error) {
     log.error({ error, to: params.to }, "Email send returned error");
     return { success: false, error: error.message };
@@ -55,14 +61,18 @@ export async function sendAfterpartyTicket(
   email: string,
   quantity: number,
   amount: Cents,
+  paymentIntentId: string,
 ): Promise<EmailResult> {
   const emailHtml = await AfterpartyTicketEmail({ quantity, amount });
 
-  return await send({
-    to: email,
-    subject: "Your Noisebridge OpenSauce Afterparty tickets",
-    html: emailHtml,
-  });
+  return await send(
+    {
+      to: email,
+      subject: "Your Noisebridge OpenSauce Afterparty tickets",
+      html: emailHtml,
+    },
+    `afterparty-ticket-${paymentIntentId}`,
+  );
 }
 
 export async function sendSubscriptionCanceled(

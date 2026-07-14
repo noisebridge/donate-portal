@@ -1,7 +1,8 @@
 import { z } from "zod";
 import type { Cents } from "~/types/cents";
 
-const numericString = z.string().refine((s) => !Number.isNaN(parseFloat(s)));
+const decimalPattern = /^(?:\d+(?:\.\d*)?|\.\d+)$/;
+const numericString = z.string().regex(decimalPattern);
 
 const amountFormDataSchema = z.union([
   z.object({
@@ -41,16 +42,20 @@ function getAmount(amountFormData: AmountFormData) {
 /**
  * Largest amount Stripe accepts for a single USD charge ($999,999.99).
  */
-const STRIPE_MAX_CENTS = 99_999_999;
+export const STRIPE_MAX_CENTS = 99_999_999;
 
 export function parseToCents(
   amountFormData: string | AmountFormData,
 ): Cents | null {
-  const parsedDollars = Number.parseFloat(
+  const rawAmount =
     typeof amountFormData === "string"
       ? amountFormData
-      : getAmount(amountFormData),
-  );
+      : getAmount(amountFormData);
+  if (!decimalPattern.test(rawAmount)) {
+    return null;
+  }
+
+  const parsedDollars = Number(rawAmount);
   if (!Number.isFinite(parsedDollars)) {
     return null;
   }

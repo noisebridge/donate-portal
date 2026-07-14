@@ -18,6 +18,7 @@ export interface AfterpartyPageProps {
   price: Cents;
   messages?: Message[];
   csrfToken?: string | undefined;
+  purchaseId: string;
 }
 
 const MINIMUM_PRICE_DOLLARS = ticketingManager.MINIMUM_PRICE.cents / 100;
@@ -100,6 +101,7 @@ export function AfterpartyPage({
   price,
   messages = [],
   csrfToken,
+  purchaseId,
 }: AfterpartyPageProps) {
   const priceDollars = price.cents / 100;
   const initialQty = ticketingManager.MIN_QUANTITY;
@@ -193,6 +195,7 @@ export function AfterpartyPage({
             aria-busy="true"
           >
             <input type="hidden" name="_csrf" value={csrfToken} />
+            <input type="hidden" name="purchase-id" value={purchaseId} />
 
             <div class="ticket-options">
               <div class="form-field quantity-field">

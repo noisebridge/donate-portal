@@ -2,16 +2,20 @@ import { describe, expect, test } from "bun:test";
 import { AfterpartyPage } from "./afterparty";
 
 const price = { cents: 6400 };
+const purchaseId = "123e4567-e89b-42d3-a456-426614174000";
 
 describe("AfterpartyPage", () => {
   test("renders a fail-closed shell while availability loads", async () => {
-    const result = await (<AfterpartyPage price={price} />);
+    const result = await (
+      <AfterpartyPage price={price} purchaseId={purchaseId} />
+    );
 
     expect(result).toContain("Checking availability…");
     expect(result).toContain(
       'data-availability-url="/afterparty/availability"',
     );
     expect(result).toContain('data-max-quantity="20"');
+    expect(result).toContain(`name="purchase-id" value="${purchaseId}"`);
     expect(result).toContain("Minimum $13.37 per");
     expect(result).toContain('href="https://noisebridge.net/"');
     expect(result).toContain('class="poster-calendar"');

@@ -37,10 +37,11 @@ mock.module("~/services/stripe", () => ({
 }));
 
 let listedPaymentIntents: Stripe.PaymentIntent[] = [];
+const purchaseId = "123e4567-e89b-42d3-a456-426614174000";
 
 function makeSucceededEvent(
   overrides: Partial<
-    Pick<Stripe.PaymentIntent, "id" | "metadata" | "amount">
+    Pick<Stripe.PaymentIntent, "id" | "metadata" | "amount" | "currency">
   > = {},
 ): Stripe.PaymentIntentSucceededEvent {
   return {
@@ -49,6 +50,7 @@ function makeSucceededEvent(
       object: {
         id: overrides.id ?? "pi_1",
         amount: overrides.amount ?? 7500,
+        currency: overrides.currency ?? "usd",
         metadata: overrides.metadata ?? {},
       },
     },
@@ -61,6 +63,7 @@ function ticketMetadata(
   return {
     name: ticketingManager.PRODUCT_NAME,
     type: ticketingManager.TICKET_TYPE,
+    eventId: ticketingManager.TICKET_EVENT_ID,
     quantity: "3",
     unitPrice: "2500",
     email: "buyer@example.com",
@@ -73,7 +76,9 @@ function makePaymentIntent(
     Pick<
       Stripe.PaymentIntent,
       | "id"
+      | "amount"
       | "client_secret"
+      | "currency"
       | "metadata"
       | "status"
       | "created"
@@ -81,19 +86,24 @@ function makePaymentIntent(
     >
   > = {},
 ): Stripe.PaymentIntent {
+  const metadata = overrides.metadata ?? ticketMetadata();
+  const quantity = Number(metadata["quantity"]);
+  const unitPrice = Number(metadata["unitPrice"]);
   return {
     id: overrides.id ?? "pi_1",
+    amount: overrides.amount ?? quantity * unitPrice,
     client_secret:
       "client_secret" in overrides
         ? overrides.client_secret
         : "pi_1_secret_abc",
-    metadata: overrides.metadata ?? ticketMetadata(),
+    currency: overrides.currency ?? "usd",
+    metadata,
     status: overrides.status ?? "succeeded",
     created: overrides.created ?? Math.floor(Date.now() / 1000),
     latest_charge:
       "latest_charge" in overrides
         ? overrides.latest_charge
-        : ({ refunded: false } as Stripe.Charge),
+        : ({ amount_refunded: 0, refunded: false } as Stripe.Charge),
   } as unknown as Stripe.PaymentIntent;
 }
 
@@ -163,14 +173,62 @@ describe("afterparty", () => {
   describe("isTicketPurchase", () => {
     test("is true for ticket metadata", () => {
       const paymentIntent = {
-        metadata: { type: ticketingManager.TICKET_TYPE },
+        metadata: ticketMetadata(),
       } as unknown as Stripe.PaymentIntent;
       expect(ticketingManager.isTicketPurchase(paymentIntent)).toBe(true);
     });
 
-    test("is false for a plain donation", () => {
-      const paymentIntent = { metadata: {} } as unknown as Stripe.PaymentIntent;
-      expect(ticketingManager.isTicketPurchase(paymentIntent)).toBe(false);
+    test("recognizes tickets created before the event id was added", () => {
+      const { eventId: _eventId, ...metadata } = ticketMetadata();
+      const paymentIntent = { metadata } as unknown as Stripe.PaymentIntent;
+
+      expect(ticketingManager.isTicketPurchase(paymentIntent)).toBe(true);
+    });
+
+    test("is false for donations and other ticketed events", () => {
+      const paymentIntents = [
+        { metadata: {} },
+        { metadata: { name: ticketingManager.PRODUCT_NAME } },
+        {
+          metadata: {
+            name: ticketingManager.PRODUCT_NAME,
+            type: "donation",
+          },
+        },
+        {
+          metadata: ticketMetadata({ eventId: "another_event" }),
+        },
+      ] as unknown as Stripe.PaymentIntent[];
+
+      for (const paymentIntent of paymentIntents) {
+        expect(ticketingManager.isTicketPurchase(paymentIntent)).toBe(false);
+      }
+    });
+  });
+
+  describe("parseQuantity", () => {
+    test("accepts only canonical quantities from 1 through 20", () => {
+      expect(ticketingManager.parseQuantity("1")).toBe(1);
+      expect(ticketingManager.parseQuantity("20")).toBe(20);
+      expect(ticketingManager.parseQuantity("0")).toBeNull();
+      expect(ticketingManager.parseQuantity("21")).toBeNull();
+      expect(ticketingManager.parseQuantity("1ticket")).toBeNull();
+      expect(ticketingManager.parseQuantity(" 1 ")).toBeNull();
+      expect(ticketingManager.parseQuantity("01")).toBeNull();
+      expect(ticketingManager.parseQuantity(undefined)).toBeNull();
+    });
+  });
+
+  describe("validatePurchaseId", () => {
+    test("accepts UUIDv4 purchase ids only", () => {
+      expect(ticketingManager.validatePurchaseId(purchaseId)).toBe(true);
+      expect(ticketingManager.validatePurchaseId("not-a-uuid")).toBe(false);
+      expect(
+        ticketingManager.validatePurchaseId(
+          "123e4567-e89b-12d3-a456-426614174000",
+        ),
+      ).toBe(false);
+      expect(ticketingManager.validatePurchaseId(undefined)).toBe(false);
     });
   });
 
@@ -207,11 +265,22 @@ describe("afterparty", () => {
         }),
         makePaymentIntent({
           id: "pi_canceled",
-          metadata: ticketMetadata({ quantity: "5" }),
+          metadata: ticketMetadata({ quantity: "5", unitPrice: "100" }),
           status: "canceled",
           latest_charge: null,
         }),
         makePaymentIntent({ id: "pi_donation", metadata: {} }),
+        makePaymentIntent({
+          id: "pi_same_name_donation",
+          metadata: { name: ticketingManager.PRODUCT_NAME },
+        }),
+        makePaymentIntent({
+          id: "pi_other_event",
+          metadata: ticketMetadata({
+            eventId: "another_event",
+            quantity: "20",
+          }),
+        }),
       ];
 
       await expect(ticketingManager.getAvailability()).resolves.toEqual({
@@ -237,6 +306,50 @@ describe("afterparty", () => {
 
       expect(availability?.sold).toBe(0);
       expect(chargesRetrieve).toHaveBeenCalledWith("ch_refunded");
+    });
+
+    test("counts a valid historical ticket below the current minimum price", async () => {
+      listedPaymentIntents = [
+        makePaymentIntent({
+          amount: 100,
+          metadata: ticketMetadata({ quantity: "1", unitPrice: "100" }),
+        }),
+      ];
+
+      expect((await ticketingManager.getAvailability())?.sold).toBe(1);
+    });
+
+    test("fails closed for malformed or inconsistent ticket orders", async () => {
+      const invalidPaymentIntents = [
+        makePaymentIntent({
+          id: "pi_bad_quantity",
+          metadata: ticketMetadata({ quantity: "3tickets" }),
+        }),
+        makePaymentIntent({
+          id: "pi_bad_unit_price",
+          metadata: ticketMetadata({ unitPrice: "2500cents" }),
+        }),
+        makePaymentIntent({
+          id: "pi_bad_name",
+          metadata: ticketMetadata({ name: "Donation" }),
+        }),
+        makePaymentIntent({
+          id: "pi_bad_purchase_id",
+          metadata: ticketMetadata({ purchaseId: "not-a-uuid" }),
+        }),
+        makePaymentIntent({
+          id: "pi_zero_unit_price",
+          metadata: ticketMetadata({ unitPrice: "0" }),
+        }),
+        makePaymentIntent({ id: "pi_bad_amount", amount: 1 }),
+        makePaymentIntent({ id: "pi_bad_currency", currency: "eur" }),
+      ];
+
+      for (const paymentIntent of invalidPaymentIntents) {
+        listedPaymentIntents = [paymentIntent];
+        ticketingManager.invalidateAvailabilityCache();
+        await expect(ticketingManager.getAvailability()).resolves.toBeNull();
+      }
     });
 
     test("cancels expired checkout reservations", async () => {
@@ -374,6 +487,7 @@ describe("afterparty", () => {
         { cents: 1337 },
         2,
         "buyer@example.com",
+        purchaseId,
       );
 
       expect(result).toEqual({
@@ -384,21 +498,72 @@ describe("afterparty", () => {
         expect.objectContaining({
           amount: 2674,
           metadata: expect.objectContaining({
+            eventId: ticketingManager.TICKET_EVENT_ID,
+            purchaseId,
             quantity: "2",
             unitPrice: "1337",
           }),
         }),
+        { idempotencyKey: `afterparty-${purchaseId}` },
       );
     });
 
     test("rejects a price below $13.37", async () => {
       await expect(
-        ticketingManager.purchase({ cents: 1336 }, 1, "buyer@example.com"),
+        ticketingManager.purchase(
+          { cents: 1336 },
+          1,
+          "buyer@example.com",
+          purchaseId,
+        ),
       ).resolves.toEqual({
         success: false,
         error: "InvalidDonationAmount",
       });
       expect(paymentIntentsCreate).not.toHaveBeenCalled();
+    });
+
+    test("rejects non-integer and over-limit totals before calling Stripe", async () => {
+      await expect(
+        ticketingManager.purchase(
+          { cents: Number.NaN },
+          1,
+          "buyer@example.com",
+          purchaseId,
+        ),
+      ).resolves.toEqual({
+        success: false,
+        error: "InvalidDonationAmount",
+      });
+      await expect(
+        ticketingManager.purchase(
+          { cents: 5_000_000 },
+          20,
+          "buyer@example.com",
+          purchaseId,
+        ),
+      ).resolves.toEqual({
+        success: false,
+        error: "InvalidDonationAmount",
+      });
+      expect(paymentIntentsList).not.toHaveBeenCalled();
+      expect(paymentIntentsCreate).not.toHaveBeenCalled();
+    });
+
+    test("cancels a created PaymentIntent that has no client secret", async () => {
+      paymentIntentsCreate.mockResolvedValue(
+        makePaymentIntent({ client_secret: null }),
+      );
+
+      await expect(
+        ticketingManager.purchase(
+          { cents: 6400 },
+          1,
+          "buyer@example.com",
+          purchaseId,
+        ),
+      ).resolves.toEqual({ success: false, error: "SessionError" });
+      expect(paymentIntentsCancel).toHaveBeenCalledWith("pi_1");
     });
 
     test("rejects a purchase that would exceed 150 claimed tickets", async () => {
@@ -416,9 +581,98 @@ describe("afterparty", () => {
       );
 
       await expect(
-        ticketingManager.purchase({ cents: 6400 }, 2, "buyer@example.com"),
+        ticketingManager.purchase(
+          { cents: 6400 },
+          2,
+          "buyer@example.com",
+          purchaseId,
+        ),
       ).resolves.toEqual({ success: false, error: "TicketsSoldOut" });
       expect(paymentIntentsCreate).not.toHaveBeenCalled();
+    });
+
+    test("does not count an idempotent retry's existing reservation against itself", async () => {
+      listedPaymentIntents = Array.from({ length: 7 }, (_, index) =>
+        makePaymentIntent({
+          id: `pi_${index}`,
+          metadata: ticketMetadata({ quantity: "20" }),
+        }),
+      );
+      listedPaymentIntents.push(
+        makePaymentIntent({
+          id: "pi_8",
+          metadata: ticketMetadata({ quantity: "9" }),
+        }),
+        makePaymentIntent({
+          id: "pi_retry",
+          metadata: ticketMetadata({ quantity: "1", purchaseId }),
+          status: "requires_payment_method",
+          latest_charge: null,
+        }),
+      );
+
+      await expect(
+        ticketingManager.purchase(
+          { cents: 6400 },
+          1,
+          "buyer@example.com",
+          purchaseId,
+        ),
+      ).resolves.toEqual({
+        success: true,
+        clientSecret: "pi_1_secret_abc",
+      });
+      expect(paymentIntentsCreate).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe("handleRefundChange", () => {
+    test("ignores donation refunds and invalidates ticket refunds", async () => {
+      listedPaymentIntents = [
+        makePaymentIntent({ metadata: ticketMetadata({ quantity: "1" }) }),
+      ];
+      expect((await ticketingManager.getAvailability())?.sold).toBe(1);
+
+      listedPaymentIntents = [
+        makePaymentIntent({ metadata: ticketMetadata({ quantity: "2" }) }),
+      ];
+      await ticketingManager.handleRefundChange({
+        payment_intent: makePaymentIntent({ metadata: {} }),
+      });
+      expect((await ticketingManager.getAvailability())?.sold).toBe(1);
+
+      await ticketingManager.handleRefundChange({
+        payment_intent: makePaymentIntent(),
+      });
+      expect((await ticketingManager.getAvailability())?.sold).toBe(2);
+      expect(paymentIntentsList).toHaveBeenCalledTimes(2);
+    });
+
+    test("retrieves an unexpanded refunded PaymentIntent", async () => {
+      paymentIntentsRetrieve.mockResolvedValue(makePaymentIntent());
+
+      await ticketingManager.handleRefundChange({
+        payment_intent: "pi_ticket",
+      });
+
+      expect(paymentIntentsRetrieve).toHaveBeenCalledWith("pi_ticket");
+    });
+
+    test("invalidates conservatively when a refunded PaymentIntent cannot be read", async () => {
+      listedPaymentIntents = [
+        makePaymentIntent({ metadata: ticketMetadata({ quantity: "1" }) }),
+      ];
+      expect((await ticketingManager.getAvailability())?.sold).toBe(1);
+      listedPaymentIntents = [
+        makePaymentIntent({ metadata: ticketMetadata({ quantity: "2" }) }),
+      ];
+      paymentIntentsRetrieve.mockRejectedValue(new Error("Stripe error"));
+
+      await ticketingManager.handleRefundChange({
+        payment_intent: "pi_unknown",
+      });
+
+      expect((await ticketingManager.getAvailability())?.sold).toBe(2);
     });
   });
 
@@ -516,6 +770,7 @@ describe("afterparty", () => {
           to: "buyer@example.com",
           html: expect.stringContaining("3 tickets"),
         }),
+        { idempotencyKey: "afterparty-ticket-pi_1" },
       );
     });
 

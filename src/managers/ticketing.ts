@@ -1,6 +1,7 @@
 import type Stripe from "stripe";
 import type { ErrorCodeKey } from "~/lib/error-codes";
 import baseLogger from "~/lib/logger";
+import { STRIPE_MAX_CENTS } from "~/lib/money";
 import { timingSafeStringEqual } from "~/lib/timing-safe-equal";
 import * as emailManager from "~/managers/email";
 import stripe from "~/services/stripe";
@@ -26,6 +27,15 @@ interface TicketAvailabilityCalculation {
   expiresAt: number;
 }
 
+interface TicketOrder {
+  quantity: number;
+  unitPrice: number;
+}
+
+interface PaymentIntentOwner {
+  payment_intent: string | Stripe.PaymentIntent | null;
+}
+
 const log = baseLogger.child({ module: "afterparty" });
 
 /**
@@ -34,6 +44,7 @@ const log = baseLogger.child({ module: "afterparty" });
  * plain donation.
  */
 export const TICKET_TYPE = "afterparty_ticket";
+export const TICKET_EVENT_ID = "opensauce_afterparty_2026";
 const EVENT_TITLE = "Noisebridge's Unofficial Open Sauce Afterparty";
 export const EVENT_DESCRIPTION =
   "Noisebridge welcomes the participants of Open Sauce to come and celebrate our 20th year hacking and making in the Mission. We are an anarchist, non-profit hacker space full of makers like you. Bring your exhibits, projects, and we will provide music, food, drinks, and a great time <3";
@@ -48,10 +59,14 @@ export const MINIMUM_PRICE: Cents = { cents: 1337 };
 export const MIN_QUANTITY = 1;
 export const MAX_QUANTITY = 20;
 export const CAPACITY = 150;
+const PURCHASE_ID_PATTERN =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const PENDING_RESERVATION_SECONDS = 30 * 60;
 const AVAILABILITY_CACHE_MILLISECONDS = 60 * 1000;
 const TICKET_SALES_OPENED_AT = Math.floor(Date.UTC(2026, 6, 1) / 1000);
 
+// These guards are process-local. Keep the ticket service on one Render
+// instance/process unless they are replaced by a shared transactional store.
 let purchaseQueue = Promise.resolve();
 let availabilityGeneration = 0;
 let availabilityCache:
@@ -84,6 +99,7 @@ export function invalidateAvailabilityCache(): void {
 async function refundedTicketCount(
   paymentIntent: Stripe.PaymentIntent,
   quantity: number,
+  unitPrice: number,
 ): Promise<number> {
   const latestCharge = paymentIntent.latest_charge;
   if (!latestCharge) {
@@ -98,23 +114,60 @@ async function refundedTicketCount(
     return quantity;
   }
 
-  const unitPrice = Number.parseInt(
-    paymentIntent.metadata["unitPrice"] ?? "",
-    10,
-  );
-  if (
-    !Number.isInteger(unitPrice) ||
-    unitPrice <= 0 ||
-    charge.amount_refunded <= 0 ||
-    charge.amount_refunded % unitPrice !== 0
-  ) {
+  if (charge.amount_refunded <= 0 || charge.amount_refunded % unitPrice !== 0) {
     return 0;
   }
 
   return Math.min(quantity, charge.amount_refunded / unitPrice);
 }
 
-async function calculateAvailability(): Promise<TicketAvailabilityCalculation> {
+function parsePositiveInteger(value: string | undefined): number | null {
+  if (!value || !/^[1-9]\d*$/.test(value)) {
+    return null;
+  }
+
+  const parsed = Number(value);
+  return Number.isSafeInteger(parsed) ? parsed : null;
+}
+
+export function parseQuantity(value: string | undefined): number | null {
+  const quantity = parsePositiveInteger(value);
+  return quantity !== null && validateQuantity(quantity) ? quantity : null;
+}
+
+export function validatePurchaseId(value: string | undefined): value is string {
+  return value !== undefined && PURCHASE_ID_PATTERN.test(value);
+}
+
+function ticketOrder(paymentIntent: Stripe.PaymentIntent): TicketOrder {
+  const quantity = parseQuantity(paymentIntent.metadata["quantity"]);
+  const unitPrice = parsePositiveInteger(paymentIntent.metadata["unitPrice"]);
+  const purchaseId = paymentIntent.metadata["purchaseId"];
+  const expectedAmount =
+    quantity === null || unitPrice === null ? null : quantity * unitPrice;
+
+  if (
+    paymentIntent.metadata["name"] !== PRODUCT_NAME ||
+    (purchaseId !== undefined && !validatePurchaseId(purchaseId)) ||
+    quantity === null ||
+    unitPrice === null ||
+    expectedAmount === null ||
+    !Number.isSafeInteger(expectedAmount) ||
+    expectedAmount > STRIPE_MAX_CENTS ||
+    paymentIntent.currency !== "usd" ||
+    paymentIntent.amount !== expectedAmount
+  ) {
+    throw new Error(
+      `Ticket PaymentIntent ${paymentIntent.id} has inconsistent order metadata`,
+    );
+  }
+
+  return { quantity, unitPrice };
+}
+
+async function calculateAvailability(
+  excludedPurchaseId?: string,
+): Promise<TicketAvailabilityCalculation> {
   let sold = 0;
   let claimed = 0;
   const now = Date.now();
@@ -128,21 +181,23 @@ async function calculateAvailability(): Promise<TicketAvailabilityCalculation> {
     if (!isTicketPurchase(paymentIntent)) {
       continue;
     }
-
-    const quantity = Number.parseInt(
-      paymentIntent.metadata["quantity"] ?? "",
-      10,
-    );
-    if (!validateQuantity(quantity)) {
-      throw new Error(
-        `Ticket PaymentIntent ${paymentIntent.id} has invalid quantity metadata`,
-      );
+    if (
+      excludedPurchaseId !== undefined &&
+      paymentIntent.metadata["purchaseId"] === excludedPurchaseId
+    ) {
+      continue;
     }
+    if (paymentIntent.status === "canceled") {
+      continue;
+    }
+
+    const { quantity, unitPrice } = ticketOrder(paymentIntent);
 
     switch (paymentIntent.status) {
       case "succeeded": {
         const activeQuantity =
-          quantity - (await refundedTicketCount(paymentIntent, quantity));
+          quantity -
+          (await refundedTicketCount(paymentIntent, quantity, unitPrice));
         sold += activeQuantity;
         claimed += activeQuantity;
         break;
@@ -174,8 +229,6 @@ async function calculateAvailability(): Promise<TicketAvailabilityCalculation> {
             "Failed to release expired ticket reservation",
           );
         }
-        break;
-      case "canceled":
         break;
       default:
         throw new Error(
@@ -348,19 +401,26 @@ export async function purchase(
   pricePerTicket: Cents,
   quantity: number,
   email: string,
+  purchaseId: string,
 ): Promise<PurchaseResult> {
-  if (pricePerTicket.cents < MINIMUM_PRICE.cents) {
-    return { success: false, error: "InvalidDonationAmount" };
+  if (!validateQuantity(quantity) || !validatePurchaseId(purchaseId)) {
+    return { success: false, error: "InvalidRequest" };
   }
 
-  if (!validateQuantity(quantity)) {
-    return { success: false, error: "InvalidRequest" };
+  const totalCents = pricePerTicket.cents * quantity;
+  if (
+    !Number.isSafeInteger(pricePerTicket.cents) ||
+    pricePerTicket.cents < MINIMUM_PRICE.cents ||
+    !Number.isSafeInteger(totalCents) ||
+    totalCents > STRIPE_MAX_CENTS
+  ) {
+    return { success: false, error: "InvalidDonationAmount" };
   }
 
   return await withPurchaseLock(async () => {
     let availability: TicketAvailability;
     try {
-      availability = (await calculateAvailability()).value;
+      availability = (await calculateAvailability(purchaseId)).value;
     } catch (err) {
       log.error({ err }, "Failed to check ticket availability before purchase");
       return { success: false, error: "SessionError" };
@@ -372,29 +432,43 @@ export async function purchase(
 
     let paymentIntent: Stripe.PaymentIntent;
     try {
-      paymentIntent = await stripe.paymentIntents.create({
-        amount: pricePerTicket.cents * quantity,
-        currency: "usd",
-        automatic_payment_methods: { enabled: true },
-        description: PRODUCT_NAME,
-        metadata: {
-          name: PRODUCT_NAME,
-          type: TICKET_TYPE,
-          quantity: String(quantity),
-          unitPrice: String(pricePerTicket.cents),
-          email,
+      paymentIntent = await stripe.paymentIntents.create(
+        {
+          amount: totalCents,
+          currency: "usd",
+          automatic_payment_methods: { enabled: true },
+          description: PRODUCT_NAME,
+          metadata: {
+            name: PRODUCT_NAME,
+            type: TICKET_TYPE,
+            eventId: TICKET_EVENT_ID,
+            purchaseId,
+            quantity: String(quantity),
+            unitPrice: String(pricePerTicket.cents),
+            email,
+          },
         },
-      });
+        { idempotencyKey: `afterparty-${purchaseId}` },
+      );
     } catch (err) {
       log.error({ err }, "Failed to create ticket PaymentIntent");
       return { success: false, error: "SessionError" };
     }
 
+    invalidateAvailabilityCache();
     if (!paymentIntent.client_secret) {
+      try {
+        await stripe.paymentIntents.cancel(paymentIntent.id);
+      } catch (err) {
+        log.error(
+          { err, id: paymentIntent.id },
+          "Failed to cancel unusable ticket PaymentIntent",
+        );
+      }
+      invalidateAvailabilityCache();
       return { success: false, error: "SessionError" };
     }
 
-    invalidateAvailabilityCache();
     return {
       success: true,
       clientSecret: paymentIntent.client_secret,
@@ -406,7 +480,12 @@ export async function purchase(
  * Whether a payment intent is an afterparty ticket purchase.
  */
 export function isTicketPurchase(paymentIntent: Stripe.PaymentIntent): boolean {
-  return paymentIntent.metadata?.["type"] === TICKET_TYPE;
+  if (paymentIntent.metadata?.["type"] !== TICKET_TYPE) {
+    return false;
+  }
+
+  const eventId = paymentIntent.metadata["eventId"];
+  return eventId === undefined || eventId === TICKET_EVENT_ID;
 }
 
 export function handlePaymentIntentChange(
@@ -414,6 +493,30 @@ export function handlePaymentIntentChange(
 ): void {
   if (isTicketPurchase(paymentIntent)) {
     invalidateAvailabilityCache();
+  }
+}
+
+export async function handleRefundChange(
+  owner: PaymentIntentOwner,
+): Promise<void> {
+  const reference = owner.payment_intent;
+  if (!reference) {
+    return;
+  }
+
+  if (typeof reference !== "string") {
+    handlePaymentIntentChange(reference);
+    return;
+  }
+
+  try {
+    handlePaymentIntentChange(await stripe.paymentIntents.retrieve(reference));
+  } catch (err) {
+    invalidateAvailabilityCache();
+    log.warn(
+      { err, id: reference },
+      "Failed to identify refunded PaymentIntent; invalidated ticket availability conservatively",
+    );
   }
 }
 
@@ -455,6 +558,16 @@ export async function getPurchaseConfirmation(
     return null;
   }
 
+  try {
+    ticketOrder(paymentIntent);
+  } catch (err) {
+    log.warn(
+      { err, id: paymentIntent.id },
+      "Ticket confirmation has inconsistent order metadata",
+    );
+    return null;
+  }
+
   const email = paymentIntent.metadata["email"];
   if (!email) {
     return null;
@@ -486,14 +599,13 @@ export async function handlePaymentSuccess(
     return;
   }
 
-  const quantity = Number.parseInt(
-    paymentIntent.metadata["quantity"] ?? "",
-    10,
-  );
-  if (!validateQuantity(quantity)) {
+  let order: TicketOrder;
+  try {
+    order = ticketOrder(paymentIntent);
+  } catch (err) {
     log.error(
-      { id: paymentIntent.id, quantity: paymentIntent.metadata["quantity"] },
-      "Afterparty ticket purchase has an invalid quantity",
+      { err, id: paymentIntent.id },
+      "Afterparty ticket purchase has inconsistent order metadata",
     );
     return;
   }
@@ -501,8 +613,9 @@ export async function handlePaymentSuccess(
   const amount: Cents = { cents: paymentIntent.amount ?? 0 };
   const result = await emailManager.sendAfterpartyTicket(
     email,
-    quantity,
+    order.quantity,
     amount,
+    paymentIntent.id,
   );
   if (!result.success) {
     log.error(

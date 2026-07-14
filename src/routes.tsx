@@ -653,6 +653,7 @@ export default async function routes(fastify: FastifyInstance) {
         price={price}
         messages={formatMessages(request.query)}
         csrfToken={reply.generateCsrf()}
+        purchaseId={crypto.randomUUID()}
       />,
     );
   });
@@ -661,6 +662,7 @@ export default async function routes(fastify: FastifyInstance) {
     const availability = await ticketingManager.getAvailability();
     reply
       .header("Cache-Control", "private, no-store, max-age=0")
+      .header("CDN-Cache-Control", "no-store")
       .header("Cloudflare-CDN-Cache-Control", "no-store");
     if (!availability) {
       return reply
@@ -672,7 +674,12 @@ export default async function routes(fastify: FastifyInstance) {
   });
 
   fastify.post<{
-    Body: { quantity?: string; "price-dollars"?: string; email?: string };
+    Body: {
+      quantity?: string;
+      "price-dollars"?: string;
+      email?: string;
+      "purchase-id"?: string;
+    };
   }>(
     paths.afterparty(),
     { ...donationRateLimit, preHandler: fastify.csrfProtection },
@@ -693,14 +700,23 @@ export default async function routes(fastify: FastifyInstance) {
         });
       }
 
-      const quantity = Number.parseInt(body.quantity ?? "", 10);
-      if (!ticketingManager.validateQuantity(quantity)) {
+      const quantity = ticketingManager.parseQuantity(body.quantity);
+      const purchaseId = body["purchase-id"];
+      if (
+        quantity === null ||
+        !ticketingManager.validatePurchaseId(purchaseId)
+      ) {
         return reply.send({
           redirect: paths.afterparty({ error: "InvalidRequest" }),
         });
       }
 
-      const result = await ticketingManager.purchase(price, quantity, email);
+      const result = await ticketingManager.purchase(
+        price,
+        quantity,
+        email,
+        purchaseId,
+      );
       if (!result.success) {
         fastify.log.error(
           `Couldn't initiate afterparty purchase: ${result.error}`,
@@ -944,7 +960,7 @@ export default async function routes(fastify: FastifyInstance) {
           case "refund.created":
           case "refund.failed":
           case "refund.updated":
-            ticketingManager.invalidateAvailabilityCache();
+            await ticketingManager.handleRefundChange(event.data.object);
             break;
           case "customer.subscription.created":
             await chargeAlertManager.handleNewSubscription(event);
