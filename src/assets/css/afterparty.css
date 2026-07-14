@@ -361,8 +361,8 @@ summary:focus-visible {
 }
 
 .stepper button:disabled {
-  color: #000;
-  background: #000;
+  color: transparent;
+  background: #ff0000;
   cursor: default;
 }
 

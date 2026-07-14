@@ -21,6 +21,11 @@ export interface TicketAvailability {
   remaining: number;
 }
 
+interface TicketAvailabilityCalculation {
+  value: TicketAvailability;
+  expiresAt: number;
+}
+
 const log = baseLogger.child({ module: "afterparty" });
 
 /**
@@ -53,7 +58,7 @@ let availabilityCache:
   | { value: TicketAvailability; expiresAt: number }
   | undefined;
 let availabilityCalculation:
-  | { generation: number; promise: Promise<TicketAvailability> }
+  | { generation: number; promise: Promise<TicketAvailabilityCalculation> }
   | undefined;
 
 async function withPurchaseLock<T>(callback: () => Promise<T>): Promise<T> {
@@ -109,11 +114,11 @@ async function refundedTicketCount(
   return Math.min(quantity, charge.amount_refunded / unitPrice);
 }
 
-async function calculateAvailability(): Promise<TicketAvailability> {
+async function calculateAvailability(): Promise<TicketAvailabilityCalculation> {
   let sold = 0;
   let claimed = 0;
-  const pendingCutoff =
-    Math.floor(Date.now() / 1000) - PENDING_RESERVATION_SECONDS;
+  const now = Date.now();
+  let expiresAt = now + AVAILABILITY_CACHE_MILLISECONDS;
 
   for await (const paymentIntent of stripe.paymentIntents.list({
     created: { gte: TICKET_SALES_OPENED_AT },
@@ -149,8 +154,15 @@ async function calculateAvailability(): Promise<TicketAvailability> {
       case "requires_action":
       case "requires_confirmation":
       case "requires_payment_method":
-        if (paymentIntent.created >= pendingCutoff) {
+        if (
+          (paymentIntent.created + PENDING_RESERVATION_SECONDS) * 1000 >
+          now
+        ) {
           claimed += quantity;
+          expiresAt = Math.min(
+            expiresAt,
+            (paymentIntent.created + PENDING_RESERVATION_SECONDS) * 1000,
+          );
           break;
         }
         try {
@@ -173,10 +185,13 @@ async function calculateAvailability(): Promise<TicketAvailability> {
   }
 
   return {
-    capacity: CAPACITY,
-    sold,
-    claimed,
-    remaining: Math.max(0, CAPACITY - claimed),
+    value: {
+      capacity: CAPACITY,
+      sold,
+      claimed,
+      remaining: Math.max(0, CAPACITY - claimed),
+    },
+    expiresAt,
   };
 }
 
@@ -198,18 +213,18 @@ export async function getAvailability(): Promise<TicketAvailability | null> {
   const calculation = availabilityCalculation;
 
   try {
-    const value = await calculation.promise;
+    const result = await calculation.promise;
     if (generation !== availabilityGeneration) {
       return await getAvailability();
     }
     availabilityCache = {
-      value,
-      expiresAt: Date.now() + AVAILABILITY_CACHE_MILLISECONDS,
+      value: result.value,
+      expiresAt: result.expiresAt,
     };
-    return value;
+    return result.value;
   } catch (err) {
     log.error({ err }, "Failed to calculate afterparty ticket availability");
-    return availabilityCache?.value ?? null;
+    return null;
   } finally {
     if (availabilityCalculation === calculation) {
       availabilityCalculation = undefined;
@@ -345,7 +360,7 @@ export async function purchase(
   return await withPurchaseLock(async () => {
     let availability: TicketAvailability;
     try {
-      availability = await calculateAvailability();
+      availability = (await calculateAvailability()).value;
     } catch (err) {
       log.error({ err }, "Failed to check ticket availability before purchase");
       return { success: false, error: "SessionError" };
@@ -392,6 +407,14 @@ export async function purchase(
  */
 export function isTicketPurchase(paymentIntent: Stripe.PaymentIntent): boolean {
   return paymentIntent.metadata?.["type"] === TICKET_TYPE;
+}
+
+export function handlePaymentIntentChange(
+  paymentIntent: Stripe.PaymentIntent,
+): void {
+  if (isTicketPurchase(paymentIntent)) {
+    invalidateAvailabilityCache();
+  }
 }
 
 /**
@@ -452,7 +475,7 @@ export async function handlePaymentSuccess(
     return;
   }
 
-  invalidateAvailabilityCache();
+  handlePaymentIntentChange(paymentIntent);
 
   const email = paymentIntent.metadata["email"];
   if (!email) {

@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, mock, test } from "bun:test";
+import { beforeEach, describe, expect, mock, spyOn, test } from "bun:test";
 import type Stripe from "stripe";
 import { send as sendEmail } from "~/test-utils/resend.mock";
 import * as ticketingManager from "./ticketing";
@@ -283,6 +283,26 @@ describe("afterparty", () => {
       await expect(ticketingManager.getAvailability()).resolves.toBeNull();
     });
 
+    test("does not serve expired availability when a refresh fails", async () => {
+      let now = 2_000_000_000;
+      const dateNow = spyOn(Date, "now").mockImplementation(() => now);
+      listedPaymentIntents = [
+        makePaymentIntent({ metadata: ticketMetadata({ quantity: "1" }) }),
+      ];
+
+      try {
+        expect((await ticketingManager.getAvailability())?.sold).toBe(1);
+        now += 60_001;
+        paymentIntentsList.mockImplementation(() => {
+          throw new Error("Stripe error");
+        });
+
+        await expect(ticketingManager.getAvailability()).resolves.toBeNull();
+      } finally {
+        dateNow.mockRestore();
+      }
+    });
+
     test("shares one Stripe scan between concurrent page loads", async () => {
       let releaseList = () => {};
       const listReady = new Promise<void>((resolve) => {
@@ -302,6 +322,49 @@ describe("afterparty", () => {
       const [firstResult, secondResult] = await Promise.all([first, second]);
       expect(firstResult).toEqual(secondResult);
       expect(paymentIntentsList).toHaveBeenCalledTimes(1);
+    });
+
+    test("expires the cache when the earliest checkout hold expires", async () => {
+      let now = 2_000_000_500;
+      const dateNow = spyOn(Date, "now").mockImplementation(() => now);
+      listedPaymentIntents = [
+        makePaymentIntent({
+          id: "pi_expiring",
+          status: "requires_payment_method",
+          created: Math.floor(now / 1000) - 1799,
+          latest_charge: null,
+        }),
+      ];
+
+      try {
+        expect((await ticketingManager.getAvailability())?.claimed).toBe(3);
+
+        now += 600;
+        expect((await ticketingManager.getAvailability())?.claimed).toBe(0);
+        expect(paymentIntentsList).toHaveBeenCalledTimes(2);
+        expect(paymentIntentsCancel).toHaveBeenCalledWith("pi_expiring");
+      } finally {
+        dateNow.mockRestore();
+      }
+    });
+
+    test("invalidates cached availability for ticket state changes only", async () => {
+      listedPaymentIntents = [
+        makePaymentIntent({ metadata: ticketMetadata({ quantity: "1" }) }),
+      ];
+      expect((await ticketingManager.getAvailability())?.sold).toBe(1);
+
+      listedPaymentIntents = [
+        makePaymentIntent({ metadata: ticketMetadata({ quantity: "2" }) }),
+      ];
+      ticketingManager.handlePaymentIntentChange(
+        makePaymentIntent({ metadata: {} }),
+      );
+      expect((await ticketingManager.getAvailability())?.sold).toBe(1);
+
+      ticketingManager.handlePaymentIntentChange(makePaymentIntent());
+      expect((await ticketingManager.getAvailability())?.sold).toBe(2);
+      expect(paymentIntentsList).toHaveBeenCalledTimes(2);
     });
   });
 

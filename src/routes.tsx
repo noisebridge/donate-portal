@@ -659,7 +659,9 @@ export default async function routes(fastify: FastifyInstance) {
 
   fastify.get(paths.afterpartyAvailability(), async (_request, reply) => {
     const availability = await ticketingManager.getAvailability();
-    reply.header("Cache-Control", "no-store");
+    reply
+      .header("Cache-Control", "private, no-store, max-age=0")
+      .header("Cloudflare-CDN-Cache-Control", "no-store");
     if (!availability) {
       return reply
         .status(503)
@@ -928,7 +930,20 @@ export default async function routes(fastify: FastifyInstance) {
             await chargeAlertManager.handlePaymentSuccess(event);
             await ticketingManager.handlePaymentSuccess(event);
             break;
+          case "payment_intent.amount_capturable_updated":
+          case "payment_intent.canceled":
+          case "payment_intent.created":
+          case "payment_intent.partially_funded":
+          case "payment_intent.payment_failed":
+          case "payment_intent.processing":
+          case "payment_intent.requires_action":
+            ticketingManager.handlePaymentIntentChange(event.data.object);
+            break;
+          case "charge.refund.updated":
           case "charge.refunded":
+          case "refund.created":
+          case "refund.failed":
+          case "refund.updated":
             ticketingManager.invalidateAvailabilityCache();
             break;
           case "customer.subscription.created":
