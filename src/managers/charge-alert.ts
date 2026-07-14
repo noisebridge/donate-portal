@@ -18,6 +18,7 @@ import type {
 } from "~/types/alerts";
 import { GENERAL_DONATION, NAME_REMAP } from "./donation";
 import { PRODUCT_ID } from "./subscription";
+import { isTicketPurchase } from "./ticketing";
 
 const MAX_RECENT_ALERTS = 20;
 const PING_HISTORY_SIZE = 5;
@@ -174,10 +175,10 @@ export class ChargeAlertManager {
   }
 
   /**
-   * Whether a payment intent is for a one-off donation.
+   * Whether a payment intent should appear as a one-off donation alert.
    */
   private isDonation(paymentIntent: Stripe.PaymentIntent): boolean {
-    return paymentIntent.customer === null;
+    return paymentIntent.customer === null || isTicketPurchase(paymentIntent);
   }
 
   /**

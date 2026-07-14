@@ -89,20 +89,24 @@ export function Layout({
               <style>{layoutStyleBody}</style>
             </>
           )}
-          <link
-            rel="preload"
-            href={paths.asset("font/inter/latin.woff2")}
-            as="font"
-            type="font/woff2"
-            crossorigin="anonymous"
-          />
-          <link
-            rel="preload"
-            href={paths.asset("font/jetbrains_mono/latin_normal.woff2")}
-            as="font"
-            type="font/woff2"
-            crossorigin="anonymous"
-          />
+          {!bare && (
+            <>
+              <link
+                rel="preload"
+                href={paths.asset("font/inter/latin.woff2")}
+                as="font"
+                type="font/woff2"
+                crossorigin="anonymous"
+              />
+              <link
+                rel="preload"
+                href={paths.asset("font/jetbrains_mono/latin_normal.woff2")}
+                as="font"
+                type="font/woff2"
+                crossorigin="anonymous"
+              />
+            </>
+          )}
           <link rel="stylesheet" href={paths.assetWithHash("css/reset.css")} />
           {!bare && (
             <link rel="stylesheet" href={paths.assetWithHash("css/main.css")} />

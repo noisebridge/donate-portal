@@ -655,6 +655,8 @@ export default async function routes(fastify: FastifyInstance) {
       <AfterpartyPage
         price={price}
         remainingTickets={availability.remaining}
+        confirmedTickets={availability.confirmed}
+        amountRaised={availability.raised}
         isAuthenticated={isAuthenticated(request, reply)}
         messages={formatMessages(request.query)}
         csrfToken={reply.generateCsrf()}

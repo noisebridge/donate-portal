@@ -38,60 +38,129 @@ body {
 }
 
 button,
-input {
+input,
+summary {
   font: inherit;
 }
 
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+summary:focus-visible {
+  outline: 3px solid #000;
+  outline-offset: 3px;
+}
+
 .afterparty-foundation {
+  --content-width: min(100%, clamp(300px, calc(100svh - 380px), 430px));
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: min(100% - 1.25rem, 1100px);
+  justify-content: center;
+  width: min(100% - 1.25rem, 80ch);
   height: 100svh;
   margin: 0 auto;
   padding: clamp(0.6rem, 1.8svh, 1rem) 0;
   overflow: hidden;
 }
 
-.afterparty-foundation > h1 {
-  max-width: 1100px;
-  margin-bottom: clamp(0.25rem, 1svh, 0.6rem);
-  font-family: "OpenSauced", sans-serif;
-  font-size: clamp(4rem, min(10vw, 11svh), 9rem);
-  font-weight: 400;
-  line-height: 0.9;
+.poster-hero {
+  position: relative;
+  container-type: inline-size;
+  flex: 0 0 auto;
+  width: var(--content-width);
+  aspect-ratio: 1;
+}
+
+.poster-wordmark {
+  position: absolute;
+  top: 5.15%;
+  left: 7.45%;
+  width: 23.6%;
+  height: 38.6%;
+  object-fit: contain;
+}
+
+.poster-hero h1 {
+  position: absolute;
+  top: 6.94%;
+  left: 33.85%;
+  width: 60.3%;
+  margin: 0;
+  font-family: "Poppins", sans-serif;
+  font-size: 9.2cqi;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.008em;
+  text-align: center;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.poster-host {
+  position: absolute;
+  top: 17.25%;
+  left: 35.2%;
+  width: 59.8%;
+  margin: 0;
+  font-size: 4.2cqi;
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: 0.029em;
+  text-align: center;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.poster-host a,
+.poster-address {
+  color: #000;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.15em;
+}
+
+.poster-date,
+.poster-time,
+.poster-address {
+  position: absolute;
+  left: 0;
+  width: 39%;
+  margin: 0;
+  font-size: 6.2cqi;
+  font-weight: 700;
+  line-height: 1.2;
   text-align: center;
 }
 
-.title-line {
-  display: block;
+.poster-date {
+  top: 45.1%;
 }
 
-.title-line + .title-line {
-  margin-top: -0.4em;
+.poster-time {
+  top: 59.7%;
 }
 
-.title-possessive {
-  position: relative;
-  display: inline-block;
-  margin-right: 0.09em;
-}
-
-.title-apostrophe {
-  position: absolute;
-  top: 0.39em;
-  right: -0.07em;
-  width: 0.045em;
-  height: 0.16em;
-  background: #000;
-  transform: skew(-8deg);
+.poster-address {
+  top: 74.2%;
+  line-height: 1.18;
 }
 
 .afterparty-logo {
-  width: auto;
-  max-width: 100%;
-  height: min(29svh, 300px);
+  position: absolute;
+  top: 31%;
+  left: 35.3%;
+  width: 60%;
+  height: 63.8%;
   object-fit: contain;
+}
+
+.event-description {
+  width: var(--content-width);
+  margin-top: clamp(0.3rem, 0.8svh, 0.55rem);
+  font-size: clamp(0.7rem, 1.5svh, 0.84rem);
+  font-weight: 700;
+  line-height: 1.25;
+  text-align: center;
 }
 
 .message-container {
@@ -115,7 +184,7 @@ input {
 }
 
 .ticket-section {
-  width: min(100%, 580px);
+  width: var(--content-width);
   margin-top: clamp(0.5rem, 1.5svh, 0.9rem);
   padding-top: clamp(0.4rem, 1svh, 0.65rem);
 }
@@ -125,27 +194,116 @@ input {
   line-height: 1;
 }
 
-.ticket-heading,
-.ticket-meta {
+.ticket-heading {
   display: flex;
-  align-items: baseline;
+  align-items: center;
 }
 
 .ticket-heading {
+  align-items: flex-end;
   justify-content: space-between;
   gap: 1rem;
 }
 
-.ticket-meta {
-  gap: 0.75rem;
-  font-size: 0.65rem;
+.ticket-stats {
+  display: flex;
+  gap: 1.25rem;
+  margin-top: 0.35rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 3px solid #000;
+  font-size: 0.7rem;
   font-weight: 700;
   text-transform: uppercase;
 }
 
-.ticket-meta a {
+.ticket-stats > div {
+  display: flex;
+  align-items: baseline;
+  gap: 0.3rem;
+}
+
+.ticket-stats dd {
+  order: -1;
+}
+
+.ticket-stats strong {
+  font-size: 1rem;
+}
+
+.calendar-picker {
+  position: relative;
+  display: block;
+  height: 24px;
+  line-height: 1;
+}
+
+.calendar-picker summary {
+  display: block;
+  min-height: 24px;
+  padding: 0.4rem 0;
   color: #000;
+  font-family: "Poppins", sans-serif;
+  text-decoration: underline;
   text-underline-offset: 0.2em;
+  cursor: pointer;
+  list-style: none;
+  white-space: nowrap;
+}
+
+.calendar-picker summary::-webkit-details-marker {
+  display: none;
+}
+
+.calendar-picker summary::after {
+  content: "+";
+  display: inline-block;
+  width: 0.75rem;
+  margin-left: 0.35rem;
+  text-decoration: none;
+  text-align: center;
+}
+
+.calendar-picker[open] summary::after {
+  content: "-";
+}
+
+.calendar-menu {
+  position: absolute;
+  top: calc(100% + 0.4rem);
+  right: 0;
+  z-index: 20;
+  width: max-content;
+  min-width: 190px;
+  border: 3px solid #000;
+  background: #ff0000;
+}
+
+.calendar-menu a {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.55rem 0.7rem;
+  min-height: 36px;
+  color: #000;
+  text-decoration: none;
+}
+
+.calendar-menu a + a {
+  border-top: 2px solid #000;
+}
+
+.calendar-menu a:hover,
+.calendar-menu a:focus-visible {
+  color: #ff0000;
+  background: #000;
+  outline: none;
+}
+
+.calendar-icon {
+  flex: 0 0 auto;
+  width: 1rem;
+  height: 1rem;
+  fill: currentColor;
 }
 
 .sold-out {
@@ -171,6 +329,17 @@ input {
   margin-bottom: 0.25rem;
   font-size: clamp(0.75rem, 1.6svh, 0.9rem);
   font-weight: 700;
+}
+
+.quantity-field > label {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.availability-hint {
+  font-size: 0.75em;
+  text-transform: uppercase;
 }
 
 .ticket-options {
@@ -389,12 +558,18 @@ input {
     width: min(100% - 1rem, 900px);
   }
 
-  .afterparty-foundation > h1 {
-    font-size: clamp(3.5rem, min(15vw, 9svh), 5.5rem);
+  .event-description {
+    font-size: clamp(0.62rem, 1.3svh, 0.7rem);
   }
 
-  .afterparty-logo {
-    height: min(30svh, 270px);
+  .ticket-stats {
+    justify-content: space-between;
+    gap: 0.5rem;
+    font-size: 0.58rem;
+  }
+
+  .ticket-stats strong {
+    font-size: 0.82rem;
   }
 
   .ticket-options {
@@ -404,15 +579,5 @@ input {
 
   .stepper {
     --stepper-button-width: 42px;
-  }
-}
-
-@media (max-height: 700px) {
-  .afterparty-logo {
-    height: 25svh;
-  }
-
-  .afterparty-foundation > h1 {
-    font-size: min(9svh, 5rem);
   }
 }

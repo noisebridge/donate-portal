@@ -30,7 +30,7 @@ export function IndexPage({
           <span class="afterparty-banner-text">
             <strong>OpenSauce Afterparty</strong>
             <span class="afterparty-banner-meta">
-              Sat Jul 19 · 8PM · 272 Capp St
+              Sun Jul 19 · 8PM · 272 Capp St
             </span>
           </span>
           <span class="afterparty-banner-cta">

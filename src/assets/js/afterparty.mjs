@@ -88,6 +88,7 @@ function initTicketControls() {
   const render = () => {
     qtyMinus.disabled = quantity <= MIN_QUANTITY;
     qtyPlus.disabled = quantity >= maxQuantity;
+    qtyInput.setAttribute("aria-valuenow", String(quantity));
     qtySub.textContent = quantity === 1 ? "ticket" : "tickets";
 
     /** @type {Cents} */
