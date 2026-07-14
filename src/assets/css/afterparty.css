@@ -343,11 +343,9 @@ summary:focus-visible {
 }
 
 .stepper button:disabled {
-  display: none;
-}
-
-.stepper:has(#qty-minus:disabled) {
-  grid-template-columns: 1fr var(--stepper-button-width);
+  color: #000;
+  background: #000;
+  cursor: default;
 }
 
 .qty-field {
