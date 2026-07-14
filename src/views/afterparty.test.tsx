@@ -15,6 +15,9 @@ describe("AfterpartyPage", () => {
     expect(result).toContain("145 of 150 sold");
     expect(result).toContain('data-max="5"');
     expect(result).toContain("Minimum $13.37 per");
+    expect(result).toContain('href="https://noisebridge.net/"');
+    expect(result).toContain('class="poster-calendar"');
+    expect(result).not.toContain("Add to calendar");
   });
 
   test("shows sold out and removes the purchase form at capacity", async () => {

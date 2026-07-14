@@ -36,6 +36,67 @@ function BrandIcon({ icon }: { icon: IconDefinition }) {
   );
 }
 
+function CalendarMenu({
+  links,
+}: {
+  links: ReturnType<typeof ticketingManager.calendarLinks>;
+}) {
+  return (
+    <div class="calendar-menu">
+      <a
+        href={links.google}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Add to Google Calendar (opens in a new tab)"
+      >
+        <BrandIcon icon={faGoogle} />
+        Google Calendar
+      </a>
+      <a
+        href={paths.afterpartyCalendar()}
+        download="noisebridge-open-sauce-afterparty.ics"
+      >
+        <BrandIcon icon={faApple} />
+        Apple Calendar
+      </a>
+      <a
+        href={links.outlook}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Add to Outlook.com (opens in a new tab)"
+      >
+        <BrandIcon icon={faMicrosoft} />
+        Outlook.com
+      </a>
+      <a
+        href={links.microsoft365}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Add to Microsoft 365 (opens in a new tab)"
+      >
+        <BrandIcon icon={faMicrosoft} />
+        Microsoft 365
+      </a>
+      <a
+        href={links.yahoo}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Add to Yahoo Calendar (opens in a new tab)"
+      >
+        <BrandIcon icon={faYahoo} />
+        Yahoo Calendar
+      </a>
+      <a
+        href={paths.afterpartyCalendar()}
+        download="noisebridge-open-sauce-afterparty.ics"
+      >
+        <BrandIcon icon={faCalendarPlus} />
+        Download .ics
+      </a>
+    </div>
+  );
+}
+
 export function AfterpartyPage({
   availability,
   price,
@@ -68,10 +129,10 @@ export function AfterpartyPage({
             Hosted by
             <br />
             <a
-              href="https://www.google.com/maps/search/?api=1&query=Noisebridge%2C+272+Capp+St%2C+San+Francisco%2C+CA"
+              href="https://noisebridge.net/"
               target="_blank"
               rel="noopener noreferrer"
-              aria-label="Open Noisebridge Hackerspace in maps (opens in a new tab)"
+              aria-label="Visit Noisebridge Hackerspace (opens in a new tab)"
             >
               Noisebridge Hackerspace
             </a>
@@ -84,10 +145,15 @@ export function AfterpartyPage({
             aria-hidden="true"
           />
 
-          <time class="poster-date" datetime="2026-07-19T20:00:00-07:00">
-            Jul 19
-          </time>
-          <p class="poster-time">8pm-2am</p>
+          <details class="poster-calendar">
+            <summary aria-label="Event date and time; open calendar options">
+              <time class="poster-date" datetime="2026-07-19T20:00:00-07:00">
+                Jul 19
+              </time>
+              <span class="poster-time">8pm-2am</span>
+            </summary>
+            <CalendarMenu links={calendarLinks} />
+          </details>
           <a
             class="poster-address"
             href="https://www.google.com/maps/search/?api=1&query=Noisebridge%2C+272+Capp+St%2C+San+Francisco%2C+CA"
@@ -112,68 +178,12 @@ export function AfterpartyPage({
         <section class="ticket-section" aria-labelledby="ticket-heading">
           <div class="ticket-heading">
             <h2 id="ticket-heading">Tickets</h2>
-            <details class="calendar-picker">
-              <summary>Add to calendar</summary>
-              <div class="calendar-menu">
-                <a
-                  href={calendarLinks.google}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="Add to Google Calendar (opens in a new tab)"
-                >
-                  <BrandIcon icon={faGoogle} />
-                  Google Calendar
-                </a>
-                <a
-                  href={paths.afterpartyCalendar()}
-                  download="noisebridge-open-sauce-afterparty.ics"
-                >
-                  <BrandIcon icon={faApple} />
-                  Apple Calendar
-                </a>
-                <a
-                  href={calendarLinks.outlook}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="Add to Outlook.com (opens in a new tab)"
-                >
-                  <BrandIcon icon={faMicrosoft} />
-                  Outlook.com
-                </a>
-                <a
-                  href={calendarLinks.microsoft365}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="Add to Microsoft 365 (opens in a new tab)"
-                >
-                  <BrandIcon icon={faMicrosoft} />
-                  Microsoft 365
-                </a>
-                <a
-                  href={calendarLinks.yahoo}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="Add to Yahoo Calendar (opens in a new tab)"
-                >
-                  <BrandIcon icon={faYahoo} />
-                  Yahoo Calendar
-                </a>
-                <a
-                  href={paths.afterpartyCalendar()}
-                  download="noisebridge-open-sauce-afterparty.ics"
-                >
-                  <BrandIcon icon={faCalendarPlus} />
-                  Download .ics
-                </a>
-              </div>
-            </details>
+            {availability && (
+              <p class="ticket-count">
+                {availability.sold} of {availability.capacity} sold
+              </p>
+            )}
           </div>
-
-          {availability && (
-            <p class="ticket-count">
-              {availability.sold} of {availability.capacity} sold
-            </p>
-          )}
 
           {availability === null ? (
             <p class="ticket-status" role="status">

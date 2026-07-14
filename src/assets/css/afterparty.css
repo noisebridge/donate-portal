@@ -119,25 +119,62 @@ summary:focus-visible {
   text-underline-offset: 0.15em;
 }
 
-.poster-date,
-.poster-time,
+.poster-calendar,
 .poster-address {
   position: absolute;
   left: 0;
   width: 39%;
   margin: 0;
+}
+
+.poster-date,
+.poster-time,
+.poster-address {
   font-size: 6.2cqi;
   font-weight: 700;
   line-height: 1.2;
   text-align: center;
 }
 
-.poster-date {
+.poster-calendar {
   top: 45.1%;
+  z-index: 10;
+}
+
+.poster-calendar summary {
+  position: relative;
+  color: #000;
+  cursor: pointer;
+  list-style: none;
+}
+
+.poster-calendar summary::-webkit-details-marker {
+  display: none;
+}
+
+.poster-calendar summary::after {
+  content: "+";
+  position: absolute;
+  top: 100%;
+  right: 0;
+  font-size: 4cqi;
+  font-weight: 700;
+}
+
+.poster-calendar[open] summary::after {
+  content: "-";
+}
+
+.poster-date,
+.poster-time {
+  display: block;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.15em;
 }
 
 .poster-time {
-  top: 59.7%;
+  margin-top: 8cqi;
 }
 
 .poster-address {
@@ -197,12 +234,11 @@ summary:focus-visible {
 .ticket-heading {
   display: flex;
   align-items: flex-end;
-  justify-content: space-between;
   gap: 1rem;
 }
 
 .ticket-count {
-  margin-top: 0.35rem;
+  margin: 0 0 0.2rem;
   font-size: 0.8rem;
   font-weight: 700;
 }
@@ -215,47 +251,10 @@ summary:focus-visible {
   text-align: center;
 }
 
-.calendar-picker {
-  position: relative;
-  display: block;
-  height: 24px;
-  line-height: 1;
-}
-
-.calendar-picker summary {
-  display: block;
-  min-height: 24px;
-  padding: 0.4rem 0;
-  color: #000;
-  font-family: "Poppins", sans-serif;
-  text-decoration: underline;
-  text-underline-offset: 0.2em;
-  cursor: pointer;
-  list-style: none;
-  white-space: nowrap;
-}
-
-.calendar-picker summary::-webkit-details-marker {
-  display: none;
-}
-
-.calendar-picker summary::after {
-  content: "+";
-  display: inline-block;
-  width: 0.75rem;
-  margin-left: 0.35rem;
-  text-decoration: none;
-  text-align: center;
-}
-
-.calendar-picker[open] summary::after {
-  content: "-";
-}
-
 .calendar-menu {
   position: absolute;
   top: calc(100% + 0.4rem);
-  right: 0;
+  left: 0;
   z-index: 20;
   width: max-content;
   min-width: 190px;
