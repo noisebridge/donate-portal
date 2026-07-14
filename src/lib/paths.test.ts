@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { formatPath } from "./paths";
+import paths, { formatPath } from "./paths";
 
 describe("formatPath", () => {
   test("returns path unchanged when no params given", () => {
@@ -32,5 +32,11 @@ describe("formatPath", () => {
 
   test("handles empty string param", () => {
     expect(formatPath("/auth/email", { email: "" })).toBe("/auth/email?email=");
+  });
+});
+
+describe("afterparty paths", () => {
+  test("provides the ticket availability endpoint", () => {
+    expect(paths.afterpartyAvailability()).toBe("/afterparty/availability");
   });
 });

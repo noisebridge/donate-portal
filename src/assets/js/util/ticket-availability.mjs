@@ -14,7 +14,7 @@
  * @property {(label: string) => void} disable
  */
 
-const REQUEST_TIMEOUT_MILLISECONDS = 10_000;
+const REQUEST_TIMEOUT_MILLISECONDS = 30_000;
 
 /**
  * @param {unknown} value
@@ -30,6 +30,10 @@ export function isTicketAvailability(value) {
   const claimed = "claimed" in value ? value.claimed : undefined;
   const remaining = "remaining" in value ? value.remaining : undefined;
   if (
+    typeof capacity !== "number" ||
+    typeof sold !== "number" ||
+    typeof claimed !== "number" ||
+    typeof remaining !== "number" ||
     !Number.isSafeInteger(capacity) ||
     !Number.isSafeInteger(sold) ||
     !Number.isSafeInteger(claimed) ||
@@ -116,6 +120,7 @@ export function initTicketAvailability(
 
   let requestId = 0;
 
+  /** @param {string} label */
   const disableCheckout = (label) => {
     ticketControls.disable(label);
     email.disabled = true;

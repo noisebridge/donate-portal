@@ -282,6 +282,27 @@ describe("afterparty", () => {
 
       await expect(ticketingManager.getAvailability()).resolves.toBeNull();
     });
+
+    test("shares one Stripe scan between concurrent page loads", async () => {
+      let releaseList = () => {};
+      const listReady = new Promise<void>((resolve) => {
+        releaseList = resolve;
+      });
+      paymentIntentsList.mockImplementation(() => ({
+        async *[Symbol.asyncIterator]() {
+          await listReady;
+          yield* listedPaymentIntents;
+        },
+      }));
+
+      const first = ticketingManager.getAvailability();
+      const second = ticketingManager.getAvailability();
+      releaseList();
+
+      const [firstResult, secondResult] = await Promise.all([first, second]);
+      expect(firstResult).toEqual(secondResult);
+      expect(paymentIntentsList).toHaveBeenCalledTimes(1);
+    });
   });
 
   describe("purchase", () => {

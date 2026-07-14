@@ -4,7 +4,7 @@ import { AfterpartyPage } from "./afterparty";
 const price = { cents: 6400 };
 
 describe("AfterpartyPage", () => {
-  test("shows the public sales count and limits quantity to remaining capacity", async () => {
+  test("renders a fail-closed shell while availability loads", async () => {
     const result = await (<AfterpartyPage price={price} />);
 
     expect(result).toContain("Checking availability…");

@@ -48,8 +48,12 @@ const AVAILABILITY_CACHE_MILLISECONDS = 60 * 1000;
 const TICKET_SALES_OPENED_AT = Math.floor(Date.UTC(2026, 6, 1) / 1000);
 
 let purchaseQueue = Promise.resolve();
+let availabilityGeneration = 0;
 let availabilityCache:
   | { value: TicketAvailability; expiresAt: number }
+  | undefined;
+let availabilityCalculation:
+  | { generation: number; promise: Promise<TicketAvailability> }
   | undefined;
 
 async function withPurchaseLock<T>(callback: () => Promise<T>): Promise<T> {
@@ -69,6 +73,7 @@ async function withPurchaseLock<T>(callback: () => Promise<T>): Promise<T> {
 
 export function invalidateAvailabilityCache(): void {
   availabilityCache = undefined;
+  availabilityGeneration += 1;
 }
 
 async function refundedTicketCount(
@@ -180,8 +185,23 @@ export async function getAvailability(): Promise<TicketAvailability | null> {
     return availabilityCache.value;
   }
 
+  const generation = availabilityGeneration;
+  if (
+    !availabilityCalculation ||
+    availabilityCalculation.generation !== generation
+  ) {
+    availabilityCalculation = {
+      generation,
+      promise: calculateAvailability(),
+    };
+  }
+  const calculation = availabilityCalculation;
+
   try {
-    const value = await calculateAvailability();
+    const value = await calculation.promise;
+    if (generation !== availabilityGeneration) {
+      return await getAvailability();
+    }
     availabilityCache = {
       value,
       expiresAt: Date.now() + AVAILABILITY_CACHE_MILLISECONDS,
@@ -190,6 +210,10 @@ export async function getAvailability(): Promise<TicketAvailability | null> {
   } catch (err) {
     log.error({ err }, "Failed to calculate afterparty ticket availability");
     return availabilityCache?.value ?? null;
+  } finally {
+    if (availabilityCalculation === calculation) {
+      availabilityCalculation = undefined;
+    }
   }
 }
 
