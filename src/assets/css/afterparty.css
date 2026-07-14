@@ -196,38 +196,9 @@ summary:focus-visible {
 
 .ticket-heading {
   display: flex;
-  align-items: center;
-}
-
-.ticket-heading {
   align-items: flex-end;
   justify-content: space-between;
   gap: 1rem;
-}
-
-.ticket-stats {
-  display: flex;
-  gap: 1.25rem;
-  margin-top: 0.35rem;
-  padding-bottom: 0.4rem;
-  border-bottom: 3px solid #000;
-  font-size: 0.7rem;
-  font-weight: 700;
-  text-transform: uppercase;
-}
-
-.ticket-stats > div {
-  display: flex;
-  align-items: baseline;
-  gap: 0.3rem;
-}
-
-.ticket-stats dd {
-  order: -1;
-}
-
-.ticket-stats strong {
-  font-size: 1rem;
 }
 
 .calendar-picker {
@@ -306,20 +277,6 @@ summary:focus-visible {
   fill: currentColor;
 }
 
-.sold-out {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  margin-top: 0.65rem;
-  padding: 1rem;
-  border: 3px solid #000;
-}
-
-.sold-out strong {
-  font-size: 1.5rem;
-  text-transform: uppercase;
-}
-
 .form-field {
   margin-bottom: clamp(0.45rem, 1.2svh, 0.75rem);
 }
@@ -329,17 +286,6 @@ summary:focus-visible {
   margin-bottom: 0.25rem;
   font-size: clamp(0.75rem, 1.6svh, 0.9rem);
   font-weight: 700;
-}
-
-.quantity-field > label {
-  display: flex;
-  justify-content: space-between;
-  gap: 0.5rem;
-}
-
-.availability-hint {
-  font-size: 0.75em;
-  text-transform: uppercase;
 }
 
 .ticket-options {
@@ -555,16 +501,6 @@ summary:focus-visible {
 
   .event-description {
     font-size: clamp(0.62rem, 1.3svh, 0.7rem);
-  }
-
-  .ticket-stats {
-    justify-content: space-between;
-    gap: 0.5rem;
-    font-size: 0.58rem;
-  }
-
-  .ticket-stats strong {
-    font-size: 0.82rem;
   }
 
   .ticket-options {
