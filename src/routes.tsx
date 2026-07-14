@@ -642,7 +642,6 @@ export default async function routes(fastify: FastifyInstance) {
   fastify.get<{
     Querystring: { price?: string } & MessageParams;
   }>(paths.afterparty(), async (request, reply) => {
-    const availability = await ticketingManager.getAvailability();
     const priceCents =
       parseToCents(request.query.price ?? "") ?? ticketingManager.DEFAULT_PRICE;
     const price =
@@ -651,12 +650,23 @@ export default async function routes(fastify: FastifyInstance) {
         : priceCents;
     return reply.html(
       <AfterpartyPage
-        availability={availability}
         price={price}
         messages={formatMessages(request.query)}
         csrfToken={reply.generateCsrf()}
       />,
     );
+  });
+
+  fastify.get(paths.afterpartyAvailability(), async (_request, reply) => {
+    const availability = await ticketingManager.getAvailability();
+    reply.header("Cache-Control", "no-store");
+    if (!availability) {
+      return reply
+        .status(503)
+        .send({ error: "Ticket availability is temporarily unavailable" });
+    }
+
+    return reply.send(availability);
   });
 
   fastify.post<{

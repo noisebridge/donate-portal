@@ -233,14 +233,15 @@ summary:focus-visible {
 
 .ticket-heading {
   display: flex;
-  align-items: flex-end;
-  gap: 1rem;
+  align-items: baseline;
+  gap: clamp(0.75rem, 2vw, 1.1rem);
 }
 
 .ticket-count {
-  margin: 0 0 0.2rem;
-  font-size: 0.8rem;
+  margin: 0;
+  font-size: clamp(0.95rem, min(2.5vw, 2.1svh), 1.1rem);
   font-weight: 700;
+  line-height: 1.2;
 }
 
 .ticket-status {
@@ -249,6 +250,17 @@ summary:focus-visible {
   border: 3px solid #000;
   font-weight: 700;
   text-align: center;
+}
+
+.ticket-status button {
+  margin-left: 0.5rem;
+  border: 0;
+  color: #000;
+  background: transparent;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  cursor: pointer;
 }
 
 .calendar-menu {
@@ -336,10 +348,16 @@ summary:focus-visible {
 }
 
 .stepper button:hover:not(:disabled),
-.ticket-submit:hover,
-.checkout-modal-submit:hover {
+.ticket-submit:hover:not(:disabled),
+.checkout-modal-submit:hover:not(:disabled) {
   color: #ff0000;
   background: #000;
+}
+
+.ticket-submit:disabled {
+  color: #ff0000;
+  background: #000;
+  cursor: wait;
 }
 
 .stepper button:disabled {

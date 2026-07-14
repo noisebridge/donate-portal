@@ -2,6 +2,7 @@
 
 import { formatAmount } from "./util/money-forms.mjs";
 import { initCheckoutForm } from "./util/stripe.mjs";
+import { initTicketAvailability } from "./util/ticket-availability.mjs";
 import {
   dollarPattern,
   enforcePattern,
@@ -39,8 +40,8 @@ function initTicketControls() {
   validateMinAmount(priceInput);
 
   const min = parseFloat(priceInput.dataset["min"] ?? "") || 0;
-  const maxQuantity =
-    parseInt(qtyInput.dataset["max"] ?? "", 10) || MIN_QUANTITY;
+  let maxQuantity = MIN_QUANTITY;
+  let enabled = false;
   /** @type {Cents} */
   const price = { cents: Math.round(parseFloat(priceInput.value) * 100) };
   let quantity = Math.min(
@@ -49,8 +50,10 @@ function initTicketControls() {
   );
 
   const render = () => {
-    qtyMinus.disabled = quantity <= MIN_QUANTITY;
-    qtyPlus.disabled = quantity >= maxQuantity;
+    qtyMinus.disabled = !enabled || quantity <= MIN_QUANTITY;
+    qtyPlus.disabled = !enabled || quantity >= maxQuantity;
+    qtyInput.disabled = !enabled;
+    priceInput.disabled = !enabled;
     qtyInput.setAttribute("aria-valuenow", String(quantity));
     /** @type {Cents} */
     const total = { cents: price.cents * quantity };
@@ -95,14 +98,35 @@ function initTicketControls() {
   });
   qtyInput.addEventListener("blur", () => setQuantity(quantity));
 
-  render();
+  return {
+    /** @param {number} nextMax */
+    enable(nextMax) {
+      maxQuantity = Math.max(MIN_QUANTITY, Math.floor(nextMax));
+      enabled = true;
+      qtyInput.dataset["max"] = String(maxQuantity);
+      qtyInput.setAttribute("aria-valuemax", String(maxQuantity));
+      setQuantity(quantity);
+    },
+    /** @param {string} label */
+    disable(label) {
+      enabled = false;
+      render();
+      continueLabel.textContent = label;
+    },
+  };
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  initTicketControls();
-
   const form = /** @type {HTMLFormElement} */ (
     document.getElementById("afterparty-form")
   );
+  if (!form) {
+    return;
+  }
+
+  const ticketControls = initTicketControls();
+  if (ticketControls) {
+    initTicketAvailability(form, ticketControls);
+  }
   initCheckoutForm(form, "donate");
 });
