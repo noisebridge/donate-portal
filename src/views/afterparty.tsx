@@ -6,7 +6,7 @@ import {
   faYahoo,
 } from "@fortawesome/free-brands-svg-icons";
 import { faCalendarPlus } from "@fortawesome/free-solid-svg-icons";
-import { Layout } from "~/components/layout";
+import { AfterpartyLayout } from "~/components/afterparty-layout";
 import { type Message, MessageContainer } from "~/components/message-container";
 import { StripeCheckoutModal } from "~/components/stripe-checkout-modal";
 import { formatAmount } from "~/lib/money";
@@ -19,7 +19,6 @@ export interface AfterpartyPageProps {
   remainingTickets: number;
   confirmedTickets: number;
   amountRaised: Cents;
-  isAuthenticated: boolean;
   messages?: Message[];
   csrfToken?: string | undefined;
 }
@@ -44,7 +43,6 @@ export function AfterpartyPage({
   remainingTickets,
   confirmedTickets,
   amountRaised,
-  isAuthenticated,
   messages = [],
   csrfToken,
 }: AfterpartyPageProps) {
@@ -55,19 +53,7 @@ export function AfterpartyPage({
   const calendarLinks = ticketingManager.calendarLinks();
 
   return (
-    <Layout
-      title="Noisebridge's Unofficial Open Sauce Afterparty"
-      titleSuffix=""
-      description={ticketingManager.EVENT_DESCRIPTION}
-      favicon="image/afterparty-favicon.svg"
-      socialImage="image/afterparty-logo.svg"
-      themeColor="#FF0000"
-      styles="afterparty.css"
-      script="afterparty.mjs"
-      bare
-      isAuthenticated={isAuthenticated}
-      csrfToken={csrfToken}
-    >
+    <AfterpartyLayout>
       <div class="afterparty-foundation">
         <MessageContainer messages={messages} />
 
@@ -325,6 +311,6 @@ export function AfterpartyPage({
         title="Complete Your Purchase"
         submitLabel="Pay Now"
       />
-    </Layout>
+    </AfterpartyLayout>
   );
 }
