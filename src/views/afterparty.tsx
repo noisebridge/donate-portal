@@ -196,7 +196,7 @@ export function AfterpartyPage({
             <div>
               <dt>Raised</dt>
               <dd>
-                <strong>{formatAmount(amountRaised)}</strong>
+                <strong>{formatAmount(amountRaised) as "safe"}</strong>
               </dd>
             </div>
           </dl>
