@@ -410,11 +410,6 @@ summary:focus-visible {
   text-align: center;
 }
 
-.qty-field span {
-  font-size: 0.55rem;
-  text-transform: uppercase;
-}
-
 .price-input-wrap {
   --amount-font-size: clamp(1.5rem, min(5vw, 3.6svh), 2rem);
   display: grid;

@@ -198,7 +198,6 @@ export function AfterpartyPage({
                       aria-valuenow={initialQty}
                       required
                     />
-                    <span id="qty-sub">ticket</span>
                   </div>
                   <button type="button" id="qty-plus" aria-label="More tickets">
                     +

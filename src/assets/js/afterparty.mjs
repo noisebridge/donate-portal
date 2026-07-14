@@ -30,16 +30,8 @@ function initTicketControls() {
   const qtyPlus = /** @type {HTMLButtonElement | null} */ (
     document.getElementById("qty-plus")
   );
-  const qtySub = document.getElementById("qty-sub");
   const continueLabel = document.getElementById("continue-label");
-  if (
-    !priceInput ||
-    !qtyInput ||
-    !qtyMinus ||
-    !qtyPlus ||
-    !qtySub ||
-    !continueLabel
-  ) {
+  if (!priceInput || !qtyInput || !qtyMinus || !qtyPlus || !continueLabel) {
     return;
   }
 
@@ -60,8 +52,6 @@ function initTicketControls() {
     qtyMinus.disabled = quantity <= MIN_QUANTITY;
     qtyPlus.disabled = quantity >= maxQuantity;
     qtyInput.setAttribute("aria-valuenow", String(quantity));
-    qtySub.textContent = quantity === 1 ? "ticket" : "tickets";
-
     /** @type {Cents} */
     const total = { cents: price.cents * quantity };
     continueLabel.textContent = `Pay ${formatAmount(total)} - Get ${quantity} ${quantity === 1 ? "ticket" : "tickets"}`;
