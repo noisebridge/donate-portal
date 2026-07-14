@@ -71,19 +71,37 @@ export function invalidateAvailabilityCache(): void {
   availabilityCache = undefined;
 }
 
-async function isFullyRefunded(
+async function refundedTicketCount(
   paymentIntent: Stripe.PaymentIntent,
-): Promise<boolean> {
+  quantity: number,
+): Promise<number> {
   const latestCharge = paymentIntent.latest_charge;
   if (!latestCharge) {
-    return false;
+    return 0;
   }
 
   const charge =
     typeof latestCharge === "string"
       ? await stripe.charges.retrieve(latestCharge)
       : latestCharge;
-  return charge.refunded;
+  if (charge.refunded) {
+    return quantity;
+  }
+
+  const unitPrice = Number.parseInt(
+    paymentIntent.metadata["unitPrice"] ?? "",
+    10,
+  );
+  if (
+    !Number.isInteger(unitPrice) ||
+    unitPrice <= 0 ||
+    charge.amount_refunded <= 0 ||
+    charge.amount_refunded % unitPrice !== 0
+  ) {
+    return 0;
+  }
+
+  return Math.min(quantity, charge.amount_refunded / unitPrice);
 }
 
 async function calculateAvailability(): Promise<TicketAvailability> {
@@ -112,13 +130,13 @@ async function calculateAvailability(): Promise<TicketAvailability> {
     }
 
     switch (paymentIntent.status) {
-      case "succeeded":
-        if (await isFullyRefunded(paymentIntent)) {
-          break;
-        }
-        sold += quantity;
-        claimed += quantity;
+      case "succeeded": {
+        const activeQuantity =
+          quantity - (await refundedTicketCount(paymentIntent, quantity));
+        sold += activeQuantity;
+        claimed += activeQuantity;
         break;
+      }
       case "processing":
       case "requires_capture":
         claimed += quantity;

@@ -201,6 +201,20 @@ summary:focus-visible {
   gap: 1rem;
 }
 
+.ticket-count {
+  margin-top: 0.35rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.ticket-status {
+  margin-top: 1rem;
+  padding: 1rem;
+  border: 3px solid #000;
+  font-weight: 700;
+  text-align: center;
+}
+
 .calendar-picker {
   position: relative;
   display: block;

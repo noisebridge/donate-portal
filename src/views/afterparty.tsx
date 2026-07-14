@@ -15,6 +15,7 @@ import * as ticketingManager from "~/managers/ticketing";
 import type { Cents } from "~/types/cents";
 
 export interface AfterpartyPageProps {
+  availability: ticketingManager.TicketAvailability | null;
   price: Cents;
   messages?: Message[];
   csrfToken?: string | undefined;
@@ -36,6 +37,7 @@ function BrandIcon({ icon }: { icon: IconDefinition }) {
 }
 
 export function AfterpartyPage({
+  availability,
   price,
   messages = [],
   csrfToken,
@@ -44,6 +46,10 @@ export function AfterpartyPage({
   const initialQty = ticketingManager.MIN_QUANTITY;
   const initialTotal: Cents = { cents: price.cents * initialQty };
   const calendarLinks = ticketingManager.calendarLinks();
+  const maxQuantity = Math.min(
+    ticketingManager.MAX_QUANTITY,
+    availability?.remaining ?? 0,
+  );
 
   return (
     <AfterpartyLayout>
@@ -163,100 +169,126 @@ export function AfterpartyPage({
             </details>
           </div>
 
-          <form
-            id="afterparty-form"
-            method="POST"
-            action={paths.afterparty()}
-            aria-label="Ticket order"
-          >
-            <input type="hidden" name="_csrf" value={csrfToken} />
+          {availability && (
+            <p class="ticket-count">
+              {availability.sold} of {availability.capacity} sold
+            </p>
+          )}
 
-            <div class="ticket-options">
-              <div class="form-field quantity-field">
-                <label for="qty-input">Quantity</label>
-                <div class="stepper">
-                  <button
-                    type="button"
-                    id="qty-minus"
-                    aria-label="Fewer tickets"
-                    disabled
-                  >
-                    -
-                  </button>
-                  <div class="qty-field">
+          {availability === null ? (
+            <p class="ticket-status" role="status">
+              Ticket availability is temporarily unavailable. Please try again
+              soon.
+            </p>
+          ) : availability.remaining === 0 ? (
+            <p class="ticket-status" role="status">
+              {availability.sold >= availability.capacity
+                ? "Sold out."
+                : "All remaining tickets are currently held in checkout. Check back soon."}
+            </p>
+          ) : (
+            <form
+              id="afterparty-form"
+              method="POST"
+              action={paths.afterparty()}
+              aria-label="Ticket order"
+            >
+              <input type="hidden" name="_csrf" value={csrfToken} />
+
+              <div class="ticket-options">
+                <div class="form-field quantity-field">
+                  <label for="qty-input">Quantity</label>
+                  <div class="stepper">
+                    <button
+                      type="button"
+                      id="qty-minus"
+                      aria-label="Fewer tickets"
+                      disabled
+                    >
+                      -
+                    </button>
+                    <div class="qty-field">
+                      <input
+                        type="text"
+                        inputmode="numeric"
+                        id="qty-input"
+                        name="quantity"
+                        value={initialQty.toString()}
+                        data-max={maxQuantity}
+                        autocomplete="off"
+                        role="spinbutton"
+                        aria-valuemin={ticketingManager.MIN_QUANTITY}
+                        aria-valuemax={maxQuantity}
+                        aria-valuenow={initialQty}
+                        required
+                      />
+                    </div>
+                    <button
+                      type="button"
+                      id="qty-plus"
+                      aria-label="More tickets"
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
+
+                <div class="form-field price-field">
+                  <label for="price-input">Pay what you can</label>
+                  <div class="price-input-wrap">
+                    <span>$</span>
                     <input
                       type="text"
-                      inputmode="numeric"
-                      id="qty-input"
-                      name="quantity"
-                      value={initialQty.toString()}
-                      data-max={ticketingManager.MAX_QUANTITY}
+                      inputmode="decimal"
+                      id="price-input"
+                      name="price-dollars"
+                      value={priceDollars.toFixed(2)}
+                      data-min={MINIMUM_PRICE_DOLLARS}
+                      aria-describedby="price-hint"
                       autocomplete="off"
-                      role="spinbutton"
-                      aria-valuemin={ticketingManager.MIN_QUANTITY}
-                      aria-valuemax={ticketingManager.MAX_QUANTITY}
-                      aria-valuenow={initialQty}
                       required
                     />
                   </div>
-                  <button type="button" id="qty-plus" aria-label="More tickets">
-                    +
-                  </button>
+                  <div class="price-guidance">
+                    <span class="form-hint" id="price-hint">
+                      Minimum {formatAmount(ticketingManager.MINIMUM_PRICE)} per
+                      ticket
+                    </span>
+                  </div>
                 </div>
               </div>
 
-              <div class="form-field price-field">
-                <label for="price-input">Pay what you can</label>
-                <div class="price-input-wrap">
-                  <span>$</span>
-                  <input
-                    type="text"
-                    inputmode="decimal"
-                    id="price-input"
-                    name="price-dollars"
-                    value={priceDollars.toFixed(2)}
-                    data-min={MINIMUM_PRICE_DOLLARS}
-                    aria-describedby="price-hint"
-                    autocomplete="off"
-                    required
-                  />
-                </div>
-                <div class="price-guidance">
-                  <span class="form-hint" id="price-hint">
-                    Minimum $10 per ticket
-                  </span>
-                </div>
+              <div class="form-field">
+                <label for="email">Email for your tickets</label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  class="email-input"
+                  placeholder="you@example.com"
+                  autocomplete="email"
+                  required
+                />
               </div>
-            </div>
 
-            <div class="form-field">
-              <label for="email">Email for your tickets</label>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                class="email-input"
-                placeholder="you@example.com"
-                autocomplete="email"
-                required
-              />
-            </div>
-
-            <button type="submit" class="ticket-submit">
-              <span id="continue-label">
-                {
-                  `Pay ${formatAmount(initialTotal)} - Get ${initialQty} ticket` as "safe"
-                }
-              </span>
-            </button>
-          </form>
+              <button type="submit" class="ticket-submit">
+                <span id="continue-label">
+                  {
+                    `Pay ${formatAmount(initialTotal)} - Get ${initialQty} ticket` as "safe"
+                  }
+                </span>
+              </button>
+            </form>
+          )}
         </section>
       </div>
 
-      <StripeCheckoutModal
-        title="Complete Your Purchase"
-        submitLabel="Pay Now"
-      />
+      {availability && availability.remaining > 0 && (
+        <StripeCheckoutModal
+          title="Complete Your Purchase"
+          submitLabel="Pay Now"
+        />
+      )}
     </AfterpartyLayout>
   );
 }

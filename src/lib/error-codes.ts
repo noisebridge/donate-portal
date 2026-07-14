@@ -15,7 +15,7 @@ export enum ErrorCode {
   InvalidDonationAmount = "Please select a valid donation amount",
   InvalidMonthlyDonationAmount = "Please select a valid monthly donation amount",
   SessionError = "Unable to process donation. Please try again.",
-  TicketsSoldOut = "All afterparty tickets have been claimed.",
+  TicketsSoldOut = "That quantity exceeds the remaining afterparty ticket availability.",
   SameAmount = "Select a different donation amount",
   NoCustomer = "No Stripe customer found",
   NoSubscription = "No active monthly donation found to cancel",

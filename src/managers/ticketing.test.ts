@@ -7,9 +7,11 @@ const paymentIntentsRetrieve = mock(
   (): Promise<Stripe.PaymentIntent> =>
     Promise.resolve({} as Stripe.PaymentIntent),
 );
-const paymentIntentsList = mock((): AsyncIterable<Stripe.PaymentIntent> => ({
-  async *[Symbol.asyncIterator]() {},
-}));
+const paymentIntentsList = mock(
+  (): AsyncIterable<Stripe.PaymentIntent> => ({
+    async *[Symbol.asyncIterator]() {},
+  }),
+);
 const paymentIntentsCreate = mock(
   (): Promise<Stripe.PaymentIntent> =>
     Promise.resolve({} as Stripe.PaymentIntent),
@@ -169,6 +171,14 @@ describe("afterparty", () => {
           } as Stripe.Charge,
         }),
         makePaymentIntent({
+          id: "pi_one_ticket_refunded",
+          metadata: ticketMetadata({ quantity: "4" }),
+          latest_charge: {
+            refunded: false,
+            amount_refunded: 2500,
+          } as Stripe.Charge,
+        }),
+        makePaymentIntent({
           id: "pi_pending",
           metadata: ticketMetadata({ quantity: "1" }),
           status: "requires_payment_method",
@@ -185,9 +195,9 @@ describe("afterparty", () => {
 
       await expect(ticketingManager.getAvailability()).resolves.toEqual({
         capacity: 150,
-        sold: 7,
-        claimed: 8,
-        remaining: 142,
+        sold: 10,
+        claimed: 11,
+        remaining: 139,
       });
       expect(paymentIntentsList).toHaveBeenCalledWith({
         created: { gte: expect.any(Number) },
