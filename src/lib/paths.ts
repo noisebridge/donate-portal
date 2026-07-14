@@ -60,8 +60,7 @@ const paths = {
   /**
    * `/thank-you`
    */
-  thankYou: (params?: { ticket?: "free"; email?: string }) =>
-    formatPath("/thank-you", params),
+  thankYou: () => "/thank-you" as const,
   /**
    * `/qr`
    */

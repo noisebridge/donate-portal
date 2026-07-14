@@ -3,7 +3,6 @@ import type Stripe from "stripe";
 import { ChargeAlertManager } from "./charge-alert";
 import { GENERAL_DONATION } from "./donation";
 import { PRODUCT_ID } from "./subscription";
-import { PRODUCT_NAME, TICKET_TYPE } from "./ticketing";
 
 describe("ChargeAlertManager", () => {
   const manager = new ChargeAlertManager();
@@ -66,28 +65,6 @@ describe("ChargeAlertManager", () => {
       const paymentIntent = makePaymentIntent({ description: "Snacks" });
 
       expect(manager["getProductName"](paymentIntent)).toBe("Snacks");
-    });
-  });
-
-  describe("isDonation", () => {
-    test("recognizes customerless one-time donations", () => {
-      expect(manager["isDonation"](makePaymentIntent())).toBe(true);
-    });
-
-    test("recognizes afterparty tickets attached to a customer", () => {
-      const paymentIntent = makePaymentIntent({
-        customer: "cus_ticket_buyer",
-        metadata: { name: PRODUCT_NAME, type: TICKET_TYPE },
-      });
-
-      expect(manager["isDonation"](paymentIntent)).toBe(true);
-      expect(manager["getProductName"](paymentIntent)).toBe(PRODUCT_NAME);
-    });
-
-    test("rejects other customer payments", () => {
-      const paymentIntent = makePaymentIntent({ customer: "cus_member" });
-
-      expect(manager["isDonation"](paymentIntent)).toBe(false);
     });
   });
 

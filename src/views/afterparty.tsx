@@ -16,9 +16,6 @@ import type { Cents } from "~/types/cents";
 
 export interface AfterpartyPageProps {
   price: Cents;
-  remainingTickets: number;
-  confirmedTickets: number;
-  amountRaised: Cents;
   messages?: Message[];
   csrfToken?: string | undefined;
 }
@@ -40,16 +37,12 @@ function BrandIcon({ icon }: { icon: IconDefinition }) {
 
 export function AfterpartyPage({
   price,
-  remainingTickets,
-  confirmedTickets,
-  amountRaised,
   messages = [],
   csrfToken,
 }: AfterpartyPageProps) {
   const priceDollars = price.cents / 100;
   const initialQty = ticketingManager.MIN_QUANTITY;
   const initialTotal: Cents = { cents: price.cents * initialQty };
-  const maxQuantity = Math.min(ticketingManager.MAX_QUANTITY, remainingTickets);
   const calendarLinks = ticketingManager.calendarLinks();
 
   return (
@@ -170,140 +163,94 @@ export function AfterpartyPage({
             </details>
           </div>
 
-          <dl class="ticket-stats">
-            <div>
-              <dt>Tickets bought</dt>
-              <dd>
-                <strong>
-                  {confirmedTickets} / {ticketingManager.CAPACITY}
-                </strong>
-              </dd>
-            </div>
-            <div>
-              <dt>Raised</dt>
-              <dd>
-                <strong>{formatAmount(amountRaised) as "safe"}</strong>
-              </dd>
-            </div>
-          </dl>
+          <form
+            id="afterparty-form"
+            method="POST"
+            action={paths.afterparty()}
+            aria-label="Ticket order"
+          >
+            <input type="hidden" name="_csrf" value={csrfToken} />
 
-          {remainingTickets > 0 ? (
-            <form
-              id="afterparty-form"
-              method="POST"
-              action={paths.afterparty()}
-              aria-label="Ticket order"
-            >
-              <input type="hidden" name="_csrf" value={csrfToken} />
-
-              <div class="ticket-options">
-                <div class="form-field quantity-field">
-                  <label for="qty-input">
-                    Quantity
-                    {remainingTickets <= ticketingManager.MAX_QUANTITY && (
-                      <span class="availability-hint" id="availability-hint">
-                        {remainingTickets} available
-                      </span>
-                    )}
-                  </label>
-                  <div class="stepper">
-                    <button
-                      type="button"
-                      id="qty-minus"
-                      aria-label="Fewer tickets"
-                      disabled
-                    >
-                      -
-                    </button>
-                    <div class="qty-field">
-                      <input
-                        type="text"
-                        inputmode="numeric"
-                        id="qty-input"
-                        name="quantity"
-                        value={initialQty.toString()}
-                        data-max={maxQuantity}
-                        autocomplete="off"
-                        role="spinbutton"
-                        aria-valuemin={ticketingManager.MIN_QUANTITY}
-                        aria-valuemax={maxQuantity}
-                        aria-valuenow={initialQty}
-                        aria-describedby={
-                          remainingTickets <= ticketingManager.MAX_QUANTITY
-                            ? "availability-hint"
-                            : undefined
-                        }
-                        required
-                      />
-                      <span id="qty-sub">ticket</span>
-                    </div>
-                    <button
-                      type="button"
-                      id="qty-plus"
-                      aria-label="More tickets"
-                      disabled={maxQuantity === initialQty}
-                    >
-                      +
-                    </button>
-                  </div>
-                </div>
-
-                <div class="form-field price-field">
-                  <label for="price-input">Pay what you can</label>
-                  <div class="price-input-wrap">
-                    <span>$</span>
+            <div class="ticket-options">
+              <div class="form-field quantity-field">
+                <label for="qty-input">Quantity</label>
+                <div class="stepper">
+                  <button
+                    type="button"
+                    id="qty-minus"
+                    aria-label="Fewer tickets"
+                    disabled
+                  >
+                    -
+                  </button>
+                  <div class="qty-field">
                     <input
                       type="text"
-                      inputmode="decimal"
-                      id="price-input"
-                      name="price-dollars"
-                      value={priceDollars.toFixed(2)}
-                      data-min={MINIMUM_PRICE_DOLLARS}
-                      data-minimum-paid-total-cents={
-                        ticketingManager.MINIMUM_PAID_TOTAL.cents
-                      }
-                      aria-describedby="price-hint"
+                      inputmode="numeric"
+                      id="qty-input"
+                      name="quantity"
+                      value={initialQty.toString()}
+                      data-max={ticketingManager.MAX_QUANTITY}
                       autocomplete="off"
+                      role="spinbutton"
+                      aria-valuemin={ticketingManager.MIN_QUANTITY}
+                      aria-valuemax={ticketingManager.MAX_QUANTITY}
+                      aria-valuenow={initialQty}
                       required
                     />
+                    <span id="qty-sub">ticket</span>
                   </div>
-                  <div class="price-guidance">
-                    <span class="form-hint" id="price-hint">
-                      Enter any amount, including $0
-                    </span>
-                  </div>
+                  <button type="button" id="qty-plus" aria-label="More tickets">
+                    +
+                  </button>
                 </div>
               </div>
 
-              <div class="form-field">
-                <label for="email">Email for your tickets</label>
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  class="email-input"
-                  placeholder="you@example.com"
-                  autocomplete="email"
-                  required
-                />
+              <div class="form-field price-field">
+                <label for="price-input">Pay what you can</label>
+                <div class="price-input-wrap">
+                  <span>$</span>
+                  <input
+                    type="text"
+                    inputmode="decimal"
+                    id="price-input"
+                    name="price-dollars"
+                    value={priceDollars.toFixed(2)}
+                    data-min={MINIMUM_PRICE_DOLLARS}
+                    aria-describedby="price-hint"
+                    autocomplete="off"
+                    required
+                  />
+                </div>
+                <div class="price-guidance">
+                  <span class="form-hint" id="price-hint">
+                    Minimum $10 per ticket
+                  </span>
+                </div>
               </div>
-
-              <button type="submit" class="ticket-submit">
-                <span id="continue-label">
-                  {
-                    `Pay ${formatAmount(initialTotal)} - Get ${initialQty} ticket` as "safe"
-                  }
-                </span>
-              </button>
-            </form>
-          ) : (
-            <div class="sold-out">
-              <strong>Sold out</strong>
-              <span>
-                All {ticketingManager.CAPACITY} tickets have been claimed.
-              </span>
             </div>
-          )}
+
+            <div class="form-field">
+              <label for="email">Email for your tickets</label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                class="email-input"
+                placeholder="you@example.com"
+                autocomplete="email"
+                required
+              />
+            </div>
+
+            <button type="submit" class="ticket-submit">
+              <span id="continue-label">
+                {
+                  `Pay ${formatAmount(initialTotal)} - Get ${initialQty} ticket` as "safe"
+                }
+              </span>
+            </button>
+          </form>
         </section>
       </div>
 

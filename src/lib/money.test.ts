@@ -140,10 +140,6 @@ describe("parseToCents", () => {
     test("should not accept zero", () => {
       expect(parseToCents("0")).toBeNull();
     });
-
-    test("should accept zero when explicitly allowed", () => {
-      expect(parseToCents("0", { allowZero: true })).toEqual({ cents: 0 });
-    });
   });
 
   describe("with AmountFormData input (preset)", () => {

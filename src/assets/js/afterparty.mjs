@@ -12,33 +12,6 @@ import {
 
 const MIN_QUANTITY = 1;
 
-/** @type {import("@stripe/stripe-js").Appearance} */
-const STRIPE_APPEARANCE = {
-  disableAnimations: true,
-  theme: "flat",
-  variables: {
-    colorPrimary: "#000000",
-    colorBackground: "#ff0000",
-    colorText: "#000000",
-    colorSuccess: "#000000",
-    colorDanger: "#000000",
-    colorWarning: "#000000",
-    colorTextSecondary: "#000000",
-    colorTextPlaceholder: "#000000",
-    accessibleColorOnColorPrimary: "#ff0000",
-    accessibleColorOnColorBackground: "#000000",
-    accessibleColorOnColorSuccess: "#ff0000",
-    accessibleColorOnColorDanger: "#ff0000",
-    accessibleColorOnColorWarning: "#ff0000",
-    iconColor: "#000000",
-    iconHoverColor: "#000000",
-    inputColorBorder: "#000000",
-    inputFocusColorBorder: "#000000",
-    focusBoxShadow: "0 0 0 2px #000000",
-    borderRadius: "0px",
-  },
-};
-
 /**
  * Wire up the quantity stepper (minus / plus buttons and the editable field),
  * the editable price and the receipt so they stay in sync and keep the submit
@@ -76,8 +49,6 @@ function initTicketControls() {
   const min = parseFloat(priceInput.dataset["min"] ?? "") || 0;
   const maxQuantity =
     parseInt(qtyInput.dataset["max"] ?? "", 10) || MIN_QUANTITY;
-  const minimumPaidTotalCents =
-    parseInt(priceInput.dataset["minimumPaidTotalCents"] ?? "", 10) || 0;
   /** @type {Cents} */
   const price = { cents: Math.round(parseFloat(priceInput.value) * 100) };
   let quantity = Math.min(
@@ -93,15 +64,7 @@ function initTicketControls() {
 
     /** @type {Cents} */
     const total = { cents: price.cents * quantity };
-    priceInput.setCustomValidity(
-      total.cents > 0 && total.cents < minimumPaidTotalCents
-        ? "Enter $0 or an amount that totals at least $0.50"
-        : "",
-    );
-    const free = total.cents === 0;
-    continueLabel.textContent = free
-      ? `Get ${quantity} free ${quantity === 1 ? "ticket" : "tickets"}`
-      : `Pay ${formatAmount(total)} - Get ${quantity} ${quantity === 1 ? "ticket" : "tickets"}`;
+    continueLabel.textContent = `Pay ${formatAmount(total)} - Get ${quantity} ${quantity === 1 ? "ticket" : "tickets"}`;
   };
 
   /** @param {number} dollars */
@@ -148,10 +111,8 @@ function initTicketControls() {
 document.addEventListener("DOMContentLoaded", () => {
   initTicketControls();
 
-  const form = /** @type {HTMLFormElement | null} */ (
+  const form = /** @type {HTMLFormElement} */ (
     document.getElementById("afterparty-form")
   );
-  if (form) {
-    initCheckoutForm(form, "donate", STRIPE_APPEARANCE);
-  }
+  initCheckoutForm(form, "donate");
 });
