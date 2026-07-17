@@ -1,10 +1,12 @@
 import { escapeHtml } from "@kitajs/html";
 import { Layout } from "~/components/layout";
 import paths from "~/lib/paths";
+import type { TicketPaymentStatus } from "~/managers/ticketing";
 
 export interface ThankYouProps {
   isTicket?: boolean;
   email?: string | undefined;
+  ticketStatus?: TicketPaymentStatus | undefined;
   isAuthenticated: boolean;
   csrfToken?: string | undefined;
 }
@@ -12,18 +14,28 @@ export interface ThankYouProps {
 export function ThankYouPage({
   isTicket = false,
   email,
+  ticketStatus = "succeeded",
   isAuthenticated,
   csrfToken,
 }: ThankYouProps) {
+  const title = !isTicket
+    ? "Thank You!"
+    : ticketStatus === "succeeded"
+      ? "Tickets on the way"
+      : ticketStatus === "processing"
+        ? "Payment processing"
+        : "Payment not complete";
+  const retryPayment = isTicket && ticketStatus === "incomplete";
+
   return (
     <Layout
-      title={isTicket ? "Tickets on the way" : "Thank You!"}
+      title={title}
       styles="thank-you.css"
       isAuthenticated={isAuthenticated}
       csrfToken={csrfToken}
     >
       <section class="confirm">
-        {isTicket ? (
+        {isTicket && ticketStatus === "succeeded" ? (
           <>
             <h1 class="confirm-title">
               You're in.
@@ -45,6 +57,38 @@ export function ThankYouPage({
               )}
             </p>
           </>
+        ) : isTicket && ticketStatus === "processing" ? (
+          <>
+            <h1 class="confirm-title">
+              Payment processing.
+              <br />
+              <span class="accent">Watch your inbox.</span>
+            </h1>
+
+            <p class="confirm-lede">
+              Stripe is still processing your payment. We’ll send your Open
+              Sauce Afterparty tickets to{" "}
+              {email ? (
+                <strong class="accent">{escapeHtml(email)}</strong>
+              ) : (
+                "your email"
+              )}{" "}
+              as soon as it succeeds.
+            </p>
+          </>
+        ) : isTicket ? (
+          <>
+            <h1 class="confirm-title">
+              Payment not complete.
+              <br />
+              <span class="accent">No tickets issued.</span>
+            </h1>
+
+            <p class="confirm-lede">
+              Your payment did not complete, so no tickets were issued. Return
+              to the afterparty page to try again.
+            </p>
+          </>
         ) : (
           <>
             <h1 class="confirm-title">
@@ -61,8 +105,11 @@ export function ThankYouPage({
         )}
 
         <div class="confirm-actions">
-          <a href={paths.index()} class="btn btn-primary confirm-btn">
-            <span>Back to site</span>
+          <a
+            href={retryPayment ? paths.afterparty() : paths.index()}
+            class="btn btn-primary confirm-btn"
+          >
+            <span>{retryPayment ? "Try payment again" : "Back to site"}</span>
             <span class="arrow">←</span>
           </a>
         </div>

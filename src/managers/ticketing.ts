@@ -11,8 +11,11 @@ export type PurchaseResult =
   | { success: true; clientSecret: string }
   | { success: false; error: ErrorCodeKey };
 
+export type TicketPaymentStatus = "succeeded" | "processing" | "incomplete";
+
 export interface TicketConfirmation {
   email: string;
+  status: TicketPaymentStatus;
 }
 
 export interface TicketAvailability {
@@ -573,7 +576,14 @@ export async function getPurchaseConfirmation(
     return null;
   }
 
-  return { email };
+  const status =
+    paymentIntent.status === "succeeded"
+      ? "succeeded"
+      : paymentIntent.status === "processing"
+        ? "processing"
+        : "incomplete";
+
+  return { email, status };
 }
 
 /**

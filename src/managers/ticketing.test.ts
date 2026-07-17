@@ -685,8 +685,39 @@ describe("afterparty", () => {
         "pi_1_secret_abc",
       );
 
-      expect(result).toEqual({ email: "buyer@example.com" });
+      expect(result).toEqual({
+        email: "buyer@example.com",
+        status: "succeeded",
+      });
       expect(paymentIntentsRetrieve).toHaveBeenCalledWith("pi_1");
+    });
+
+    test("reports processing status", async () => {
+      paymentIntentsRetrieve.mockResolvedValue(
+        makePaymentIntent({ status: "processing" }),
+      );
+      const result = await ticketingManager.getPurchaseConfirmation(
+        "pi_1",
+        "pi_1_secret_abc",
+      );
+      expect(result).toEqual({
+        email: "buyer@example.com",
+        status: "processing",
+      });
+    });
+
+    test("reports incomplete status", async () => {
+      paymentIntentsRetrieve.mockResolvedValue(
+        makePaymentIntent({ status: "requires_payment_method" }),
+      );
+      const result = await ticketingManager.getPurchaseConfirmation(
+        "pi_1",
+        "pi_1_secret_abc",
+      );
+      expect(result).toEqual({
+        email: "buyer@example.com",
+        status: "incomplete",
+      });
     });
 
     test("returns null when the payment intent id is missing", async () => {

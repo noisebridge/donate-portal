@@ -256,8 +256,9 @@ export function AfterpartyPage({
                 </div>
                 <div class="price-guidance">
                   <span class="form-hint" id="price-hint">
-                    Minimum {formatAmount(ticketingManager.MINIMUM_PRICE)} per
-                    ticket
+                    {
+                      `Minimum ${formatAmount(ticketingManager.MINIMUM_PRICE)} per ticket` as "safe"
+                    }
                   </span>
                 </div>
               </div>

@@ -898,6 +898,7 @@ export default async function routes(fastify: FastifyInstance) {
       <ThankYouPage
         isTicket={ticket !== null}
         email={ticket?.email}
+        ticketStatus={ticket?.status}
         isAuthenticated={isAuthenticated(request, reply)}
         csrfToken={reply.generateCsrf()}
       />,
