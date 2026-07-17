@@ -131,6 +131,9 @@ describe("parseToCents", () => {
       expect(parseToCents("abc")).toBeNull();
       expect(parseToCents("")).toBeNull();
       expect(parseToCents("not-a-number")).toBeNull();
+      expect(parseToCents("10 dollars")).toBeNull();
+      expect(parseToCents("10.00abc")).toBeNull();
+      expect(parseToCents(" 10.00 ")).toBeNull();
     });
 
     test("should not accept negative numbers", () => {

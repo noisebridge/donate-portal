@@ -1,4 +1,12 @@
-import { Layout } from "~/components/layout";
+import type { IconDefinition } from "@fortawesome/fontawesome-svg-core";
+import {
+  faApple,
+  faGoogle,
+  faMicrosoft,
+  faYahoo,
+} from "@fortawesome/free-brands-svg-icons";
+import { faCalendarPlus } from "@fortawesome/free-solid-svg-icons";
+import { AfterpartyLayout } from "~/components/afterparty-layout";
 import { type Message, MessageContainer } from "~/components/message-container";
 import { StripeCheckoutModal } from "~/components/stripe-checkout-modal";
 import { formatAmount } from "~/lib/money";
@@ -8,213 +16,280 @@ import type { Cents } from "~/types/cents";
 
 export interface AfterpartyPageProps {
   price: Cents;
-  isAuthenticated: boolean;
   messages?: Message[];
   csrfToken?: string | undefined;
+  purchaseId: string;
 }
 
-/** Fixed slider bounds for the per-ticket price, in whole dollars. */
-const SLIDER_MIN = ticketingManager.MINIMUM_PRICE.cents / 100;
-const SLIDER_MAX = 100;
+const MINIMUM_PRICE_DOLLARS = ticketingManager.MINIMUM_PRICE.cents / 100;
+
+function BrandIcon({ icon }: { icon: IconDefinition }) {
+  const [width, height, , , path] = icon.icon;
+  return (
+    <svg
+      class="calendar-icon"
+      viewBox={`0 0 ${width} ${height}`}
+      aria-hidden="true"
+    >
+      <path d={Array.isArray(path) ? path.join(" ") : path} />
+    </svg>
+  );
+}
+
+function CalendarMenu({
+  links,
+}: {
+  links: ReturnType<typeof ticketingManager.calendarLinks>;
+}) {
+  return (
+    <div class="calendar-menu">
+      <a
+        href={links.google}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Add to Google Calendar (opens in a new tab)"
+      >
+        <BrandIcon icon={faGoogle} />
+        Google Calendar
+      </a>
+      <a
+        href={paths.afterpartyCalendar()}
+        download="noisebridge-open-sauce-afterparty.ics"
+      >
+        <BrandIcon icon={faApple} />
+        Apple Calendar
+      </a>
+      <a
+        href={links.outlook}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Add to Outlook.com (opens in a new tab)"
+      >
+        <BrandIcon icon={faMicrosoft} />
+        Outlook.com
+      </a>
+      <a
+        href={links.microsoft365}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Add to Microsoft 365 (opens in a new tab)"
+      >
+        <BrandIcon icon={faMicrosoft} />
+        Microsoft 365
+      </a>
+      <a
+        href={links.yahoo}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Add to Yahoo Calendar (opens in a new tab)"
+      >
+        <BrandIcon icon={faYahoo} />
+        Yahoo Calendar
+      </a>
+      <a
+        href={paths.afterpartyCalendar()}
+        download="noisebridge-open-sauce-afterparty.ics"
+      >
+        <BrandIcon icon={faCalendarPlus} />
+        Download .ics
+      </a>
+    </div>
+  );
+}
 
 export function AfterpartyPage({
   price,
-  isAuthenticated,
   messages = [],
   csrfToken,
+  purchaseId,
 }: AfterpartyPageProps) {
   const priceDollars = price.cents / 100;
   const initialQty = ticketingManager.MIN_QUANTITY;
-  const initialTotal: Cents = { cents: price.cents * initialQty };
-
-  const midPrice: Cents = { cents: ticketingManager.DEFAULT_PRICE.cents };
-  const maxPrice: Cents = { cents: SLIDER_MAX * 100 };
+  const calendarLinks = ticketingManager.calendarLinks();
 
   return (
-    <Layout
-      title="OpenSauce Afterparty"
-      script="afterparty.mjs"
-      styles="afterparty.css"
-      isAuthenticated={isAuthenticated}
-      csrfToken={csrfToken}
-    >
-      <div class="afterparty">
+    <AfterpartyLayout>
+      <div class="afterparty-foundation">
         <MessageContainer messages={messages} />
 
-        <h1 class="event-title">
-          Noisebridge
+        <header class="poster-hero">
+          <img
+            class="poster-wordmark"
+            src={paths.assetWithHash("image/afterparty-wordmark.svg")}
+            alt="Open Sauce"
+          />
+
+          <h1 aria-label="Open Sauce Afterparty">Afterparty</h1>
+          <p class="poster-host">
+            Hosted by
+            <br />
+            <a
+              href="https://noisebridge.net/"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Visit Noisebridge Hackerspace (opens in a new tab)"
+            >
+              Noisebridge Hackerspace
+            </a>
+          </p>
+
+          <img
+            class="afterparty-logo"
+            src={paths.assetWithHash("image/afterparty-logo.svg")}
+            alt=""
+            aria-hidden="true"
+          />
+
+          <details class="poster-calendar">
+            <summary aria-label="Event date and time; open calendar options">
+              <time class="poster-date" datetime="2026-07-19T21:00:00-07:00">
+                Jul 19
+              </time>
+              <span class="poster-time">9pm-1am</span>
+            </summary>
+            <CalendarMenu links={calendarLinks} />
+          </details>
+          <a
+            class="poster-address"
+            href="https://www.google.com/maps/search/?api=1&query=Noisebridge%2C+272+Capp+St%2C+San+Francisco%2C+CA"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Open 272 Capp Street, San Francisco in maps (opens in a new tab)"
+          >
+            272
+            <br />
+            Capp
+            <br />
+            St, SF
+          </a>
+        </header>
+
+        <p class="event-description">
+          non-profit hacker party. bring projects.
           <br />
-          <span class="accent">Open Sauce Afterparty</span>
-        </h1>
-
-        <div class="event-meta">
-          <div class="cell">
-            <div class="k">Date</div>
-            <div class="v">
-              Sun Jul 19<small>8PM – late</small>
-            </div>
-          </div>
-          <div class="cell">
-            <div class="k">Where</div>
-            <div class="v">
-              Noisebridge<small>272 Capp St, SF</small>
-            </div>
-          </div>
-        </div>
-
-        <p class="event-blurb">
-          The unofficial afterparty for Open Sauce. Live sets, blinkenlights,
-          and Club-Maté on ice. Tickets are pay-what-you-can — every dollar over
-          cost covers for those that can't pay full price.
+          we have food and drink.
         </p>
 
-        <form id="afterparty-form" method="POST" action={paths.afterparty()}>
-          <input type="hidden" name="_csrf" value={csrfToken} />
-
-          <div class="qty-block">
-            <span class="field-label">How many tickets?</span>
-            <div class="stepper">
-              <button type="button" id="qty-minus" aria-label="Fewer tickets">
-                {"−"}
-              </button>
-              <div class="qty-field">
-                <input
-                  type="text"
-                  inputmode="numeric"
-                  id="qty-input"
-                  name="quantity"
-                  value={initialQty.toString()}
-                  aria-label="Number of tickets"
-                  autocomplete="off"
-                  required
-                />
-                <span class="sub" id="qty-sub">
-                  ticket
-                </span>
-              </div>
-              <button type="button" id="qty-plus" aria-label="More tickets">
-                +
-              </button>
-            </div>
+        <section class="ticket-section" aria-labelledby="ticket-heading">
+          <div class="ticket-heading">
+            <h2 id="ticket-heading">Tickets</h2>
+            <p id="ticket-count" class="ticket-count" role="status">
+              Checking availability…
+            </p>
           </div>
 
-          <div class="price-block">
-            <div class="price-head">
-              <span class="field-label">Price per ticket</span>
-              <span class="hint">
-                {
-                  `Suggested ${formatAmount(ticketingManager.DEFAULT_PRICE)}` as "safe"
-                }
-              </span>
+          <div id="ticket-status" class="ticket-status" role="status" hidden>
+            <span id="ticket-status-text"></span>
+            <button id="ticket-availability-retry" type="button" hidden>
+              Check again
+            </button>
+          </div>
+
+          <form
+            id="afterparty-form"
+            method="POST"
+            action={paths.afterparty()}
+            data-max-quantity={ticketingManager.MAX_QUANTITY}
+            aria-label="Ticket order"
+            aria-busy="true"
+          >
+            <input type="hidden" name="_csrf" value={csrfToken} />
+            <input type="hidden" name="purchase-id" value={purchaseId} />
+
+            <div class="ticket-options">
+              <div class="form-field quantity-field">
+                <label for="qty-input">Quantity</label>
+                <div class="stepper">
+                  <button
+                    type="button"
+                    id="qty-minus"
+                    aria-label="Fewer tickets"
+                    disabled
+                  >
+                    -
+                  </button>
+                  <div class="qty-field">
+                    <input
+                      type="text"
+                      inputmode="numeric"
+                      id="qty-input"
+                      name="quantity"
+                      value={initialQty.toString()}
+                      data-max={ticketingManager.MIN_QUANTITY}
+                      autocomplete="off"
+                      role="spinbutton"
+                      aria-valuemin={ticketingManager.MIN_QUANTITY}
+                      aria-valuemax={ticketingManager.MIN_QUANTITY}
+                      aria-valuenow={initialQty}
+                      disabled
+                      required
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    id="qty-plus"
+                    aria-label="More tickets"
+                    disabled
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+
+              <div class="form-field price-field">
+                <label for="price-input">Pay what you can</label>
+                <div class="price-input-wrap">
+                  <span>$</span>
+                  <input
+                    type="text"
+                    inputmode="decimal"
+                    id="price-input"
+                    name="price-dollars"
+                    value={priceDollars.toFixed(2)}
+                    data-min={MINIMUM_PRICE_DOLLARS}
+                    aria-describedby="price-hint"
+                    autocomplete="off"
+                    disabled
+                    required
+                  />
+                </div>
+                <div class="price-guidance">
+                  <span class="form-hint" id="price-hint">
+                    {
+                      `Minimum ${formatAmount(ticketingManager.MINIMUM_PRICE)} per ticket` as "safe"
+                    }
+                  </span>
+                </div>
+              </div>
             </div>
 
-            <div class="price-display">
-              <span class="dol">$</span>
+            <div class="form-field">
+              <label for="email">Email for your tickets</label>
               <input
-                type="text"
-                inputmode="decimal"
-                id="price-input"
-                name="price-dollars"
-                class="val val-input"
-                value={priceDollars.toFixed(2)}
-                data-min={SLIDER_MIN}
-                aria-label="Price per ticket"
+                type="email"
+                id="email"
+                name="email"
+                class="email-input"
+                placeholder="you@example.com"
+                autocomplete="email"
+                disabled
                 required
               />
-              <span class="per">
-                per ticket
-                <span class="tag" id="price-tag">
-                  suggested
-                </span>
+            </div>
+
+            <button type="submit" class="ticket-submit" disabled>
+              <span id="continue-label">
+                {"Checking availability…" as "safe"}
               </span>
-            </div>
-
-            <span class="form-hint" id="price-hint">
-              Minimum {formatAmount(ticketingManager.MINIMUM_PRICE) as "safe"}
-            </span>
-
-            <div class="slider-wrap">
-              <input
-                type="range"
-                id="price-slider"
-                class="slider"
-                min={SLIDER_MIN.toString()}
-                max={SLIDER_MAX.toString()}
-                step="1"
-                value={priceDollars.toString()}
-                aria-label="Price per ticket"
-              />
-              <div class="slider-ticks" id="slider-ticks">
-                <button type="button" class="tick" data-amt={SLIDER_MIN}>
-                  <span class="pip"></span>
-                  <span class="label">
-                    {formatAmount(ticketingManager.MINIMUM_PRICE) as "safe"}
-                  </span>
-                </button>
-                <button
-                  type="button"
-                  class="tick"
-                  data-amt={midPrice.cents / 100}
-                >
-                  <span class="pip"></span>
-                  <span class="label">{formatAmount(midPrice) as "safe"}</span>
-                </button>
-                <button type="button" class="tick" data-amt={SLIDER_MAX}>
-                  <span class="pip"></span>
-                  <span class="label">{formatAmount(maxPrice) as "safe"}</span>
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <label class="email-field">
-            <span class="editable-label">Where do we send your tickets?</span>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              class="email-input"
-              placeholder="you@example.com"
-              autocomplete="email"
-              required
-            />
-          </label>
-
-          <div class="receipt">
-            <div class="line">
-              <span id="receipt-calc" class="calc">
-                {`${initialQty} × ${formatAmount(price)}` as "safe"}
-              </span>
-            </div>
-            <hr class="rule" />
-            <div class="total">
-              <span class="lbl">Total due</span>
-              <span class="amt" id="total-amt">
-                {formatAmount(initialTotal) as "safe"}
-              </span>
-            </div>
-          </div>
-
-          <button type="submit" class="btn btn-primary">
-            <span id="continue-label">
-              {
-                `Get ${initialQty} ticket · ${formatAmount(initialTotal)}` as "safe"
-              }
-            </span>
-            <span aria-hidden="true">{"→"}</span>
-          </button>
-        </form>
-
-        <p class="tax-note">
-          Noisebridge is a 501(c)(3) nonprofit. Ticket sales are a
-          tax-deductible donation. EIN 26-3507741.
-        </p>
+            </button>
+          </form>
+        </section>
       </div>
 
       <StripeCheckoutModal
         title="Complete Your Purchase"
         submitLabel="Pay Now"
       />
-    </Layout>
+    </AfterpartyLayout>
   );
 }

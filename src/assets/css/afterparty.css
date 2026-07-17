@@ -1,365 +1,542 @@
-.afterparty {
-  --color-ok: #1a6b22;
-  max-width: 540px;
-  margin: 0 auto;
-  padding: 22px 22px 60px;
-  position: relative;
-  z-index: 2;
+@font-face {
+  font-family: "OpenSauced";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/assets/font/opensauced/OpenSauced-Font.otf") format("opentype");
 }
 
-/* === EVENT HEADER === */
-.event-title {
-  font-family: var(--font-mono);
-  font-size: 34px;
+@font-face {
+  font-family: "Poppins";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/assets/font/poppins/Poppins-Regular.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "Poppins";
+  font-style: normal;
   font-weight: 700;
-  letter-spacing: -0.025em;
-  line-height: 1.05;
-  color: var(--color-text);
-  margin: 0 0 16px;
-}
-.event-title .accent {
-  color: var(--color-primary);
+  font-display: swap;
+  src: url("/assets/font/poppins/Poppins-Bold.ttf") format("truetype");
 }
 
-.event-meta {
-  border: 1px solid var(--color-border);
-  background: var(--color-panel);
-  margin-bottom: 28px;
-}
-.event-meta .cell {
-  display: flex;
-  align-items: baseline;
-  gap: 14px;
-  padding: 14px 18px;
-  border-bottom: 1px solid var(--color-border);
-}
-.event-meta .cell:last-child {
-  border-bottom: none;
-}
-.event-meta .k {
-  flex: 0 0 44px;
-  font-family: var(--font-mono);
-  font-size: 9px;
-  color: var(--color-text-mute);
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
-.event-meta .v {
-  flex: 1;
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 12px;
-  font-family: var(--font-mono);
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--color-text);
-  letter-spacing: -0.01em;
-  line-height: 1.2;
-}
-.event-meta .v small {
-  font-size: 11px;
-  font-weight: 500;
-  color: var(--color-text-light);
-  text-align: right;
-  letter-spacing: 0;
+:root,
+body {
+  width: 100%;
+  min-height: 100%;
+  overflow-x: hidden;
+  color: #000;
+  background: #ff0000;
+  font-family: "Poppins", sans-serif;
 }
 
-.event-blurb {
-  font-size: 14px;
-  color: var(--color-text-light);
-  line-height: 1.6;
-  margin: 0 0 30px;
+#main-content {
+  min-height: 100%;
+  background: #ff0000;
 }
 
-/* === SECTION LABEL === */
-.field-label {
-  display: block;
-  font-family: var(--font-mono);
-  font-size: 11px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--color-text);
-  font-weight: 700;
-  margin-bottom: 12px;
-}
-.field-label::before {
-  content: "$ ";
-  color: var(--color-primary);
+button,
+input,
+summary {
+  font: inherit;
 }
 
-/* === QUANTITY STEPPER === */
-.qty-block {
-  margin-bottom: 30px;
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+summary:focus-visible {
+  outline: 3px solid #000;
+  outline-offset: 3px;
 }
-.stepper {
-  display: flex;
-  align-items: stretch;
-  border: 1px solid var(--color-border);
-  background: var(--color-panel);
-}
-.stepper button {
-  width: 58px;
-  background: transparent;
-  border: none;
-  border-right: 1px solid var(--color-border);
-  font-family: var(--font-mono);
-  font-size: 26px;
-  font-weight: 600;
-  color: var(--color-text);
-  cursor: pointer;
-  transition:
-    background 120ms ease,
-    color 120ms ease;
-  line-height: 1;
-}
-.stepper button:last-child {
-  border-right: none;
-  border-left: 1px solid var(--color-border);
-}
-.stepper button:hover:not(:disabled) {
-  background: color-mix(in oklab, var(--color-primary) 10%, var(--color-panel));
-  color: var(--color-primary);
-}
-.stepper button:disabled {
-  color: var(--color-text-mute);
-  cursor: not-allowed;
-}
-.qty-field {
-  flex: 1;
+
+.afterparty-foundation {
+  --content-width: min(100%, clamp(300px, calc(100svh - 380px), 430px));
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 16px 8px;
-  gap: 3px;
-}
-.qty-field input {
-  width: 100%;
-  text-align: center;
-  background: transparent;
-  border: none;
-  outline: none;
-  font-family: var(--font-mono);
-  font-size: 40px;
-  font-weight: 700;
-  letter-spacing: -0.03em;
-  color: var(--color-text);
-  line-height: 1;
-}
-.qty-field .sub {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  color: var(--color-text-mute);
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  width: min(100% - 1.25rem, 80ch);
+  min-height: 100svh;
+  margin: 0 auto;
+  padding: clamp(0.6rem, 1.8svh, 1rem) 0;
 }
 
-/* === PRICE PANEL === */
-.price-block {
-  margin-bottom: 30px;
+.poster-hero {
+  position: relative;
+  container-type: inline-size;
+  flex: 0 0 auto;
+  width: var(--content-width);
+  aspect-ratio: 1;
 }
-.price-head {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 12px;
+
+.poster-wordmark {
+  position: absolute;
+  top: 5.15%;
+  left: 7.45%;
+  width: 23.6%;
+  height: 38.6%;
+  object-fit: contain;
 }
-.price-head .field-label {
-  margin-bottom: 0;
-}
-.price-head .hint {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  color: var(--color-text-light);
-  letter-spacing: 0.1em;
+
+.poster-hero h1 {
+  position: absolute;
+  top: 6.94%;
+  left: 33.85%;
+  width: 60.3%;
+  margin: 0;
+  font-family: "Poppins", sans-serif;
+  font-size: 9.2cqi;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.008em;
+  text-align: center;
   text-transform: uppercase;
   white-space: nowrap;
 }
-.price-display {
-  display: flex;
-  align-items: baseline;
-  gap: 10px;
-  padding: 16px 20px;
-  border: 1px solid var(--color-border);
-  background: var(--color-panel);
-  margin-bottom: 6px;
-  position: relative;
-}
-.price-display:focus-within {
-  border-color: var(--color-primary);
-}
-.price-display .dol {
-  font-family: var(--font-mono);
-  font-size: 20px;
-  font-weight: 500;
-  color: var(--color-text-light);
-}
-.price-display .val {
-  font-family: var(--font-mono);
-  font-size: 40px;
+
+.poster-host {
+  position: absolute;
+  top: 17.25%;
+  left: 35.2%;
+  width: 59.8%;
+  margin: 0;
+  font-size: 4.2cqi;
   font-weight: 700;
-  letter-spacing: -0.025em;
-  color: var(--color-text);
-  line-height: 1;
-  flex: 1;
-}
-.price-display .per {
-  font-family: var(--font-mono);
-  font-size: 12px;
-  color: var(--color-text-light);
-  letter-spacing: 0.06em;
+  line-height: 1.25;
+  letter-spacing: 0.029em;
+  text-align: center;
   text-transform: uppercase;
-  text-align: right;
-  line-height: 1.4;
-}
-.price-display .per .tag {
-  display: block;
-  font-size: 10px;
-  margin-top: 3px;
-  color: var(--color-primary);
-  font-weight: 700;
-}
-.price-display .per .tag.low {
-  color: var(--color-text-light);
-}
-.price-display .per .tag.high {
-  color: var(--color-ok);
+  white-space: nowrap;
 }
 
-/* === EMAIL === */
-.email-field {
-  display: block;
-  margin: 0 0 30px;
+.poster-host a,
+.poster-address {
+  color: #000;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.15em;
 }
-.editable-label {
-  display: block;
-  font-family: var(--font-mono);
-  font-size: 9.5px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--color-text-mute);
-  margin-bottom: 8px;
-  font-weight: 600;
+
+.poster-calendar,
+.poster-address {
+  position: absolute;
+  left: 0;
+  width: 39%;
+  margin: 0;
 }
+
+.poster-date,
+.poster-time,
+.poster-address {
+  font-size: 6.2cqi;
+  font-weight: 700;
+  line-height: 1.2;
+  text-align: center;
+}
+
+.poster-calendar {
+  top: 45.1%;
+  z-index: 10;
+}
+
+.poster-calendar summary {
+  position: relative;
+  color: #000;
+  cursor: pointer;
+  list-style: none;
+}
+
+.poster-calendar summary::-webkit-details-marker {
+  display: none;
+}
+
+.poster-calendar summary::after {
+  content: "+";
+  position: absolute;
+  top: 100%;
+  right: 0;
+  font-size: 4cqi;
+  font-weight: 700;
+}
+
+.poster-calendar[open] summary::after {
+  content: "-";
+}
+
+.poster-date,
+.poster-time {
+  display: block;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.15em;
+}
+
+.poster-time {
+  margin-top: 8cqi;
+}
+
+.poster-address {
+  top: 74.2%;
+  line-height: 1.18;
+}
+
+.afterparty-logo {
+  position: absolute;
+  top: 31%;
+  left: 35.3%;
+  width: 60%;
+  height: 63.8%;
+  object-fit: contain;
+}
+
+.event-description {
+  width: var(--content-width);
+  margin-top: clamp(0.3rem, 0.8svh, 0.55rem);
+  font-size: clamp(0.7rem, 1.5svh, 0.84rem);
+  font-weight: 700;
+  line-height: 1.25;
+  text-align: center;
+}
+
+.message-container {
+  width: min(100%, 650px);
+}
+
+.message {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.4rem;
+  padding: 0.5rem;
+  border: 3px solid #000;
+  background: #ff0000;
+}
+
+.message-dismiss {
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.ticket-section {
+  width: var(--content-width);
+  margin-top: clamp(0.5rem, 1.5svh, 0.9rem);
+  padding-top: clamp(0.4rem, 1svh, 0.65rem);
+}
+
+.ticket-section h2 {
+  font-size: clamp(2rem, min(6vw, 5svh), 3.25rem);
+  line-height: 1;
+}
+
+.ticket-heading {
+  display: flex;
+  align-items: baseline;
+  gap: clamp(0.75rem, 2vw, 1.1rem);
+}
+
+.ticket-count {
+  margin: 0;
+  font-size: clamp(0.95rem, min(2.5vw, 2.1svh), 1.1rem);
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.ticket-status {
+  margin-top: 1rem;
+  padding: 1rem;
+  border: 3px solid #000;
+  font-weight: 700;
+  text-align: center;
+}
+
+.ticket-status button {
+  margin-left: 0.5rem;
+  border: 0;
+  color: #000;
+  background: transparent;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  cursor: pointer;
+}
+
+.calendar-menu {
+  position: absolute;
+  top: calc(100% + 0.4rem);
+  left: 0;
+  z-index: 20;
+  width: max-content;
+  min-width: 190px;
+  border: 3px solid #000;
+  background: #ff0000;
+}
+
+.calendar-menu a {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.55rem 0.7rem;
+  min-height: 36px;
+  color: #000;
+  text-decoration: none;
+}
+
+.calendar-menu a + a {
+  border-top: 2px solid #000;
+}
+
+.calendar-menu a:hover,
+.calendar-menu a:focus-visible {
+  color: #ff0000;
+  background: #000;
+  outline: none;
+}
+
+.calendar-icon {
+  flex: 0 0 auto;
+  width: 1rem;
+  height: 1rem;
+  fill: currentColor;
+}
+
+.form-field {
+  margin-bottom: clamp(0.45rem, 1.2svh, 0.75rem);
+}
+
+.form-field > label {
+  display: block;
+  margin-bottom: 0.25rem;
+  font-size: clamp(0.75rem, 1.6svh, 0.9rem);
+  font-weight: 700;
+}
+
+.ticket-options {
+  display: grid;
+  grid-template-columns: minmax(180px, 0.75fr) minmax(0, 1.25fr);
+  gap: 0.6rem;
+  margin-top: clamp(0.4rem, 1svh, 0.65rem);
+}
+
+.stepper {
+  --stepper-button-width: 48px;
+  display: grid;
+  grid-template-columns: var(--stepper-button-width) 1fr var(
+      --stepper-button-width
+    );
+  min-height: clamp(50px, 6.8svh, 60px);
+  border: 3px solid #000;
+}
+
+.stepper button {
+  border: 0;
+  color: #000;
+  background: transparent;
+  font-size: 1.5rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.stepper button:first-child {
+  border-right: 3px solid #000;
+}
+
+.stepper button:last-child {
+  border-left: 3px solid #000;
+}
+
+.stepper button:hover:not(:disabled),
+.ticket-submit:hover:not(:disabled),
+.checkout-modal-submit:hover:not(:disabled) {
+  color: #ff0000;
+  background: #000;
+}
+
+.ticket-submit:disabled {
+  color: #ff0000;
+  background: #000;
+  cursor: wait;
+}
+
+.stepper button:disabled {
+  color: transparent;
+  background: #ff0000;
+  cursor: default;
+}
+
+.qty-field {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.qty-field input {
+  width: 100%;
+  border: 0;
+  outline: 0;
+  color: #000;
+  background: transparent;
+  font-size: clamp(1.4rem, 3svh, 1.8rem);
+  font-weight: 700;
+  line-height: 1;
+  text-align: center;
+}
+
+.price-input-wrap {
+  --amount-font-size: clamp(1.5rem, min(5vw, 3.6svh), 2rem);
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  min-height: clamp(50px, 6.8svh, 60px);
+  padding: 0 0.7rem;
+  border: 3px solid #000;
+}
+
+.price-input-wrap > span:first-child {
+  font-size: var(--amount-font-size);
+  font-weight: 700;
+  line-height: 1;
+}
+
+.price-input-wrap input {
+  min-width: 0;
+  width: 100%;
+  border: 0;
+  outline: 0;
+  color: #000;
+  background: transparent;
+  font-size: var(--amount-font-size);
+  font-weight: 700;
+  line-height: 1;
+}
+
+.price-guidance {
+  position: relative;
+  height: 1.1rem;
+}
+
+.form-hint {
+  position: absolute;
+  top: 0.2rem;
+  left: 0;
+  width: 100%;
+}
+
+.form-hint {
+  font-size: 0.65rem;
+}
+
 .email-input {
   width: 100%;
-  padding: 15px 18px;
-  background: var(--color-panel);
-  border: 1px solid var(--color-border);
-  font-family: var(--font-mono);
-  font-size: 16px;
-  font-weight: 500;
-  color: var(--color-text);
-  outline: none;
-  transition: border-color 120ms ease;
-}
-.email-input:focus {
-  border-color: var(--color-primary);
-}
-.email-input::placeholder {
-  color: var(--color-text-mute);
+  padding: clamp(0.55rem, 1.2svh, 0.7rem) 0.8rem;
+  border: 3px solid #000;
+  border-radius: 0;
+  outline: 0;
+  color: #000;
+  background: #ff0000;
 }
 
-/* === RECEIPT / TOTAL === */
-.receipt {
-  --frame-color: var(--color-primary);
-  border: 1px solid var(--color-border);
-  background: var(--color-panel);
-  padding: 20px 22px;
-  margin-bottom: 24px;
-  position: relative;
+.email-input::placeholder {
+  color: #000;
 }
-.receipt::before {
-  content: "";
+
+.ticket-submit,
+.checkout-modal-submit {
+  width: 100%;
+  min-height: clamp(46px, 6svh, 54px);
+  padding: 0.55rem;
+  border: 3px solid #000;
+  color: #000;
+  background: #ff0000;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.checkout-modal[hidden] {
+  display: none;
+}
+
+.checkout-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+}
+
+.checkout-modal-backdrop {
   position: absolute;
   inset: 0;
-  border: 1px solid var(--frame-color);
-  transform: translate(6px, 6px);
-  z-index: -1;
-  opacity: 0.35;
+  background: #000;
 }
-.receipt .line {
-  display: flex;
-  justify-content: flex-end;
-  align-items: baseline;
-  font-family: var(--font-mono);
-  font-size: 13px;
-  color: var(--color-text-light);
-  padding: 4px 0;
+
+.checkout-modal-content {
+  position: relative;
+  width: min(100%, 480px);
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 2rem;
+  border: 3px solid #000;
+  background: #ff0000;
 }
-.receipt .line .calc {
-  color: var(--color-text);
-}
-.receipt .rule {
-  height: 1px;
-  background: var(--color-border);
-  margin: 12px 0;
+
+.checkout-modal-close {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
   border: 0;
+  color: #000;
+  background: transparent;
+  font-size: 1.75rem;
+  cursor: pointer;
 }
-.receipt .total {
+
+.checkout-modal-title {
+  margin-bottom: 1.5rem;
+  padding-right: 2rem;
+}
+
+.checkout-modal-submit {
+  margin-top: 1.5rem;
+}
+
+.checkout-modal-message {
+  margin-top: 0.75rem;
+  font-weight: 700;
+}
+
+.loading-block-wrap {
   display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-}
-.receipt .total .lbl {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--color-text-light);
-  font-weight: 700;
-}
-.receipt .total .amt {
-  font-family: var(--font-mono);
-  font-size: 38px;
-  font-weight: 700;
-  letter-spacing: -0.025em;
-  color: var(--color-text);
-  line-height: 1;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  height: 18px;
 }
 
-/* === PRIMARY BUTTON (extends base in main.css) === */
-.btn-primary {
-  justify-content: space-between;
-  padding: 18px 22px;
-  letter-spacing: 0.06em;
-  margin-bottom: 26px;
+.loading-block-bar {
+  width: 4px;
+  height: 18px;
+  background: currentColor;
 }
 
-/* === TAX NOTE === */
-.tax-note {
-  font-family: var(--font-mono);
-  font-size: 10.5px;
-  color: var(--color-text-mute);
-  line-height: 1.6;
-  margin: 0;
-  padding-top: 20px;
-  border-top: 1px dashed var(--color-border);
-}
+@media (max-width: 560px) {
+  .afterparty-foundation {
+    width: min(100% - 1rem, 900px);
+  }
 
-@media (max-width: 440px) {
-  .afterparty {
-    padding: 18px 18px 50px;
+  .event-description {
+    font-size: clamp(0.62rem, 1.3svh, 0.7rem);
   }
-  .event-title {
-    font-size: 27px;
+
+  .ticket-options {
+    grid-template-columns: minmax(140px, 0.85fr) minmax(0, 1.15fr);
+    gap: 0.6rem;
   }
-  .event-meta .v {
-    font-size: 13px;
-  }
-  .qty-field input {
-    font-size: 34px;
-  }
-  .price-display .val {
-    font-size: 34px;
-  }
-  .receipt .total .amt {
-    font-size: 32px;
-  }
-  .btn-primary {
-    padding: 16px 18px;
-    font-size: 13px;
+
+  .stepper {
+    --stepper-button-width: 42px;
   }
 }

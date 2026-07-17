@@ -27,8 +27,9 @@ export async function AfterpartyTicketEmail({
       You're on the list!
     </mj-text>
     <mj-text align="center" padding-bottom="24px">
-      Thanks for grabbing ${quantity} ${ticketWord}. This email is your ticket —
-      show it at the door.
+      Thanks for grabbing ${quantity} ${ticketWord}. This email covers all
+      ${quantity} ${quantity === 1 ? "attendee" : "attendees"} and is your ticket.
+      Show it at the door.
     </mj-text>
     <mj-table padding="0 20px 20px 20px">
       <tr>
@@ -45,7 +46,7 @@ export async function AfterpartyTicketEmail({
     <mj-table padding="0 20px">
       <tr>
         <td style="padding: 10px 0; border-bottom: 1px solid #eeeeee; color: #888888; font-size: 13px;">When</td>
-        <td style="padding: 10px 0; border-bottom: 1px solid #eeeeee; text-align: right; color: #333333; font-size: 14px; font-weight: 600;">Sat Jul 18 · 8PM–late</td>
+        <td style="padding: 10px 0; border-bottom: 1px solid #eeeeee; text-align: right; color: #333333; font-size: 14px; font-weight: 600;">Sun Jul 19 · 9PM–1AM</td>
       </tr>
       <tr>
         <td style="padding: 10px 0; border-bottom: 1px solid #eeeeee; color: #888888; font-size: 13px;">Where</td>

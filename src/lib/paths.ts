@@ -89,6 +89,14 @@ const paths = {
   afterparty: (params?: MessageParams & { price?: number }) =>
     formatPath("/afterparty", params),
   /**
+   * `/afterparty/availability`
+   */
+  afterpartyAvailability: () => "/afterparty/availability" as const,
+  /**
+   * `/afterparty.ics`
+   */
+  afterpartyCalendar: () => "/afterparty.ics" as const,
+  /**
    * `/auth`
    */
   signIn: (params?: MessageParams) => formatPath("/auth", params),

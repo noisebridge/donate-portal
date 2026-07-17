@@ -322,11 +322,27 @@ function isCheckoutData(data) {
   return true;
 }
 
+/** @param {HTMLFormElement} form */
+function rotatePurchaseId(form) {
+  const purchaseId = form.elements.namedItem("purchase-id");
+  if (
+    purchaseId instanceof HTMLInputElement &&
+    typeof globalThis.crypto?.randomUUID === "function"
+  ) {
+    purchaseId.value = globalThis.crypto.randomUUID();
+  }
+}
+
 /**
  * @param {HTMLFormElement} form
  * @param {"donate" | "subscribe"} type
+ * @param {number} [requestTimeoutMilliseconds]
  */
-export function initCheckoutForm(form, type) {
+export function initCheckoutForm(
+  form,
+  type,
+  requestTimeoutMilliseconds = 10_000,
+) {
   const submitBtn = /** @type {HTMLButtonElement | null} */ (
     form.querySelector('button[type="submit"]')
   );
@@ -351,7 +367,7 @@ export function initCheckoutForm(form, type) {
           Accept: "application/json",
         },
         body: new URLSearchParams(Array.from(new FormData(form).entries())),
-        signal: AbortSignal.timeout(10000),
+        signal: AbortSignal.timeout(requestTimeoutMilliseconds),
       });
     } catch (e) {
       console.error("Failed to initiate donation:", e);
@@ -375,6 +391,7 @@ export function initCheckoutForm(form, type) {
     } else if (isCheckoutData(data)) {
       if (type === "donate") {
         await initDonationCheckout(data.clientSecret, data.emailAddress);
+        rotatePurchaseId(form);
       } else if (type === "subscribe") {
         await initSubscriptionCheckout(data.clientSecret);
       }

@@ -629,6 +629,16 @@ export default async function routes(fastify: FastifyInstance) {
     );
   });
 
+  fastify.get(paths.afterpartyCalendar(), async (_request, reply) => {
+    return reply
+      .type("text/calendar; charset=utf-8")
+      .header(
+        "Content-Disposition",
+        'attachment; filename="noisebridge-open-sauce-afterparty.ics"',
+      )
+      .send(ticketingManager.calendarEvent());
+  });
+
   fastify.get<{
     Querystring: { price?: string } & MessageParams;
   }>(paths.afterparty(), async (request, reply) => {
@@ -638,19 +648,38 @@ export default async function routes(fastify: FastifyInstance) {
       priceCents.cents < ticketingManager.MINIMUM_PRICE.cents
         ? ticketingManager.DEFAULT_PRICE
         : priceCents;
-
     return reply.html(
       <AfterpartyPage
         price={price}
-        isAuthenticated={isAuthenticated(request, reply)}
         messages={formatMessages(request.query)}
         csrfToken={reply.generateCsrf()}
+        purchaseId={crypto.randomUUID()}
       />,
     );
   });
 
+  fastify.get(paths.afterpartyAvailability(), async (_request, reply) => {
+    const availability = await ticketingManager.getAvailability();
+    reply
+      .header("Cache-Control", "private, no-store, max-age=0")
+      .header("CDN-Cache-Control", "no-store")
+      .header("Cloudflare-CDN-Cache-Control", "no-store");
+    if (!availability) {
+      return reply
+        .status(503)
+        .send({ error: "Ticket availability is temporarily unavailable" });
+    }
+
+    return reply.send(availability);
+  });
+
   fastify.post<{
-    Body: { quantity?: string; "price-dollars"?: string; email?: string };
+    Body: {
+      quantity?: string;
+      "price-dollars"?: string;
+      email?: string;
+      "purchase-id"?: string;
+    };
   }>(
     paths.afterparty(),
     { ...donationRateLimit, preHandler: fastify.csrfProtection },
@@ -671,14 +700,23 @@ export default async function routes(fastify: FastifyInstance) {
         });
       }
 
-      const quantity = Number.parseInt(body.quantity ?? "", 10);
-      if (!ticketingManager.validateQuantity(quantity)) {
+      const quantity = ticketingManager.parseQuantity(body.quantity);
+      const purchaseId = body["purchase-id"];
+      if (
+        quantity === null ||
+        !ticketingManager.validatePurchaseId(purchaseId)
+      ) {
         return reply.send({
           redirect: paths.afterparty({ error: "InvalidRequest" }),
         });
       }
 
-      const result = await ticketingManager.purchase(price, quantity, email);
+      const result = await ticketingManager.purchase(
+        price,
+        quantity,
+        email,
+        purchaseId,
+      );
       if (!result.success) {
         fastify.log.error(
           `Couldn't initiate afterparty purchase: ${result.error}`,
@@ -860,6 +898,7 @@ export default async function routes(fastify: FastifyInstance) {
       <ThankYouPage
         isTicket={ticket !== null}
         email={ticket?.email}
+        ticketStatus={ticket?.status}
         isAuthenticated={isAuthenticated(request, reply)}
         csrfToken={reply.generateCsrf()}
       />,
