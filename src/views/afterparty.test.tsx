@@ -11,9 +11,6 @@ describe("AfterpartyPage", () => {
     );
 
     expect(result).toContain("Checking availability…");
-    expect(result).toContain(
-      'data-availability-url="/afterparty/availability"',
-    );
     expect(result).toContain('data-max-quantity="20"');
     expect(result).toContain(`name="purchase-id" value="${purchaseId}"`);
     expect(result).toContain("Minimum $13.37 per");

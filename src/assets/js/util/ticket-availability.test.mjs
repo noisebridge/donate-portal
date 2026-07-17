@@ -1,6 +1,6 @@
 // @ts-check
 /// <reference types="bun-types" />
-import { afterEach, beforeEach, describe, expect, it } from "bun:test";
+import { afterEach, beforeEach, describe, expect, it, mock } from "bun:test";
 import { Window } from "happy-dom";
 import {
   initTicketAvailability,
@@ -21,6 +21,16 @@ let disable;
 let enableCalls;
 /** @type {string[]} */
 let disableCalls;
+const fetchMock = mock(() => Promise.resolve(new Response()));
+
+/** @param {import("~/managers/ticketing").TicketAvailability} availability */
+function mockAvailability(availability) {
+  fetchMock.mockResolvedValue(
+    new Response(JSON.stringify(availability), {
+      headers: { "Content-Type": "application/json" },
+    }),
+  );
+}
 
 beforeEach(() => {
   happyWindow = new Window({ url: "https://example.com/afterparty" });
@@ -28,6 +38,11 @@ beforeEach(() => {
   Object.defineProperty(globalThis, "document", {
     configurable: true,
     value: doc,
+  });
+  fetchMock.mockReset();
+  Object.defineProperty(globalThis, "fetch", {
+    configurable: true,
+    value: fetchMock,
   });
   doc.body.innerHTML = `
     <p id="ticket-count">Checking availability…</p>
@@ -37,7 +52,6 @@ beforeEach(() => {
     </div>
     <form
       id="afterparty-form"
-      data-availability-url="/afterparty/availability"
       data-max-quantity="20"
       aria-busy="true"
     >
@@ -54,6 +68,7 @@ beforeEach(() => {
 
 afterEach(async () => {
   Reflect.deleteProperty(globalThis, "document");
+  Reflect.deleteProperty(globalThis, "fetch");
   await happyWindow.happyDOM.close();
 });
 
@@ -93,11 +108,8 @@ describe("isTicketAvailability", () => {
 
 describe("initTicketAvailability", () => {
   it("unlocks checkout only after valid availability loads", async () => {
-    const result = initTicketAvailability(
-      form,
-      { enable, disable },
-      async () => ({ capacity: 150, sold: 145, claimed: 145, remaining: 5 }),
-    );
+    mockAvailability({ capacity: 150, sold: 145, claimed: 145, remaining: 5 });
+    const result = initTicketAvailability(form, { enable, disable });
 
     await result?.ready;
 
@@ -117,11 +129,8 @@ describe("initTicketAvailability", () => {
   });
 
   it("caps the selector at the configured per-order maximum", async () => {
-    const result = initTicketAvailability(
-      form,
-      { enable, disable },
-      async () => ({ capacity: 150, sold: 3, claimed: 3, remaining: 147 }),
-    );
+    mockAvailability({ capacity: 150, sold: 3, claimed: 3, remaining: 147 });
+    const result = initTicketAvailability(form, { enable, disable });
 
     await result?.ready;
 
@@ -129,11 +138,8 @@ describe("initTicketAvailability", () => {
   });
 
   it("keeps checkout blocked when tickets are sold out", async () => {
-    const result = initTicketAvailability(
-      form,
-      { enable, disable },
-      async () => ({ capacity: 150, sold: 150, claimed: 150, remaining: 0 }),
-    );
+    mockAvailability({ capacity: 150, sold: 150, claimed: 150, remaining: 0 });
+    const result = initTicketAvailability(form, { enable, disable });
 
     await result?.ready;
 
@@ -150,11 +156,8 @@ describe("initTicketAvailability", () => {
   });
 
   it("distinguishes temporary checkout holds from sold tickets", async () => {
-    const result = initTicketAvailability(
-      form,
-      { enable, disable },
-      async () => ({ capacity: 150, sold: 149, claimed: 150, remaining: 0 }),
-    );
+    mockAvailability({ capacity: 150, sold: 149, claimed: 150, remaining: 0 });
+    const result = initTicketAvailability(form, { enable, disable });
 
     await result?.ready;
 
@@ -167,13 +170,8 @@ describe("initTicketAvailability", () => {
   });
 
   it("stays blocked and offers retry when availability fails", async () => {
-    const result = initTicketAvailability(
-      form,
-      { enable, disable },
-      async () => {
-        throw new Error("Network error");
-      },
-    );
+    fetchMock.mockRejectedValue(new Error("Network error"));
+    const result = initTicketAvailability(form, { enable, disable });
 
     await result?.ready;
 
@@ -190,34 +188,5 @@ describe("initTicketAvailability", () => {
         form.querySelector('button[type="submit"]')
       ).disabled,
     ).toBe(true);
-  });
-
-  it("ignores an older response after a retry completes", async () => {
-    /** @type {(value: { capacity: number, sold: number, claimed: number, remaining: number }) => void} */
-    let resolveFirst = () => {};
-    /** @type {Promise<{ capacity: number, sold: number, claimed: number, remaining: number }>} */
-    const first = new Promise((resolve) => {
-      resolveFirst = resolve;
-    });
-    let calls = 0;
-    const result = initTicketAvailability(
-      form,
-      { enable, disable },
-      async () => {
-        calls += 1;
-        if (calls === 1) {
-          return await first;
-        }
-        return { capacity: 150, sold: 20, claimed: 20, remaining: 130 };
-      },
-    );
-
-    await result?.reload();
-    resolveFirst({ capacity: 150, sold: 10, claimed: 10, remaining: 140 });
-    await result?.ready;
-
-    expect(doc.getElementById("ticket-count")?.textContent).toBe(
-      "20 of 150 sold",
-    );
   });
 });

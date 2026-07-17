@@ -947,22 +947,6 @@ export default async function routes(fastify: FastifyInstance) {
             await chargeAlertManager.handlePaymentSuccess(event);
             await ticketingManager.handlePaymentSuccess(event);
             break;
-          case "payment_intent.amount_capturable_updated":
-          case "payment_intent.canceled":
-          case "payment_intent.created":
-          case "payment_intent.partially_funded":
-          case "payment_intent.payment_failed":
-          case "payment_intent.processing":
-          case "payment_intent.requires_action":
-            ticketingManager.handlePaymentIntentChange(event.data.object);
-            break;
-          case "charge.refund.updated":
-          case "charge.refunded":
-          case "refund.created":
-          case "refund.failed":
-          case "refund.updated":
-            await ticketingManager.handleRefundChange(event.data.object);
-            break;
           case "customer.subscription.created":
             await chargeAlertManager.handleNewSubscription(event);
             break;

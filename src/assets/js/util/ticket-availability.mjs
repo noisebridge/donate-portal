@@ -1,12 +1,7 @@
 // @ts-check
 
-/**
- * @typedef {Object} TicketAvailability
- * @property {number} capacity
- * @property {number} sold
- * @property {number} claimed
- * @property {number} remaining
- */
+/** @typedef {import("~/managers/ticketing").TicketAvailability} TicketAvailability */
+/** @typedef {import("~/lib/paths").Paths} Paths */
 
 /**
  * @typedef {Object} TicketControls
@@ -15,6 +10,8 @@
  */
 
 const REQUEST_TIMEOUT_MILLISECONDS = 30_000;
+/** @satisfies {Paths["afterpartyAvailability"]} */
+const AVAILABILITY_URL = "/afterparty/availability";
 
 /**
  * @param {unknown} value
@@ -52,11 +49,10 @@ export function isTicketAvailability(value) {
 }
 
 /**
- * @param {string} url
  * @returns {Promise<TicketAvailability>}
  */
-export async function fetchTicketAvailability(url) {
-  const response = await fetch(url, {
+export async function fetchTicketAvailability() {
+  const response = await fetch(AVAILABILITY_URL, {
     headers: { Accept: "application/json" },
     signal: AbortSignal.timeout(REQUEST_TIMEOUT_MILLISECONDS),
   });
@@ -79,13 +75,8 @@ export async function fetchTicketAvailability(url) {
  *
  * @param {HTMLFormElement} form
  * @param {TicketControls} ticketControls
- * @param {(url: string) => Promise<TicketAvailability>} [fetchAvailability]
  */
-export function initTicketAvailability(
-  form,
-  ticketControls,
-  fetchAvailability = fetchTicketAvailability,
-) {
+export function initTicketAvailability(form, ticketControls) {
   const count = document.getElementById("ticket-count");
   const status = /** @type {HTMLElement | null} */ (
     document.getElementById("ticket-status")
@@ -100,7 +91,6 @@ export function initTicketAvailability(
   const submit = /** @type {HTMLButtonElement | null} */ (
     form.querySelector('button[type="submit"]')
   );
-  const url = form.dataset["availabilityUrl"];
   const configuredMax = Number.parseInt(form.dataset["maxQuantity"] ?? "", 10);
 
   if (
@@ -110,15 +100,12 @@ export function initTicketAvailability(
     !retry ||
     !email ||
     !submit ||
-    !url ||
     !Number.isInteger(configuredMax) ||
     configuredMax < 1
   ) {
     console.error("Ticket availability controls are incomplete");
     return null;
   }
-
-  let requestId = 0;
 
   /** @param {string} label */
   const disableCheckout = (label) => {
@@ -128,7 +115,6 @@ export function initTicketAvailability(
   };
 
   const load = async () => {
-    const currentRequestId = ++requestId;
     disableCheckout("Checking availability…");
     form.hidden = false;
     form.setAttribute("aria-busy", "true");
@@ -139,11 +125,7 @@ export function initTicketAvailability(
     retry.disabled = true;
 
     try {
-      const availability = await fetchAvailability(url);
-      if (currentRequestId !== requestId) {
-        return;
-      }
-
+      const availability = await fetchTicketAvailability();
       count.textContent = `${availability.sold} of ${availability.capacity} sold`;
       form.setAttribute("aria-busy", "false");
 
@@ -164,10 +146,6 @@ export function initTicketAvailability(
       submit.disabled = false;
       ticketControls.enable(Math.min(configuredMax, availability.remaining));
     } catch (error) {
-      if (currentRequestId !== requestId) {
-        return;
-      }
-
       console.error("Failed to load ticket availability:", error);
       count.textContent = "Availability unavailable";
       form.setAttribute("aria-busy", "false");

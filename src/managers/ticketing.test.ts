@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, mock, spyOn, test } from "bun:test";
+import { beforeEach, describe, expect, mock, test } from "bun:test";
 import type Stripe from "stripe";
 import { send as sendEmail } from "~/test-utils/resend.mock";
 import * as ticketingManager from "./ticketing";
@@ -16,10 +16,6 @@ const paymentIntentsCreate = mock(
   (): Promise<Stripe.PaymentIntent> =>
     Promise.resolve({} as Stripe.PaymentIntent),
 );
-const paymentIntentsCancel = mock(
-  (): Promise<Stripe.PaymentIntent> =>
-    Promise.resolve({} as Stripe.PaymentIntent),
-);
 const chargesRetrieve = mock(
   (): Promise<Stripe.Charge> => Promise.resolve({} as Stripe.Charge),
 );
@@ -30,7 +26,6 @@ mock.module("~/services/stripe", () => ({
       retrieve: paymentIntentsRetrieve,
       list: paymentIntentsList,
       create: paymentIntentsCreate,
-      cancel: paymentIntentsCancel,
     },
     charges: { retrieve: chargesRetrieve },
   },
@@ -123,11 +118,8 @@ beforeEach(() => {
   }));
   paymentIntentsCreate.mockReset();
   paymentIntentsCreate.mockResolvedValue(makePaymentIntent());
-  paymentIntentsCancel.mockReset();
-  paymentIntentsCancel.mockResolvedValue(makePaymentIntent());
   chargesRetrieve.mockReset();
   listedPaymentIntents = [];
-  ticketingManager.invalidateAvailabilityCache();
 });
 
 describe("afterparty", () => {
@@ -250,14 +242,6 @@ describe("afterparty", () => {
           } as Stripe.Charge,
         }),
         makePaymentIntent({
-          id: "pi_one_ticket_refunded",
-          metadata: ticketMetadata({ quantity: "4" }),
-          latest_charge: {
-            refunded: false,
-            amount_refunded: 2500,
-          } as Stripe.Charge,
-        }),
-        makePaymentIntent({
           id: "pi_pending",
           metadata: ticketMetadata({ quantity: "1" }),
           status: "requires_payment_method",
@@ -285,9 +269,9 @@ describe("afterparty", () => {
 
       await expect(ticketingManager.getAvailability()).resolves.toEqual({
         capacity: 150,
-        sold: 10,
-        claimed: 11,
-        remaining: 139,
+        sold: 7,
+        claimed: 8,
+        remaining: 142,
       });
       expect(paymentIntentsList).toHaveBeenCalledWith({
         created: { gte: expect.any(Number) },
@@ -319,40 +303,17 @@ describe("afterparty", () => {
       expect((await ticketingManager.getAvailability())?.sold).toBe(1);
     });
 
-    test("fails closed for malformed or inconsistent ticket orders", async () => {
-      const invalidPaymentIntents = [
+    test("ignores ticket records with invalid quantities", async () => {
+      listedPaymentIntents = [
         makePaymentIntent({
-          id: "pi_bad_quantity",
           metadata: ticketMetadata({ quantity: "3tickets" }),
         }),
-        makePaymentIntent({
-          id: "pi_bad_unit_price",
-          metadata: ticketMetadata({ unitPrice: "2500cents" }),
-        }),
-        makePaymentIntent({
-          id: "pi_bad_name",
-          metadata: ticketMetadata({ name: "Donation" }),
-        }),
-        makePaymentIntent({
-          id: "pi_bad_purchase_id",
-          metadata: ticketMetadata({ purchaseId: "not-a-uuid" }),
-        }),
-        makePaymentIntent({
-          id: "pi_zero_unit_price",
-          metadata: ticketMetadata({ unitPrice: "0" }),
-        }),
-        makePaymentIntent({ id: "pi_bad_amount", amount: 1 }),
-        makePaymentIntent({ id: "pi_bad_currency", currency: "eur" }),
       ];
 
-      for (const paymentIntent of invalidPaymentIntents) {
-        listedPaymentIntents = [paymentIntent];
-        ticketingManager.invalidateAvailabilityCache();
-        await expect(ticketingManager.getAvailability()).resolves.toBeNull();
-      }
+      expect((await ticketingManager.getAvailability())?.sold).toBe(0);
     });
 
-    test("cancels expired checkout reservations", async () => {
+    test("ignores expired checkout reservations", async () => {
       listedPaymentIntents = [
         makePaymentIntent({
           id: "pi_expired",
@@ -368,24 +329,6 @@ describe("afterparty", () => {
         claimed: 0,
         remaining: 150,
       });
-      expect(paymentIntentsCancel).toHaveBeenCalledWith("pi_expired");
-    });
-
-    test("keeps an expired reservation claimed when Stripe cannot cancel it", async () => {
-      listedPaymentIntents = [
-        makePaymentIntent({
-          id: "pi_expired",
-          status: "requires_action",
-          created: 0,
-          latest_charge: null,
-        }),
-      ];
-      paymentIntentsCancel.mockRejectedValue(new Error("Stripe error"));
-
-      const availability = await ticketingManager.getAvailability();
-
-      expect(availability?.claimed).toBe(3);
-      expect(availability?.remaining).toBe(147);
     });
 
     test("fails closed when Stripe availability cannot be read", async () => {
@@ -394,90 +337,6 @@ describe("afterparty", () => {
       });
 
       await expect(ticketingManager.getAvailability()).resolves.toBeNull();
-    });
-
-    test("does not serve expired availability when a refresh fails", async () => {
-      let now = 2_000_000_000;
-      const dateNow = spyOn(Date, "now").mockImplementation(() => now);
-      listedPaymentIntents = [
-        makePaymentIntent({ metadata: ticketMetadata({ quantity: "1" }) }),
-      ];
-
-      try {
-        expect((await ticketingManager.getAvailability())?.sold).toBe(1);
-        now += 60_001;
-        paymentIntentsList.mockImplementation(() => {
-          throw new Error("Stripe error");
-        });
-
-        await expect(ticketingManager.getAvailability()).resolves.toBeNull();
-      } finally {
-        dateNow.mockRestore();
-      }
-    });
-
-    test("shares one Stripe scan between concurrent page loads", async () => {
-      let releaseList = () => {};
-      const listReady = new Promise<void>((resolve) => {
-        releaseList = resolve;
-      });
-      paymentIntentsList.mockImplementation(() => ({
-        async *[Symbol.asyncIterator]() {
-          await listReady;
-          yield* listedPaymentIntents;
-        },
-      }));
-
-      const first = ticketingManager.getAvailability();
-      const second = ticketingManager.getAvailability();
-      releaseList();
-
-      const [firstResult, secondResult] = await Promise.all([first, second]);
-      expect(firstResult).toEqual(secondResult);
-      expect(paymentIntentsList).toHaveBeenCalledTimes(1);
-    });
-
-    test("expires the cache when the earliest checkout hold expires", async () => {
-      let now = 2_000_000_500;
-      const dateNow = spyOn(Date, "now").mockImplementation(() => now);
-      listedPaymentIntents = [
-        makePaymentIntent({
-          id: "pi_expiring",
-          status: "requires_payment_method",
-          created: Math.floor(now / 1000) - 1799,
-          latest_charge: null,
-        }),
-      ];
-
-      try {
-        expect((await ticketingManager.getAvailability())?.claimed).toBe(3);
-
-        now += 600;
-        expect((await ticketingManager.getAvailability())?.claimed).toBe(0);
-        expect(paymentIntentsList).toHaveBeenCalledTimes(2);
-        expect(paymentIntentsCancel).toHaveBeenCalledWith("pi_expiring");
-      } finally {
-        dateNow.mockRestore();
-      }
-    });
-
-    test("invalidates cached availability for ticket state changes only", async () => {
-      listedPaymentIntents = [
-        makePaymentIntent({ metadata: ticketMetadata({ quantity: "1" }) }),
-      ];
-      expect((await ticketingManager.getAvailability())?.sold).toBe(1);
-
-      listedPaymentIntents = [
-        makePaymentIntent({ metadata: ticketMetadata({ quantity: "2" }) }),
-      ];
-      ticketingManager.handlePaymentIntentChange(
-        makePaymentIntent({ metadata: {} }),
-      );
-      expect((await ticketingManager.getAvailability())?.sold).toBe(1);
-
-      ticketingManager.handlePaymentIntentChange(makePaymentIntent());
-      expect((await ticketingManager.getAvailability())?.sold).toBe(2);
-      expect(paymentIntentsList).toHaveBeenCalledTimes(2);
     });
   });
 
@@ -550,7 +409,7 @@ describe("afterparty", () => {
       expect(paymentIntentsCreate).not.toHaveBeenCalled();
     });
 
-    test("cancels a created PaymentIntent that has no client secret", async () => {
+    test("rejects a PaymentIntent that has no client secret", async () => {
       paymentIntentsCreate.mockResolvedValue(
         makePaymentIntent({ client_secret: null }),
       );
@@ -563,7 +422,6 @@ describe("afterparty", () => {
           purchaseId,
         ),
       ).resolves.toEqual({ success: false, error: "SessionError" });
-      expect(paymentIntentsCancel).toHaveBeenCalledWith("pi_1");
     });
 
     test("rejects a purchase that would exceed 150 claimed tickets", async () => {
@@ -623,56 +481,6 @@ describe("afterparty", () => {
         clientSecret: "pi_1_secret_abc",
       });
       expect(paymentIntentsCreate).toHaveBeenCalledTimes(1);
-    });
-  });
-
-  describe("handleRefundChange", () => {
-    test("ignores donation refunds and invalidates ticket refunds", async () => {
-      listedPaymentIntents = [
-        makePaymentIntent({ metadata: ticketMetadata({ quantity: "1" }) }),
-      ];
-      expect((await ticketingManager.getAvailability())?.sold).toBe(1);
-
-      listedPaymentIntents = [
-        makePaymentIntent({ metadata: ticketMetadata({ quantity: "2" }) }),
-      ];
-      await ticketingManager.handleRefundChange({
-        payment_intent: makePaymentIntent({ metadata: {} }),
-      });
-      expect((await ticketingManager.getAvailability())?.sold).toBe(1);
-
-      await ticketingManager.handleRefundChange({
-        payment_intent: makePaymentIntent(),
-      });
-      expect((await ticketingManager.getAvailability())?.sold).toBe(2);
-      expect(paymentIntentsList).toHaveBeenCalledTimes(2);
-    });
-
-    test("retrieves an unexpanded refunded PaymentIntent", async () => {
-      paymentIntentsRetrieve.mockResolvedValue(makePaymentIntent());
-
-      await ticketingManager.handleRefundChange({
-        payment_intent: "pi_ticket",
-      });
-
-      expect(paymentIntentsRetrieve).toHaveBeenCalledWith("pi_ticket");
-    });
-
-    test("invalidates conservatively when a refunded PaymentIntent cannot be read", async () => {
-      listedPaymentIntents = [
-        makePaymentIntent({ metadata: ticketMetadata({ quantity: "1" }) }),
-      ];
-      expect((await ticketingManager.getAvailability())?.sold).toBe(1);
-      listedPaymentIntents = [
-        makePaymentIntent({ metadata: ticketMetadata({ quantity: "2" }) }),
-      ];
-      paymentIntentsRetrieve.mockRejectedValue(new Error("Stripe error"));
-
-      await ticketingManager.handleRefundChange({
-        payment_intent: "pi_unknown",
-      });
-
-      expect((await ticketingManager.getAvailability())?.sold).toBe(2);
     });
   });
 

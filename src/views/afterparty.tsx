@@ -189,7 +189,6 @@ export function AfterpartyPage({
             id="afterparty-form"
             method="POST"
             action={paths.afterparty()}
-            data-availability-url={paths.afterpartyAvailability()}
             data-max-quantity={ticketingManager.MAX_QUANTITY}
             aria-label="Ticket order"
             aria-busy="true"
