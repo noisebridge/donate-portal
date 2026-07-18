@@ -3,8 +3,8 @@ import { assetHashes } from "./assets";
 import type { ErrorCodeKey, InfoCodeKey } from "./error-codes";
 
 export interface MessageParams {
-  error?: ErrorCodeKey;
-  info?: InfoCodeKey;
+  error?: ErrorCodeKey | undefined;
+  info?: InfoCodeKey | undefined;
 }
 
 /**

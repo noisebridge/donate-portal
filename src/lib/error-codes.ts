@@ -34,6 +34,22 @@ export enum InfoCode {
 }
 export type InfoCodeKey = keyof typeof InfoCode;
 
+/**
+ * Validates that an arbitrary value is a key of {@linkcode ErrorCode}. Query
+ * parameters arrive as plain strings (or arrays), so they must be validated
+ * before they can be treated as an {@linkcode ErrorCodeKey}.
+ */
+export function isErrorCodeKey(value: unknown): value is ErrorCodeKey {
+  return typeof value === "string" && Object.keys(ErrorCode).includes(value);
+}
+
+/**
+ * Validates that an arbitrary value is a key of {@linkcode InfoCode}.
+ */
+export function isInfoCodeKey(value: unknown): value is InfoCodeKey {
+  return typeof value === "string" && Object.keys(InfoCode).includes(value);
+}
+
 export function formatMessages({ info, error }: MessageParams) {
   const messages: Message[] = [];
 

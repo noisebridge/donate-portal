@@ -9,7 +9,12 @@ import type {
 } from "fastify";
 import type Stripe from "stripe";
 import config from "~/config";
-import { ErrorCode, formatMessages } from "~/lib/error-codes";
+import {
+  ErrorCode,
+  formatMessages,
+  isErrorCodeKey,
+  isInfoCodeKey,
+} from "~/lib/error-codes";
 import baseLogger from "~/lib/logger";
 import { parseToCents, validateAmountFormData } from "~/lib/money";
 import paths, { type MessageParams } from "~/lib/paths";
@@ -35,6 +40,27 @@ import { NotFoundPage } from "~/views/not-found";
 import { QrPage } from "~/views/qr";
 import { QrEditorPage } from "~/views/qr-editor";
 import { ThankYouPage } from "~/views/thank-you";
+
+/**
+ * Raw `error`/`info` query parameters, as received from the query string
+ * before validation.
+ */
+type RawMessageParams = {
+  [K in keyof MessageParams]: string | string[] | undefined;
+};
+
+/**
+ * The `error` and `info` query parameters arrive as arbitrary strings, but
+ * are only meaningful when they name a known message code. Validate them
+ * before treating them as message keys.
+ */
+function parseMessageParams(query: RawMessageParams): MessageParams {
+  const { error, info } = query;
+  return {
+    error: isErrorCodeKey(error) ? error : undefined,
+    info: isInfoCodeKey(info) ? info : undefined,
+  };
+}
 
 function conditionalRateLimit(
   max: number,
@@ -201,19 +227,19 @@ export default async function routes(fastify: FastifyInstance) {
   });
 
   fastify.get<{
-    Querystring: MessageParams;
+    Querystring: RawMessageParams;
   }>(paths.index(), async (request, reply) => {
     return reply.html(
       <IndexPage
         isAuthenticated={isAuthenticated(request, reply)}
-        messages={formatMessages(request.query)}
+        messages={formatMessages(parseMessageParams(request.query))}
         csrfToken={reply.generateCsrf()}
       />,
     );
   });
 
   fastify.get<{
-    Querystring: MessageParams;
+    Querystring: RawMessageParams;
   }>(paths.signIn(), async (request, reply) => {
     const authenticated = isAuthenticated(request, reply);
     if (authenticated) {
@@ -227,7 +253,7 @@ export default async function routes(fastify: FastifyInstance) {
     return reply.html(
       <AuthPage
         isAuthenticated={authenticated}
-        messages={formatMessages(request.query)}
+        messages={formatMessages(parseMessageParams(request.query))}
         csrfToken={reply.generateCsrf()}
       />,
     );
@@ -247,7 +273,7 @@ export default async function routes(fastify: FastifyInstance) {
   });
 
   fastify.get<{
-    Querystring: { code?: string; state?: string } & MessageParams;
+    Querystring: { code?: string; state?: string; error?: string };
   }>(paths.githubCallback(), async (request, reply) => {
     if (request.query.error) {
       fastify.log.warn({ error: request.query.error }, "GitHub OAuth error");
@@ -316,7 +342,7 @@ export default async function routes(fastify: FastifyInstance) {
   });
 
   fastify.get<{
-    Querystring: { code?: string; state?: string } & MessageParams;
+    Querystring: { code?: string; state?: string; error?: string };
   }>(paths.googleCallback(), async (request, reply) => {
     if (request.query.error) {
       fastify.log.warn({ error: request.query.error }, "Google OAuth error");
@@ -477,7 +503,7 @@ export default async function routes(fastify: FastifyInstance) {
   );
 
   fastify.get<{
-    Querystring: MessageParams;
+    Querystring: RawMessageParams;
   }>(paths.manage(), async (request, reply) => {
     const sessionCookie = cookies[CookieName.UserSession](request, reply);
     const sessionData = sessionCookie.value;
@@ -491,7 +517,7 @@ export default async function routes(fastify: FastifyInstance) {
       sessionData.email,
     );
 
-    const messages = formatMessages(request.query);
+    const messages = formatMessages(parseMessageParams(request.query));
     if (customerSubscription.subscription?.status === "past_due") {
       messages.push({
         type: "error",
