@@ -268,10 +268,10 @@ describe("afterparty", () => {
       ];
 
       await expect(ticketingManager.getAvailability()).resolves.toEqual({
-        capacity: 200,
+        capacity: 250,
         sold: 7,
         claimed: 8,
-        remaining: 192,
+        remaining: 242,
       });
       expect(paymentIntentsList).toHaveBeenCalledWith({
         created: { gte: expect.any(Number) },
@@ -324,10 +324,10 @@ describe("afterparty", () => {
       ];
 
       await expect(ticketingManager.getAvailability()).resolves.toEqual({
-        capacity: 200,
+        capacity: 250,
         sold: 0,
         claimed: 0,
-        remaining: 200,
+        remaining: 250,
       });
     });
 
@@ -424,8 +424,8 @@ describe("afterparty", () => {
       ).resolves.toEqual({ success: false, error: "SessionError" });
     });
 
-    test("rejects a purchase that would exceed 200 claimed tickets", async () => {
-      listedPaymentIntents = Array.from({ length: 9 }, (_, index) =>
+    test("rejects a purchase that would exceed 250 claimed tickets", async () => {
+      listedPaymentIntents = Array.from({ length: 12 }, (_, index) =>
         makePaymentIntent({
           id: `pi_${index}`,
           metadata: ticketMetadata({ quantity: "20" }),
@@ -433,8 +433,8 @@ describe("afterparty", () => {
       );
       listedPaymentIntents.push(
         makePaymentIntent({
-          id: "pi_9",
-          metadata: ticketMetadata({ quantity: "19" }),
+          id: "pi_12",
+          metadata: ticketMetadata({ quantity: "9" }),
         }),
       );
 
@@ -450,7 +450,7 @@ describe("afterparty", () => {
     });
 
     test("does not count an idempotent retry's existing reservation against itself", async () => {
-      listedPaymentIntents = Array.from({ length: 9 }, (_, index) =>
+      listedPaymentIntents = Array.from({ length: 12 }, (_, index) =>
         makePaymentIntent({
           id: `pi_${index}`,
           metadata: ticketMetadata({ quantity: "20" }),
@@ -458,8 +458,8 @@ describe("afterparty", () => {
       );
       listedPaymentIntents.push(
         makePaymentIntent({
-          id: "pi_9",
-          metadata: ticketMetadata({ quantity: "19" }),
+          id: "pi_12",
+          metadata: ticketMetadata({ quantity: "9" }),
         }),
         makePaymentIntent({
           id: "pi_retry",
