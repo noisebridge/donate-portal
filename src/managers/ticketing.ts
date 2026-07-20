@@ -47,7 +47,7 @@ export const DEFAULT_PRICE: Cents = { cents: 6400 };
 export const MINIMUM_PRICE: Cents = { cents: 1337 };
 export const MIN_QUANTITY = 1;
 export const MAX_QUANTITY = 20;
-export const CAPACITY = 150;
+export const CAPACITY = 200;
 const PURCHASE_ID_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const PENDING_RESERVATION_SECONDS = 30 * 60;
