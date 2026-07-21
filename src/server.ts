@@ -9,7 +9,6 @@ import html from "@kitajs/fastify-html-plugin";
 import Fastify from "fastify";
 import config from "~/config";
 import assets from "~/lib/assets";
-import cloudflareIp from "~/lib/cloudflare-ip";
 import contentSecurityPolicy from "~/lib/content-security-policy";
 import earlyHints from "~/lib/early-hints";
 import baseLogger from "~/lib/logger";
@@ -32,12 +31,6 @@ const fastify = Fastify({
   loggerInstance: baseLogger,
   bodyLimit: maxRawBodyBytes,
 });
-
-// In production we sit behind Cloudflare, so derive `request.ip` from the
-// `cf-connecting-ip` header rather than the socket address.
-if (config.production) {
-  fastify.register(cloudflareIp);
-}
 
 fastify.register(fastifyCookie, {
   secret: config.cookieSecret,
