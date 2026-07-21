@@ -10,7 +10,6 @@ import Fastify from "fastify";
 import config from "~/config";
 import assets from "~/lib/assets";
 import contentSecurityPolicy from "~/lib/content-security-policy";
-import earlyHints from "~/lib/early-hints";
 import baseLogger from "~/lib/logger";
 import permissionsPolicy from "~/lib/permissions-policy";
 import routes, { maxRawBodyBytes } from "~/routes";
@@ -80,8 +79,6 @@ fastify.register(assets);
 fastify.register(fastifyWebsocket);
 
 fastify.register(html);
-
-fastify.register(earlyHints);
 
 fastify.register(routes);
 
