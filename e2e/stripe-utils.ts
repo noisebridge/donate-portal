@@ -100,9 +100,26 @@ export async function fillEmbeddedCheckoutForm(
   await frame.locator("#cardExpiry").fill(options.expiry, { timeout: 10000 });
   await frame.locator("#cardCvc").fill(options.cvc, { timeout: 10000 });
   await frame.locator("#billingName").fill(options.name, { timeout: 10000 });
-  await frame
-    .locator("#billingPostalCode")
-    .fill(options.zip, { timeout: 10000 });
+
+  // Embedded Checkout does not always render a separate postal-code field, and
+  // its element id drifts — Stripe varies it by card BIN / country / account
+  // config and serves the iframe DOM live, independent of the pinned
+  // @stripe/stripe-js version. Mirror fillStripePaymentElement: match it
+  // resiliently (id OR name OR the postal-code autocomplete hint) and fill it
+  // only when it actually appears, so a rename still fills it while a
+  // genuinely-absent field is skipped instead of hard-failing.
+  const postalCode = frame
+    .locator(
+      "#billingPostalCode, input[name='billingPostalCode'], input[autocomplete='postal-code']",
+    )
+    .first();
+  const postalCodeShown = await postalCode
+    .waitFor({ state: "visible", timeout: 3000 })
+    .then(() => true)
+    .catch(() => false);
+  if (postalCodeShown) {
+    await postalCode.fill(options.zip, { timeout: 10000 });
+  }
 
   // Stripe Link's "Save my information" checkbox is checked by default,
   // which makes the phone number field required and blocks submission.
