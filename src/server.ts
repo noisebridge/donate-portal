@@ -29,6 +29,7 @@ process.on("unhandledRejection", (reason) => {
 const fastify = Fastify({
   loggerInstance: baseLogger,
   bodyLimit: maxRawBodyBytes,
+  trustProxy: 1,
 });
 
 fastify.register(fastifyCookie, {
