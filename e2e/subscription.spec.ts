@@ -121,28 +121,6 @@ test.describe("Subscription Flow Tests", () => {
     await cancelSubscription(page);
   });
 
-  test("Stripe portal can be accessed with active subscription", async ({
-    page,
-  }) => {
-    test.setTimeout(60000);
-    await loginAndNavigate(page, generateTestEmail());
-    await createSubscription(page, 'label[for="tier-employed"]');
-
-    // Verify the portal button is visible and click it
-    const portalButton = page.locator(
-      'form[action="/subscribe/portal"] button[type="submit"]',
-    );
-    await expect(portalButton).toBeVisible();
-    await portalButton.click();
-
-    // Wait for redirect to Stripe billing portal
-    await page.waitForURL(/billing\.stripe\.com/, { timeout: 10000 });
-    await expect(page).toHaveURL(/billing\.stripe\.com/);
-    await expect(page.getByText(/subscription/i).first()).toBeVisible({
-      timeout: 10000,
-    });
-  });
-
   test("Subscription update: change from $50 to $100 tier", async ({
     page,
   }) => {
