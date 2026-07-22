@@ -112,7 +112,7 @@ jobs:
         if: always()
         run: bun run clean-up-test-data
 
-      - uses: https://data.forgejo.org/actions/upload-artifact@v4
+      - uses: https://data.forgejo.org/actions/upload-artifact@v3
         if: always()
         with:
           name: playwright-report
