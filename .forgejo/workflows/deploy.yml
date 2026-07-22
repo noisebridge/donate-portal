@@ -23,6 +23,11 @@ name: Deploy
 on:
   push:
     branches: [main]
+  # Run test/lint/e2e on PRs targeting main so breakage is caught before it
+  # lands. The build/publish job stays ref-gated to refs/heads/main (see its
+  # `if:` below), so PRs run the checks only — no image push or deploy.
+  pull_request:
+    branches: [main]
 
 env:
   ALERTS_USERNAME: ${{ secrets.ALERTS_USERNAME }}
