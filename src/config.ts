@@ -18,8 +18,8 @@ const serverHost = assertEnvVar("SERVER_HOST");
 export default {
   disableRateLimit: process.env["DISABLE_RATE_LIMIT"] === "true",
   production: process.env["NODE_ENV"] === "production",
-  gitRepo: process.env["RENDER_GIT_REPO_SLUG"],
-  gitCommit: process.env["RENDER_GIT_COMMIT"],
+  gitRepo: process.env["GITHUB_REPO_SLUG"],
+  gitCommit: process.env["GIT_COMMIT"],
   serverProtocol,
   serverHost,
   serverPort: parseInt(process.env["PORT"] || "3000", 10),
