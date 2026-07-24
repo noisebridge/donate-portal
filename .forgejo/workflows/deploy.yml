@@ -133,7 +133,7 @@ jobs:
       # STORAGE_DRIVER=vfs + BUILDAH_ISOLATION=chroot come from the runner
       # image env; ulimit caps from its containers.conf (design D3).
       - name: Build image
-        run: buildah bud -t "$IMAGE:${{ github.sha }}" -t "$IMAGE:main" .
+        run: buildah bud --build-arg GIT_COMMIT=${{ github.sha }} -t "$IMAGE:${{ github.sha }}" -t "$IMAGE:main" .
 
       # Push goes to the external registry host (design D5) — a hairpin from
       # in-cluster. If it ever breaks, the in-cluster fallback for PUSH only

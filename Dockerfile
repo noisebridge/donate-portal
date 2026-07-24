@@ -18,6 +18,8 @@ RUN apk add --no-cache brotli gzip \
       -exec gzip --best --keep {} \;
 
 ENV NODE_ENV=production
+ARG GIT_COMMIT
+ENV GIT_COMMIT=$GIT_COMMIT
 EXPOSE 3000
 
 ENTRYPOINT ["bun", "src/server.ts"]
