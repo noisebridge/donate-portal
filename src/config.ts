@@ -1,4 +1,6 @@
+import { isIP } from "node:net";
 import dotenv from "dotenv";
+import logger from "~/lib/logger";
 
 dotenv.config();
 
@@ -11,12 +13,41 @@ function assertEnvVar(key: string) {
   return value;
 }
 
+function getRateLimitAllowList(): string[] {
+  const allowListEnvVar = process.env["RATE_LIMIT_ALLOW_LIST"];
+  if (!allowListEnvVar) {
+    return [];
+  }
+
+  let parsedAllowList: unknown;
+  try {
+    parsedAllowList = JSON.parse(allowListEnvVar);
+  } catch (e) {
+    logger.error({ exception: e }, "Failed to parse RATE_LIMIT_ALLOW_LIST");
+    return [];
+  }
+  if (!Array.isArray(parsedAllowList)) {
+    logger.error("RATE_LIMIT_ALLOW_LIST is not an array");
+    return [];
+  }
+
+  for (const elem of parsedAllowList) {
+    if (!isIP(elem)) {
+      logger.error({ elem }, "RATE_LIMIT_ALLOW_LIST holds a non-IP element");
+      return [];
+    }
+  }
+
+  return parsedAllowList;
+}
+
 const serverProtocol =
   process.env["NODE_ENV"] === "production" ? "https" : "http";
 const serverHost = assertEnvVar("SERVER_HOST");
 
 export default {
   disableRateLimit: process.env["DISABLE_RATE_LIMIT"] === "true",
+  rateLimitAllowList: getRateLimitAllowList(),
   production: process.env["NODE_ENV"] === "production",
   gitRepo: process.env["REPO_SLUG"],
   gitCommit: process.env["GIT_COMMIT"],
