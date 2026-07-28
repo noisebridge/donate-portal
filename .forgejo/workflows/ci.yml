@@ -18,7 +18,7 @@
 #   ci-bot token — the built-in job token cannot push packages, design D8).
 #   The app test secrets below are Forgejo Actions secrets mirroring the
 #   GitHub set (test-mode Stripe keys etc.).
-name: Deploy
+name: CI/CD
 
 on:
   push:
@@ -28,6 +28,10 @@ on:
   # `if:` below), so PRs run the checks only — no image push or deploy.
   pull_request:
     branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 
 env:
   ALERTS_USERNAME: ${{ secrets.ALERTS_USERNAME }}
