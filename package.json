@@ -33,7 +33,7 @@
     "playwright": "^1.62.1"
   },
   "peerDependencies": {
-    "typescript": "^6.0.3"
+    "typescript": "^7.0.2"
   },
   "overrides": {
     "ws": "^8.21.1",
@@ -61,7 +61,7 @@
     "@fastify/formbody": "^8.0.2",
     "@fastify/helmet": "^13.1.0",
     "@fastify/rate-limit": "^11.2.0",
-    "@fastify/static": "^9.3.0",
+    "@fastify/static": "^10.1.2",
     "@fastify/websocket": "^11.3.0",
     "@kitajs/fastify-html-plugin": "^4.2.1",
     "@kitajs/html": "^4.2.13",
