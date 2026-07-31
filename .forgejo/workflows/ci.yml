@@ -148,12 +148,3 @@ jobs:
             | buildah login --username ci-bot --password-stdin git.noisegarden.nexus
           buildah push "$IMAGE:${{ github.sha }}"
           buildah push "$IMAGE:main"
-
-      # vfs has no layer dedup — prune between builds so the 20Gi runner PVC
-      # doesn't grow unbounded (design D13). Cold builds are accepted, so
-      # removing all images loses nothing.
-      - name: Prune build storage
-        if: always()
-        run: |
-          buildah rm --all || true
-          buildah rmi --all --force || true
