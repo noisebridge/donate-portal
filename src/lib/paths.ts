@@ -117,6 +117,14 @@ const paths = {
    */
   googleCallback: () => "/auth/google/callback" as const,
   /**
+   * `/auth/noisegarden/start`
+   */
+  noisegardenStart: () => "/auth/noisegarden/start" as const,
+  /**
+   * `/auth/noisegarden/callback`
+   */
+  noisegardenCallback: () => "/auth/noisegarden/callback" as const,
+  /**
    * `/manage`
    */
   manage: (params?: MessageParams) => formatPath("/manage", params),

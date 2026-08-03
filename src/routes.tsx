@@ -29,6 +29,7 @@ import * as subscriptionManager from "~/managers/subscription";
 import * as errorReportingService from "~/services/error-reporting";
 import * as githubOAuth from "~/services/github";
 import * as googleOAuth from "~/services/google";
+import * as noisegardenOAuth from "~/services/noisegarden";
 import stripe from "~/services/stripe";
 import { AlertsPage } from "~/views/alerts";
 import { AuthPage } from "~/views/auth";
@@ -249,6 +250,7 @@ export default async function routes(fastify: FastifyInstance) {
     // Clear all OAuth cookies
     cookies[CookieName.GithubOAuthState](request, reply).clear();
     cookies[CookieName.GoogleOAuthState](request, reply).clear();
+    cookies[CookieName.NoisegardenOAuthState](request, reply).clear();
 
     return reply.html(
       <AuthPage
@@ -389,6 +391,95 @@ export default async function routes(fastify: FastifyInstance) {
     fastify.log.info(
       { userId: userInfo.id, email: userInfo.email, ip: request.ip },
       "User authenticated via Google",
+    );
+
+    return reply.redirect(paths.manage());
+  });
+
+  fastify.get(
+    paths.noisegardenStart(),
+    authRateLimit,
+    async (request, reply) => {
+      if (isAuthenticated(request, reply)) {
+        return reply.redirect(paths.manage());
+      }
+
+      const state = getRandomState();
+      const noisegardenCookie = cookies[CookieName.NoisegardenOAuthState](
+        request,
+        reply,
+      );
+      noisegardenCookie.value = { state, issued: Date.now() };
+
+      const authUrl = noisegardenOAuth.getAuthorizationUrl(state, [
+        "openid",
+        "email",
+        "profile",
+      ]);
+      return reply.redirect(authUrl);
+    },
+  );
+
+  fastify.get<{
+    Querystring: { code?: string; state?: string; error?: string };
+  }>(paths.noisegardenCallback(), async (request, reply) => {
+    if (request.query.error) {
+      fastify.log.warn(
+        { error: request.query.error },
+        "Noisegarden OAuth error",
+      );
+      return reply.redirect(paths.signIn({ error: "NoisegardenError" }));
+    }
+
+    const { code, state } = request.query;
+    if (!code || !state) {
+      fastify.log.warn(
+        "Missing code or state parameter in Noisegarden callback",
+      );
+      return reply.redirect(paths.signIn({ error: "InvalidRequest" }));
+    }
+
+    const noisegardenCookie = cookies[CookieName.NoisegardenOAuthState](
+      request,
+      reply,
+    );
+    const cookieValue = noisegardenCookie.value;
+    noisegardenCookie.clear();
+    if (cookieValue?.state !== state) {
+      fastify.log.warn(
+        "Invalid or mismatched state parameter for Noisegarden OAuth",
+      );
+      return reply.redirect(paths.signIn({ error: "InvalidState" }));
+    }
+
+    const oauthResult = await noisegardenOAuth.completeFlow(code);
+    if (!oauthResult) {
+      return reply.redirect(paths.signIn({ error: "OAuthFailed" }));
+    }
+
+    const { userInfo } = oauthResult;
+    // email_verified is load-bearing, not a formality. A session is keyed on
+    // the email alone, so accepting an unverified one would let a new realm
+    // account claim an existing donor's record — and their Stripe
+    // subscription — by registering with their address.
+    if (!userInfo.email || !userInfo.email_verified) {
+      fastify.log.warn(
+        { userId: userInfo.sub },
+        "No verified email found for Noisegarden user",
+      );
+      return reply.redirect(paths.signIn({ error: "NoEmail" }));
+    }
+
+    const sessionCookie = cookies[CookieName.UserSession](request, reply);
+    sessionCookie.value = {
+      email: userInfo.email,
+      provider: "noisegarden",
+      issued: Date.now(),
+    };
+
+    fastify.log.info(
+      { userId: userInfo.sub, email: userInfo.email, ip: request.ip },
+      "User authenticated via Noisegarden",
     );
 
     return reply.redirect(paths.manage());

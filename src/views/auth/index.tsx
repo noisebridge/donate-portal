@@ -75,6 +75,22 @@ export function AuthPage({
               >
                 Continue with GitHub
               </Button>
+
+              <Button
+                variant="outline"
+                arrow
+                href={paths.noisegardenStart()}
+                icon={
+                  <img
+                    src={paths.assetWithHash("image/logo.svg")}
+                    alt=""
+                    width="18"
+                    height="18"
+                  />
+                }
+              >
+                Continue with Noisebridge
+              </Button>
             </div>
 
             <div class="divider">or email me a link</div>

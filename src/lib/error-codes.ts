@@ -6,6 +6,7 @@ export enum ErrorCode {
   InvalidRequest = "Invalid request parameters",
   GithubError = "GitHub raised an error",
   GoogleError = "Google raised an error",
+  NoisegardenError = "Noisebridge SSO raised an error",
   OAuthFailed = "Failed to perform OAuth",
   NoEmail = "Could not find an email address for you",
   EmailInvalid = "Invalid email address",
