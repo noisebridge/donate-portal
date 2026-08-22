@@ -47,6 +47,10 @@ const serverHost = assertEnvVar("SERVER_HOST");
 
 export default {
   disableRateLimit: process.env["DISABLE_RATE_LIMIT"] === "true",
+  // Comma-separated IPs/CIDRs (or @fastify/proxy-addr names) of the proxies in
+  // front of us. Deployments set the exact peer range.
+  trustedProxies:
+    process.env["TRUSTED_PROXIES"] || "loopback,linklocal,uniquelocal",
   rateLimitAllowList: getRateLimitAllowList(),
   production: process.env["NODE_ENV"] === "production",
   gitRepo: process.env["REPO_SLUG"],
