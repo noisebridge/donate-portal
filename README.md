@@ -45,19 +45,35 @@ bunx playwright install firefox
 
 Create a `.env` file in the root of the repository with the following variables:
 
-* `SERVER_HOST` - `127.0.0.1:3000` for local dev
-* `DISABLE_RATE_LIMIT` - `true` for local dev and e2e tests
-* `STRIPE_SECRET` - Get a Stripe test key for local dev
-* `STRIPE_PORTAL_CONFIG` - ID like `bpc_...` from `./scripts/stripe-setup.ts`
-* `STRIPE_WEBHOOK_SECRET` - Get from `stripe listen --forward-to localhost:3000/webhook`
-* `GITHUB_CLIENT_ID` - Create an OAuth app on Github
-* `GITHUB_SECRET` - Create an OAuth app on Github
-* `GOOGLE_CLIENT_ID` - Create an OAuth app in the Google Cloud Console
-* `GOOGLE_SECRET` - Create an OAuth app in the Google Cloud Console
-* `RESEND_KEY` - From https://resend.com
-* `EMAIL_SENDER` - Where to send emails from (defaults to `onboarding@resend.dev`)
-* `COOKIE_SECRET` - Randomly generated string
-* `TOTP_SECRET` - Randomly generated string
+| Variable | Required | Description |
+|---|---|---|
+| `SERVER_HOST` | Yes | `127.0.0.1:3000` for local dev |
+| `STRIPE_PUBLIC` | Yes | Stripe publishable key |
+| `STRIPE_SECRET` | Yes | Stripe secret key (use test key for local dev) |
+| `STRIPE_PORTAL_CONFIG` | Yes | ID like `bpc_...` from `./scripts/stripe-setup.ts` |
+| `GITHUB_CLIENT_ID` | Yes | Create an OAuth app on GitHub |
+| `GITHUB_SECRET` | Yes | Create an OAuth app on GitHub |
+| `GOOGLE_CLIENT_ID` | Yes | Create an OAuth app in the Google Cloud Console |
+| `GOOGLE_SECRET` | Yes | Create an OAuth app in the Google Cloud Console |
+| `KEYCLOAK_ISSUER` | Yes | Keycloak issuer URL |
+| `KEYCLOAK_CLIENT_ID` | Yes | Keycloak client ID |
+| `KEYCLOAK_SECRET` | Yes | Keycloak client secret |
+| `COOKIE_SECRET` | Yes | Randomly generated string |
+| `RESEND_KEY` | Yes | From https://resend.com |
+| `TOTP_SECRET` | Yes | Randomly generated string |
+| `ALERTS_USERNAME` | Yes | HTTP basic auth username for alerts endpoint |
+| `ALERTS_PASSWORD` | Yes | HTTP basic auth password for alerts endpoint |
+| `FRONTEND_DSN` | Yes | Sentry DSN for frontend error tracking |
+| `BACKEND_DSN` | Yes | Sentry DSN for backend error tracking |
+| `DISABLE_RATE_LIMIT` | No | `true` for local dev and e2e tests |
+| `STRIPE_WEBHOOK_SECRET` | No | Get from `stripe listen --forward-to localhost:3000/webhook` |
+| `EMAIL_SENDER` | No | Where to send emails from (defaults to `onboarding@resend.dev`) |
+| `TRUSTED_PROXIES` | No | Comma-separated IPs/CIDRs of trusted proxies (defaults to `loopback,linklocal,uniquelocal`) |
+| `RATE_LIMIT_ALLOW_LIST` | No | JSON array of IPs exempt from rate limiting |
+| `NODE_ENV` | No | Set to `production` in production |
+| `PORT` | No | Port number (defaults to `3000`) |
+| `REPO_SLUG` | No | GitHub repo slug for commit links |
+| `GIT_COMMIT` | No | Deployed commit SHA |
 
 ### Run setup script
 
