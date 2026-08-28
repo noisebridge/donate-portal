@@ -79,7 +79,7 @@ export function AuthPage({
               <Button
                 variant="outline"
                 arrow
-                href={paths.noisegardenStart()}
+                href={paths.keycloakStart()}
                 icon={
                   <img
                     src={paths.assetWithHash("image/logo.svg")}

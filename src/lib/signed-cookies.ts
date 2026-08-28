@@ -5,7 +5,7 @@ import config from "~/config";
 
 export const SessionDataSchema = z.object({
   email: z.string(),
-  provider: z.enum(["github", "google", "magic_link", "noisegarden"]),
+  provider: z.enum(["github", "google", "magic_link", "keycloak"]),
   issued: z.number(),
 });
 
@@ -21,7 +21,7 @@ export type OAuthData = z.infer<typeof OAuthDataSchema>;
 export enum CookieName {
   GithubOAuthState = "github_oauth_state",
   GoogleOAuthState = "google_oauth_state",
-  NoisegardenOAuthState = "noisegarden_oauth_state",
+  KeycloakOAuthState = "keycloak_oauth_state",
   UserSession = "user_session",
 }
 
@@ -134,12 +134,12 @@ export const cookies = {
       reply,
       60 * 10,
     ),
-  [CookieName.NoisegardenOAuthState]: (
+  [CookieName.KeycloakOAuthState]: (
     request: FastifyRequest,
     reply: FastifyReply,
   ) =>
     new SignedCookie(
-      CookieName.NoisegardenOAuthState,
+      CookieName.KeycloakOAuthState,
       OAuthDataSchema,
       request,
       reply,

@@ -5,9 +5,9 @@ import paths from "~/lib/paths";
 const USER_AGENT = "NoisebridgeDonorPortal";
 const FETCH_TIMEOUT_MS = 10_000;
 
-const log = baseLogger.child({ module: "noisegarden" });
+const log = baseLogger.child({ module: "keycloak" });
 
-const REDIRECT_URI = `${config.baseUrl}${paths.noisegardenCallback()}`;
+const REDIRECT_URI = `${config.baseUrl}${paths.keycloakCallback()}`;
 
 /**
  * Keycloak exposes these under the realm issuer. They are derived rather than
@@ -15,11 +15,11 @@ const REDIRECT_URI = `${config.baseUrl}${paths.noisegardenCallback()}`;
  * would add a network round-trip to the critical path for endpoints that have
  * been stable across Keycloak majors.
  */
-const AUTHORIZE_URL = `${config.noisegardenIssuer}/protocol/openid-connect/auth`;
-const TOKEN_URL = `${config.noisegardenIssuer}/protocol/openid-connect/token`;
-const USERINFO_URL = `${config.noisegardenIssuer}/protocol/openid-connect/userinfo`;
+const AUTHORIZE_URL = `${config.keycloakIssuer}/protocol/openid-connect/auth`;
+const TOKEN_URL = `${config.keycloakIssuer}/protocol/openid-connect/token`;
+const USERINFO_URL = `${config.keycloakIssuer}/protocol/openid-connect/userinfo`;
 
-interface NoisegardenTokenResponse {
+interface KeycloakTokenResponse {
   access_token: string;
   token_type: string;
   expires_in: number;
@@ -31,7 +31,7 @@ interface NoisegardenTokenResponse {
  * The subset of Keycloak's userinfo response this app relies on. `sub` is the
  * stable account id; `email_verified` is load-bearing — see completeFlow.
  */
-interface NoisegardenUserInfo {
+interface KeycloakUserInfo {
   sub: string;
   email?: string;
   email_verified?: boolean;
@@ -40,7 +40,7 @@ interface NoisegardenUserInfo {
 }
 
 /**
- * Build the authorization URL for the noisegarden (Keycloak) realm.
+ * Build the authorization URL for the Keycloak realm.
  *
  * No PKCE, matching the GitHub and Google flows in this app: this is a
  * confidential client whose secret never leaves the server, and CSRF is
@@ -53,7 +53,7 @@ interface NoisegardenUserInfo {
  */
 export function getAuthorizationUrl(state: string, scopes: string[]) {
   const params = new URLSearchParams({
-    client_id: config.noisegardenClientId,
+    client_id: config.keycloakClientId,
     redirect_uri: REDIRECT_URI,
     response_type: "code",
     scope: scopes.join(" "),
@@ -75,8 +75,8 @@ export async function getAccessToken(code: string) {
       "User-Agent": USER_AGENT,
     },
     body: new URLSearchParams({
-      client_id: config.noisegardenClientId,
-      client_secret: config.noisegardenSecret,
+      client_id: config.keycloakClientId,
+      client_secret: config.keycloakSecret,
       code: code,
       redirect_uri: REDIRECT_URI,
       grant_type: "authorization_code",
@@ -92,7 +92,7 @@ export async function getAccessToken(code: string) {
     return null;
   }
 
-  const data = (await response.json()) as NoisegardenTokenResponse;
+  const data = (await response.json()) as KeycloakTokenResponse;
   return data.access_token;
 }
 
@@ -115,7 +115,7 @@ export async function getUserInfo(accessToken: string) {
     return null;
   }
 
-  return (await response.json()) as NoisegardenUserInfo;
+  return (await response.json()) as KeycloakUserInfo;
 }
 
 /**
@@ -123,6 +123,11 @@ export async function getUserInfo(accessToken: string) {
  *
  * Returns null on any failure so the caller redirects to a generic error
  * rather than leaking which step failed.
+ *
+ * An unverified (or missing) email counts as a failure: a session is keyed on
+ * the email alone, so accepting an unverified one would let a new realm
+ * account claim an existing donor's record — and their Stripe subscription —
+ * by registering with their address.
  */
 export async function completeFlow(code: string) {
   const accessToken = await getAccessToken(code);
@@ -135,8 +140,13 @@ export async function completeFlow(code: string) {
     return null;
   }
 
+  if (!userInfo.email || !userInfo.email_verified) {
+    log.warn({ userId: userInfo.sub }, "No verified email for Keycloak user");
+    return null;
+  }
+
   return {
     accessToken,
-    userInfo,
+    userInfo: { ...userInfo, email: userInfo.email },
   };
 }

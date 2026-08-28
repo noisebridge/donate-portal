@@ -117,13 +117,13 @@ const paths = {
    */
   googleCallback: () => "/auth/google/callback" as const,
   /**
-   * `/auth/noisegarden/start`
+   * `/auth/keycloak/start`
    */
-  noisegardenStart: () => "/auth/noisegarden/start" as const,
+  keycloakStart: () => "/auth/keycloak/start" as const,
   /**
-   * `/auth/noisegarden/callback`
+   * `/auth/keycloak/callback`
    */
-  noisegardenCallback: () => "/auth/noisegarden/callback" as const,
+  keycloakCallback: () => "/auth/keycloak/callback" as const,
   /**
    * `/manage`
    */
