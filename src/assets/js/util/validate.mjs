@@ -58,11 +58,7 @@ export function enforcePattern(input, pattern) {
 export function validateMinAmount(input) {
   const min = parseFloat(input.dataset["min"] ?? "0");
   if (Number.isNaN(min)) {
-    console.error(
-      input.dataset["min"],
-      " as data-min attribute is invalid for ",
-      input,
-    );
+    console.error(`Invalid data-min attribute "${input.dataset["min"]}"`);
     return;
   }
 
