@@ -380,4 +380,238 @@ describe("routes", () => {
       expect(response.statusCode).toBe(400);
     });
   });
+
+  describe("POST /donate", () => {
+    test("returns a client secret for a valid amount", async () => {
+      const response = await postForm("/donate", { "amount-dollars": "10" });
+
+      expect(json(response)).toEqual({
+        clientSecret: "pi_secret_123",
+        emailAddress: null,
+      });
+    });
+
+    test("includes the session email when authenticated", async () => {
+      const response = await postForm("/donate", { "amount-dollars": "10" }, [
+        sessionCookie("donor@example.com"),
+      ]);
+
+      expect(json(response)["emailAddress"]).toBe("donor@example.com");
+    });
+
+    test("redirects when the form data is not a valid amount form", async () => {
+      const response = await postForm("/donate", { nonsense: "1" });
+
+      expect(json(response)).toEqual({ redirect: "/?error=InvalidRequest" });
+    });
+
+    test("redirects when the amount cannot be parsed", async () => {
+      const response = await postForm("/donate", { "amount-dollars": "0" });
+
+      expect(json(response)).toEqual({
+        redirect: "/?error=InvalidDonationAmount",
+      });
+    });
+
+    test("redirects when the name is too long", async () => {
+      const response = await postForm("/donate", {
+        "amount-dollars": "10",
+        name: "a".repeat(100),
+      });
+
+      expect(json(response)).toEqual({ redirect: "/?error=InvalidRequest" });
+    });
+
+    test("redirects when the donation manager rejects the amount", async () => {
+      const response = await postForm("/donate", { "amount-dollars": "0.01" });
+
+      expect(json(response)).toEqual({
+        redirect: "/?error=InvalidDonationAmount",
+      });
+    });
+  });
+
+  describe("GET /manage", () => {
+    test("redirects to the index without a session", async () => {
+      const response = await app.inject({ method: "GET", url: "/manage" });
+
+      expect(response.statusCode).toBe(302);
+      expect(response.headers.location).toBe("/");
+    });
+
+    test("renders the manage page for a session with no subscription", async () => {
+      const response = await app.inject({
+        method: "GET",
+        url: "/manage",
+        headers: { cookie: sessionCookie() },
+      });
+
+      expect(response.statusCode).toBe(200);
+      expect(response.headers["cache-control"]).toBe("no-store");
+    });
+
+    test("shows a past-due banner when the subscription is past due", async () => {
+      const subscription = createMockSubscription();
+      subscription.status = "past_due";
+      mocks.customersList.mockResolvedValue({
+        data: [{ id: "cus_1" } as Stripe.Customer],
+      });
+      mocks.subscriptionsList.mockResolvedValueOnce({ data: [] });
+      mocks.subscriptionsList.mockResolvedValueOnce({ data: [subscription] });
+
+      const response = await app.inject({
+        method: "GET",
+        url: "/manage",
+        headers: { cookie: sessionCookie() },
+      });
+
+      expect(response.body).toContain("past due");
+    });
+  });
+
+  describe("POST /subscribe", () => {
+    test("redirects unauthenticated callers to sign in", async () => {
+      const response = await postForm("/subscribe", { "amount-dollars": "10" });
+
+      expect(json(response)).toEqual({ redirect: "/auth" });
+    });
+
+    test("returns a client secret for a new subscription", async () => {
+      const response = await postForm(
+        "/subscribe",
+        { "amount-dollars": "10" },
+        [sessionCookie()],
+      );
+
+      expect(json(response)).toEqual({
+        clientSecret: "cs_secret_123",
+        emailAddress: "test@example.com",
+      });
+    });
+
+    test("redirects when the form data is not a valid amount form", async () => {
+      const response = await postForm("/subscribe", { nonsense: "1" }, [
+        sessionCookie(),
+      ]);
+
+      expect(json(response)).toEqual({
+        redirect: "/manage?error=InvalidRequest",
+      });
+    });
+
+    test("redirects when the amount cannot be parsed", async () => {
+      const response = await postForm("/subscribe", { "amount-dollars": "0" }, [
+        sessionCookie(),
+      ]);
+
+      expect(json(response)).toEqual({
+        redirect: "/manage?error=InvalidMonthlyDonationAmount",
+      });
+    });
+
+    test("redirects with the manager error when subscribing fails", async () => {
+      const response = await postForm("/subscribe", { "amount-dollars": "1" }, [
+        sessionCookie(),
+      ]);
+
+      expect(json(response)).toEqual({
+        redirect: "/manage?error=InvalidMonthlyDonationAmount",
+      });
+    });
+
+    test("redirects with an info message when an existing subscription is updated", async () => {
+      mocks.customersList.mockResolvedValue({
+        data: [{ id: "cus_1" } as Stripe.Customer],
+      });
+      mocks.subscriptionsList.mockResolvedValueOnce({
+        data: [createMockSubscription({ unitAmount: 5000 })],
+      });
+
+      const response = await postForm(
+        "/subscribe",
+        { "amount-dollars": "99" },
+        [sessionCookie()],
+      );
+
+      expect(json(response)).toEqual({
+        redirect: "/manage?info=SubscriptionUpdated",
+      });
+    });
+  });
+
+  describe("POST /subscribe/portal", () => {
+    test("redirects unauthenticated callers to sign in", async () => {
+      const response = await postForm("/subscribe/portal", {});
+
+      expect(response.statusCode).toBe(302);
+      expect(response.headers.location).toBe("/auth");
+    });
+
+    test("redirects to the Stripe portal URL", async () => {
+      mocks.customersList.mockResolvedValue({
+        data: [{ id: "cus_1" } as Stripe.Customer],
+      });
+      mocks.subscriptionsList.mockResolvedValueOnce({
+        data: [createMockSubscription()],
+      });
+
+      const response = await postForm("/subscribe/portal", {}, [
+        sessionCookie(),
+      ]);
+
+      expect(response.headers.location).toBe(
+        "https://billing.stripe.com/portal_1",
+      );
+    });
+
+    test("redirects back to /manage with an error when there is no customer", async () => {
+      const response = await postForm("/subscribe/portal", {}, [
+        sessionCookie(),
+      ]);
+
+      expect(response.headers.location).toBe("/manage?error=NoCustomer");
+    });
+  });
+
+  describe("POST /cancel", () => {
+    test("redirects unauthenticated callers to sign in", async () => {
+      const response = await postForm("/cancel", {});
+
+      expect(response.statusCode).toBe(302);
+      expect(response.headers.location).toBe("/auth");
+    });
+
+    test("cancels an active subscription", async () => {
+      mocks.customersList.mockResolvedValue({
+        data: [{ id: "cus_1" } as Stripe.Customer],
+      });
+      mocks.subscriptionsList.mockResolvedValueOnce({
+        data: [createMockSubscription()],
+      });
+
+      const response = await postForm("/cancel", {}, [sessionCookie()]);
+
+      expect(response.headers.location).toBe(
+        "/manage?info=SubscriptionCancelled",
+      );
+    });
+
+    test("redirects with an error when there is nothing to cancel", async () => {
+      const response = await postForm("/cancel", {}, [sessionCookie()]);
+
+      expect(response.headers.location).toBe("/manage?error=NoCustomer");
+    });
+  });
+
+  describe("POST /auth/signout", () => {
+    test("clears the session cookie and redirects home", async () => {
+      const response = await postForm("/auth/signout", {}, [sessionCookie()]);
+
+      expect(response.statusCode).toBe(302);
+      expect(response.headers.location).toBe("/");
+      expect(String(response.headers["set-cookie"])).toContain(
+        CookieName.UserSession,
+      );
+    });
+  });
 });
