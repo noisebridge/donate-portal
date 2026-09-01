@@ -5,6 +5,7 @@ import {
   expect,
   type Mock,
   mock,
+  spyOn,
   test,
 } from "bun:test";
 import fastifyCookie, { sign } from "@fastify/cookie";
@@ -91,6 +92,9 @@ function resetMocks() {
     resetMock(key);
   }
 }
+
+const chargeAlertManager = (await import("~/managers/charge-alert")).default;
+const subscriptionManager = await import("~/managers/subscription");
 
 const { default: routes, maxRawBodyBytes } = await import("./routes");
 
@@ -660,6 +664,202 @@ describe("routes", () => {
 
       expect(response.statusCode).toBe(200);
       expect(response.body).toContain("<!DOCTYPE html>");
+    });
+  });
+
+  describe("POST /webhook", () => {
+    // Spied per-test and restored, rather than mock.module'd: these modules are
+    // shared with POST /subscribe and with the manager suites, and mock.module
+    // is global and permanent.
+    const dispatch = {
+      handlePaymentSuccess: spyOn(chargeAlertManager, "handlePaymentSuccess"),
+      handleNewSubscription: spyOn(chargeAlertManager, "handleNewSubscription"),
+      handleInvoicePaid: spyOn(subscriptionManager, "handleInvoicePaid"),
+      handleSubscriptionUpdated: spyOn(
+        subscriptionManager,
+        "handleSubscriptionUpdated",
+      ),
+    };
+
+    beforeEach(() => {
+      for (const spy of Object.values(dispatch)) {
+        spy.mockReset();
+        spy.mockResolvedValue(undefined);
+      }
+    });
+
+    afterAll(() => {
+      for (const spy of Object.values(dispatch)) {
+        spy.mockRestore();
+      }
+    });
+
+    test("rejects a request with no signature header", async () => {
+      const response = await app.inject({
+        method: "POST",
+        url: "/webhook",
+        headers: { "content-type": "application/json" },
+        payload: "{}",
+      });
+
+      expect(response.statusCode).toBe(400);
+      expect(json(response)).toEqual({ error: "Missing signature header" });
+    });
+
+    test("rejects an invalid signature", async () => {
+      const response = await app.inject({
+        method: "POST",
+        url: "/webhook",
+        headers: {
+          "content-type": "application/json",
+          "stripe-signature": "t=1,v1=deadbeef",
+        },
+        payload: "{}",
+      });
+
+      expect(response.statusCode).toBe(400);
+      expect(json(response)).toEqual({ error: "Invalid signature" });
+    });
+
+    test("fails when the webhook secret is not configured", async () => {
+      config.stripeWebhookSecret = undefined;
+
+      const response = await webhookRequest({ type: "ping" });
+
+      expect(response.statusCode).toBe(500);
+      expect(json(response)).toEqual({ error: "Webhook not configured" });
+    });
+
+    test("rejects a body over the raw body cap", async () => {
+      const response = await app.inject({
+        method: "POST",
+        url: "/webhook",
+        headers: {
+          "content-type": "application/json",
+          "stripe-signature": "t=1,v1=deadbeef",
+        },
+        payload: "x".repeat(maxRawBodyBytes + 1),
+      });
+
+      expect(response.statusCode).toBe(413);
+    });
+
+    test("acknowledges an event type it does not handle", async () => {
+      const response = await webhookRequest({
+        id: "evt_1",
+        type: "customer.created",
+        data: { object: {} },
+      });
+
+      expect(response.statusCode).toBe(200);
+      expect(json(response)).toEqual({ received: true });
+      expect(dispatch.handlePaymentSuccess).not.toHaveBeenCalled();
+      expect(dispatch.handleNewSubscription).not.toHaveBeenCalled();
+      expect(dispatch.handleInvoicePaid).not.toHaveBeenCalled();
+      expect(dispatch.handleSubscriptionUpdated).not.toHaveBeenCalled();
+    });
+
+    test("dispatches payment_intent.succeeded to the alert manager", async () => {
+      const event = {
+        id: "evt_2",
+        type: "payment_intent.succeeded",
+        data: {
+          object: {
+            id: "pi_hook",
+            customer: null,
+            created: 1_700_000_000,
+            amount: 1234,
+            metadata: { name: "Pizza Fund" },
+          },
+        },
+      };
+
+      const response = await webhookRequest(event);
+
+      expect(response.statusCode).toBe(200);
+      expect(dispatch.handlePaymentSuccess).toHaveBeenCalledTimes(1);
+      expect(dispatch.handlePaymentSuccess.mock.calls[0]?.[0]).toMatchObject({
+        id: "evt_2",
+        type: "payment_intent.succeeded",
+      });
+      expect(dispatch.handleNewSubscription).not.toHaveBeenCalled();
+    });
+
+    test("dispatches customer.subscription.created to the alert manager", async () => {
+      const response = await webhookRequest({
+        id: "evt_3",
+        type: "customer.subscription.created",
+        data: {
+          object: {
+            id: "sub_hook",
+            created: 1_700_000_000,
+            items: { data: [{ plan: { product: "monthly_donation" } }] },
+          },
+        },
+      });
+
+      expect(response.statusCode).toBe(200);
+      expect(dispatch.handleNewSubscription).toHaveBeenCalledTimes(1);
+      expect(dispatch.handleNewSubscription.mock.calls[0]?.[0]).toMatchObject({
+        id: "evt_3",
+        type: "customer.subscription.created",
+      });
+      expect(dispatch.handlePaymentSuccess).not.toHaveBeenCalled();
+    });
+
+    test("dispatches invoice.paid to the subscription manager", async () => {
+      const response = await webhookRequest({
+        id: "evt_4",
+        type: "invoice.paid",
+        data: {
+          object: {
+            billing_reason: "subscription_create",
+            customer_email: "welcome@example.com",
+            amount_paid: 5000,
+          },
+        },
+      });
+
+      expect(response.statusCode).toBe(200);
+      expect(dispatch.handleInvoicePaid).toHaveBeenCalledTimes(1);
+      expect(dispatch.handleInvoicePaid.mock.calls[0]?.[0]).toMatchObject({
+        id: "evt_4",
+        type: "invoice.paid",
+      });
+      expect(dispatch.handleSubscriptionUpdated).not.toHaveBeenCalled();
+    });
+
+    test("dispatches customer.subscription.updated to the subscription manager", async () => {
+      const response = await webhookRequest({
+        id: "evt_5",
+        type: "customer.subscription.updated",
+        data: {
+          object: { id: "sub_hook", customer: "cus_1", status: "active" },
+        },
+      });
+
+      expect(response.statusCode).toBe(200);
+      expect(dispatch.handleSubscriptionUpdated).toHaveBeenCalledTimes(1);
+      expect(
+        dispatch.handleSubscriptionUpdated.mock.calls[0]?.[0],
+      ).toMatchObject({ id: "evt_5", type: "customer.subscription.updated" });
+      expect(dispatch.handleInvoicePaid).not.toHaveBeenCalled();
+    });
+
+    test("returns 200 even when the handler throws", async () => {
+      dispatch.handleSubscriptionUpdated.mockRejectedValue(
+        new Error("stripe is down"),
+      );
+
+      const response = await webhookRequest({
+        id: "evt_6",
+        type: "customer.subscription.updated",
+        data: { object: { customer: "cus_1", status: "active" } },
+      });
+
+      expect(response.statusCode).toBe(200);
+      expect(json(response)).toEqual({ received: true });
+      expect(dispatch.handleSubscriptionUpdated).toHaveBeenCalledTimes(1);
     });
   });
 });
