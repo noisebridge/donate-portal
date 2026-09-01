@@ -92,6 +92,56 @@ describe("enforcePattern", () => {
     expect(event.defaultPrevented).toBe(false);
   });
 
+  it("allows forward-delete of a single character", () => {
+    input.value = "5.00";
+    input.selectionStart = 0;
+    input.selectionEnd = 0;
+    const event = new happyWindow.InputEvent("beforeinput", {
+      inputType: "deleteContentForward",
+      bubbles: true,
+      cancelable: true,
+    });
+    fire(input, event);
+    expect(event.defaultPrevented).toBe(false);
+  });
+
+  it("blocks a forward-delete that would leave three decimal places", () => {
+    input.value = "1.203";
+    input.selectionStart = 0;
+    input.selectionEnd = 0;
+    const event = new happyWindow.InputEvent("beforeinput", {
+      inputType: "deleteContentForward",
+      bubbles: true,
+      cancelable: true,
+    });
+    fire(input, event);
+    expect(event.defaultPrevented).toBe(true);
+  });
+
+  it("allows forward-delete of a selected range", () => {
+    input.value = "12.34";
+    input.selectionStart = 0;
+    input.selectionEnd = 2;
+    const event = new happyWindow.InputEvent("beforeinput", {
+      inputType: "deleteContentForward",
+      bubbles: true,
+      cancelable: true,
+    });
+    fire(input, event);
+    expect(event.defaultPrevented).toBe(false);
+  });
+
+  it("ignores input types it does not simulate", () => {
+    input.value = "5.00";
+    const event = new happyWindow.InputEvent("beforeinput", {
+      inputType: "historyUndo",
+      bubbles: true,
+      cancelable: true,
+    });
+    fire(input, event);
+    expect(event.defaultPrevented).toBe(false);
+  });
+
   it("allows backspace before decimal", () => {
     input.value = "5.00";
     input.selectionStart = 1;
@@ -132,5 +182,24 @@ describe("validateMinAmount", () => {
     input.value = "abc";
     fire(input, new happyWindow.Event("input"));
     expect(input.validationMessage).toInclude("enter a number");
+  });
+
+  it("installs no listener when data-min is not a number", () => {
+    const bad = /** @type {HTMLInputElement} */ (doc.createElement("input"));
+    bad.dataset["min"] = "not-a-number";
+    validateMinAmount(bad);
+
+    bad.value = "1";
+    fire(bad, new happyWindow.Event("input"));
+    expect(bad.validationMessage).toBe("");
+  });
+
+  it("defaults the minimum to zero when data-min is absent", () => {
+    const noMin = /** @type {HTMLInputElement} */ (doc.createElement("input"));
+    validateMinAmount(noMin);
+
+    noMin.value = "-1";
+    fire(noMin, new happyWindow.Event("input"));
+    expect(noMin.validationMessage).toInclude("below the minimum");
   });
 });
