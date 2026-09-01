@@ -862,4 +862,124 @@ describe("routes", () => {
       expect(dispatch.handleSubscriptionUpdated).toHaveBeenCalledTimes(1);
     });
   });
+
+  describe("POST /error-reporting", () => {
+    const event = {
+      timestamp: new Date().toISOString(),
+      platform: "javascript",
+      level: "error",
+      exception: {
+        values: [{ type: "Error", value: "boom", stacktrace: { frames: [] } }],
+      },
+    };
+
+    test("accepts a valid sentry event", async () => {
+      const response = await app.inject({
+        method: "POST",
+        url: "/error-reporting",
+        headers: { "content-type": "text/plain;charset=UTF-8" },
+        payload: JSON.stringify(event),
+      });
+
+      expect(response.statusCode).toBe(204);
+    });
+
+    test("rejects the wrong content type", async () => {
+      const response = await app.inject({
+        method: "POST",
+        url: "/error-reporting",
+        headers: { "content-type": "application/json" },
+        payload: JSON.stringify(event),
+      });
+
+      expect(response.statusCode).toBe(415);
+    });
+
+    test("rejects an unparseable body", async () => {
+      const response = await app.inject({
+        method: "POST",
+        url: "/error-reporting",
+        headers: { "content-type": "text/plain;charset=UTF-8" },
+        payload: "not json",
+      });
+
+      expect(response.statusCode).toBe(400);
+    });
+
+    test("rejects an event that fails validation", async () => {
+      const response = await app.inject({
+        method: "POST",
+        url: "/error-reporting",
+        headers: { "content-type": "text/plain;charset=UTF-8" },
+        payload: JSON.stringify({ platform: "javascript" }),
+      });
+
+      expect(response.statusCode).toBe(400);
+    });
+  });
+
+  describe("POST /csp-report", () => {
+    const report = {
+      "csp-report": {
+        "document-uri": "https://example.com/page",
+        "violated-directive": "script-src",
+        "blocked-uri": "inline",
+      },
+    };
+
+    test("accepts application/csp-report", async () => {
+      const response = await app.inject({
+        method: "POST",
+        url: "/csp-report",
+        headers: { "content-type": "application/csp-report" },
+        payload: JSON.stringify(report),
+      });
+
+      expect(response.statusCode).toBe(204);
+    });
+
+    test("accepts application/json", async () => {
+      const response = await app.inject({
+        method: "POST",
+        url: "/csp-report",
+        headers: { "content-type": "application/json" },
+        payload: JSON.stringify(report),
+      });
+
+      expect(response.statusCode).toBe(204);
+    });
+
+    test("rejects the wrong content type", async () => {
+      const response = await app.inject({
+        method: "POST",
+        url: "/csp-report",
+        headers: { "content-type": "text/plain" },
+        payload: JSON.stringify(report),
+      });
+
+      expect(response.statusCode).toBe(415);
+    });
+
+    test("rejects a null body", async () => {
+      const response = await app.inject({
+        method: "POST",
+        url: "/csp-report",
+        headers: { "content-type": "application/json" },
+        payload: "null",
+      });
+
+      expect(response.statusCode).toBe(400);
+    });
+
+    test("rejects a report that fails validation", async () => {
+      const response = await app.inject({
+        method: "POST",
+        url: "/csp-report",
+        headers: { "content-type": "application/json" },
+        payload: JSON.stringify({ "csp-report": {} }),
+      });
+
+      expect(response.statusCode).toBe(400);
+    });
+  });
 });
