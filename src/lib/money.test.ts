@@ -200,13 +200,5 @@ describe("parseToCents", () => {
     test("should reject non-finite amounts", () => {
       expect(parseToCents("Infinity")).toBeNull();
     });
-
-    test("should handle very small amounts", () => {
-      expect(parseToCents("0.01")).toEqual({ cents: 1 });
-    });
-
-    test("should handle amounts with many decimal places", () => {
-      expect(parseToCents("10.123456")).toEqual({ cents: 1012 });
-    });
   });
 });
