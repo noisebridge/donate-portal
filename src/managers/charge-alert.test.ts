@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, mock, test } from "bun:test";
 import type Stripe from "stripe";
 import { ChargeAlertManager } from "./charge-alert";
 import { GENERAL_DONATION } from "./donation";
@@ -112,6 +112,57 @@ describe("ChargeAlertManager", () => {
       const subscription = makeSubscription(null);
 
       expect(manager["isMembership"](subscription)).toBe(false);
+    });
+  });
+  describe("formatChargeAlert", () => {
+    test("converts a payment intent into a charge alert", () => {
+      const paymentIntent = makePaymentIntent({ metadata: { name: "Snacks" } });
+      paymentIntent.created = 1_700_000_000;
+      paymentIntent.amount = 1234;
+
+      expect(manager["formatChargeAlert"](paymentIntent)).toEqual({
+        type: "charge_alert",
+        id: manager["createObjectId"](paymentIntent),
+        date: new Date(1_700_000_000 * 1000).toISOString(),
+        amount: { cents: 1234 },
+        productName: "Snacks",
+      });
+    });
+
+    test("defaults a missing amount to zero cents", () => {
+      const paymentIntent = makePaymentIntent();
+      paymentIntent.created = 1_700_000_000;
+      paymentIntent.amount = undefined as unknown as number;
+
+      expect(manager["formatChargeAlert"](paymentIntent).amount).toEqual({
+        cents: 0,
+      });
+    });
+  });
+
+  describe("formatMemberAlert", () => {
+    test("converts a subscription into a member alert", () => {
+      const subscription = makeSubscription(PRODUCT_ID);
+      subscription.created = 1_700_000_000;
+
+      expect(manager["formatMemberAlert"](subscription)).toEqual({
+        type: "member_alert",
+        id: manager["createObjectId"](subscription),
+        date: new Date(1_700_000_000 * 1000).toISOString(),
+        productName: "New Member",
+      });
+    });
+  });
+
+  describe("isDonation", () => {
+    test("returns true when there is no customer", () => {
+      expect(manager["isDonation"](makePaymentIntent())).toBe(true);
+    });
+
+    test("returns false when a customer is attached", () => {
+      const paymentIntent = makePaymentIntent({ customer: "cus_1" });
+
+      expect(manager["isDonation"](paymentIntent)).toBe(false);
     });
   });
 });
