@@ -21,39 +21,19 @@
     "generate-openscad-qr": "bun ./scripts/generate-openscad-qr.ts"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.5.10",
+    "@biomejs/biome": "^2.5.11",
     "@kitajs/ts-html-plugin": "^4.1.4",
     "@playwright/test": "^1.62.1",
-    "@stripe/stripe-js": "^9.14.0",
+    "@stripe/stripe-js": "^9.15.0",
     "@types/bmp-js": "^0.1.2",
     "@types/bun": "1.4.0",
     "@types/mjml": "^5.0.0",
     "@types/ws": "^8.18.1",
-    "happy-dom": "^20.11.6",
+    "happy-dom": "^20.12.0",
     "playwright": "^1.62.1"
   },
   "peerDependencies": {
     "typescript": "^7.0.2"
-  },
-  "overrides": {
-    "ws": "^8.21.1",
-    "fast-uri": "^3.1.4",
-    "ajv": "^8.20.0",
-    "lodash": "^4.18.1",
-    "js-cookie": "^3.0.8",
-    "picomatch": "^2.3.2",
-    "@isaacs/brace-expansion": "^5.0.1",
-    "brace-expansion": "^2.1.2",
-    "minimatch": ">=10.2.6",
-    "undici": ">=8.9.0",
-    "js-yaml": "^4.3.1",
-    "nanoid": "^3.3.18",
-    "svgo": "^4.0.2",
-    "find-my-way": "^9.7.0",
-    "postcss": "^8.5.25",
-    "semver": "^7.8.5",
-    "browserslist": "^4.28.7",
-    "cross-spawn": "^7.0.6"
   },
   "dependencies": {
     "@fastify/cookie": "^11.1.2",
@@ -73,8 +53,8 @@
     "mjml": "^5.4.0",
     "obscenity": "^0.4.6",
     "pino": "^10.3.1",
-    "resend": "^6.22.0",
-    "stripe": "^22.5.0",
-    "zod": "^4.4.3"
+    "resend": "^6.25.0",
+    "stripe": "^22.6.0",
+    "zod": "^4.5.4"
   }
 }
