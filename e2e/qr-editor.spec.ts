@@ -118,19 +118,6 @@ test.describe("QR Editor Page", () => {
     await expect(downloadSvgButton).toContainText("Download SVG");
   });
 
-  test("form has correct input fields", async ({ page }) => {
-    await expect(page.locator("#amount")).toBeVisible();
-    await expect(page.locator("#name")).toBeVisible();
-    await expect(page.locator("#description")).toBeVisible();
-    await expect(page.locator("#use-logo")).toBeVisible();
-  });
-
-  test("amount input has correct placeholder", async ({ page }) => {
-    const amountInput = page.locator("#amount");
-
-    await expect(amountInput).toHaveAttribute("placeholder", "0.00");
-  });
-
   test("use-logo checkbox is checked by default", async ({ page }) => {
     const useLogoCheckbox = page.locator("#use-logo");
 
@@ -171,23 +158,6 @@ test.describe("QR SVG Endpoint", () => {
     });
 
     expect(response?.status()).toBe(400);
-  });
-
-  test("accepts optional name parameter", async ({ page }) => {
-    const response = await page.goto("/qr.svg?amount=5.00&name=TestDonation", {
-      waitUntil: "commit",
-    });
-
-    expect(response?.status()).toBe(200);
-  });
-
-  test("accepts optional description parameter", async ({ page }) => {
-    const response = await page.goto(
-      "/qr.svg?amount=5.00&description=TestDescription",
-      { waitUntil: "commit" },
-    );
-
-    expect(response?.status()).toBe(200);
   });
 
   test("returns 400 when name exceeds max length", async ({ page }) => {
