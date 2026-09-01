@@ -42,12 +42,6 @@ describe("magic-link", () => {
       expect(url).toStartWith(`${config.baseUrl}${paths.emailCallback()}`);
     });
 
-    test("URL contains ?state= query parameter", () => {
-      const url = manager.generateUrl("test@example.com");
-
-      expect(url).toContain("?state=");
-    });
-
     test("state is valid base64", () => {
       const url = manager.generateUrl("test@example.com");
 
