@@ -614,4 +614,52 @@ describe("routes", () => {
       );
     });
   });
+
+  describe("GET /alerts", () => {
+    test("challenges without basic auth", async () => {
+      const response = await app.inject({ method: "GET", url: "/alerts" });
+
+      expect(response.statusCode).toBe(401);
+      expect(response.headers["www-authenticate"]).toContain("Basic");
+    });
+
+    test("rejects a malformed basic auth header", async () => {
+      const response = await app.inject({
+        method: "GET",
+        url: "/alerts",
+        headers: {
+          authorization: `Basic ${Buffer.from("no-separator").toString("base64")}`,
+        },
+      });
+
+      expect(response.statusCode).toBe(401);
+    });
+
+    test("rejects wrong credentials", async () => {
+      const response = await app.inject({
+        method: "GET",
+        url: "/alerts",
+        headers: {
+          authorization: `Basic ${Buffer.from("bad:creds").toString("base64")}`,
+        },
+      });
+
+      expect(response.statusCode).toBe(401);
+    });
+
+    test("renders the alerts page with valid credentials", async () => {
+      const credentials = Buffer.from(
+        `${config.alertsUsername}:${config.alertsPassword}`,
+      ).toString("base64");
+
+      const response = await app.inject({
+        method: "GET",
+        url: "/alerts",
+        headers: { authorization: `Basic ${credentials}` },
+      });
+
+      expect(response.statusCode).toBe(200);
+      expect(response.body).toContain("<!DOCTYPE html>");
+    });
+  });
 });
