@@ -41,6 +41,15 @@ describe("qr-code", () => {
       expect(qr1.svg()).not.toBe(qr2.svg());
     });
 
+    test("falls back to the error QR code when the content is too small for the insert", () => {
+      // A short payload produces a QR code with fewer than 33 modules, which
+      // cannot fit the logo insert.
+      const qrCode = manager.create("x");
+
+      expect(qrCode.qrcode.moduleCount).toBeGreaterThanOrEqual(33);
+      expect(qrCode.svg()).toBe(manager.create("y").svg());
+    });
+
     test("handles long URLs", () => {
       const url = `${config.baseUrl}${paths.qr({ cents: 100000000 }, "Test Donation", "A long description")}`;
       const qrCode = manager.create(url);
