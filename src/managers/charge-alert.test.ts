@@ -165,4 +165,174 @@ describe("ChargeAlertManager", () => {
       expect(manager["isDonation"](paymentIntent)).toBe(false);
     });
   });
+
+  describe("connections", () => {
+    function makeSocket() {
+      const handlers = new Map<string, (data?: unknown) => void>();
+
+      return {
+        handlers,
+        send: mock((_data?: unknown) => {}),
+        terminate: mock(() => {}),
+        on(event: string, handler: (data?: unknown) => void) {
+          handlers.set(event, handler);
+        },
+        emit(event: string, data?: unknown) {
+          handlers.get(event)?.(data);
+        },
+      };
+    }
+
+    type FakeSocket = ReturnType<typeof makeSocket>;
+
+    function connect(target: ChargeAlertManager, socket: FakeSocket) {
+      return target.addConnection(
+        socket as unknown as Parameters<ChargeAlertManager["addConnection"]>[0],
+      );
+    }
+
+    /** A manager with its Stripe-backed alert history pre-seeded. */
+    function seededManager() {
+      const seeded = new ChargeAlertManager();
+      seeded["_recentAlerts"] = [];
+      return seeded;
+    }
+
+    test("broadcasts an alert to every connected socket", async () => {
+      const target = seededManager();
+      const socket = makeSocket();
+      await connect(target, socket);
+
+      await target["broadcastAlert"]({
+        type: "member_alert",
+        id: "abc",
+        date: new Date().toISOString(),
+        productName: "New Member",
+      });
+
+      expect(socket.send).toHaveBeenCalledTimes(1);
+      expect(await target.getRecentAlerts()).toHaveLength(1);
+    });
+
+    test("drops a socket that throws while being broadcast to", async () => {
+      const target = seededManager();
+      const socket = makeSocket();
+      socket.send.mockImplementation(() => {
+        throw new Error("socket closed");
+      });
+      await connect(target, socket);
+
+      await target["broadcastAlert"]({
+        type: "member_alert",
+        id: "abc",
+        date: new Date().toISOString(),
+        productName: "New Member",
+      });
+
+      expect(socket.terminate).toHaveBeenCalledTimes(1);
+      expect(target["connections"].size).toBe(0);
+    });
+
+    test("caps the alert history", async () => {
+      const target = seededManager();
+      target["_recentAlerts"] = Array.from({ length: 20 }, (_, index) => ({
+        type: "member_alert" as const,
+        id: `id_${index}`,
+        date: new Date().toISOString(),
+        productName: "New Member",
+      }));
+
+      await target["broadcastAlert"]({
+        type: "member_alert",
+        id: "newest",
+        date: new Date().toISOString(),
+        productName: "New Member",
+      });
+
+      const history = await target.getRecentAlerts();
+      expect(history).toHaveLength(20);
+      expect(history[0]?.id).toBe("newest");
+    });
+
+    test("marks a connection alive again on a pong message", async () => {
+      const target = seededManager();
+      const socket = makeSocket();
+      await connect(target, socket);
+      const state = target["connections"].get(
+        socket as unknown as Parameters<ChargeAlertManager["addConnection"]>[0],
+      );
+      // biome-ignore lint/style/noNonNullAssertion: the connection was just added
+      state!.alive = false;
+
+      socket.emit("message", JSON.stringify({ type: "pong" }));
+
+      expect(state?.alive).toBe(true);
+    });
+
+    test("survives an unparseable client message", async () => {
+      const target = seededManager();
+      const socket = makeSocket();
+      await connect(target, socket);
+
+      expect(() => socket.emit("message", "not json")).not.toThrow();
+      expect(target["connections"].size).toBe(1);
+    });
+
+    test("terminates and forgets a socket that errors", async () => {
+      const target = seededManager();
+      const socket = makeSocket();
+      await connect(target, socket);
+
+      socket.emit("error", new Error("boom"));
+
+      expect(socket.terminate).toHaveBeenCalledTimes(1);
+      expect(target["connections"].size).toBe(0);
+    });
+
+    test("forgets a socket that closes", async () => {
+      const target = seededManager();
+      const socket = makeSocket();
+      await connect(target, socket);
+
+      socket.emit("close");
+
+      expect(target["connections"].size).toBe(0);
+    });
+
+    test("sends recent history in a ping", async () => {
+      const target = seededManager();
+      target["_recentAlerts"] = Array.from({ length: 8 }, (_, index) => ({
+        type: "member_alert" as const,
+        id: `id_${index}`,
+        date: new Date().toISOString(),
+        productName: "New Member",
+      }));
+      const socket = makeSocket();
+      await connect(target, socket);
+
+      await target["sendPing"](
+        socket as unknown as Parameters<ChargeAlertManager["addConnection"]>[0],
+      );
+
+      const message = JSON.parse(String(socket.send.mock.calls[0]?.[0]));
+      expect(message.type).toBe("ping");
+      expect(message.history).toHaveLength(5);
+    });
+
+    test("drops a socket that throws while being pinged", async () => {
+      const target = seededManager();
+      const socket = makeSocket();
+      socket.send.mockImplementation(() => {
+        throw new Error("socket closed");
+      });
+      await connect(target, socket);
+
+      await target["sendPing"](
+        socket as unknown as Parameters<ChargeAlertManager["addConnection"]>[0],
+      );
+
+      expect(socket.terminate).toHaveBeenCalledTimes(1);
+      expect(target["connections"].size).toBe(0);
+    });
+  });
 });
