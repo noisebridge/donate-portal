@@ -77,6 +77,25 @@ describe("activateCustomOnClick", () => {
     expect(customRadio.checked).toBe(true);
     expect(customInput.readOnly).toBe(false);
   });
+
+  it("touchend on an already-enabled input is left to the browser", () => {
+    customInput.readOnly = false;
+    const event = new happyWindow.TouchEvent("touchend", {
+      bubbles: true,
+      cancelable: true,
+    });
+    fire(event, customInput);
+
+    expect(event.defaultPrevented).toBe(false);
+    expect(customRadio.checked).toBe(false);
+  });
+
+  it("click on an already-enabled input does not re-check the radio", () => {
+    customInput.readOnly = false;
+    customInput.click();
+
+    expect(customRadio.checked).toBe(false);
+  });
 });
 
 describe("activateCustomOnRadio", () => {
