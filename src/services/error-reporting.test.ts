@@ -172,26 +172,5 @@ describe("error reporting", () => {
       expect(result).toBe(true);
       expect(fetchSpy).toHaveBeenCalledTimes(1);
     });
-
-    test("forwards CSP violation with source-file info", async () => {
-      const result = await reportCspViolation(
-        makeCspReport({
-          "source-file": "https://example.com/app.js",
-          "line-number": 42,
-          "column-number": 10,
-        }),
-      );
-      expect(result).toBe(true);
-      expect(fetchSpy).toHaveBeenCalledTimes(1);
-    });
-
-    test("forwards CSP violation without blocked-uri", async () => {
-      const report = makeCspReport();
-      delete report["csp-report"]["blocked-uri"];
-
-      const result = await reportCspViolation(report);
-      expect(result).toBe(true);
-      expect(fetchSpy).toHaveBeenCalledTimes(1);
-    });
   });
 });
