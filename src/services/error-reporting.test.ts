@@ -135,6 +135,20 @@ describe("error reporting", () => {
       expect(fetchSpy).toHaveBeenCalledTimes(1);
     });
 
+    test("tags the event with the git commit when one is configured", async () => {
+      const originalCommit = config.gitCommit;
+      config.gitCommit = "abc1234";
+
+      try {
+        await reportFrontend(makeSentryEvent());
+      } finally {
+        config.gitCommit = originalCommit;
+      }
+
+      const body = JSON.parse(String(fetchSpy.mock.calls[0]?.[1]?.body));
+      expect(body.tags.commit).toBe("abc1234");
+    });
+
     test("returns false for non-javascript platform without forwarding", async () => {
       const result = await reportFrontend(
         makeSentryEvent({ platform: "node" }),
@@ -149,6 +163,20 @@ describe("error reporting", () => {
       const result = await reportBackend(new Error("test"));
       expect(result).toBe(true);
       expect(fetchSpy).toHaveBeenCalledTimes(1);
+    });
+
+    test("tags the report with the git commit when one is configured", async () => {
+      const originalCommit = config.gitCommit;
+      config.gitCommit = "abc1234";
+
+      try {
+        await reportBackend(new Error("test"));
+      } finally {
+        config.gitCommit = originalCommit;
+      }
+
+      const body = JSON.parse(String(fetchSpy.mock.calls[0]?.[1]?.body));
+      expect(body.tags.commit).toBe("abc1234");
     });
 
     test("forwards error report with request context", async () => {
@@ -171,6 +199,45 @@ describe("error reporting", () => {
       const result = await reportCspViolation(makeCspReport());
       expect(result).toBe(true);
       expect(fetchSpy).toHaveBeenCalledTimes(1);
+    });
+
+    test("ignores violations raised by browser extensions", async () => {
+      const result = await reportCspViolation(
+        makeCspReport({ "source-file": "chrome-extension://abcdef/inject.js" }),
+      );
+
+      expect(result).toBe(true);
+      expect(fetchSpy).not.toHaveBeenCalled();
+    });
+
+    test("ignores violations raised by eval in the console", async () => {
+      const result = await reportCspViolation(
+        makeCspReport({ "blocked-uri": "eval" }),
+      );
+
+      expect(result).toBe(true);
+      expect(fetchSpy).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("forward", () => {
+    test("returns false when the upstream request throws", async () => {
+      fetchSpy.mockRejectedValue(new Error("network down"));
+
+      expect(await reportBackend(new Error("test"))).toBe(false);
+    });
+
+    test("returns false when the upstream returns a non-OK status", async () => {
+      fetchSpy.mockResolvedValue(new Response(null, { status: 500 }));
+
+      expect(await reportBackend(new Error("test"))).toBe(false);
+    });
+
+    test("skips forwarding outside production", async () => {
+      config.production = false;
+
+      expect(await reportBackend(new Error("test"))).toBe(true);
+      expect(fetchSpy).not.toHaveBeenCalled();
     });
   });
 });
