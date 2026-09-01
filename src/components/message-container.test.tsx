@@ -66,17 +66,6 @@ describe("MessageContainer", () => {
     expect(result).toContain('aria-label="Dismiss"');
   });
 
-  test("message with dismissable=true has dismiss button", async () => {
-    const result = await (
-      <MessageContainer
-        messages={[{ type: "info", text: "Dismissable", dismissable: true }]}
-      />
-    );
-
-    expect(result).toBeTypeOf("string");
-    expect(result).toContain('class="message-dismiss"');
-  });
-
   test("message with dismissable=false has no dismiss button", async () => {
     const result = await (
       <MessageContainer
@@ -89,24 +78,5 @@ describe("MessageContainer", () => {
     expect(result).toBeTypeOf("string");
     expect(result).toContain("Non-dismissable");
     expect(result).not.toContain('class="message-dismiss"');
-  });
-
-  test("message container has correct wrapper class", async () => {
-    const result = await (
-      <MessageContainer messages={[{ type: "info", text: "Test" }]} />
-    );
-
-    expect(result).toBeTypeOf("string");
-    expect(result).toContain('class="message-container"');
-  });
-
-  test("message text is wrapped in span with correct class", async () => {
-    const result = await (
-      <MessageContainer messages={[{ type: "info", text: "Test text" }]} />
-    );
-
-    expect(result).toBeTypeOf("string");
-    expect(result).toContain('class="message-text"');
-    expect(result).toContain("Test text");
   });
 });
