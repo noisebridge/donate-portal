@@ -638,5 +638,184 @@ describe("subscription", () => {
 
       expect(sendEmail).not.toHaveBeenCalled();
     });
+    test("ignores an invoice with no customer email", async () => {
+      await subscriptionManager.handleInvoicePaid({
+        type: "invoice.paid",
+        data: {
+          object: {
+            billing_reason: "subscription_create",
+            customer_email: null,
+            amount_paid: 1500,
+          },
+        },
+      } as unknown as Stripe.InvoicePaidEvent);
+
+      expect(sendEmail).not.toHaveBeenCalled();
+    });
+
+    test("ignores an invoice with a zero amount", async () => {
+      await subscriptionManager.handleInvoicePaid({
+        type: "invoice.paid",
+        data: {
+          object: {
+            billing_reason: "subscription_create",
+            customer_email: "test@example.com",
+            amount_paid: 0,
+          },
+        },
+      } as unknown as Stripe.InvoicePaidEvent);
+
+      expect(sendEmail).not.toHaveBeenCalled();
+    });
+
+    test("swallows a failure to send the welcome email", async () => {
+      sendEmail.mockResolvedValue({
+        data: null,
+        error: { message: "Email service down", name: "internal_server_error" },
+        headers: null,
+      } as unknown as Awaited<ReturnType<typeof sendEmail>>);
+
+      await subscriptionManager.handleInvoicePaid({
+        type: "invoice.paid",
+        data: {
+          object: {
+            billing_reason: "subscription_create",
+            customer_email: "test@example.com",
+            amount_paid: 1500,
+          },
+        },
+      } as unknown as Stripe.InvoicePaidEvent);
+
+      expect(sendEmail).toHaveBeenCalledTimes(1);
+    });
+
+    test("swallows a failure to send the past due email", async () => {
+      mocks.customersRetrieve.mockResolvedValue({
+        id: "cus_1",
+        email: "test@example.com",
+        deleted: false,
+      });
+      sendEmail.mockResolvedValue({
+        data: null,
+        error: { message: "Email service down", name: "internal_server_error" },
+        headers: null,
+      } as unknown as Awaited<ReturnType<typeof sendEmail>>);
+
+      await subscriptionManager.handleSubscriptionUpdated({
+        type: "customer.subscription.updated",
+        data: {
+          object: {
+            status: "past_due",
+            customer: "cus_1",
+            items: { data: [{ price: { unit_amount: 1000 } }] },
+          },
+          previous_attributes: { status: "active" },
+        },
+      } as unknown as Stripe.CustomerSubscriptionUpdatedEvent);
+
+      expect(sendEmail).toHaveBeenCalledTimes(1);
+    });
+
+    test("swallows a failure to send the amount updated email", async () => {
+      mocks.customersRetrieve.mockResolvedValue({
+        id: "cus_1",
+        email: "test@example.com",
+        deleted: false,
+      });
+      sendEmail.mockResolvedValue({
+        data: null,
+        error: { message: "Email service down", name: "internal_server_error" },
+        headers: null,
+      } as unknown as Awaited<ReturnType<typeof sendEmail>>);
+
+      await subscriptionManager.handleSubscriptionUpdated({
+        type: "customer.subscription.updated",
+        data: {
+          object: {
+            status: "active",
+            customer: "cus_1",
+            items: { data: [{ price: { unit_amount: 2000 } }] },
+          },
+          previous_attributes: {
+            status: "active",
+            items: { data: [{ price: { unit_amount: 1000 } }] },
+          },
+        },
+      } as unknown as Stripe.CustomerSubscriptionUpdatedEvent);
+
+      expect(sendEmail).toHaveBeenCalledTimes(1);
+    });
+
+    test("does not send email when the updated subscription has no amount", async () => {
+      mocks.customersRetrieve.mockResolvedValue({
+        id: "cus_1",
+        email: "test@example.com",
+        deleted: false,
+      });
+
+      await subscriptionManager.handleSubscriptionUpdated({
+        type: "customer.subscription.updated",
+        data: {
+          object: {
+            status: "active",
+            customer: "cus_1",
+            items: { data: [{ price: { unit_amount: null } }] },
+          },
+          previous_attributes: {
+            status: "active",
+            items: { data: [{ price: { unit_amount: 1000 } }] },
+          },
+        },
+      } as unknown as Stripe.CustomerSubscriptionUpdatedEvent);
+
+      expect(sendEmail).not.toHaveBeenCalled();
+    });
+
+    test("does not send email when there are no previous attributes", async () => {
+      mocks.customersRetrieve.mockResolvedValue({
+        id: "cus_1",
+        email: "test@example.com",
+        deleted: false,
+      });
+
+      await subscriptionManager.handleSubscriptionUpdated({
+        type: "customer.subscription.updated",
+        data: {
+          object: {
+            status: "active",
+            customer: "cus_1",
+            items: { data: [{ price: { unit_amount: 1000 } }] },
+          },
+        },
+      } as unknown as Stripe.CustomerSubscriptionUpdatedEvent);
+
+      expect(sendEmail).not.toHaveBeenCalled();
+    });
+
+    test("uses an already-expanded customer object without a Stripe lookup", async () => {
+      await subscriptionManager.handleSubscriptionUpdated({
+        type: "customer.subscription.updated",
+        data: {
+          object: {
+            status: "active",
+            customer: {
+              id: "cus_1",
+              email: "expanded@example.com",
+              deleted: false,
+            },
+            items: { data: [{ price: { unit_amount: 2000 } }] },
+          },
+          previous_attributes: {
+            status: "active",
+            items: { data: [{ price: { unit_amount: 1000 } }] },
+          },
+        },
+      } as unknown as Stripe.CustomerSubscriptionUpdatedEvent);
+
+      expect(mocks.customersRetrieve).not.toHaveBeenCalled();
+      expect(sendEmail).toHaveBeenCalledWith(
+        expect.objectContaining({ to: "expanded@example.com" }),
+      );
+    });
   });
 });
