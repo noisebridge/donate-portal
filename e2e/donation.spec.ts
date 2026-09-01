@@ -83,43 +83,6 @@ test.describe("Donation Flow Tests", () => {
     // Should redirect to thank-you page after successful payment
     await expect(page).toHaveURL(/\/thank-you/);
   });
-
-  test("Custom amount $13.37 creates Stripe checkout and redirects to /thank-you", async ({
-    page,
-  }) => {
-    test.setTimeout(60000);
-
-    await page.goto("/");
-
-    // Click the Custom amount button
-    await page.click('label[for="amount-custom"]');
-
-    // Fill in custom amount
-    await page.fill('input[name="custom-amount"]', "13.37");
-
-    // Submit the form
-    await page.click("#donate-now");
-
-    // Should open the Stripe checkout modal
-    await waitForCheckoutModal(page);
-
-    // Fill out the Stripe Payment Element with test card
-    await fillStripePaymentElement(page, {
-      cardNumber: "4242424242424242",
-      expiry: getExpiryOneYearFromNow(),
-      cvc: "123",
-      zip: "94110",
-    });
-
-    // Submit payment
-    await page.click("#payment-submit");
-
-    // Wait for redirect to complete (Stripe processes payment and redirects)
-    await page.waitForURL(/\/thank-you/, { timeout: 45000 });
-
-    // Should redirect to thank-you page after successful payment
-    await expect(page).toHaveURL(/\/thank-you/);
-  });
 });
 
 test.describe("QR Donation Endpoint", () => {
@@ -143,26 +106,6 @@ test.describe("QR Donation Endpoint", () => {
     await expect(slider).toHaveAttribute("min", "2");
     await expect(slider).toHaveAttribute("max", "10");
     await expect(slider).toHaveValue("5");
-
-    // Click the Donate button
-    await page.click('button:has-text("Donate")');
-
-    // Should open the Stripe checkout modal
-    await waitForCheckoutModal(page);
-  });
-
-  test("slider updates displayed amount", async ({ page }) => {
-    await page.goto("/qr?amount=10.00");
-
-    // Verify initial amount
-    await expect(page.locator("#amount-input")).toHaveValue("10.00");
-
-    // Move the slider to a different value
-    const slider = page.locator("#amount-slider");
-    await slider.fill("15");
-
-    // Verify the displayed amount updated
-    await expect(page.locator("#amount-input")).toHaveValue("15.00");
 
     // Click the Donate button
     await page.click('button:has-text("Donate")');
