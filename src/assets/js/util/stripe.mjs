@@ -88,9 +88,12 @@ export function initStripe() {
       resolve(window.Stripe(stripeKey));
     });
 
-    script.addEventListener("error", (event) => {
+    script.addEventListener("error", () => {
       stripePromise = null;
-      reject(event.error);
+      // A script load failure dispatches a plain Event, so there is no
+      // `error` property to forward. Reject with a real Error: callers gate
+      // their reporting on `instanceof Error`.
+      reject(new Error("Failed to load Stripe.js"));
     });
 
     document.head.appendChild(script);

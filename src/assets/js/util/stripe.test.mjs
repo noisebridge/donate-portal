@@ -206,13 +206,13 @@ describe("initStripe", () => {
     expect(() => stripe.initStripe()).toThrow("Stripe public key not found");
   });
 
-  it("rejects when the script fails to load", async () => {
+  it("rejects with an Error when the script fails to load", async () => {
     await happyWindow.happyDOM.close();
     makeWindow(false);
 
-    // A `<script>` error event carries no `error` property, so the module
-    // rejects with `undefined` rather than with an Error.
-    expect(stripe.initStripe()).rejects.toBeUndefined();
+    // Must be a real Error, not the event's absent `error` property: callers
+    // only forward rejections to error reporting when `instanceof Error`.
+    expect(stripe.initStripe()).rejects.toThrow("Failed to load Stripe.js");
     await flush();
   });
 
