@@ -297,4 +297,87 @@ describe("routes", () => {
       expect(response.body).toContain("fatal_error");
     });
   });
+
+  describe("GET /auth", () => {
+    test("renders the sign-in page when unauthenticated", async () => {
+      const response = await app.inject({ method: "GET", url: "/auth" });
+
+      expect(response.statusCode).toBe(200);
+      expect(response.headers["set-cookie"]).toBeDefined();
+    });
+
+    test("redirects to /manage when already authenticated", async () => {
+      const response = await app.inject({
+        method: "GET",
+        url: "/auth",
+        headers: { cookie: sessionCookie() },
+      });
+
+      expect(response.statusCode).toBe(302);
+      expect(response.headers.location).toBe("/manage");
+    });
+  });
+
+  describe("GET /qr", () => {
+    test("redirects to the index for an unparseable amount", async () => {
+      const response = await app.inject({
+        method: "GET",
+        url: "/qr?amount=banana",
+      });
+
+      expect(response.statusCode).toBe(302);
+      expect(response.headers.location).toBe("/?error=InvalidDonationAmount");
+    });
+
+    test("rejects an over-long name", async () => {
+      const response = await app.inject({
+        method: "GET",
+        url: `/qr?amount=5&name=${"a".repeat(100)}`,
+      });
+
+      expect(response.statusCode).toBe(400);
+    });
+  });
+
+  describe("GET /qr.svg", () => {
+    test("returns an SVG for a valid amount", async () => {
+      const response = await app.inject({
+        method: "GET",
+        url: "/qr.svg?amount=5",
+      });
+
+      expect(response.statusCode).toBe(200);
+      expect(response.headers["content-type"]).toContain("image/svg+xml");
+      expect(response.body).toContain("<svg");
+    });
+
+    test("returns a different SVG when the logo is disabled", async () => {
+      const withLogo = await app.inject({
+        method: "GET",
+        url: "/qr.svg?amount=5",
+      });
+      const withoutLogo = await app.inject({
+        method: "GET",
+        url: "/qr.svg?amount=5&use-logo=false",
+      });
+
+      expect(withoutLogo.statusCode).toBe(200);
+      expect(withoutLogo.body).not.toBe(withLogo.body);
+    });
+
+    test("rejects a missing amount", async () => {
+      const response = await app.inject({ method: "GET", url: "/qr.svg" });
+
+      expect(response.statusCode).toBe(400);
+    });
+
+    test("rejects an over-long description", async () => {
+      const response = await app.inject({
+        method: "GET",
+        url: `/qr.svg?amount=5&description=${"a".repeat(200)}`,
+      });
+
+      expect(response.statusCode).toBe(400);
+    });
+  });
 });
