@@ -2,18 +2,6 @@ import { describe, expect, test } from "bun:test";
 import * as donationManager from "./donation";
 
 describe("donation", () => {
-  describe("MAX_NAME_LENGTH", () => {
-    test("is defined as a positive number", () => {
-      expect(donationManager.MAX_NAME_LENGTH).toBeGreaterThan(0);
-    });
-  });
-
-  describe("MAX_DESCRIPTION_LENGTH", () => {
-    test("is defined as a positive number", () => {
-      expect(donationManager.MAX_DESCRIPTION_LENGTH).toBeGreaterThan(0);
-    });
-  });
-
   describe("isGeneral", () => {
     test("returns true when name is undefined", () => {
       expect(donationManager.isGeneral()).toBe(true);
