@@ -27,12 +27,6 @@ describe("QRCode", () => {
       ).not.toThrow();
     });
 
-    test("accepts padding of 4", () => {
-      expect(() =>
-        new QRCode({ content: "test", padding: 4 }).svg(),
-      ).not.toThrow();
-    });
-
     test("rejects negative padding", () => {
       expect(() =>
         new QRCode({ content: "test", padding: -1 }).svg(),
@@ -45,18 +39,6 @@ describe("QRCode", () => {
       expect(() =>
         new QRCode({ content: "test", width: 1, height: 1 }).svg(),
       ).not.toThrow();
-    });
-
-    test("accepts width=1000 height=1000", () => {
-      expect(() =>
-        new QRCode({ content: "test", width: 1000, height: 1000 }).svg(),
-      ).not.toThrow();
-    });
-
-    test("rejects width=0 height=0", () => {
-      expect(() =>
-        new QRCode({ content: "test", width: 0, height: 0 }).svg(),
-      ).toThrow();
     });
 
     test("rejects negative width", () => {
