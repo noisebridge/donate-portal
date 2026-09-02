@@ -15,21 +15,26 @@ import { Window } from "happy-dom";
 /** @typedef {import("~/types/alerts").AlertMessage} AlertMessage */
 /** @typedef {import("~/types/alerts").ServerMessage} ServerMessage */
 
-/** Build a stub standing in for one of the canvas effect modules. */
-function effectStub() {
+/**
+ * Build a stub standing in for one of the canvas effect modules.
+ * `showStatic` and `ledEffect` are null on some of the real modules, so the
+ * stubs mirror that rather than answering every call.
+ * @param {{ showStatic?: boolean, ledEffect?: boolean }} [has]
+ */
+function effectStub({ showStatic = true, ledEffect = true } = {}) {
   return {
     init: jest.fn(),
     show: jest.fn(async () => {}),
     stop: jest.fn(async () => {}),
-    showStatic: jest.fn(),
-    ledEffect: jest.fn(async () => {}),
+    showStatic: showStatic ? jest.fn() : null,
+    ledEffect: ledEffect ? jest.fn(async () => {}) : null,
   };
 }
 
 const effects = {
-  confetti: effectStub(),
+  confetti: effectStub({ showStatic: false, ledEffect: false }),
   dolphin: effectStub(),
-  matrix: effectStub(),
+  matrix: effectStub({ showStatic: false }),
   snoop: effectStub(),
   merica: effectStub(),
 };
@@ -246,8 +251,9 @@ describe("start-up", () => {
     expect(canvas.width).toBe(happyWindow.innerWidth);
   });
 
-  it("replays the server-rendered charge as a static effect", () => {
-    expect(effects.confetti.showStatic).toHaveBeenCalled();
+  it("replays the server-rendered charge on the LEDs", () => {
+    // The seed charge is $10, which maps to confetti: no static form to draw.
+    expect(effects.confetti.showStatic).toBeNull();
     expect(ledHyperdrive).toHaveBeenCalled();
   });
 
@@ -531,7 +537,7 @@ describe("connection loss", () => {
 describe("a page that opens on a hacker amount", () => {
   it("plays that effect's LED programme instead of hyperdrive", async () => {
     for (const effect of Object.values(effects)) {
-      effect.ledEffect.mockClear();
+      effect.ledEffect?.mockClear();
     }
     ledHyperdrive.mockClear();
 
@@ -546,9 +552,25 @@ describe("a page that opens on a hacker amount", () => {
 
     await boot();
 
-    expect(effects.matrix.showStatic).toHaveBeenCalled();
+    // Matrix has no static form, so only its LED programme runs.
+    expect(effects.matrix.showStatic).toBeNull();
     expect(effects.matrix.ledEffect).toHaveBeenCalled();
     expect(ledHyperdrive).not.toHaveBeenCalled();
+  });
+
+  it("draws the static effect for an amount whose effect has one", async () => {
+    effects.merica.showStatic?.mockClear();
+
+    historyList().innerHTML = `<div data-amount="999999"></div>`;
+    amountEl().dataset["amount"] = "1776";
+    const script = /** @type {HTMLElement} */ (
+      doc.getElementById("current-charge")
+    );
+    script.textContent = JSON.stringify(charge({ id: "ch_flag", cents: 1776 }));
+
+    await boot();
+
+    expect(effects.merica.showStatic).toHaveBeenCalled();
   });
 
   it("does nothing extra when there is no charge to replay", async () => {
