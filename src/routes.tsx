@@ -578,7 +578,7 @@ export default async function routes(fastify: FastifyInstance) {
     const sessionCookie = cookies[CookieName.UserSession](request, reply);
     const sessionData = sessionCookie.value;
     if (!sessionData) {
-      fastify.log.debug("No valid session found, redirecting to auth");
+      fastify.log.debug("No valid session found, redirecting home");
       sessionCookie.clear();
       return reply.redirect(paths.index());
     }
