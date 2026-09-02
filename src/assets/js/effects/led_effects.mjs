@@ -171,14 +171,14 @@ function confettiLedFn(index, num_leds, timestamp, data) {
     if (t < rocket.launch) continue;
     const rt = t - rocket.launch;
 
-    if (rt < rocket.travel * 3) {
-      const progress = rt / (rocket.travel * 3);
+    if (rt < rocket.travel) {
+      const progress = rt / rocket.travel;
       const ledPos = Math.floor(progress * rocket.wraps * num_leds) % num_leds;
       if (index === ledPos) {
         return { r: 255, g: 255, b: 255 };
       }
     } else {
-      const et = rt - rocket.travel * 3;
+      const et = rt - rocket.travel;
       if (et > 2000) continue;
 
       const brightness = 1 - et / 2000;
@@ -455,7 +455,7 @@ export async function ledConfetti(schedule) {
   /** @type {LedRocket[]} */
   const rockets = [];
   for (const entry of schedule) {
-    const travel = entry.explosionTime / 3;
+    const travel = entry.explosionTime;
     const wraps = (0.55 + Math.random() * 0.35) * 4;
 
     /** @type {BurstPixel[]} */
