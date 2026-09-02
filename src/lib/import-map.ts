@@ -20,8 +20,8 @@ export interface ImportMap {
 }
 
 /**
- * Create an import map that reroutes bare imports in front-end .mjs files to
- * URLs with cache-breakers attached. That way all static assets can be marked
+ * Create an import map that reroutes the absolute /assets URL of every
+ * front-end .mjs file to the same URL with a cache-breaker attached. That way all static assets can be marked
  * as immutable, including JS, without worrying about stale cached versions of
  * transitive JS dependencies.
  */
