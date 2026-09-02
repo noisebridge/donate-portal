@@ -34,9 +34,15 @@ describe("AlertsPage", () => {
     expect(result).toContain("Latest Donation");
   });
 
-  test("should show NICE badge for amounts ending in 69 cents", async () => {
+  test("should show NICE badge for amounts containing 69", async () => {
     const charges = [makeCharge(4269)];
     const result = await (<AlertsPage alerts={charges} />);
+
+    expect(result).toContain("nice-badge");
+  });
+
+  test("should show NICE badge when the 69 is in the dollars", async () => {
+    const result = await (<AlertsPage alerts={[makeCharge(6900)]} />);
 
     expect(result).toContain("nice-badge");
   });
