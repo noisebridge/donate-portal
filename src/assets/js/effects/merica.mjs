@@ -17,6 +17,8 @@ const FLAG_RETRACT_DURATION = 1000;
 const FLAG_RIPPLE_PERIOD = 2.5;
 const FLAG_RIPPLE_AMPLITUDE = 8;
 const FLAG_WAVE_COUNT = 3;
+// Matches the .arnold-img width in assets/css/alerts.css
+const ARNOLD_WIDTH_FRACTION = 0.9;
 
 /**
  * @typedef {'idle' | 'arnold_enter' | 'arnold_hold' | 'eagle_swoop' | 'arnold_exit'} MericaPhase
@@ -192,7 +194,7 @@ function hideArnold() {
 function arnoldOffscreenDist() {
   const imgAspect = arnoldEl.naturalWidth / arnoldEl.naturalHeight;
   if (!imgAspect) return window.innerHeight;
-  return window.innerWidth / imgAspect;
+  return (window.innerWidth * ARNOLD_WIDTH_FRACTION) / imgAspect;
 }
 
 /**

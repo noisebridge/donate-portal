@@ -16,6 +16,8 @@ const LEAF_SPACING_MAX = 100;
 const LEAF_OFFSET_JITTER = 15;
 const LEAF_ANGLE_JITTER = 0.4;
 const TEXT_FONT_SIZE = 250;
+// Matches the .snoop-img width in assets/css/alerts.css
+const SNOOP_WIDTH_FRACTION = 0.9;
 
 /** @type {HTMLCanvasElement} */
 let canvas;
@@ -249,7 +251,7 @@ function drawLeaves(now) {
  */
 function positionSnoop(yCenter) {
   const imgAspect = snoopEl.naturalWidth / snoopEl.naturalHeight;
-  const drawWidth = window.innerWidth;
+  const drawWidth = window.innerWidth * SNOOP_WIDTH_FRACTION;
   const drawHeight = drawWidth / imgAspect;
   const top = yCenter - drawHeight / 2;
 
@@ -271,7 +273,7 @@ function hideSnoop() {
 function snoopOffscreenY() {
   const imgAspect = snoopEl.naturalWidth / snoopEl.naturalHeight;
   if (!imgAspect) return window.innerHeight + 200;
-  const drawHeight = window.innerWidth / imgAspect;
+  const drawHeight = (window.innerWidth * SNOOP_WIDTH_FRACTION) / imgAspect;
   return window.innerHeight + drawHeight / 2;
 }
 
