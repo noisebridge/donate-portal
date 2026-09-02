@@ -50,7 +50,8 @@ export function enforcePattern(input, pattern) {
 }
 
 /**
- * Install a validator on an input that requires the value to be above a min.
+ * Install a validator on an input that requires the value to be at least a
+ * min; a value exactly at the min passes.
  * Reads the `data-min` attribute on `input`.
  *
  * @param {HTMLInputElement} input
