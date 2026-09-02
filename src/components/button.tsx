@@ -43,7 +43,7 @@ export function Button({
           {icon}
         </span>
       )}
-      <span>{children}</span>
+      <span class="btn-label">{children}</span>
       {!!arrow && <span class="btn-arrow">{"\u2192"}</span>}
       {!!suffix && <span class="btn-suffix">{suffix as "safe"}</span>}
     </>

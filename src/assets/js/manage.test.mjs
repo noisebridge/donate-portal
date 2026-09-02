@@ -54,7 +54,10 @@ const TIER_FORM = `
 
 const CANCEL_FORM = `
   <form class="cancel-subscription-form" action="/cancel" method="post">
-    <button type="submit">Cancel membership</button>
+    <button type="submit" class="btn btn-ghost btn-danger">
+      <span class="btn-label">Cancel membership</span>
+      <span class="btn-suffix">×</span>
+    </button>
   </form>`;
 
 /** @param {string} body */
@@ -71,6 +74,13 @@ function loadPage(body) {
 function cancelButton() {
   return /** @type {HTMLButtonElement} */ (
     doc.querySelector(".cancel-subscription-form button")
+  );
+}
+
+/** @returns {HTMLSpanElement} */
+function cancelLabel() {
+  return /** @type {HTMLSpanElement} */ (
+    doc.querySelector(".cancel-subscription-form .btn-label")
   );
 }
 
@@ -139,7 +149,13 @@ describe("cancel button confirmation", () => {
 
   it("swallows the first click and asks for confirmation", () => {
     expect(click(cancelButton())).toBe(true);
-    expect(cancelButton().textContent).toBe("Press again to confirm");
+    expect(cancelLabel().textContent).toBe("Press again to confirm");
+  });
+
+  it("keeps the button suffix markup while armed", () => {
+    click(cancelButton());
+
+    expect(cancelButton().querySelector(".btn-suffix")?.textContent).toBe("×");
   });
 
   it("lets the second click through", () => {
@@ -153,7 +169,7 @@ describe("cancel button confirmation", () => {
 
     fire(cancelButton(), "blur");
 
-    expect(cancelButton().textContent).toBe("Cancel membership");
+    expect(cancelLabel().textContent).toBe("Cancel membership");
     expect(click(cancelButton())).toBe(true);
   });
 
@@ -165,7 +181,7 @@ describe("cancel button confirmation", () => {
       "pointerdown",
     );
 
-    expect(cancelButton().textContent).toBe("Cancel membership");
+    expect(cancelLabel().textContent).toBe("Cancel membership");
   });
 
   it("stays armed for a pointerdown inside the form", () => {
@@ -173,7 +189,7 @@ describe("cancel button confirmation", () => {
 
     fire(cancelButton(), "pointerdown");
 
-    expect(cancelButton().textContent).toBe("Press again to confirm");
+    expect(cancelLabel().textContent).toBe("Press again to confirm");
   });
 
   it("ignores a pointerdown while it is not armed", () => {
@@ -182,7 +198,7 @@ describe("cancel button confirmation", () => {
       "pointerdown",
     );
 
-    expect(cancelButton().textContent).toBe("Cancel membership");
+    expect(cancelLabel().textContent).toBe("Cancel membership");
   });
 });
 

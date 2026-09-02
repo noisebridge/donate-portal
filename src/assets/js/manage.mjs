@@ -41,21 +41,26 @@ function initCancelForm() {
     cancelForm.querySelector('button[type="submit"]')
   );
 
+  // Only the label span, so the icon/arrow/suffix markup survives.
+  const label = /** @type {HTMLSpanElement} */ (
+    cancelButton.querySelector(".btn-label")
+  );
+
   let confirmClicked = false;
-  const originalText = cancelButton.textContent;
+  const originalText = label.textContent;
 
   cancelButton.addEventListener("click", (event) => {
     if (!confirmClicked) {
       event.preventDefault();
       confirmClicked = true;
-      cancelButton.textContent = "Press again to confirm";
+      label.textContent = "Press again to confirm";
     }
   });
 
   const reset = () => {
     if (confirmClicked) {
       confirmClicked = false;
-      cancelButton.textContent = originalText;
+      label.textContent = originalText;
     }
   };
 
