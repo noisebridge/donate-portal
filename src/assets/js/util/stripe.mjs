@@ -63,7 +63,8 @@ function getStripeKey() {
 }
 
 /**
- * Loads the Stripe.js script and resolves with the Stripe constructor.
+ * Loads the Stripe.js script and resolves with a Stripe instance built from
+ * the page key.
  * Subsequent calls return the same promise.
  * @returns {Promise<Stripe>}
  */
