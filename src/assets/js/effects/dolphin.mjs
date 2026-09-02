@@ -269,7 +269,8 @@ export function showDolphinStatic() {
 
 /**
  * Show the typewriter text overlay, revealing one character at a time.
- * Returns a promise that resolves after the hold period, or rejects if cancelled.
+ * Returns a promise that resolves after the hold period. Cancelling resolves
+ * it early too, so callers re-check `typewriterCancelled` afterwards.
  * @returns {Promise<void>}
  */
 function showTypewriterText() {
