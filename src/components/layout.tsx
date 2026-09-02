@@ -16,7 +16,6 @@ export const layoutStyleBody = "html { visibility: hidden; opacity: 0; }";
 
 export type LayoutProps = PropsWithChildren<{
   title: string;
-  description?: string;
   script?: string;
   styles?: string;
   isAuthenticated: boolean;
