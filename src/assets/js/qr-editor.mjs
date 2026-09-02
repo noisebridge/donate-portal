@@ -1,6 +1,10 @@
 // @ts-check
 
-import { enforcePattern, validateMinAmount } from "./util/validate.mjs";
+import {
+  dollarPattern,
+  enforcePattern,
+  validateMinAmount,
+} from "./util/validate.mjs";
 
 /**
  * @param {string} text
@@ -145,7 +149,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("use-logo")
   );
 
-  enforcePattern(amountInput, /^(\d+(\.\d{0,2})?)?$/);
+  enforcePattern(amountInput, dollarPattern);
 
   validateMinAmount(amountInput);
 
