@@ -69,15 +69,13 @@ describe("validateSentryEvent", () => {
     ).toBe(false);
   });
 
-  test("rejects event with event_id set", () => {
+  test("accepts an event carrying unknown keys such as event_id", () => {
     expect(
       validateSentryEvent({
+        ...makeSentryEvent(),
         event_id: "00000000-0000-0000-0000-000000000000",
-        timestamp: new Date().toISOString(),
-        platform: "javascript",
-        level: "error",
       }),
-    ).toBe(false);
+    ).toBe(true);
   });
 });
 

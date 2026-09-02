@@ -86,10 +86,20 @@ describe("magic-link", () => {
       expect(result.code).toBe("abc123");
     });
 
-    test("returns null for invalid base64", () => {
+    test("returns null when the input does not decode to JSON", () => {
       const result = manager.decodeState("!!!invalid!!!");
 
       expect(result).toBeNull();
+    });
+
+    test("ignores characters that are not valid base64", () => {
+      const encoded = Buffer.from(
+        JSON.stringify({ email: "test@example.com", code: "abc123" }),
+      ).toString("base64");
+
+      const result = manager.decodeState(`!!${encoded}!!`);
+
+      expect(result?.email).toBe("test@example.com");
     });
 
     test("returns null for valid base64 but invalid JSON", () => {
