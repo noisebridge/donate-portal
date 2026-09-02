@@ -102,8 +102,8 @@ function easeIn(t) {
  * Evaluate a cubic bezier curve at parameter t.
  * Returns {x, y} in viewport coordinates.
  *
- * The eagle swoops from off-screen left, arcs up through the middle,
- * then exits off-screen right.
+ * The eagle swoops in from off-screen left, dips down through the middle,
+ * then climbs back out off-screen right.
  *
  * @param {number} t - Progress 0..1
  * @returns {{ x: number, y: number }}
@@ -242,7 +242,7 @@ function ensureFlagBuffer(w, h) {
 /**
  * Draw the flag SVG to the canvas with a per-column ripple effect.
  * Each 1px-wide column is drawn at a sine-wave Y offset.
- * Does NOT clear the canvas — draws additively on top of existing content.
+ * Clears the canvas first, so it owns every frame it draws.
  * @param {number} now - Timestamp from requestAnimationFrame
  * @param {number} flagY - Top Y position of the flag
  */
