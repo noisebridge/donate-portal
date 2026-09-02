@@ -99,8 +99,10 @@ const subscriptionManager = await import("~/managers/subscription");
 const { default: routes, maxRawBodyBytes } = await import("./routes");
 
 /**
- * Mirrors the plugin wiring in `src/server.ts`, minus the `listen()` call, so
- * routes can be exercised through `inject()`.
+ * Registers the plugins the routes depend on so they can be exercised through
+ * `inject()`. This is not the full `src/server.ts` wiring: helmet, rate
+ * limiting, the production cookie/CSRF options and the 1024-byte form body
+ * limit are all left out.
  */
 async function buildApp(): Promise<FastifyInstance> {
   const app = Fastify({ logger: false, bodyLimit: maxRawBodyBytes });

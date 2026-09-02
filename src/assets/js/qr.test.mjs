@@ -116,7 +116,7 @@ function typeAmount(value) {
 }
 
 describe("pages without the amount markup", () => {
-  it("wires up nothing and does not throw", () => {
+  it("skips the amount controls and does not throw", () => {
     const error = jest.spyOn(console, "error").mockImplementation(() => {});
 
     loadPage(

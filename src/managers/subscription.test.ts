@@ -476,7 +476,7 @@ describe("subscription", () => {
     });
   });
 
-  describe("processWebhook", () => {
+  describe("webhook handlers", () => {
     test("sends welcome email on subscription_create invoice", async () => {
       await subscriptionManager.handleInvoicePaid({
         type: "invoice.paid",
