@@ -8,7 +8,7 @@ import { formatAmount } from "./util/money-forms.mjs";
 /** @typedef {import("~/types/alerts").ChargeAlertMessage} ChargeAlertMessage */
 /** @typedef {import("~/types/alerts").MemberAlertMessage} MemberAlertMessage */
 /** @typedef {import("~/types/alerts").PongMessage} PongMessage */
-/** @typedef {import("~/types/alerts").WebsocketMessage} WebsocketMessage */
+/** @typedef {import("~/types/alerts").ServerMessage} ServerMessage */
 /** @typedef {import("~/types/cents").Cents} Cents */
 /** @typedef {import("~/lib/paths").Paths} Paths */
 
@@ -415,7 +415,7 @@ function connect() {
     resetPingTimeout();
   });
   ws.addEventListener("message", async (event) => {
-    const message = /** @type {WebsocketMessage} */ (JSON.parse(event.data));
+    const message = /** @type {ServerMessage} */ (JSON.parse(event.data));
     if (message.type === "ping") {
       resetPingTimeout();
       ws.send(

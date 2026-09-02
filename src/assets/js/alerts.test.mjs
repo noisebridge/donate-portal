@@ -13,7 +13,7 @@ import {
 import { Window } from "happy-dom";
 
 /** @typedef {import("~/types/alerts").AlertMessage} AlertMessage */
-/** @typedef {import("~/types/alerts").WebsocketMessage} WebsocketMessage */
+/** @typedef {import("~/types/alerts").ServerMessage} ServerMessage */
 
 /** Build a stub standing in for one of the canvas effect modules. */
 function effectStub() {
@@ -82,7 +82,7 @@ class FakeSocket {
     }
   }
 
-  /** @param {WebsocketMessage} message */
+  /** @param {ServerMessage} message */
   receive(message) {
     return this.emit("message", { data: JSON.stringify(message) });
   }

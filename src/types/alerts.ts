@@ -25,4 +25,8 @@ export interface PongMessage {
 }
 
 export type AlertMessage = ChargeAlertMessage | MemberAlertMessage;
-export type WebsocketMessage = AlertMessage | PingMessage;
+/** Sent by the server to connected clients. */
+export type ServerMessage = AlertMessage | PingMessage;
+/** Sent by clients back to the server. */
+export type ClientMessage = PongMessage;
+export type WebsocketMessage = ServerMessage | ClientMessage;

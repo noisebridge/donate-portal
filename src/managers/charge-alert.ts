@@ -13,6 +13,7 @@ import stripe from "~/services/stripe";
 import type {
   AlertMessage,
   ChargeAlertMessage,
+  ClientMessage,
   MemberAlertMessage,
   PingMessage,
 } from "~/types/alerts";
@@ -62,7 +63,7 @@ export class ChargeAlertManager {
 
     socket.on("message", (data) => {
       try {
-        const message = JSON.parse(String(data)) as { type: string };
+        const message = JSON.parse(String(data)) as ClientMessage;
         if (message.type === "pong") {
           const state = this.connections.get(socket);
           if (state) {
