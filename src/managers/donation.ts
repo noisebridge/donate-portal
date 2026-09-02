@@ -39,8 +39,8 @@ export function isGeneral(name?: string) {
 }
 
 /**
- * Create a one-time donation checkout session.
- * @param amountCents Donation amount
+ * Create a PaymentIntent for a one-time donation.
+ * @param amount Donation amount
  * @param name Product name
  * @param description Product description
  */
