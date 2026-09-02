@@ -16,12 +16,20 @@ const assetsDir = nodePath.join(
 // where we can't automatically add cache-breakers.
 const assetExtensions = new Set([".css", ".mjs", ".svg", ".png", ".apng"]);
 
+/** Bun test suites sit next to the client code but are not shipped. */
+function isTestFile(path: string): boolean {
+  return path.endsWith(".test.mjs");
+}
+
 function computeAssetHashes(dir: string): Map<string, string> {
   const hashes = new Map<string, string>();
 
   for (const entry of readdirSync(dir, { recursive: true })) {
     const relativePath = entry.toString();
     if (!assetExtensions.has(nodePath.extname(relativePath))) {
+      continue;
+    }
+    if (isTestFile(relativePath)) {
       continue;
     }
 
@@ -48,5 +56,6 @@ export default fp(async (fastify) => {
     preCompressed: config.production,
     maxAge: "1y",
     immutable: true,
+    allowedPath: (pathName) => !isTestFile(pathName),
   });
 });
