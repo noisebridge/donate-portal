@@ -15,6 +15,22 @@ const CHROME_RE =
 const GECKO_RE =
   /^\s*(.*?)(?:\((.*?)\))?(?:^|@)?((?:file|https?|blob|chrome|webpack|resource|moz-extension).*?:\/.*?|\[native code\]|[^@]*(?:bundle|\d+\.js))(?::(\d+))?(?::(\d+))?\s*$/i;
 
+// Limits from sentryEventSchema in ~/types/error-reporting. The server
+// answers 400 and drops the whole report if anything exceeds them.
+const MAX_TYPE_LENGTH = 256;
+const MAX_VALUE_LENGTH = 2048;
+const MAX_FRAME_STRING_LENGTH = 1024;
+const MAX_FRAMES = 100;
+
+/**
+ * @param {string} value
+ * @param {number} max
+ * @returns {string}
+ */
+function truncate(value, max) {
+  return value.length > max ? value.slice(0, max) : value;
+}
+
 /**
  * Parse one line of a stacktrace.
  * @param {string} line
@@ -24,11 +40,13 @@ function parseLine(line) {
   const chrome = CHROME_RE.exec(line);
   if (chrome) {
     return {
-      filename:
+      filename: truncate(
         chrome[2] && chrome[2].indexOf("address at ") === 0
           ? chrome[2].slice("address at ".length)
           : chrome[2] || "",
-      function: chrome[1] || "?",
+        MAX_FRAME_STRING_LENGTH,
+      ),
+      function: truncate(chrome[1] || "?", MAX_FRAME_STRING_LENGTH),
       lineno: chrome[3] ? Number(chrome[3]) : null,
       colno: chrome[4] ? Number(chrome[4]) : null,
     };
@@ -37,8 +55,8 @@ function parseLine(line) {
   const gecko = GECKO_RE.exec(line);
   if (gecko) {
     return {
-      filename: gecko[3] || "",
-      function: gecko[1] || "?",
+      filename: truncate(gecko[3] || "", MAX_FRAME_STRING_LENGTH),
+      function: truncate(gecko[1] || "?", MAX_FRAME_STRING_LENGTH),
       lineno: gecko[4] ? Number(gecko[4]) : null,
       colno: gecko[5] ? Number(gecko[5]) : null,
     };
@@ -73,9 +91,13 @@ function parseStackTrace(error) {
   }
 
   return {
-    type: error.name || "Error",
-    value: error.message.split("\n")[0] || "No error message",
-    stacktrace: { frames: frames.reverse() },
+    type: truncate(error.name || "Error", MAX_TYPE_LENGTH),
+    value: truncate(
+      error.message.split("\n")[0] || "No error message",
+      MAX_VALUE_LENGTH,
+    ),
+    // Innermost frames go last, so keep the tail when there are too many.
+    stacktrace: { frames: frames.reverse().slice(-MAX_FRAMES) },
   };
 }
 

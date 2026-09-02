@@ -139,6 +139,18 @@ describe("sendErrorReport", () => {
     expect(reportedFrames()).toEqual([]);
   });
 
+  it("clips oversized messages and stacks to the server limits", () => {
+    const frameLine = `    at fn (https://example.com/${"a".repeat(2000)}.js:1:1)`;
+    const stack = `Error: boom\n${Array(150).fill(frameLine).join("\n")}`;
+
+    errorReporting.sendErrorReport(errorWith("Error", "x".repeat(5000), stack));
+
+    const exception = reportedEvent().exception.values[0];
+    expect(exception?.value.length).toBe(2048);
+    expect(exception?.stacktrace.frames.length).toBe(100);
+    expect(exception?.stacktrace.frames[0]?.filename.length).toBe(1024);
+  });
+
   it("logs when the beacon is refused", () => {
     sendBeacon.mockReturnValue(false);
     const error = jest.spyOn(console, "error").mockImplementation(() => {});
