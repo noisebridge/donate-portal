@@ -113,6 +113,10 @@ export async function stopMatrix() {
  * @param {number} now
  */
 function animate(now) {
+  // A frame may already be queued when stopMatrix runs; painting it would
+  // leave a faint fade layer on the canvas it just cleared.
+  if (!animating) return;
+
   const dt = now - lastFrameTime;
   lastFrameTime = now;
 
