@@ -437,7 +437,9 @@ export function showMericaFlag() {
 }
 
 /**
- * Stop the merica effect immediately.
+ * Stop the merica effect, resolving once the flag has retracted.
+ * Callers share the canvas, and drawFlag clears it on every frame, so
+ * returning early would let the next effect draw into frames we then wipe.
  */
 export async function stopMerica() {
   phase = "idle";
@@ -450,6 +452,10 @@ export async function stopMerica() {
     flagDropping = false;
     flagExitStart = performance.now();
     ensureAnimating();
+    // A little past the animation so the final clearing frame has run.
+    await new Promise((resolve) =>
+      setTimeout(resolve, FLAG_RETRACT_DURATION + 50),
+    );
   } else if (!flagVisible) {
     animating = false;
   }
