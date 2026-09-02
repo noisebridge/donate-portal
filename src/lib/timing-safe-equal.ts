@@ -1,9 +1,10 @@
 import crypto from "node:crypto";
 
 /**
- * Compare two strings in constant time. Hashing both sides gives
- * equal-length buffers for timingSafeEqual regardless of input lengths,
- * so neither length nor content leaks through timing.
+ * Compare two strings without leaking their contents through timing.
+ * Hashing both sides gives timingSafeEqual equal-length buffers whatever
+ * the inputs were, so content is safe; hashing time still grows with input
+ * length, so length is not hidden.
  */
 export function timingSafeStringEqual(a: string, b: string) {
   const aDigest = crypto.createHash("sha256").update(a).digest();
