@@ -83,10 +83,6 @@ function parseStackTrace(error) {
       continue;
     }
 
-    if (!frame.function && frame.lineno) {
-      frame.function = "?";
-    }
-
     frames.push(frame);
   }
 
