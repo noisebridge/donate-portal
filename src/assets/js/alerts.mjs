@@ -487,8 +487,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     if (newIsTop) {
       await ledHyperdrive();
-    } else if (activeEffect !== "confetti") {
-      await effects[activeEffect].ledEffect();
+    } else {
+      await effects[activeEffect].ledEffect?.();
     }
   }
 

@@ -645,5 +645,6 @@ export const confettiEffect = {
     launchConfetti(amount, showHyperdrive),
   stop: stopConfetti,
   showStatic: null,
-  ledEffect: ledConfetti,
+  // ledConfetti needs the canvas rocket schedule, so it only runs from show()
+  ledEffect: null,
 };

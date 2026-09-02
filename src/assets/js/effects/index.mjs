@@ -8,7 +8,8 @@
  * @property {(amount: Cents, showHyperdrive: boolean) => Promise<void>} show
  * @property {() => Promise<void>} stop
  * @property {(() => void) | null} showStatic
- * @property {(...args: never[]) => Promise<void>} ledEffect
+ * @property {(() => Promise<void>) | null} ledEffect - null when the effect
+ *   drives its LEDs itself and has no standalone programme
  */
 
 import { confettiEffect } from "./confetti.mjs";
