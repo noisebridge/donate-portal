@@ -93,7 +93,7 @@ export interface QRCodeModel {
   /**
    * 2D array of modules (the individual squares in a QR code).
    * Each boolean indicates whether the module is foreground (true) or
-   * background (false). Access as modules[x][y].
+   * background (false). Access as modules[row][col].
    */
   modules: boolean[][];
   /** The number of modules along each side of the QR code grid */
@@ -1243,7 +1243,7 @@ class QRCode {
 
     for (let y = 0; y < length; y++) {
       for (let x = 0; x < length; x++) {
-        const module = modules[x]?.[y];
+        const module = modules[y]?.[x];
         if (module) {
           let px: number | string = x * xsize + options.padding * xsize;
           let py: number | string = y * ysize + options.padding * ysize;

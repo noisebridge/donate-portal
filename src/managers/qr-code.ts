@@ -42,7 +42,7 @@ function classifyColor(r: number, g: number, b: number): BMPColor | null {
 /**
  * Decode a BMP file into a 2D array of color strings.
  * @param filePath Path to the BMP file
- * @returns 2D array of `BMPColor`s
+ * @returns 2D array of `BMPColor`s, indexed as [row][col]
  */
 function decodeBMP(filePath: string): BMPColor[][] {
   const buffer = readFileSync(filePath);
@@ -50,9 +50,9 @@ function decodeBMP(filePath: string): BMPColor[][] {
 
   const { width, height, data } = decoded;
 
-  const result: BMPColor[][] = new Array(width);
-  for (let x = 0; x < width; x++) {
-    result[x] = new Array<BMPColor>(height).fill("transparent");
+  const result: BMPColor[][] = new Array(height);
+  for (let y = 0; y < height; y++) {
+    result[y] = new Array<BMPColor>(width).fill("transparent");
   }
 
   // BMP data is stored row by row (y * width + x)
@@ -65,7 +65,7 @@ function decodeBMP(filePath: string): BMPColor[][] {
       const r = data[i + 3] ?? 0;
 
       // biome-ignore lint/style/noNonNullAssertion: YOLO
-      result[x]![y] = classifyColor(r, g, b) ?? "white";
+      result[y]![x] = classifyColor(r, g, b) ?? "white";
     }
   }
 
@@ -136,9 +136,9 @@ function addInsert(originalQRCode: QRCode) {
     return null;
   }
 
-  // insert is indexed as [x][y], so insert.length is width (columns)
-  const width = QR_INSERT.length;
-  const height = QR_INSERT[0]?.length;
+  // insert is indexed as [row][col], so insert.length is height (rows)
+  const height = QR_INSERT.length;
+  const width = QR_INSERT[0]?.length;
   if (!width || !height) {
     log.error("Invalid dimensions");
     return null;
@@ -154,18 +154,18 @@ function addInsert(originalQRCode: QRCode) {
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
       // biome-ignore lint/style/noNonNullAssertion: YOLO
-      const color = QR_INSERT[x]![y]!;
+      const color = QR_INSERT[y]![x]!;
 
       switch (color) {
         case "transparent":
           continue;
         case "white":
           // biome-ignore lint/style/noNonNullAssertion: YOLO
-          qrCode.qrcode.modules[x + startCol]![y + startRow]! = false;
+          qrCode.qrcode.modules[y + startRow]![x + startCol]! = false;
           break;
         case "black":
           // biome-ignore lint/style/noNonNullAssertion: YOLO
-          qrCode.qrcode.modules[x + startCol]![y + startRow]! = true;
+          qrCode.qrcode.modules[y + startRow]![x + startCol]! = true;
           break;
       }
     }

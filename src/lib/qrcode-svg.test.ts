@@ -18,6 +18,38 @@ describe("QRCode", () => {
       expect(svg).toMatch(/<svg[\s\S]+<\/svg>/);
       expect(svg).toMatch(/<rect[\s\S]+/);
     });
+
+    test("draws modules at [row][col] rather than transposed", () => {
+      const qrCode = new QRCode({ content: "orientation", padding: 0 });
+      const { modules, moduleCount } = qrCode.qrcode;
+
+      // Find a cell that differs from its mirror, so the two orientations
+      // are distinguishable in the output.
+      let asymmetric: [number, number] | null = null;
+      for (let row = 0; row < moduleCount && !asymmetric; row++) {
+        for (let col = 0; col < moduleCount; col++) {
+          if (modules[row]?.[col] !== modules[col]?.[row]) {
+            asymmetric = [row, col];
+            break;
+          }
+        }
+      }
+      expect(asymmetric).not.toBeNull();
+
+      const [row, col] = asymmetric as [number, number];
+      const [darkRow, darkCol] = modules[row]?.[col] ? [row, col] : [col, row];
+
+      // One module per unit, so SVG coordinates are the module indices.
+      const svg = new QRCode({
+        content: "orientation",
+        padding: 0,
+        width: moduleCount,
+        height: moduleCount,
+      }).svg();
+
+      expect(svg).toContain(`<rect x="${darkCol}" y="${darkRow}"`);
+      expect(svg).not.toContain(`<rect x="${darkRow}" y="${darkCol}"`);
+    });
   });
 
   describe("padding options", () => {
