@@ -672,7 +672,10 @@ export default async function routes(fastify: FastifyInstance) {
     const { name, description, amount } = request.query;
 
     const amountCents = parseToCents(amount ?? "");
-    if (amountCents === null) {
+    if (
+      amountCents === null ||
+      amountCents.cents < donationManager.MINIMUM_AMOUNT.cents
+    ) {
       return reply.redirect(paths.index({ error: "InvalidDonationAmount" }));
     }
 

@@ -333,6 +333,16 @@ describe("routes", () => {
       expect(response.headers.location).toBe("/?error=InvalidDonationAmount");
     });
 
+    test("redirects to the index for an amount below the minimum", async () => {
+      const response = await app.inject({
+        method: "GET",
+        url: "/qr?amount=1",
+      });
+
+      expect(response.statusCode).toBe(302);
+      expect(response.headers.location).toBe("/?error=InvalidDonationAmount");
+    });
+
     test("rejects an over-long name", async () => {
       const response = await app.inject({
         method: "GET",
