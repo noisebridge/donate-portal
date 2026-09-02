@@ -153,9 +153,9 @@ beforeAll(async () => {
   };
 
   // The queue drain and the ping watchdog are scheduled through `window`, so
-  // stubbing these two lets the tests run the callbacks on demand. The matching
-  // `clearInterval`/`clearTimeout` calls are made against the real globals and
-  // are harmless no-ops on these fake ids.
+  // stubbing these lets the tests run the callbacks on demand. The matching
+  // clear calls are stubbed too, to keep the fake ids away from the real
+  // timers running in this process.
   /** @type {any} */ (happyWindow).setInterval = (
     /** @type {() => unknown} */ fn,
     /** @type {number} */ ms,
@@ -164,6 +164,8 @@ beforeAll(async () => {
     /** @type {() => unknown} */ fn,
     /** @type {number} */ ms,
   ) => windowTimeouts.push({ fn, ms });
+  /** @type {any} */ (happyWindow).clearInterval = () => {};
+  /** @type {any} */ (happyWindow).clearTimeout = () => {};
 
   await import("./alerts.mjs");
 });
@@ -517,17 +519,13 @@ describe("connection loss", () => {
 
   it("reconnects with a backing-off delay", async () => {
     const before = sockets.length;
-    /** @type {{ fn: () => unknown, ms: number }[]} */
-    const retries = [];
-    const realSetTimeout = globalThis.setTimeout;
-    /** @type {any} */ (globalThis).setTimeout = (
-      /** @type {() => unknown} */ fn,
-      /** @type {number} */ ms,
-    ) => retries.push({ fn, ms });
+    // The retry is scheduled through window.setTimeout, so read it from the
+    // stubbed queue rather than the real timer.
+    const retriesBefore = windowTimeouts.length;
 
     await socket().close();
-    globalThis.setTimeout = realSetTimeout;
 
+    const retries = windowTimeouts.slice(retriesBefore);
     expect(retries).toHaveLength(1);
     retries[0]?.fn();
     expect(sockets).toHaveLength(before + 1);

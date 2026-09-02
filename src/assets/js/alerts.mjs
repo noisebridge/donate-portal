@@ -136,7 +136,7 @@ async function enqueueAlert(alert) {
 
     const alert = alertQueue.shift();
     if (!alert) {
-      clearInterval(queueDrainInterval);
+      window.clearInterval(queueDrainInterval);
       queueDrainInterval = null;
       return;
     }
@@ -403,7 +403,7 @@ function connect() {
 
   function resetPingTimeout() {
     if (pingTimeout) {
-      clearTimeout(pingTimeout);
+      window.clearTimeout(pingTimeout);
     }
     pingTimeout = window.setTimeout(() => {
       ws.close();
@@ -439,10 +439,10 @@ function connect() {
   });
   ws.addEventListener("close", () => {
     if (pingTimeout) {
-      clearTimeout(pingTimeout);
+      window.clearTimeout(pingTimeout);
     }
 
-    setTimeout(() => {
+    window.setTimeout(() => {
       reconnectDelay = Math.min(reconnectDelay * 2, MAX_RECONNECT_DELAY);
       connect();
     }, reconnectDelay);
