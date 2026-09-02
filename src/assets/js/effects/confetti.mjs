@@ -127,14 +127,14 @@ function particleRadius(p) {
  * @returns {number}
  */
 function cellKey(cx, cy) {
-  // Cantor-style pairing that handles negatives via offset
+  // Pack both coordinates into one int; the offset keeps negatives positive
   const a = cx + 0x8000;
   const b = cy + 0x8000;
   return (a << 16) | b;
 }
 
 /**
- * Build the spatial hash grid from the current unsettled particles.
+ * Build the spatial hash grid from all current particles, settled or not.
  */
 function buildSpatialGrid() {
   spatialGrid.clear();
@@ -154,7 +154,8 @@ function buildSpatialGrid() {
 
 /**
  * Run collision detection using the spatial grid.
- * Only iterates neighbor cells with higher keys to avoid duplicate pair checks.
+ * Only iterates a fixed half of the 8 neighbor cells so each pair of cells is
+ * visited once.
  */
 function collideViaSpatialGrid() {
   for (const [key, bucket] of spatialGrid) {
