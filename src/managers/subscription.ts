@@ -30,7 +30,7 @@ export const MINIMUM_AMOUNT: Cents = { cents: 500 };
 export const PRODUCT_ID = "monthly_donation";
 
 /**
- * Get customer and their active subscription by email
+ * Get customer and their active or past-due subscription by email
  */
 export async function get(email: string): Promise<SubscriptionInfo> {
   const customers = await stripe.customers.list({
@@ -174,7 +174,7 @@ async function updateSubscription(
 }
 
 /**
- * Cancel an active subscription for the given email.
+ * Cancel an active or past-due subscription for the given email.
  */
 export async function cancel(email: string): Promise<CancelResult> {
   const { customer, subscription } = await get(email);
@@ -338,7 +338,7 @@ function changedToPastDue(
   previousAttributes?: Partial<Stripe.Subscription>,
 ): boolean {
   if (!previousAttributes?.status) {
-    // Newly created - no previous attributes available
+    // The update did not touch status, so it cannot be a change to past_due
     return false;
   }
 
