@@ -9,7 +9,11 @@ import {
 } from "bun:test";
 import type { FastifyRequest } from "fastify";
 import config from "~/config";
-import type { CspReport, SentryEvent } from "~/types/error-reporting";
+import {
+  type CspReport,
+  type SentryEvent,
+  sentryEventSchema,
+} from "~/types/error-reporting";
 import {
   reportBackend,
   reportCspViolation,
@@ -192,6 +196,21 @@ describe("error reporting", () => {
       expect(result).toBe(true);
       expect(fetchSpy).toHaveBeenCalledTimes(1);
     });
+
+    test("clips a long request URL in both tag and context", async () => {
+      const fakeRequest = {
+        url: `/${"a".repeat(2048)}`,
+        method: "GET",
+        headers: {},
+      } as unknown as FastifyRequest;
+
+      await reportBackend(new Error("test"), fakeRequest);
+
+      const body = JSON.parse(String(fetchSpy.mock.calls[0]?.[1]?.body));
+      expect(body.tags.url).toHaveLength(256);
+      expect(body.contexts.request.url).toHaveLength(1024);
+      expect(sentryEventSchema.safeParse(body).success).toBe(true);
+    });
   });
 
   describe("reportCspViolation", () => {
@@ -199,6 +218,15 @@ describe("error reporting", () => {
       const result = await reportCspViolation(makeCspReport());
       expect(result).toBe(true);
       expect(fetchSpy).toHaveBeenCalledTimes(1);
+    });
+
+    test("clips long tag values so the event stays schema-valid", async () => {
+      await reportCspViolation(
+        makeCspReport({ "original-policy": "x".repeat(4096) }),
+      );
+
+      const body = JSON.parse(String(fetchSpy.mock.calls[0]?.[1]?.body));
+      expect(sentryEventSchema.safeParse(body).success).toBe(true);
     });
 
     test("ignores violations raised by browser extensions", async () => {

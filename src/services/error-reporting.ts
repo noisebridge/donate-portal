@@ -12,6 +12,19 @@ import {
 
 const log = baseLogger.child({ module: "error-reporting" });
 
+/** Longest tag value sentryEventSchema accepts. */
+const MAX_TAG_LENGTH = 256;
+/** Longest string context value sentryEventSchema accepts. */
+const MAX_CONTEXT_LENGTH = 1024;
+
+function tagValue(value: string | number): string {
+  return String(value).slice(0, MAX_TAG_LENGTH);
+}
+
+function contextValue(value: string): string {
+  return value.slice(0, MAX_CONTEXT_LENGTH);
+}
+
 export function validateSentryEvent(raw: unknown): raw is SentryEvent {
   const result = sentryEventSchema.safeParse(raw);
   return result.success;
@@ -52,11 +65,11 @@ export async function reportBackend(
   };
 
   if (request) {
-    tags["url"] = request.url;
+    tags["url"] = tagValue(request.url);
     tags["method"] = request.method;
     contexts["request"] = {
       method: request.method,
-      url: request.url,
+      url: contextValue(request.url),
       contentType: request.headers["content-type"] ?? "unknown",
       contentLength: request.headers["content-length"] ?? "unknown",
     };
@@ -88,7 +101,7 @@ export async function reportCspViolation({
     report["effective-directive"] || report["violated-directive"];
 
   const tags: Record<string, string> = {
-    "csp.directive": directive,
+    "csp.directive": tagValue(directive),
   };
 
   if (config.gitCommit) {
@@ -100,11 +113,11 @@ export async function reportCspViolation({
       continue;
     }
 
-    tags[`csp.${key.replace(/-/g, "_")}`] = String(value);
+    tags[`csp.${key.replace(/-/g, "_")}`] = tagValue(value);
   }
 
   if (report["document-uri"]) {
-    tags["url"] = report["document-uri"];
+    tags["url"] = tagValue(report["document-uri"]);
   }
 
   const frames: SentryFrame[] = [];
