@@ -363,9 +363,10 @@ function hyperdriveLedFn(index, num_leds, timestamp, data) {
 
 /**
  * Dolphin: ripple expands outward from a random origin, undulating
- * between blue and white. A 1D slice of a 2D water-ripple model:
- * gaussian envelope around an outward-moving wavefront, cosine
- * oscillation, global decay, and suppression ahead of the front.
+ * between blue and white. A 1D slice of a 2D water-ripple model: a
+ * cosine oscillation under a one-sided envelope that suppresses
+ * everything ahead of the outward-moving front with a narrow gaussian
+ * and trails off exponentially behind it.
  * @param {number} index
  * @param {number} num_leds
  * @param {number} timestamp
