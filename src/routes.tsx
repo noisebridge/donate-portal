@@ -609,7 +609,13 @@ export default async function routes(fastify: FastifyInstance) {
   });
 
   fastify.post<{
-    Body: { name?: string; description?: string };
+    // Untrusted form data; validateAmountFormData narrows it below.
+    Body: {
+      "amount-dollars"?: string;
+      "custom-amount"?: string;
+      name?: string;
+      description?: string;
+    };
   }>(
     paths.donate(),
     { ...donationRateLimit, preHandler: fastify.csrfProtection },
