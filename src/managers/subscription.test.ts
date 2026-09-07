@@ -197,9 +197,57 @@ describe("subscription", () => {
       if (result.success) {
         expect(result.clientSecret).toBe("cs_secret_123");
       }
-      expect(mocks.customersCreate).toHaveBeenCalledWith({
-        email: "new@example.com",
+      expect(mocks.customersCreate).toHaveBeenCalledWith(
+        { email: "new@example.com" },
+        expect.objectContaining({ idempotencyKey: expect.any(String) }),
+      );
+    });
+
+    test("concurrent duplicate subscribes create only one customer", async () => {
+      const created: Stripe.Customer[] = [];
+      mocks.customersList.mockImplementation(async () => ({
+        data: [...created],
+      }));
+      mocks.customersCreate.mockImplementation(async () => {
+        const customer = makeCustomer({ id: "cus_new" });
+        created.push(customer);
+        return customer;
       });
+
+      const results = await Promise.all([
+        subscriptionManager.subscribe("new@example.com", { cents: 1000 }),
+        subscriptionManager.subscribe("new@example.com", { cents: 1000 }),
+      ]);
+
+      for (const result of results) {
+        expect(result.success).toBe(true);
+      }
+      // Without per-email serialization both requests see "no customer"
+      // and each creates one, which permanently breaks get() with
+      // "Multiple customers found" and double-charges the user.
+      expect(mocks.customersCreate).toHaveBeenCalledTimes(1);
+    });
+
+    test("serializes concurrent subscribes for the same email with different casing", async () => {
+      const created: Stripe.Customer[] = [];
+      mocks.customersList.mockImplementation(async () => ({
+        data: [...created],
+      }));
+      mocks.customersCreate.mockImplementation(async () => {
+        const customer = makeCustomer({ id: "cus_new" });
+        created.push(customer);
+        return customer;
+      });
+
+      const results = await Promise.all([
+        subscriptionManager.subscribe("New@Example.com", { cents: 1000 }),
+        subscriptionManager.subscribe("new@example.com", { cents: 1000 }),
+      ]);
+
+      for (const result of results) {
+        expect(result.success).toBe(true);
+      }
+      expect(mocks.customersCreate).toHaveBeenCalledTimes(1);
     });
 
     test("creates subscription with client secret for existing customer without subscription", async () => {
@@ -391,6 +439,38 @@ describe("subscription", () => {
       const result = await subscriptionManager.cancel("test@example.com");
 
       expect(result.success).toBe(true);
+    });
+
+    test("concurrent duplicate cancels cancel only once", async () => {
+      const canceled: string[] = [];
+      let listCalls = 0;
+      mocks.customersList.mockResolvedValue({ data: [makeCustomer()] });
+      mocks.subscriptionsList.mockImplementation(async () => {
+        listCalls += 1;
+        // Each get() lists active subs (odd call) then past-due subs (even
+        // call). Once the first cancel completes there is nothing left.
+        if (canceled.length > 0 || listCalls > 2) {
+          return { data: [] };
+        }
+        return { data: listCalls === 1 ? [makeSubscription()] : [] };
+      });
+      mocks.subscriptionsCancel.mockImplementation(async () => {
+        canceled.push("sub_1");
+        return {};
+      });
+
+      const [first, second] = await Promise.all([
+        subscriptionManager.cancel("test@example.com"),
+        subscriptionManager.cancel("test@example.com"),
+      ]);
+
+      expect(first.success).toBe(true);
+      expect(second.success).toBe(false);
+      if (!second.success) {
+        expect(second.error).toBe("NoSubscription");
+      }
+      expect(mocks.subscriptionsCancel).toHaveBeenCalledTimes(1);
+      expect(sendEmail).toHaveBeenCalledTimes(1);
     });
   });
 

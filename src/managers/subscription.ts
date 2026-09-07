@@ -1,6 +1,8 @@
+import crypto from "node:crypto";
 import type Stripe from "stripe";
 import config from "~/config";
 import type { ErrorCodeKey } from "~/lib/error-codes";
+import { withMutex } from "~/lib/keyed-mutex";
 import baseLogger from "~/lib/logger";
 import paths from "~/lib/paths";
 import * as emailManager from "~/managers/email";
@@ -28,6 +30,19 @@ const log = baseLogger.child({ module: "subscription" });
 
 export const MINIMUM_AMOUNT: Cents = { cents: 500 };
 export const PRODUCT_ID = "monthly_donation";
+
+/**
+ * Lock key that serializes subscription mutations per user. `subscribe` and
+ * `cancel` both read state from Stripe and then act on it; without
+ * serialization, two concurrent requests (double-click, retry while the
+ * first is still in flight, ...) each see "no customer" and both create
+ * one, which permanently breaks `get()` and double-charges the user.
+ * The lock is in-process only, which is safe while a single process
+ * serves the entire service.
+ */
+function lockKey(email: string): string {
+  return email.trim().toLowerCase();
+}
 
 /**
  * Get customer and their active or past-due subscription by email
@@ -85,10 +100,22 @@ export async function subscribe(
     return { success: false, error: "InvalidMonthlyDonationAmount" };
   }
 
+  return withMutex(lockKey(email), () => subscribeLocked(email, amount));
+}
+
+async function subscribeLocked(
+  email: string,
+  amount: Cents,
+): Promise<SubscribeResult> {
   const { customer: existingCustomer, subscription: existingSubscription } =
     await get(email);
   const customer =
-    existingCustomer ?? (await stripe.customers.create({ email }));
+    existingCustomer ??
+    (await stripe.customers.create(
+      { email },
+      // Guards against transport-level retries duplicating the customer.
+      { idempotencyKey: crypto.randomUUID() },
+    ));
   if (!existingSubscription) {
     return await createSubscription(customer, amount);
   }
@@ -100,25 +127,28 @@ async function createSubscription(
   customer: Stripe.Customer,
   amount: Cents,
 ): Promise<SubscribeResult> {
-  const session = await stripe.checkout.sessions.create({
-    customer: customer.id,
-    mode: "subscription",
-    ui_mode: "embedded_page",
-    line_items: [
-      {
-        price_data: {
-          currency: "usd",
-          product: PRODUCT_ID,
-          unit_amount: amount.cents,
-          recurring: {
-            interval: "month",
+  const session = await stripe.checkout.sessions.create(
+    {
+      customer: customer.id,
+      mode: "subscription",
+      ui_mode: "embedded_page",
+      line_items: [
+        {
+          price_data: {
+            currency: "usd",
+            product: PRODUCT_ID,
+            unit_amount: amount.cents,
+            recurring: {
+              interval: "month",
+            },
           },
+          quantity: 1,
         },
-        quantity: 1,
-      },
-    ],
-    return_url: `${config.baseUrl}${paths.manage({ info: "SubscriptionCreated" })}`,
-  });
+      ],
+      return_url: `${config.baseUrl}${paths.manage({ info: "SubscriptionCreated" })}`,
+    },
+    { idempotencyKey: crypto.randomUUID() },
+  );
 
   if (!session.client_secret) {
     return { success: false, error: "CreateError" };
@@ -177,6 +207,10 @@ async function updateSubscription(
  * Cancel an active or past-due subscription for the given email.
  */
 export async function cancel(email: string): Promise<CancelResult> {
+  return withMutex(lockKey(email), () => cancelLocked(email));
+}
+
+async function cancelLocked(email: string): Promise<CancelResult> {
   const { customer, subscription } = await get(email);
   if (!customer) {
     return { success: false, error: "NoCustomer" };
