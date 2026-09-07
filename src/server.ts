@@ -71,7 +71,6 @@ if (!config.disableRateLimit) {
     max: 256,
     timeWindow: "1 minute",
     allowList: config.rateLimitAllowList,
-    keyGenerator: (request) => request.ip,
     errorResponseBuilder: (_request, _context) => new RateLimitError(),
   });
 }
