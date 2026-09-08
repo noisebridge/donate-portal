@@ -346,10 +346,8 @@ export function initCheckoutForm(form, type) {
 
     const stopLoading = startLoading(submitBtn);
 
-    /** @type {Response} */
-    let response;
     try {
-      response = await fetch(form.action, {
+      const response = await fetch(form.action, {
         method: "POST",
         headers: {
           Accept: "application/json",
@@ -357,35 +355,35 @@ export function initCheckoutForm(form, type) {
         body: new URLSearchParams(Array.from(new FormData(form).entries())),
         signal: AbortSignal.timeout(10000),
       });
-    } catch (e) {
-      console.error("Failed to initiate donation:", e);
-      stopLoading();
 
-      if (e instanceof Error) {
-        sendErrorReport(e);
+      if (!response.ok) {
+        console.error(
+          `Error response from ${form.action}:`,
+          response.statusText,
+        );
+        return;
       }
-      return;
-    }
 
-    if (!response.ok) {
-      console.error(`Error response from ${form.action}:`, response.statusText);
-      stopLoading();
-      return;
-    }
-
-    const data = await response.json();
-    if (isRedirectData(data)) {
-      window.location.href = data.redirect;
-    } else if (isCheckoutData(data)) {
-      if (type === "donate") {
-        await initDonationCheckout(data.clientSecret, data.emailAddress);
-      } else if (type === "subscribe") {
-        await initSubscriptionCheckout(data.clientSecret);
+      const data = await response.json();
+      if (isRedirectData(data)) {
+        window.location.href = data.redirect;
+      } else if (isCheckoutData(data)) {
+        if (type === "donate") {
+          await initDonationCheckout(data.clientSecret, data.emailAddress);
+        } else if (type === "subscribe") {
+          await initSubscriptionCheckout(data.clientSecret);
+        }
+      } else {
+        console.error("Response contains invalid data:", data);
       }
-    } else {
-      console.error("Response contains invalid data:", data);
-    }
+    } catch (err) {
+      console.error("Failed to initiate donation:", err);
 
-    stopLoading();
+      if (err instanceof Error) {
+        sendErrorReport(err);
+      }
+    } finally {
+      stopLoading();
+    }
   });
 }

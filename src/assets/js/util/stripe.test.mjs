@@ -381,6 +381,25 @@ describe("initCheckoutForm", () => {
     error.mockRestore();
   });
 
+  it("restores the button when the response body is unreadable", async () => {
+    const error = jest.spyOn(console, "error").mockImplementation(() => {});
+    /** @type {any} */ (globalThis).fetch = jest.fn(async () => ({
+      ok: true,
+      statusText: "OK",
+      json: async () => {
+        throw new Error("unexpected end of JSON input");
+      },
+    }));
+
+    stripe.initCheckoutForm(form(), "donate");
+    fireSubmit(form());
+    await flush();
+
+    expect(sendBeacon).toHaveBeenCalled();
+    expect(submitButton().disabled).toBe(false);
+    error.mockRestore();
+  });
+
   it("follows a redirect response", async () => {
     await submitCheckout("donate", { redirect: "/auth" });
 
