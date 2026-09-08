@@ -422,7 +422,8 @@ function connect() {
         JSON.stringify(/** @satisfies {PongMessage} */ ({ type: "pong" })),
       );
 
-      for (const alert of message.history.reverse()) {
+      // Already newest-first, which is the order the queue drains in.
+      for (const alert of message.history) {
         if (seenAlert(alert)) {
           continue;
         }

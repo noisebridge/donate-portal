@@ -294,6 +294,37 @@ describe("the ping handshake", () => {
     expect(amountEl().dataset["amount"]).toBe("777");
   });
 
+  it("shows missed history newest-first", async () => {
+    historyList().innerHTML = "";
+    const newest = charge({
+      id: "ch_newest",
+      cents: 300,
+      date: "2026-03-01T00:00:00.000Z",
+    });
+    const middle = charge({
+      id: "ch_middle",
+      cents: 200,
+      date: "2026-02-01T00:00:00.000Z",
+    });
+    const oldest = charge({
+      id: "ch_oldest",
+      cents: 100,
+      date: "2026-01-01T00:00:00.000Z",
+    });
+
+    // The server sends its history newest-first.
+    await socket().receive({ type: "ping", history: [newest, middle, oldest] });
+    expect(amountEl().dataset["amount"]).toBe("300");
+
+    await drainQueue();
+    expect(amountEl().dataset["amount"]).toBe("200");
+
+    await drainQueue();
+    expect(amountEl().dataset["amount"]).toBe("100");
+
+    await drainQueue();
+  });
+
   it("arms the ping watchdog, which closes a silent socket", async () => {
     await socket().emit("open", {});
     const watchdog = windowTimeouts[windowTimeouts.length - 1];
