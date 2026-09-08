@@ -74,9 +74,9 @@ export function QrEditorPage({ isAuthenticated, csrfToken }: QrEditorProps) {
                 <span class="field-hint">
                   Minimum{" "}
                   {formatAmount(donationManager.MINIMUM_AMOUNT) as "safe"},
-                  maximum {formatAmount(MAXIMUM_AMOUNT) as "safe"}.
-                  Donors can still adjust this when they scan — it's just a
-                  suggested default.
+                  maximum {formatAmount(MAXIMUM_AMOUNT) as "safe"}. Donors can
+                  still adjust this when they scan — it's just a suggested
+                  default.
                 </span>
               </div>
 

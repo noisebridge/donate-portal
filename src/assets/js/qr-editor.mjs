@@ -7,11 +7,13 @@ import {
 } from "./util/validate.mjs";
 
 /**
+ * Not `toLocaleLowerCase`: in a Turkish locale it maps "I" to a dotless
+ * "\u0131", which the filter below then replaces with a dash.
  * @param {string} text
  */
 function slugify(text) {
   return text
-    .toLocaleLowerCase()
+    .toLowerCase()
     .replace(/[^a-z0-9]/g, "-")
     .replace(/-+/g, "-");
 }
