@@ -151,6 +151,21 @@ describe("sendErrorReport", () => {
     expect(exception?.stacktrace.frames[0]?.filename.length).toBe(1024);
   });
 
+  it("clips the url tag and the browser name to the server limits", async () => {
+    await happyWindow.happyDOM.setURL(
+      `https://donate.example.com/${"p".repeat(400)}`,
+    );
+    /** @type {any} */ (globalThis).navigator.userAgent = "u".repeat(2000);
+
+    errorReporting.sendErrorReport(errorWith("Error", "boom"));
+
+    const event = reportedEvent();
+    expect(event.tags?.["url"]?.length).toBe(256);
+    expect(String(event.contexts?.["browser"]?.["name"]).length).toBe(1024);
+
+    await happyWindow.happyDOM.setURL("https://donate.example.com/manage?x=1");
+  });
+
   it("logs when the beacon is refused", () => {
     sendBeacon.mockReturnValue(false);
     const error = jest.spyOn(console, "error").mockImplementation(() => {});

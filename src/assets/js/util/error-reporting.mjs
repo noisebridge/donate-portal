@@ -17,9 +17,11 @@ const GECKO_RE =
 
 // Limits from sentryEventSchema in ~/types/error-reporting. The server
 // answers 400 and drops the whole report if anything exceeds them.
+const MAX_TAG_LENGTH = 256;
 const MAX_TYPE_LENGTH = 256;
 const MAX_VALUE_LENGTH = 2048;
 const MAX_FRAME_STRING_LENGTH = 1024;
+const MAX_CONTEXT_STRING_LENGTH = 1024;
 const MAX_FRAMES = 100;
 
 /**
@@ -109,11 +111,11 @@ export function sendErrorReport(error) {
     level: "error",
     exception: { values: [parseStackTrace(error)] },
     tags: {
-      url: window.location.pathname,
+      url: truncate(window.location.pathname, MAX_TAG_LENGTH),
     },
     contexts: {
       browser: {
-        name: navigator.userAgent,
+        name: truncate(navigator.userAgent, MAX_CONTEXT_STRING_LENGTH),
       },
       screen: {
         width: window.screen.width,
