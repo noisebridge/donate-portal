@@ -2,6 +2,8 @@
 
 import { sendErrorReport } from "./error-reporting.mjs";
 
+/** @typedef {import("~/types/checkout").CheckoutResponse} CheckoutResponse */
+/** @typedef {import("~/types/checkout").RedirectResponse} RedirectResponse */
 /** @typedef {import("@stripe/stripe-js").ReleaseTrain} StripeRelease */
 /** @typedef {import("@stripe/stripe-js").Stripe} Stripe */
 /** @typedef {import("@stripe/stripe-js").StripeElements} StripeElements */
@@ -254,14 +256,8 @@ export async function initSubscriptionCheckout(clientSecret) {
 }
 
 /**
- * @typedef {Object} RedirectData
- * @property {string} redirect - Redirect URL
- */
-
-/**
- *
  * @param {unknown} data
- * @returns {data is RedirectData}
+ * @returns {data is RedirectResponse}
  */
 function isRedirectData(data) {
   if (typeof data !== "object" || Array.isArray(data) || data === null) {
@@ -284,14 +280,8 @@ function isRedirectData(data) {
 }
 
 /**
- * @typedef {Object} CheckoutData
- * @property {string} clientSecret
- * @property {string | null} emailAddress
- */
-
-/**
  * @param {unknown} data
- * @returns {data is CheckoutData}
+ * @returns {data is CheckoutResponse}
  */
 function isCheckoutData(data) {
   if (typeof data !== "object" || Array.isArray(data) || data === null) {

@@ -31,6 +31,7 @@ import * as githubOAuth from "~/services/github";
 import * as googleOAuth from "~/services/google";
 import * as keycloakOAuth from "~/services/keycloak";
 import stripe from "~/services/stripe";
+import type { CheckoutJsonResponse } from "~/types/checkout";
 import { AlertsPage } from "~/views/alerts";
 import { AuthPage } from "~/views/auth";
 import { AuthEmailPage } from "~/views/auth/email";
@@ -616,6 +617,7 @@ export default async function routes(fastify: FastifyInstance) {
       name?: string;
       description?: string;
     };
+    Reply: CheckoutJsonResponse;
   }>(
     paths.donate(),
     { ...donationRateLimit, preHandler: fastify.csrfProtection },
@@ -732,7 +734,7 @@ export default async function routes(fastify: FastifyInstance) {
     );
   });
 
-  fastify.post(
+  fastify.post<{ Reply: CheckoutJsonResponse }>(
     paths.subscribe(),
     { ...donationRateLimit, preHandler: fastify.csrfProtection },
     async (request, reply) => {
