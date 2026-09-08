@@ -3,7 +3,7 @@ import { Layout } from "~/components/layout";
 import { PageHead } from "~/components/page-head";
 import { SectionHead } from "~/components/section-head";
 import config from "~/config";
-import { formatAmount } from "~/lib/money";
+import { formatAmount, MAXIMUM_AMOUNT } from "~/lib/money";
 import paths from "~/lib/paths";
 import * as donationManager from "~/managers/donation";
 
@@ -67,12 +67,14 @@ export function QrEditorPage({ isAuthenticated, csrfToken }: QrEditorProps) {
                     name="amount"
                     placeholder="0.00"
                     data-min={donationManager.MINIMUM_AMOUNT.cents / 100}
+                    data-max={MAXIMUM_AMOUNT.cents / 100}
                     required
                   />
                 </div>
                 <span class="field-hint">
                   Minimum{" "}
-                  {formatAmount(donationManager.MINIMUM_AMOUNT) as "safe"}.
+                  {formatAmount(donationManager.MINIMUM_AMOUNT) as "safe"},
+                  maximum {formatAmount(MAXIMUM_AMOUNT) as "safe"}.
                   Donors can still adjust this when they scan — it's just a
                   suggested default.
                 </span>

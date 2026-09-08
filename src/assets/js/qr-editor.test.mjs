@@ -75,12 +75,14 @@ beforeEach(() => {
 /**
  * @param {object} [options]
  * @param {string} [options.min]
+ * @param {string} [options.max]
  * @returns {string}
  */
 function editorPage(options = {}) {
   return `
     <form action="/qr.svg" method="get">
-      <input type="text" id="amount" data-min="${options.min ?? "1"}" value="" />
+      <input type="text" id="amount" data-min="${options.min ?? "1"}"
+             data-max="${options.max ?? "999999.99"}" value="" />
       <input type="text" id="name" value="" />
       <input type="text" id="description" value="" />
       <input type="checkbox" id="use-logo" />
@@ -155,6 +157,16 @@ describe("updating the QR code", () => {
     expect(qrImage().hidden).toBe(true);
   });
 
+  it("keeps the placeholder while the amount is above the maximum", () => {
+    // /qr.svg answers 400 above the Stripe per-charge limit, so pointing the
+    // preview at it would show a broken image and break both downloads.
+    typeInto("amount", "1000000");
+
+    expect(qrImage().hidden).toBe(true);
+    expect(doc.getElementById("qr-placeholder")?.hidden).toBe(false);
+    expect(input("qr-url").value).toBe(DONATION_URL);
+  });
+
   it("renders the code and the shareable URL for a valid amount", () => {
     typeInto("amount", "25");
 
@@ -188,6 +200,19 @@ describe("an unusable data-min", () => {
   it("is reported and stops the update", () => {
     const error = jest.spyOn(console, "error").mockImplementation(() => {});
     loadPage({ min: "not-a-number" });
+
+    typeInto("amount", "25");
+
+    expect(error).toHaveBeenCalled();
+    expect(qrImage().hidden).toBe(true);
+    error.mockRestore();
+  });
+});
+
+describe("an unusable data-max", () => {
+  it("is reported and stops the update", () => {
+    const error = jest.spyOn(console, "error").mockImplementation(() => {});
+    loadPage({ max: "not-a-number" });
 
     typeInto("amount", "25");
 

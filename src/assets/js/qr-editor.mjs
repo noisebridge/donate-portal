@@ -54,7 +54,15 @@ function updateQrCode(
     return;
   }
 
-  if (Number.isNaN(amount) || amount < minAmount) {
+  const maxAmount = parseFloat(amountInput.dataset["max"] ?? "");
+  if (Number.isNaN(maxAmount)) {
+    console.error(`Invalid data-max attribute "${amountInput.dataset["max"]}"`);
+    return;
+  }
+
+  // Anything outside the range is rejected by /qr.svg, so keep the placeholder
+  // up rather than pointing the preview at a URL that answers 400.
+  if (Number.isNaN(amount) || amount < minAmount || amount > maxAmount) {
     qrImage.hidden = true;
     qrPlaceholder.hidden = false;
     qrUrlInput.value = donationUrl;

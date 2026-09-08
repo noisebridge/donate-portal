@@ -41,7 +41,7 @@ function getAmount(amountFormData: AmountFormData) {
 /**
  * Largest amount Stripe accepts for a single USD charge ($999,999.99).
  */
-const STRIPE_MAX_CENTS = 99_999_999;
+export const MAXIMUM_AMOUNT: Cents = { cents: 99_999_999 };
 
 export function parseToCents(
   amountFormData: string | AmountFormData,
@@ -59,7 +59,7 @@ export function parseToCents(
   }
 
   const cents = Math.round(parsedDollars * 100);
-  if (cents > STRIPE_MAX_CENTS) {
+  if (cents > MAXIMUM_AMOUNT.cents) {
     return null;
   }
 
