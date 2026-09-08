@@ -122,6 +122,9 @@ function downloadPng(nameInput) {
     link.href = canvas.toDataURL("image/png");
     link.click();
   };
+  tempImg.onerror = () => {
+    console.error(`Could not load the QR code for download: ${tempImg.src}`);
+  };
   tempImg.src = qrImage.src;
 }
 

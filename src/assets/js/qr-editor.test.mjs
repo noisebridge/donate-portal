@@ -270,6 +270,18 @@ describe("downloads", () => {
     expect(lastAnchor().href).toBe("data:image/png;base64,AAAA");
   });
 
+  it("report a PNG that will not load instead of failing silently", () => {
+    const error = jest.spyOn(console, "error").mockImplementation(() => {});
+    typeInto("amount", "25");
+
+    input("download-png").click();
+    /** @type {any} */ (createdImages[0]).onerror();
+
+    expect(error).toHaveBeenCalled();
+    expect(clickedAnchors).toHaveLength(0);
+    error.mockRestore();
+  });
+
   it("give up on the PNG when no 2d context is available", () => {
     getContext.mockReturnValue(null);
     typeInto("amount", "25");
