@@ -1,5 +1,6 @@
 // @ts-check
 
+import { easeOut } from "./easing.mjs";
 import { ledClear, ledDolphin, ledHyperdrive } from "./led_effects.mjs";
 
 const DOLPHIN_LEFT_SRC = "/assets/image/dolphin-left.png";
@@ -51,15 +52,6 @@ let typewriterEl = null;
 
 /** @type {boolean} */
 let typewriterCancelled = false;
-
-/**
- * Ease-out cubic.
- * @param {number} t
- * @returns {number}
- */
-function easeOut(t) {
-  return 1 - (1 - t) ** 3;
-}
 
 /**
  * Initialize the dolphin system.

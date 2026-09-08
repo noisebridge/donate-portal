@@ -641,8 +641,7 @@ function animate() {
 
 export const confettiEffect = {
   init: initConfetti,
-  show: (/** @type {Cents} */ amount, /** @type {boolean} */ showHyperdrive) =>
-    launchConfetti(amount, showHyperdrive),
+  show: launchConfetti,
   stop: stopConfetti,
   showStatic: null,
   // ledConfetti needs the canvas rocket schedule, so it only runs from show()

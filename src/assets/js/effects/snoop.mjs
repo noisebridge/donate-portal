@@ -1,5 +1,6 @@
 // @ts-check
 
+import { easeIn, easeOut } from "./easing.mjs";
 import { ledClear, ledHyperdrive, ledSnoop } from "./led_effects.mjs";
 
 const CANNABIS_SRC = "/assets/image/cannabis.svg";
@@ -62,24 +63,6 @@ export function initSnoop(canvasEl) {
 
   cannabisImg = new Image();
   cannabisImg.src = CANNABIS_SRC;
-}
-
-/**
- * Ease-out cubic.
- * @param {number} t - Progress 0..1
- * @returns {number}
- */
-function easeOut(t) {
-  return 1 - (1 - t) ** 3;
-}
-
-/**
- * Ease-in cubic.
- * @param {number} t - Progress 0..1
- * @returns {number}
- */
-function easeIn(t) {
-  return t * t * t;
 }
 
 /**

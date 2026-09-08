@@ -1,6 +1,7 @@
 // @ts-check
 
 import { launchConfetti } from "./confetti.mjs";
+import { easeIn, easeOut } from "./easing.mjs";
 import { ledClear, ledHyperdrive, ledMerica } from "./led_effects.mjs";
 
 /** @typedef {import("~/types/cents").Cents} Cents */
@@ -44,10 +45,6 @@ let ctx;
 let flagImg = null;
 /** @type {OffscreenCanvas | null} */
 let flagBuffer = null;
-/** @type {number} */
-let flagBufferW = 0;
-/** @type {number} */
-let flagBufferH = 0;
 
 /** @type {boolean} */
 let flagVisible = false;
@@ -80,24 +77,6 @@ export function initMerica(canvasEl) {
   window.addEventListener("resize", () => {
     flagBuffer = null;
   });
-}
-
-/**
- * Ease-out cubic.
- * @param {number} t
- * @returns {number}
- */
-function easeOut(t) {
-  return 1 - (1 - t) ** 3;
-}
-
-/**
- * Ease-in cubic.
- * @param {number} t
- * @returns {number}
- */
-function easeIn(t) {
-  return t * t * t;
 }
 
 /**
@@ -230,11 +209,9 @@ function ensureFlagBuffer(w, h) {
   if (!flagImg?.complete) return;
   const iw = Math.round(w);
   const ih = Math.round(h);
-  if (flagBuffer && flagBufferW === iw && flagBufferH === ih) return;
+  if (flagBuffer?.width === iw && flagBuffer.height === ih) return;
 
   flagBuffer = new OffscreenCanvas(iw, ih);
-  flagBufferW = iw;
-  flagBufferH = ih;
   const bctx = /** @type {OffscreenCanvasRenderingContext2D} */ (
     flagBuffer.getContext("2d")
   );
@@ -463,8 +440,7 @@ export async function stopMerica() {
 
 export const mericaEffect = {
   init: initMerica,
-  show: (/** @type {Cents} */ amount, /** @type {boolean} */ showHyperdrive) =>
-    showMerica(amount, showHyperdrive),
+  show: showMerica,
   stop: stopMerica,
   showStatic: showMericaFlag,
   ledEffect: ledMerica,
