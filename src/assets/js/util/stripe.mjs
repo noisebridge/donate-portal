@@ -86,7 +86,15 @@ export function initStripe() {
         return;
       }
 
-      resolve(window.Stripe(stripeKey));
+      try {
+        resolve(window.Stripe(stripeKey));
+      } catch (err) {
+        // `Stripe()` throws synchronously on a malformed key, and this runs
+        // from a listener rather than the executor, so nothing else would
+        // settle the promise.
+        stripePromise = null;
+        reject(err);
+      }
     });
 
     script.addEventListener("error", () => {

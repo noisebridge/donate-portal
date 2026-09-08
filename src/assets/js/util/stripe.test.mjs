@@ -223,6 +223,16 @@ describe("initStripe", () => {
     await flush();
   });
 
+  it("rejects when the Stripe constructor throws", async () => {
+    /** @type {any} */ (happyWindow).Stripe = jest.fn(() => {
+      throw new Error("Invalid API Key");
+    });
+
+    // A hang here would leave the cached promise pending forever.
+    expect(stripe.initStripe()).rejects.toThrow("Invalid API Key");
+    await flush();
+  });
+
   it("resolves with the Stripe instance and caches the promise", async () => {
     const first = stripe.initStripe();
     const second = stripe.initStripe();
