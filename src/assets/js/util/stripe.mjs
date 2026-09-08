@@ -132,10 +132,8 @@ function hideModal() {
 
   modal.hidden = true;
   document.body.style.overflow = "";
-  if (modalOnClose) {
-    modalOnClose();
-    modalOnClose = null;
-  }
+  modalOnClose?.();
+  modalOnClose = null;
 }
 
 /** @param {string} message */
@@ -152,16 +150,6 @@ function hideError() {
   if (el) {
     el.hidden = true;
     el.textContent = "";
-  }
-}
-
-/** @param {boolean} loading */
-function setLoading(loading) {
-  const submitBtn = /** @type {HTMLButtonElement | null} */ (
-    document.getElementById("payment-submit")
-  );
-  if (submitBtn) {
-    submitBtn.disabled = loading;
   }
 }
 
@@ -182,14 +170,16 @@ function initCheckoutModal() {
     }
   });
 
-  const submitBtn = document.getElementById("payment-submit");
+  const submitBtn = /** @type {HTMLButtonElement | null} */ (
+    document.getElementById("payment-submit")
+  );
   if (submitBtn) {
     submitBtn.addEventListener("click", async () => {
       if (!elements) {
         return;
       }
 
-      setLoading(true);
+      submitBtn.disabled = true;
       hideError();
 
       const stripe = await initStripe();
@@ -202,7 +192,7 @@ function initCheckoutModal() {
 
       if (error) {
         showError(error.message || "Payment failed. Please try again.");
-        setLoading(false);
+        submitBtn.disabled = false;
       }
     });
   }
