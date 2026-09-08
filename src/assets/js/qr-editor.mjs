@@ -12,10 +12,7 @@ import {
  * @param {string} text
  */
 function slugify(text) {
-  return text
-    .toLowerCase()
-    .replace(/[^a-z0-9]/g, "-")
-    .replace(/-+/g, "-");
+  return text.toLowerCase().replace(/[^a-z0-9]+/g, "-");
 }
 
 /**
@@ -168,9 +165,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const update = () =>
     updateQrCode(amountInput, nameInput, descriptionInput, useLogoCheckbox);
-  amountInput.addEventListener("input", update);
-  nameInput.addEventListener("input", update);
-  descriptionInput.addEventListener("input", update);
+  for (const input of [amountInput, nameInput, descriptionInput]) {
+    input.addEventListener("input", update);
+  }
   useLogoCheckbox.addEventListener("change", update);
 
   const downloadPngButton = /** @type {HTMLButtonElement} */ (

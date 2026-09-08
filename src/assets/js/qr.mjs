@@ -116,12 +116,7 @@ function initAmountControls() {
     document.querySelectorAll("#slider-ticks .tick")
   );
   ticks.forEach((tick) => {
-    const amount = tick.dataset["amt"];
-    if (amount === undefined) {
-      return;
-    }
-
-    const value = parseFloat(amount);
+    const value = parseFloat(tick.dataset["amt"] ?? "");
     if (Number.isNaN(value)) {
       return;
     }

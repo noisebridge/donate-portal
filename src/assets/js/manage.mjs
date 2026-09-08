@@ -69,11 +69,9 @@ function initCancelForm() {
   // never fires a blur there.
   cancelForm.addEventListener("blur", reset, true);
   document.addEventListener("pointerdown", (event) => {
-    if (event.target instanceof Node && cancelForm.contains(event.target)) {
-      return;
+    if (!(event.target instanceof Node) || !cancelForm.contains(event.target)) {
+      reset();
     }
-
-    reset();
   });
 }
 
