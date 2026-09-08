@@ -5,6 +5,7 @@
  * @typedef {import("~/types/error-reporting").SentryFrame} SentryFrame
  * @typedef {import("~/types/error-reporting").SentryEvent} SentryEvent
  * @typedef {import("~/lib/paths").Paths} Paths
+ * @typedef {import("~/types/error-reporting").Limits} Limits
  */
 
 /** @satisfies {Paths['errorReporting']} */
@@ -15,13 +16,20 @@ const CHROME_RE =
 const GECKO_RE =
   /^\s*(.*?)(?:\((.*?)\))?(?:^|@)?((?:file|https?|blob|chrome|webpack|resource|moz-extension).*?:\/.*?|\[native code\]|[^@]*(?:bundle|\d+\.js))(?::(\d+))?(?::(\d+))?\s*$/i;
 
-// Limits from sentryEventSchema in ~/types/error-reporting. The server
-// answers 400 and drops the whole report if anything exceeds them.
+// Limits from LIMITS in ~/types/error-reporting, which the schemas there are
+// built from. The server answers 400 and drops the whole report if anything
+// exceeds them, so `@satisfies` fails the build if these drift.
+/** @satisfies {Limits["tag"]} */
 const MAX_TAG_LENGTH = 256;
+/** @satisfies {Limits["type"]} */
 const MAX_TYPE_LENGTH = 256;
+/** @satisfies {Limits["value"]} */
 const MAX_VALUE_LENGTH = 2048;
+/** @satisfies {Limits["frameString"]} */
 const MAX_FRAME_STRING_LENGTH = 1024;
+/** @satisfies {Limits["contextString"]} */
 const MAX_CONTEXT_STRING_LENGTH = 1024;
+/** @satisfies {Limits["frames"]} */
 const MAX_FRAMES = 100;
 
 /**

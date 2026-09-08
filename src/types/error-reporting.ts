@@ -1,18 +1,32 @@
 import { z } from "zod";
 
+/**
+ * Payload limits, as literal types so client code can pin its own truncation
+ * constants to them. See `src/assets/js/util/error-reporting.mjs`.
+ */
+export const LIMITS = {
+  tag: 256,
+  type: 256,
+  value: 2048,
+  frameString: 1024,
+  contextString: 1024,
+  frames: 100,
+} as const;
+export type Limits = typeof LIMITS;
+
 export const sentryFrameSchema = z.object({
-  filename: z.string().max(1024),
-  function: z.string().max(1024),
+  filename: z.string().max(LIMITS.frameString),
+  function: z.string().max(LIMITS.frameString),
   lineno: z.number().int().nullable(),
   colno: z.number().int().nullable(),
 });
 export type SentryFrame = z.infer<typeof sentryFrameSchema>;
 
 export const sentryExceptionSchema = z.object({
-  type: z.string().max(256),
-  value: z.string().max(2048),
+  type: z.string().max(LIMITS.type),
+  value: z.string().max(LIMITS.value),
   stacktrace: z.object({
-    frames: z.array(sentryFrameSchema).max(100),
+    frames: z.array(sentryFrameSchema).max(LIMITS.frames),
   }),
 });
 export type SentryException = z.infer<typeof sentryExceptionSchema>;
@@ -24,11 +38,14 @@ export const sentryEventSchema = z.object({
   exception: z.object({
     values: z.array(sentryExceptionSchema).min(1).max(10),
   }),
-  tags: z.record(z.string().max(64), z.string().max(256)).optional(),
+  tags: z.record(z.string().max(64), z.string().max(LIMITS.tag)).optional(),
   contexts: z
     .record(
       z.string().max(64),
-      z.record(z.string().max(64), z.union([z.string().max(1024), z.number()])),
+      z.record(
+        z.string().max(64),
+        z.union([z.string().max(LIMITS.contextString), z.number()]),
+      ),
     )
     .optional(),
 });
