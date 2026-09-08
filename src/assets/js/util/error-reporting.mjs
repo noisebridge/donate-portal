@@ -89,11 +89,7 @@ function parseStackTrace(error) {
   const stackLines = error.stack?.split("\n") ?? [];
   for (const line of stackLines) {
     const frame = parseLine(line);
-    if (!frame) {
-      continue;
-    }
-
-    frames.push(frame);
+    if (frame) frames.push(frame);
   }
 
   return {
@@ -140,30 +136,18 @@ export function sendErrorReport(error) {
   }
 }
 
-let initialized = false;
-
-function initErrorReporting() {
-  if (initialized) {
-    return;
+window.addEventListener("error", (event) => {
+  if (event.error instanceof Error) {
+    sendErrorReport(event.error);
+  } else {
+    console.warn("Can't log event:", event);
   }
+});
 
-  window.addEventListener("error", (event) => {
-    if (event.error instanceof Error) {
-      sendErrorReport(event.error);
-    } else {
-      console.warn("Can't log event:", event);
-    }
-  });
-
-  window.addEventListener("unhandledrejection", (event) => {
-    if (event.reason instanceof Error) {
-      sendErrorReport(event.reason);
-    } else {
-      console.warn("Can't log event:", event);
-    }
-  });
-
-  initialized = true;
-}
-
-initErrorReporting();
+window.addEventListener("unhandledrejection", (event) => {
+  if (event.reason instanceof Error) {
+    sendErrorReport(event.reason);
+  } else {
+    console.warn("Can't log event:", event);
+  }
+});

@@ -19,28 +19,24 @@ export function formatAmount(amount) {
  * @param {HTMLInputElement} customRadioButton
  */
 export function activateCustomOnClick(customInputField, customRadioButton) {
-  // Touch devices
-  customInputField.addEventListener("touchend", (e) => {
+  function activate() {
     // [HACK]: Using the read-only flag as a substitute for disabled
-    if (!customInputField.readOnly) {
-      return;
-    }
-
-    e.preventDefault();
+    if (!customInputField.readOnly) return false;
     customRadioButton.checked = true;
     customInputField.readOnly = false;
-    customInputField.focus();
+    return true;
+  }
+
+  // Touch devices
+  customInputField.addEventListener("touchend", (e) => {
+    if (activate()) {
+      e.preventDefault();
+      customInputField.focus();
+    }
   });
 
   // Non-touch devices
-  customInputField.addEventListener("click", () => {
-    if (!customInputField.readOnly) {
-      return;
-    }
-
-    customRadioButton.checked = true;
-    customInputField.readOnly = false;
-  });
+  customInputField.addEventListener("click", activate);
 }
 
 /**
