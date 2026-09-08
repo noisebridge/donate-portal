@@ -130,13 +130,9 @@ async function enqueueAlert(alert) {
   }
 
   queueDrainInterval = window.setInterval(async () => {
-    if (!queueDrainInterval) {
-      return;
-    }
-
     const alert = alertQueue.shift();
     if (!alert) {
-      window.clearInterval(queueDrainInterval);
+      window.clearInterval(queueDrainInterval ?? undefined);
       queueDrainInterval = null;
       return;
     }
