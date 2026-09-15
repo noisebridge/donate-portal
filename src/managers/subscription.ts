@@ -48,15 +48,18 @@ function lockKey(email: string): string {
  * Get customer and their active or past-due subscription by email
  */
 export async function get(email: string): Promise<SubscriptionInfo> {
-  const customers = await stripe.customers.list({
+  const { data } = await stripe.customers.list({
     email,
-    limit: 2,
+    limit: 10,
   });
-  if (customers.data.length > 1) {
+  // Guest customers (gcus_*) are read-only groupings of one-off payments and
+  // can't hold a subscription.
+  const customers = data.filter((c) => !c.id.startsWith("gcus_"));
+  if (customers.length > 1) {
     throw new Error("Multiple customers found");
   }
 
-  const customer = customers.data[0];
+  const customer = customers[0];
   if (!customer) {
     return { customer: undefined, subscription: undefined };
   }

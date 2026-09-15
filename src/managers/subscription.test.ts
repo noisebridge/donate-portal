@@ -151,6 +151,18 @@ describe("subscription", () => {
       expect(result.subscription).toEqual(subscription);
     });
 
+    test("ignores guest customers", async () => {
+      const customer = makeCustomer();
+      mocks.customersList.mockResolvedValue({
+        data: [makeCustomer({ id: "gcus_1" }), customer],
+      });
+      mocks.subscriptionsList.mockResolvedValue({ data: [] });
+
+      const result = await subscriptionManager.get("test@example.com");
+
+      expect(result.customer).toEqual(customer);
+    });
+
     test("throws when multiple customers found", async () => {
       mocks.customersList.mockResolvedValue({
         data: [makeCustomer({ id: "cus_1" }), makeCustomer({ id: "cus_2" })],
