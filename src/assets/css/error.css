@@ -69,3 +69,14 @@
     font-size: 12px;
   }
 }
+
+.error-details .error-title {
+  font-size: 1.25rem;
+  letter-spacing: normal;
+  text-transform: none;
+  color: var(--color-text);
+}
+
+.error-description {
+  line-height: 1.6;
+}

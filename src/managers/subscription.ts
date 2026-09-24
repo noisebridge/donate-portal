@@ -2,6 +2,7 @@ import crypto from "node:crypto";
 import type Stripe from "stripe";
 import config from "~/config";
 import type { ErrorCodeKey } from "~/lib/error-codes";
+import { FriendlyError } from "~/lib/friendly-error";
 import { withMutex } from "~/lib/keyed-mutex";
 import baseLogger from "~/lib/logger";
 import paths from "~/lib/paths";
@@ -56,7 +57,13 @@ export async function get(email: string): Promise<SubscriptionInfo> {
   // can't hold a subscription.
   const customers = data.filter((c) => !c.id.startsWith("gcus_"));
   if (customers.length > 1) {
-    throw new Error("Multiple customers found");
+    throw new FriendlyError(
+      "More than one account found",
+      "Your email address is linked to more than one donor account in our " +
+        "payment system, so we can't tell which one is yours. Nothing has " +
+        "been charged or changed. Please contact Noisebridge and we'll " +
+        "merge them for you.",
+    );
   }
 
   const customer = customers[0];
@@ -79,7 +86,12 @@ export async function get(email: string): Promise<SubscriptionInfo> {
 
   const subscriptions = [activeSubs.data, pastDueSubs.data].flat();
   if (subscriptions.length > 1) {
-    throw new Error("Multiple active subscriptions found");
+    throw new FriendlyError(
+      "More than one monthly donation found",
+      "Your account has more than one active monthly donation, and this " +
+        "page can only manage one. Nothing has been charged or changed. " +
+        "Please contact Noisebridge and we'll combine them into one for you.",
+    );
   }
 
   const subscription = subscriptions[0];

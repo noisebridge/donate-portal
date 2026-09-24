@@ -15,6 +15,7 @@ import {
   isErrorCodeKey,
   isInfoCodeKey,
 } from "~/lib/error-codes";
+import { FriendlyError } from "~/lib/friendly-error";
 import baseLogger from "~/lib/logger";
 import { parseToCents, validateAmountFormData } from "~/lib/money";
 import paths, { type MessageParams } from "~/lib/paths";
@@ -36,6 +37,7 @@ import { AlertsPage } from "~/views/alerts";
 import { AuthPage } from "~/views/auth";
 import { AuthEmailPage } from "~/views/auth/email";
 import { ErrorPage } from "~/views/error";
+import { FriendlyErrorPage } from "~/views/friendly-error";
 import { IndexPage } from "~/views/index";
 import { ManagePage } from "~/views/manage";
 import { NotFoundPage } from "~/views/not-found";
@@ -197,14 +199,18 @@ export default async function routes(fastify: FastifyInstance) {
           .catch((err) => baseLogger.error({ err }, "Failed to report error"));
       }
 
+      const props = {
+        isAuthenticated: isAuthenticated(request, reply),
+        csrfToken: reply.generateCsrf(),
+      };
       reply
         .status(statusCode)
         .html(
-          <ErrorPage
-            isAuthenticated={isAuthenticated(request, reply)}
-            error={error}
-            csrfToken={reply.generateCsrf()}
-          />,
+          error instanceof FriendlyError ? (
+            <FriendlyErrorPage error={error} {...props} />
+          ) : (
+            <ErrorPage error={error} {...props} />
+          ),
         );
     },
   );

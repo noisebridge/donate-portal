@@ -169,7 +169,7 @@ describe("subscription", () => {
       });
 
       expect(subscriptionManager.get("test@example.com")).rejects.toThrow(
-        "Multiple customers found",
+        "More than one account found",
       );
     });
 
@@ -180,7 +180,7 @@ describe("subscription", () => {
         .mockResolvedValueOnce({ data: [makeSubscription({ id: "sub_2" })] });
 
       expect(subscriptionManager.get("test@example.com")).rejects.toThrow(
-        "Multiple active subscriptions found",
+        "More than one monthly donation found",
       );
     });
   });
@@ -236,7 +236,7 @@ describe("subscription", () => {
       }
       // Without per-email serialization both requests see "no customer"
       // and each creates one, which permanently breaks get() with
-      // "Multiple customers found" and double-charges the user.
+      // "More than one account found" and double-charges the user.
       expect(mocks.customersCreate).toHaveBeenCalledTimes(1);
     });
 
