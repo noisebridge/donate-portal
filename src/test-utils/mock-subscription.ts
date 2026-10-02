@@ -61,6 +61,7 @@ export function createMockSubscription(
           object: "subscription_item",
           billing_thresholds: null,
           created: 1234567890,
+          current_trial: null,
           discounts: [],
           metadata: {},
           plan: {

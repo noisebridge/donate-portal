@@ -22,14 +22,14 @@
     "screenshot": "bun ./scripts/screenshot.ts"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.5.14",
+    "@biomejs/biome": "^2.5.15",
     "@kitajs/ts-html-plugin": "^4.1.4",
     "@playwright/test": "^1.63.0",
-    "@stripe/stripe-js": "^9.17.0",
+    "@stripe/stripe-js": "^10.0.0",
     "@types/bmp-js": "^0.1.2",
     "@types/bun": "1.4.2",
     "@types/mjml": "^5.0.0",
-    "@types/ws": "^8.18.1",
+    "@types/ws": "^8.18.2",
     "happy-dom": "^20.14.5",
     "playwright": "^1.63.0"
   },
@@ -43,19 +43,19 @@
     "@fastify/formbody": "^9.0.0",
     "@fastify/helmet": "^13.1.1",
     "@fastify/rate-limit": "^11.2.0",
-    "@fastify/static": "^10.1.4",
+    "@fastify/static": "^10.1.5",
     "@fastify/websocket": "^11.3.1",
     "@kitajs/fastify-html-plugin": "^4.2.1",
     "@kitajs/html": "^4.2.13",
     "bmp-js": "0.1.0",
-    "dotenv": "^17.4.2",
+    "dotenv": "^18.0.5",
     "fastify": "^5.12.5",
     "fastify-plugin": "^6.0.0",
     "mjml": "^5.4.1",
     "obscenity": "^0.4.6",
-    "pino": "^10.3.1",
-    "resend": "^6.28.1",
-    "stripe": "^22.6.2",
+    "pino": "^10.4.0",
+    "resend": "^6.32.0",
+    "stripe": "^23.0.0",
     "zod": "^4.6.5"
   }
 }

@@ -17,7 +17,7 @@ const THANK_YOU_PATH = "/thank-you";
  * npm module which is used only for type imports.
  * @satisfies {StripeRelease}
  */
-const RELEASE = "dahlia";
+const RELEASE = "endive";
 /** @type {Promise<Stripe> | null} */
 let stripePromise = null;
 
