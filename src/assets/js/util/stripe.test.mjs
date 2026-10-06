@@ -263,6 +263,14 @@ describe("startLoading", () => {
     expect(button.disabled).toBe(false);
     expect(button.textContent).toBe("Donate");
   });
+
+  it("restores the original nodes so outside references stay live", () => {
+    const button = submitButton();
+    const label = button.firstChild;
+
+    stripe.startLoading(button)();
+    expect(button.firstChild).toBe(label);
+  });
 });
 
 describe("initDonationCheckout", () => {

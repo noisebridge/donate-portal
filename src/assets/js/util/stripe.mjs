@@ -30,10 +30,12 @@ let elements = null;
  * @returns {() => void} A function that restores the original content.
  */
 export function startLoading(button) {
-  const originalHTML = button.innerHTML;
+  // Keep the original nodes, not their HTML, so references other scripts hold
+  // to them (e.g. a live-updated label) stay attached after restoring.
+  const originalNodes = Array.from(button.childNodes);
 
   button.disabled = true;
-  button.innerHTML = "";
+  button.replaceChildren();
 
   const wrap = document.createElement("div");
   wrap.className = "loading-block-wrap";
@@ -45,7 +47,7 @@ export function startLoading(button) {
   button.appendChild(wrap);
 
   return () => {
-    button.innerHTML = originalHTML;
+    button.replaceChildren(...originalNodes);
     button.disabled = false;
   };
 }
