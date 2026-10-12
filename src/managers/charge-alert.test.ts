@@ -24,7 +24,7 @@ describe("ChargeAlertManager", () => {
     product: Stripe.Product | string | null,
     id = "sub_1",
   ): Stripe.Subscription {
-    const data = product ? [{ plan: { product } }] : [];
+    const data = product ? [{ price: { product } }] : [];
     return { id, items: { data } } as unknown as Stripe.Subscription;
   }
 

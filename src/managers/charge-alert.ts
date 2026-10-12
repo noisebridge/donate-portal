@@ -185,7 +185,7 @@ export class ChargeAlertManager {
    * Whether a subscription is for a membership.
    */
   private isMembership(subscription: Stripe.Subscription) {
-    const product = subscription.items.data[0]?.plan?.product;
+    const product = subscription.items.data[0]?.price.product;
     if (!product) {
       return false;
     }
