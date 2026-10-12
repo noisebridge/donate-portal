@@ -26,19 +26,8 @@ export function AuthPage({
         <div class="center-col">
           <MessageContainer messages={messages} />
 
-          <div class="center-intro">
-            <h1>
-              Welcome <span class="accent">back</span>
-              <span class="cursor"></span>
-            </h1>
-          </div>
-
           <div class="form-card offset-frame">
-            <div class="card-head">
-              <div>~/auth/sign_in</div>
-            </div>
-
-            <h2>sign_in</h2>
+            <h1>sign_in</h1>
             <p class="sub">
               Pick a provider, or we'll email you a one-time link.
             </p>
