@@ -1,5 +1,6 @@
 // @ts-check
 
+import { formatAmount } from "./util/money-forms.mjs";
 import {
   dollarPattern,
   enforcePattern,
@@ -68,8 +69,8 @@ function updateQrCode(
     qrPlaceholderMsg.textContent = Number.isNaN(amount)
       ? "Enter an amount"
       : amount < minAmount
-        ? `Minimum is $${minAmount.toFixed(2)}`
-        : `Maximum is $${maxAmount.toFixed(2)}`;
+        ? `Minimum is ${formatAmount({ cents: Math.round(minAmount * 100) })}`
+        : `Maximum is ${formatAmount({ cents: Math.round(maxAmount * 100) })}`;
     qrImage.hidden = true;
     qrPlaceholder.hidden = false;
     qrUrlInput.value = donationUrl;
@@ -119,7 +120,7 @@ function downloadPng(nameInput) {
   // Create a new image to draw on canvas (handles cross-origin)
   const tempImg = new Image();
   tempImg.crossOrigin = "anonymous";
-  tempImg.onload = () => {
+  tempImg.addEventListener("load", () => {
     ctx.fillStyle = "white";
     ctx.fillRect(0, 0, 512, 512);
     ctx.drawImage(tempImg, 0, 0, 512, 512);
@@ -128,10 +129,10 @@ function downloadPng(nameInput) {
     link.download = `qr-code-${slugify(nameInput.value || "donation")}.png`;
     link.href = canvas.toDataURL("image/png");
     link.click();
-  };
-  tempImg.onerror = () => {
+  });
+  tempImg.addEventListener("error", () => {
     console.error(`Could not load the QR code for download: ${tempImg.src}`);
-  };
+  });
   tempImg.src = qrImage.src;
 }
 

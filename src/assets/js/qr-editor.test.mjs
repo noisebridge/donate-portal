@@ -269,9 +269,9 @@ describe("downloads", () => {
     input("download-png").click();
     expect(clickedAnchors).toHaveLength(0);
 
-    const temp = /** @type {any} */ (createdImages[0]);
+    const temp = /** @type {HTMLImageElement} */ (createdImages[0]);
     expect(temp.src).toBe(qrImage().src);
-    temp.onload();
+    fire(temp, "load");
 
     expect(canvasContext.fillRect).toHaveBeenCalledWith(0, 0, 512, 512);
     expect(canvasContext.drawImage).toHaveBeenCalledWith(temp, 0, 0, 512, 512);
@@ -284,7 +284,7 @@ describe("downloads", () => {
     typeInto("amount", "25");
 
     input("download-png").click();
-    /** @type {any} */ (createdImages[0]).onerror();
+    fire(/** @type {HTMLImageElement} */ (createdImages[0]), "error");
 
     expect(error).toHaveBeenCalled();
     expect(clickedAnchors).toHaveLength(0);
