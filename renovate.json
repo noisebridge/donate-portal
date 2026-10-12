@@ -1,4 +1,22 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["config:recommended"]
+  "extends": ["config:recommended", "customManagers:biomeVersions"],
+  "packageRules": [
+    {
+      "groupName": "bun",
+      "matchPackageNames": ["bun", "oven/bun", "@types/bun"]
+    },
+    {
+      "groupName": "fastify",
+      "matchPackageNames": ["fastify", "fastify-plugin", "@fastify/**"]
+    },
+    {
+      "groupName": "stripe",
+      "matchPackageNames": ["stripe", "@stripe/**"]
+    },
+    {
+      "groupName": "mjml",
+      "matchPackageNames": ["mjml", "@types/mjml"]
+    }
+  ]
 }
