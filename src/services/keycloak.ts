@@ -93,6 +93,11 @@ export async function getAccessToken(code: string) {
   }
 
   const data = (await response.json()) as KeycloakTokenResponse;
+  if (!data.access_token) {
+    log.error("No access token in response");
+    return null;
+  }
+
   return data.access_token;
 }
 
