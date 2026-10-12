@@ -64,7 +64,7 @@ describe("ManagePage", () => {
     expect(result).toContain("Cancel subscription");
   });
 
-  test("status strip shows tier, amount, and renewal date", async () => {
+  test("status strip shows amount and renewal date", async () => {
     const result = await (
       <ManagePage
         email="test@example.com"
@@ -74,7 +74,6 @@ describe("ManagePage", () => {
     );
 
     expect(result).toContain('class="status-strip offset-frame"');
-    expect(result).toContain("Employed Hacker");
     expect(result).toContain("$100.00");
     expect(result).toContain("Jan");
     expect(result).toContain("2025");
@@ -82,7 +81,7 @@ describe("ManagePage", () => {
     expect(result).toContain("active");
   });
 
-  test("status strip shows 'Custom' tier name for non-standard amount", async () => {
+  test("status strip shows a non-standard amount", async () => {
     const result = await (
       <ManagePage
         email="test@example.com"
@@ -91,7 +90,6 @@ describe("ManagePage", () => {
       />
     );
 
-    expect(result).toContain("Custom");
     expect(result).toContain("$75.00");
   });
 

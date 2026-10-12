@@ -1,10 +1,7 @@
 import { escapeHtml } from "@kitajs/html";
 import type Stripe from "stripe";
 import { Button } from "~/components/button";
-import {
-  DonationTierSelector,
-  TIERS,
-} from "~/components/donation-tier-selector";
+import { DonationTierSelector } from "~/components/donation-tier-selector";
 import { Layout } from "~/components/layout";
 import { type Message, MessageContainer } from "~/components/message-container";
 import { PageHead } from "~/components/page-head";
@@ -38,13 +35,6 @@ function formatRenewalDate(
   });
 }
 
-function tierNameFromCents(cents: number | null): string {
-  if (cents === null) return "Unknown";
-
-  const dollars = cents / 100;
-  return TIERS.find((tier) => tier.amount === dollars)?.name ?? "Custom";
-}
-
 function pillClass(status: Stripe.Subscription.Status): string {
   switch (status) {
     case "active":
@@ -68,7 +58,6 @@ export function ManagePage({
   const amount = subscriptionManager.subscriptionAmount(subscription);
   const renewalDate = formatRenewalDate(item);
   const amountFormatted = amount ? formatAmount(amount) : null;
-  const tierName = tierNameFromCents(amount?.cents ?? null);
 
   return (
     <Layout
@@ -95,10 +84,6 @@ export function ManagePage({
               <span class={pillClass(subscription.status)}>
                 {subscription.status}
               </span>
-            </div>
-            <div class="cell">
-              <span class="lbl">Current tier</span>
-              <span class="val">{tierName as "safe"}</span>
             </div>
             <div class="cell">
               <span class="lbl">Monthly</span>
