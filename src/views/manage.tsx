@@ -125,13 +125,10 @@ export function ManagePage({
           csrfToken={csrfToken}
         />
 
-        <section class="account-actions-section">
-          <SectionHead
-            title="account_actions"
-            meta="Manage billing & history"
-          />
+        {!!subscription && (
+          <section class="account-actions-section">
+            <SectionHead title="account_actions" />
 
-          {!!subscription && (
             <div class="action-stack">
               <form method="POST" action={paths.stripePortal()}>
                 <input type="hidden" name="_csrf" value={csrfToken} />
@@ -157,15 +154,8 @@ export function ManagePage({
                 </Button>
               </form>
             </div>
-          )}
-
-          {!subscription && (
-            <p class="no-sub-hint">
-              Billing history and payment methods will appear here once you
-              start a monthly gift.
-            </p>
-          )}
-        </section>
+          </section>
+        )}
 
         <StripeCheckoutModal
           title="Complete Your Subscription"

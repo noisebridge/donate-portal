@@ -300,15 +300,6 @@
   margin-top: 44px;
 }
 
-/* No-sub hint in account actions */
-.no-sub-hint {
-  font-family: var(--font-mono);
-  font-size: 13px;
-  color: var(--color-text-light);
-  line-height: 1.55;
-  margin: 0;
-}
-
 /* Cancel form — reset old card styles */
 .cancel-subscription-form {
   background: none;
