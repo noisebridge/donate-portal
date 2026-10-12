@@ -260,11 +260,11 @@
   align-items: baseline;
   gap: 2px;
   width: 100%;
-  margin-top: 2px;
 }
 
 .tier-chip.custom .dol {
   font-size: 22px;
+  line-height: 1.05;
 }
 
 .tier-chip.custom .custom-input {
@@ -276,6 +276,7 @@
   font-weight: 700;
   color: var(--color-text);
   letter-spacing: -0.02em;
+  line-height: 1.05;
   padding: 0;
   outline: none;
   width: 100%;
