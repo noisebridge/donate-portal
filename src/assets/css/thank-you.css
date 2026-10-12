@@ -34,7 +34,8 @@
 .confirm-btn {
   flex: 1;
   min-width: 200px;
-  justify-content: space-between;
+  justify-content: flex-start;
+  gap: 12px;
 }
 
 .confirm-btn .arrow {

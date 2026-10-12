@@ -28,8 +28,8 @@ export function ThankYouPage({ isAuthenticated, csrfToken }: ThankYouProps) {
 
         <div class="confirm-actions">
           <a href={paths.index()} class="btn btn-primary confirm-btn">
-            <span>Back to site</span>
             <span class="arrow">←</span>
+            <span>Back to site</span>
           </a>
         </div>
       </section>
