@@ -1,5 +1,6 @@
 import type Stripe from "stripe";
 import { Button } from "~/components/button";
+import { SectionHead } from "~/components/section-head";
 import paths from "~/lib/paths";
 import * as subscriptionManager from "~/managers/subscription";
 
@@ -46,14 +47,14 @@ export function DonationTierSelector({
 
   return (
     <section>
-      <div class="section-head">
-        <h2>{subscription ? "update_tier" : "choose_tier"}</h2>
-        <div class="meta">
-          {subscription
+      <SectionHead
+        title={subscription ? "update_tier" : "choose_tier"}
+        meta={
+          subscription
             ? "Change your monthly amount \u00b7 applies next cycle"
-            : "Billed monthly in USD \u00b7 cancel anytime"}
-        </div>
-      </div>
+            : "Billed monthly in USD \u00b7 cancel anytime"
+        }
+      />
 
       <form method="POST" action={paths.subscribe()} class="donation-tier-form">
         <input type="hidden" name="_csrf" value={csrfToken} />
