@@ -171,37 +171,31 @@ export function IndexPage({
                 value="custom"
                 aria-label="Custom amount"
               />
-              <label for="amount-custom" class="amount-chip" aria-hidden="true">
-                <span class="idx">[06]</span>
-                <span class="amt custom-label">Custom</span>
-              </label>
-            </fieldset>
-
-            <div class="custom-amount">
-              <label for="custom-amount" class="visually-hidden">
-                Custom donation amount in dollars
-              </label>
-              <div class="custom-input-wrap">
-                <span class="custom-input-label">Custom amount</span>
-                <div class="custom-input-row">
+              <label for="amount-custom" class="amount-chip custom-chip">
+                <span class="idx" aria-hidden="true">
+                  [06]
+                </span>
+                <span class="amt">
                   <span class="dol">$</span>
                   <input
                     type="text"
                     inputmode="decimal"
                     id="custom-amount"
                     name="custom-amount"
-                    placeholder="0"
+                    placeholder="Custom"
+                    aria-label="Custom donation amount in dollars"
                     aria-describedby="custom-amount-hint"
                     data-min={donationManager.MINIMUM_AMOUNT.cents / 100}
                     required
                     readonly
                   />
-                </div>
-              </div>
-              <span id="custom-amount-hint" class="visually-hidden">
-                Enter a custom dollar amount for your one-time donation
-              </span>
-            </div>
+                </span>
+              </label>
+            </fieldset>
+
+            <span id="custom-amount-hint" class="visually-hidden">
+              Enter a custom dollar amount for your one-time donation
+            </span>
 
             <Button variant="primary" arrow type="submit" id="donate-now">
               Continue to payment

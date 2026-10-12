@@ -218,72 +218,33 @@ input[type="radio"]:focus + .amount-chip {
   margin-right: 2px;
 }
 
-.amount-chip .custom-label {
-  font-size: 30px;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-}
-
-/* Custom Amount Input */
-.custom-amount {
-  margin-top: 10px;
-  margin-bottom: 0;
-}
-
-.custom-input-wrap {
-  position: relative;
-  border: 1px solid var(--color-border);
-  background: var(--color-panel);
-  padding: 18px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.custom-input-label {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  color: var(--color-text-light);
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-}
-
-.custom-input-row {
-  display: flex;
-  align-items: baseline;
-  gap: 2px;
-}
-
-.custom-input-row .dol {
-  font-family: var(--font-mono);
-  font-size: 24px;
-  color: var(--color-text-light);
-  font-weight: 500;
-}
-
-.custom-amount input {
-  flex: 1;
+/* Custom chip: its amount is the input */
+.custom-chip input {
+  font: inherit;
+  letter-spacing: inherit;
+  color: inherit;
   background: transparent;
   border: none;
   outline: none;
-  font-family: var(--font-mono);
-  font-size: 26px;
-  font-weight: 700;
-  color: var(--color-text);
-  letter-spacing: -0.02em;
   padding: 0;
   min-width: 0;
   width: 100%;
 }
 
-.custom-amount input::placeholder {
+.custom-chip input:read-only {
+  cursor: pointer;
+}
+
+.custom-chip input::placeholder {
+  color: var(--color-text);
+}
+
+.custom-chip input:focus::placeholder {
   color: var(--color-text-mute);
 }
 
-.custom-amount input:read-only {
-  opacity: 0.4;
-  cursor: default;
-  background: transparent;
+.custom-chip:has(input:placeholder-shown) .dol {
+  display: none;
 }
 
 #donate-now {
