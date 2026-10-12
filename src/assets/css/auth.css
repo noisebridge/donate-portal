@@ -80,15 +80,6 @@
   color: var(--color-text-mute);
 }
 
-/* Magic Link Note */
-.magic-note {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  color: var(--color-text-mute);
-  line-height: 1.55;
-  margin-top: 14px;
-}
-
 /* Magic Link Sent Card */
 .sent-card {
   --frame-color: var(--color-primary);

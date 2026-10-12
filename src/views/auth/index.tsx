@@ -102,10 +102,6 @@ export function AuthPage({
               <Button variant="primary" arrow type="submit">
                 Send magic link
               </Button>
-
-              <div class="magic-note">
-                We'll email a one-time sign-in link. No password required.
-              </div>
             </form>
           </div>
         </div>
