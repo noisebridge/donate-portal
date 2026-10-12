@@ -550,7 +550,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   effects.snoop.init(effectCanvas);
 
   initCanvas(bannerCanvas);
-  effects.merica.init(bannerCanvas);
+  effects.merica.init();
   effects.dolphin.init(bannerCanvas);
 
   const currentChargeJson =

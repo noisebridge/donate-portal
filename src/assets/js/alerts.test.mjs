@@ -36,7 +36,7 @@ const effects = {
   dolphin: effectStub(),
   matrix: effectStub({ showStatic: false }),
   snoop: effectStub(),
-  merica: effectStub(),
+  merica: effectStub({ showStatic: false }),
 };
 const ledHyperdrive = jest.fn(async () => {});
 
@@ -597,18 +597,20 @@ describe("a page that opens on a hacker amount", () => {
   });
 
   it("draws the static effect for an amount whose effect has one", async () => {
-    effects.merica.showStatic?.mockClear();
+    effects.snoop.showStatic?.mockClear();
 
     historyList().innerHTML = `<div data-amount="999999"></div>`;
-    amountEl().dataset["amount"] = "1776";
+    amountEl().dataset["amount"] = "420";
     const script = /** @type {HTMLElement} */ (
       doc.getElementById("current-charge")
     );
-    script.textContent = JSON.stringify(charge({ id: "ch_flag", cents: 1776 }));
+    script.textContent = JSON.stringify(
+      charge({ id: "ch_leaves", cents: 420 }),
+    );
 
     await boot();
 
-    expect(effects.merica.showStatic).toHaveBeenCalled();
+    expect(effects.snoop.showStatic).toHaveBeenCalled();
   });
 
   it("does nothing extra when there is no charge to replay", async () => {

@@ -6,18 +6,11 @@ import { ledClear, ledHyperdrive, ledMerica } from "./led-effects.mjs";
 
 /** @typedef {import("~/types/cents").Cents} Cents */
 
-const FLAG_SRC = "/assets/image/flag-us.svg";
-
 const ARNOLD_ENTER_DURATION = 2000;
 const ARNOLD_HOLD_DURATION = 4000;
 const EAGLE_SWOOP_DURATION = 3000;
 const ARNOLD_EXIT_DURATION = 2000;
 
-const FLAG_DROP_DURATION = 1000;
-const FLAG_RETRACT_DURATION = 1000;
-const FLAG_RIPPLE_PERIOD = 2.5;
-const FLAG_RIPPLE_AMPLITUDE = 8;
-const FLAG_WAVE_COUNT = 3;
 // Matches the .arnold-img width in assets/css/alerts.css
 const ARNOLD_WIDTH_FRACTION = 0.9;
 
@@ -36,47 +29,16 @@ let animating = false;
 let arnoldEl;
 /** @type {HTMLImageElement} */
 let eagleEl;
-/** @type {HTMLCanvasElement} */
-let canvas;
-/** @type {CanvasRenderingContext2D} */
-let ctx;
-
-/** @type {HTMLImageElement | null} */
-let flagImg = null;
-/** @type {OffscreenCanvas | null} */
-let flagBuffer = null;
-
-/** @type {boolean} */
-let flagVisible = false;
-/** @type {boolean} */
-let flagDropping = false;
-/** @type {boolean} */
-let flagRetracting = false;
-/** @type {number} */
-let flagEnterStart = 0;
-/** @type {number} */
-let flagExitStart = 0;
-
 /**
  * Initialize the merica system.
- * @param {HTMLCanvasElement} canvasEl
  */
-export function initMerica(canvasEl) {
+export function initMerica() {
   arnoldEl = /** @type {HTMLImageElement} */ (
     document.getElementById("arnold-img")
   );
   eagleEl = /** @type {HTMLImageElement} */ (
     document.getElementById("eagle-img")
   );
-  canvas = canvasEl;
-  ctx = /** @type {CanvasRenderingContext2D} */ (canvas.getContext("2d"));
-
-  flagImg = new Image();
-  flagImg.src = FLAG_SRC;
-
-  window.addEventListener("resize", () => {
-    flagBuffer = null;
-  });
 }
 
 /**
@@ -199,121 +161,11 @@ function hideEagle() {
 }
 
 /**
- * Pre-render the flag SVG to an offscreen canvas at the target size.
- * This avoids fractional-pixel sampling artifacts when slicing columns.
- * @param {number} w - Target width
- * @param {number} h - Target height
- */
-function ensureFlagBuffer(w, h) {
-  if (!flagImg?.complete) return;
-  const iw = Math.round(w);
-  const ih = Math.round(h);
-  if (flagBuffer?.width === iw && flagBuffer.height === ih) return;
-
-  flagBuffer = new OffscreenCanvas(iw, ih);
-  const bctx = /** @type {OffscreenCanvasRenderingContext2D} */ (
-    flagBuffer.getContext("2d")
-  );
-  bctx.drawImage(flagImg, 0, 0, iw, ih);
-}
-
-/**
- * Draw the flag SVG to the canvas with a per-column ripple effect.
- * Each 1px-wide column is drawn at a sine-wave Y offset.
- * Clears the canvas first, so it owns every frame it draws.
- * @param {number} now - Timestamp from requestAnimationFrame
- * @param {number} flagY - Top Y position of the flag
- */
-function drawFlag(now, flagY) {
-  if (!flagImg?.complete) return;
-
-  const cw = canvas.width;
-  const flagWidth = Math.round(cw * 0.6);
-  const flagHeight = Math.round(flagWidth / 1.9);
-  const flagX = (cw - flagWidth) / 2;
-  const timeSeconds = now / 1000;
-
-  ensureFlagBuffer(flagWidth, flagHeight);
-  if (!flagBuffer) return;
-
-  ctx.clearRect(0, 0, cw, canvas.height);
-
-  for (let col = 0; col < flagWidth; col++) {
-    const xFrac = col / flagWidth;
-    const offset =
-      Math.sin(
-        xFrac * FLAG_WAVE_COUNT * Math.PI * 2 +
-          timeSeconds * ((Math.PI * 2) / FLAG_RIPPLE_PERIOD),
-      ) * FLAG_RIPPLE_AMPLITUDE;
-
-    ctx.drawImage(
-      flagBuffer,
-      col,
-      0,
-      1,
-      flagHeight,
-      flagX + col,
-      flagY + offset,
-      1,
-      flagHeight,
-    );
-  }
-
-  // Darken the flag with a uniform tint plus a bottom gradient
-  ctx.save();
-  ctx.globalCompositeOperation = "source-atop";
-  const overlayRect = /** @type {const} */ ([
-    flagX - FLAG_RIPPLE_AMPLITUDE,
-    flagY - FLAG_RIPPLE_AMPLITUDE,
-    flagWidth + FLAG_RIPPLE_AMPLITUDE * 2,
-    flagHeight + FLAG_RIPPLE_AMPLITUDE * 2,
-  ]);
-  // Uniform darkening
-  ctx.fillStyle = "rgba(0, 0, 0, 0.18)";
-  ctx.fillRect(...overlayRect);
-  // Additional bottom gradient
-  const grad = ctx.createLinearGradient(0, flagY, 0, flagY + flagHeight);
-  grad.addColorStop(0, "rgba(0, 0, 0, 0)");
-  grad.addColorStop(1, "rgba(0, 0, 0, 0.55)");
-  ctx.fillStyle = grad;
-  ctx.fillRect(...overlayRect);
-  ctx.restore();
-}
-
-/**
  * Main animation loop.
  * @param {number} now
  */
 function animate(now) {
   const elapsed = now - phaseStart;
-
-  // --- Flag rendering ---
-  if (flagVisible) {
-    const flagWidth = canvas.width * 0.6;
-    const flagHeight = flagWidth / 1.9;
-    const flagRestY = 20;
-    const flagOffY = -flagHeight - 20;
-
-    let flagY = flagRestY;
-
-    if (flagDropping) {
-      const fp = Math.min(1, (now - flagEnterStart) / FLAG_DROP_DURATION);
-      flagY = flagOffY + (flagRestY - flagOffY) * easeOut(fp);
-      if (fp >= 1) flagDropping = false;
-    } else if (flagRetracting) {
-      const fp = Math.min(1, (now - flagExitStart) / FLAG_RETRACT_DURATION);
-      flagY = flagRestY + (flagOffY - flagRestY) * easeIn(fp);
-      if (fp >= 1) {
-        flagRetracting = false;
-        flagVisible = false;
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-      }
-    }
-
-    if (flagVisible) {
-      drawFlag(now, flagY);
-    }
-  }
 
   // --- Arnold / Eagle phases ---
   // belowViewport: 0 = flush with bottom, positive = off-screen below
@@ -359,7 +211,7 @@ function animate(now) {
     }
   }
 
-  if (phase !== "idle" || flagVisible) {
+  if (phase !== "idle") {
     requestAnimationFrame(animate);
   } else {
     animating = false;
@@ -378,18 +230,13 @@ function ensureAnimating() {
 
 /**
  * Launch the 'MERICA takeover effect.
- * Sequence: Arnold rises, holds, eagle swoops, Arnold retracts. Flag drops in and ripples.
+ * Sequence: Arnold rises, holds, eagle swoops, Arnold retracts.
  * @param {Cents} amount
  * @param {boolean} showHyperdrive
  */
 export async function showMerica(amount, showHyperdrive) {
   phase = "arnold_enter";
   phaseStart = performance.now();
-
-  flagVisible = true;
-  flagDropping = true;
-  flagRetracting = false;
-  flagEnterStart = performance.now();
 
   await launchConfetti(amount, null);
   ensureAnimating();
@@ -402,45 +249,19 @@ export async function showMerica(amount, showHyperdrive) {
 }
 
 /**
- * Show the flag immediately at its resting position (no drop animation).
- * Used on page load when the most recent donation is a merica amount.
- */
-export function showMericaFlag() {
-  flagVisible = true;
-  flagDropping = false;
-  flagRetracting = false;
-  ensureAnimating();
-}
-
-/**
- * Stop the merica effect, resolving once the flag has retracted.
- * Callers share the canvas, and drawFlag clears it on every frame, so
- * returning early would let the next effect draw into frames we then wipe.
+ * Stop the merica effect.
  */
 export async function stopMerica() {
   phase = "idle";
   hideArnold();
   hideEagle();
   await ledClear();
-
-  if (flagVisible && !flagRetracting) {
-    flagRetracting = true;
-    flagDropping = false;
-    flagExitStart = performance.now();
-    ensureAnimating();
-    // A little past the animation so the final clearing frame has run.
-    await new Promise((resolve) =>
-      setTimeout(resolve, FLAG_RETRACT_DURATION + 50),
-    );
-  } else if (!flagVisible) {
-    animating = false;
-  }
 }
 
 export const mericaEffect = {
   init: initMerica,
   show: showMerica,
   stop: stopMerica,
-  showStatic: showMericaFlag,
+  showStatic: null,
   ledEffect: ledMerica,
 };
