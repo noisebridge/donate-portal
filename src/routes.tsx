@@ -713,7 +713,10 @@ export default async function routes(fastify: FastifyInstance) {
     const { name, description, amount, "use-logo": useLogo } = request.query;
 
     const amountCents = parseToCents(amount ?? "");
-    if (amountCents === null) {
+    if (
+      amountCents === null ||
+      amountCents.cents < donationManager.MINIMUM_AMOUNT.cents
+    ) {
       return reply.status(400).send("Invalid amount");
     }
 
@@ -721,9 +724,9 @@ export default async function routes(fastify: FastifyInstance) {
       return reply.status(400).send("Invalid name or description");
     }
 
-    const includelogo = useLogo !== "false";
+    const includeLogo = useLogo !== "false";
     const url = `${config.baseUrl}${paths.qr(amountCents, name, description)}`;
-    const qrCode = qrCodeManager.create(url, includelogo);
+    const qrCode = qrCodeManager.create(url, includeLogo);
 
     return reply
       .header("Cache-Control", "no-cache, no-store, must-revalidate")

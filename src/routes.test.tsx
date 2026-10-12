@@ -387,6 +387,15 @@ describe("routes", () => {
       expect(response.statusCode).toBe(400);
     });
 
+    test("rejects an amount below the minimum", async () => {
+      const response = await app.inject({
+        method: "GET",
+        url: "/qr.svg?amount=1",
+      });
+
+      expect(response.statusCode).toBe(400);
+    });
+
     test("rejects an over-long description", async () => {
       const response = await app.inject({
         method: "GET",
