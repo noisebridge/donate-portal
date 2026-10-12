@@ -4,6 +4,7 @@ import baseLogger from "~/lib/logger";
 import {
   type CspReport,
   cspReportSchema,
+  LIMITS,
   type SentryEvent,
   type SentryException,
   type SentryFrame,
@@ -12,17 +13,12 @@ import {
 
 const log = baseLogger.child({ module: "error-reporting" });
 
-/** Longest tag value sentryEventSchema accepts. */
-const MAX_TAG_LENGTH = 256;
-/** Longest string context value sentryEventSchema accepts. */
-const MAX_CONTEXT_LENGTH = 1024;
-
 function tagValue(value: string | number): string {
-  return String(value).slice(0, MAX_TAG_LENGTH);
+  return String(value).slice(0, LIMITS.tag);
 }
 
 function contextValue(value: string): string {
-  return value.slice(0, MAX_CONTEXT_LENGTH);
+  return value.slice(0, LIMITS.contextString);
 }
 
 export function validateSentryEvent(raw: unknown): raw is SentryEvent {
