@@ -43,7 +43,7 @@ const ledHyperdrive = jest.fn(async () => {});
 // The effects are canvas and WebGL animations with no place in a unit test;
 // the module under test only ever calls them through these two entry points.
 mock.module("./effects/index.mjs", () => ({ default: effects }));
-mock.module("./effects/led_effects.mjs", () => ({ ledHyperdrive }));
+mock.module("./effects/led-effects.mjs", () => ({ ledHyperdrive }));
 
 /** A `WebSocket` stand-in that records what the module sends and lets tests fire events. */
 class FakeSocket {

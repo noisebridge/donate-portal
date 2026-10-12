@@ -1,6 +1,6 @@
 // @ts-check
 
-import { ledClear, ledHyperdrive, ledMatrix } from "./led_effects.mjs";
+import { ledClear, ledHyperdrive, ledMatrix } from "./led-effects.mjs";
 
 const CHAR_SET =
   "\u{FF66}\u{FF67}\u{FF68}\u{FF69}\u{FF6A}\u{FF6B}\u{FF6C}\u{FF6D}\u{FF6E}\u{FF6F}" +

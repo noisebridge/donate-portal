@@ -1,7 +1,7 @@
 // @ts-check
 
 import effects from "./effects/index.mjs";
-import { ledHyperdrive } from "./effects/led_effects.mjs";
+import { ledHyperdrive } from "./effects/led-effects.mjs";
 import { formatAmount } from "./util/money-forms.mjs";
 
 /** @typedef {import("~/types/alerts").AlertMessage} AlertMessage */

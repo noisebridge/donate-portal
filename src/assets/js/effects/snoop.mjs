@@ -1,7 +1,7 @@
 // @ts-check
 
 import { easeIn, easeOut } from "./easing.mjs";
-import { ledClear, ledHyperdrive, ledSnoop } from "./led_effects.mjs";
+import { ledClear, ledHyperdrive, ledSnoop } from "./led-effects.mjs";
 
 const CANNABIS_SRC = "/assets/image/cannabis.svg";
 const SCROLL_TEXT = "SMOKE WEED EVERY DAY";

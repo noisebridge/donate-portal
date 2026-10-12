@@ -2,7 +2,7 @@
 
 import { launchConfetti } from "./confetti.mjs";
 import { easeIn, easeOut } from "./easing.mjs";
-import { ledClear, ledHyperdrive, ledMerica } from "./led_effects.mjs";
+import { ledClear, ledHyperdrive, ledMerica } from "./led-effects.mjs";
 
 /** @typedef {import("~/types/cents").Cents} Cents */
 

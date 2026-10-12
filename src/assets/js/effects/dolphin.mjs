@@ -1,7 +1,7 @@
 // @ts-check
 
 import { easeOut } from "./easing.mjs";
-import { ledClear, ledDolphin, ledHyperdrive } from "./led_effects.mjs";
+import { ledClear, ledDolphin, ledHyperdrive } from "./led-effects.mjs";
 
 const DOLPHIN_LEFT_SRC = "/assets/image/dolphin-left.png";
 const DOLPHIN_RIGHT_SRC = "/assets/image/dolphin-right.png";

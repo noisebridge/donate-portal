@@ -1,6 +1,6 @@
 // @ts-check
 
-import { ledClear, ledConfetti, ledHyperdrive } from "./led_effects.mjs";
+import { ledClear, ledConfetti, ledHyperdrive } from "./led-effects.mjs";
 
 /** @typedef {import("~/types/cents").Cents} Cents */
 
