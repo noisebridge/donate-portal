@@ -1,3 +1,4 @@
+import { Button } from "~/components/button";
 import { Layout } from "~/components/layout";
 import paths from "~/lib/paths";
 
@@ -27,10 +28,9 @@ export function ThankYouPage({ isAuthenticated, csrfToken }: ThankYouProps) {
         </p>
 
         <div class="confirm-actions">
-          <a href={paths.index()} class="btn btn-primary confirm-btn">
-            <span class="arrow">←</span>
-            <span>Back to site</span>
-          </a>
+          <Button href={paths.index()} class="confirm-btn" icon="←">
+            Back to site
+          </Button>
         </div>
       </section>
     </Layout>
