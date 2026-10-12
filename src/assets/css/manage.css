@@ -185,6 +185,10 @@
   border-color: var(--color-text-light);
 }
 
+.tier-chip:focus-within {
+  border-color: var(--color-primary);
+}
+
 .tier-chip input[type="radio"] {
   position: absolute;
   opacity: 0;
