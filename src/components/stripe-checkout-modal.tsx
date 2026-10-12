@@ -29,7 +29,7 @@ export function StripeCheckoutModal({
             id="payment-submit"
             class="checkout-modal-submit"
           >
-            Donate Now
+            Donate now
           </Button>
         )}
       </div>

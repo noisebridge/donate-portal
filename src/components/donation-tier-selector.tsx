@@ -119,7 +119,7 @@ export function DonationTierSelector({
         </fieldset>
 
         <Button variant="primary" type="submit">
-          {subscription ? "Update Monthly Donation" : "Start Monthly Donation"}
+          {subscription ? "Update monthly donation" : "Start monthly donation"}
         </Button>
       </form>
     </section>

@@ -61,23 +61,23 @@ describe("DonationTierSelector", () => {
     expect(result).toContain('value="75.00"');
   });
 
-  test("without subscription: button says 'Start Monthly Donation'", async () => {
+  test("without subscription: button says 'Start monthly donation'", async () => {
     const result = await (<DonationTierSelector csrfToken={undefined} />);
 
     expect(result).toBeTypeOf("string");
-    expect(result).toContain("Start Monthly Donation");
-    expect(result).not.toContain("Update Monthly Donation");
+    expect(result).toContain("Start monthly donation");
+    expect(result).not.toContain("Update monthly donation");
   });
 
-  test("with subscription: button says 'Update Monthly Donation'", async () => {
+  test("with subscription: button says 'Update monthly donation'", async () => {
     const subscription = createMockSubscription({ unitAmount: 5000 });
     const result = await (
       <DonationTierSelector subscription={subscription} csrfToken={undefined} />
     );
 
     expect(result).toBeTypeOf("string");
-    expect(result).toContain("Update Monthly Donation");
-    expect(result).not.toContain("Start Monthly Donation");
+    expect(result).toContain("Update monthly donation");
+    expect(result).not.toContain("Start monthly donation");
   });
 
   test("with subscription: shows update_tier section heading", async () => {

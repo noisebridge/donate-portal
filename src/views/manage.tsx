@@ -61,7 +61,7 @@ export function ManagePage({
 
   return (
     <Layout
-      title={subscription ? "Manage your Donation" : "Set Up your Donation"}
+      title={subscription ? "Manage Your Donation" : "Set Up Your Donation"}
       styles="manage.css"
       script="manage.mjs"
       isAuthenticated
