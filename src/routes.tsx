@@ -656,7 +656,7 @@ export default async function routes(fastify: FastifyInstance) {
         description,
       );
       if (!result.success) {
-        fastify.log.error(`Couldn't initiate Stripe donation: ${result.error}`);
+        fastify.log.warn({ error: result.error }, "Donation request failed");
         return reply.send({
           redirect: paths.index({ error: result.error }),
         });
@@ -779,6 +779,10 @@ export default async function routes(fastify: FastifyInstance) {
         amountCents,
       );
       if (!result.success) {
+        fastify.log.warn(
+          { email: sessionData.email, error: result.error },
+          "Subscribe request failed",
+        );
         return reply.send({
           redirect: paths.manage({ error: result.error }),
         });
@@ -820,9 +824,9 @@ export default async function routes(fastify: FastifyInstance) {
         sessionData.email,
       );
       if (!result.success) {
-        fastify.log.error(
+        fastify.log.warn(
           { email: sessionData.email, error: result.error },
-          "Failed to create billing portal session",
+          "Portal request failed",
         );
         return reply.redirect(paths.manage({ error: result.error }));
       }
