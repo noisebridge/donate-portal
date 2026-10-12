@@ -317,17 +317,16 @@ input[type="radio"]:focus + .amount-chip {
     font-size: 42px;
   }
 
-  .stat-row {
-    grid-template-columns: 1fr;
-  }
-
   .stat {
-    border-right: none;
-    border-bottom: 1px solid var(--color-border);
+    padding: 14px 12px;
   }
 
-  .stat:last-child {
-    border-bottom: none;
+  .stat .num {
+    font-size: 22px;
+  }
+
+  .stat .lbl {
+    font-size: 10px;
   }
 
   .amount-grid {
