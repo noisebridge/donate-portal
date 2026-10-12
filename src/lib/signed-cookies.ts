@@ -103,6 +103,14 @@ class SignedCookie<T extends { issued: number }> {
   }
 }
 
+/**
+ * OAuth `state` cookies only need to survive the round trip to the provider.
+ */
+function oauthStateCookie(name: CookieName) {
+  return (request: FastifyRequest, reply: FastifyReply) =>
+    new SignedCookie(name, OAuthDataSchema, request, reply, 60 * 10);
+}
+
 export const cookies = {
   [CookieName.UserSession]: (request: FastifyRequest, reply: FastifyReply) =>
     new SignedCookie(
@@ -112,37 +120,9 @@ export const cookies = {
       reply,
       60 * 60 * 24,
     ),
-  [CookieName.GithubOAuthState]: (
-    request: FastifyRequest,
-    reply: FastifyReply,
-  ) =>
-    new SignedCookie(
-      CookieName.GithubOAuthState,
-      OAuthDataSchema,
-      request,
-      reply,
-      60 * 10,
-    ),
-  [CookieName.GoogleOAuthState]: (
-    request: FastifyRequest,
-    reply: FastifyReply,
-  ) =>
-    new SignedCookie(
-      CookieName.GoogleOAuthState,
-      OAuthDataSchema,
-      request,
-      reply,
-      60 * 10,
-    ),
-  [CookieName.KeycloakOAuthState]: (
-    request: FastifyRequest,
-    reply: FastifyReply,
-  ) =>
-    new SignedCookie(
-      CookieName.KeycloakOAuthState,
-      OAuthDataSchema,
-      request,
-      reply,
-      60 * 10,
-    ),
+  [CookieName.GithubOAuthState]: oauthStateCookie(CookieName.GithubOAuthState),
+  [CookieName.GoogleOAuthState]: oauthStateCookie(CookieName.GoogleOAuthState),
+  [CookieName.KeycloakOAuthState]: oauthStateCookie(
+    CookieName.KeycloakOAuthState,
+  ),
 } as const;
