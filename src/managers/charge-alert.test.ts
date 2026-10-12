@@ -235,7 +235,7 @@ describe("ChargeAlertManager", () => {
 
     test("caps the alert history", async () => {
       const target = seededManager();
-      target["_recentAlerts"] = Array.from({ length: 20 }, (_, index) => ({
+      target["_recentAlerts"] = Array.from({ length: 25 }, (_, index) => ({
         type: "member_alert" as const,
         id: `id_${index}`,
         date: new Date().toISOString(),
@@ -250,7 +250,7 @@ describe("ChargeAlertManager", () => {
       });
 
       const history = await target.getRecentAlerts();
-      expect(history).toHaveLength(20);
+      expect(history).toHaveLength(25);
       expect(history[0]?.id).toBe("newest");
     });
 

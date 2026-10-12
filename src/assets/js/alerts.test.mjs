@@ -444,12 +444,12 @@ describe("displaying an alert", () => {
     expect(historyList().children).toHaveLength(before);
   });
 
-  it("trims the history list to twenty entries", async () => {
-    for (let i = 0; i < 25; i++) {
+  it("trims the history list to twenty-five entries", async () => {
+    for (let i = 0; i < 30; i++) {
       await deliver(charge({ id: `ch_trim_${i}`, cents: 100 + i }));
     }
 
-    expect(historyList().children.length).toBeLessThanOrEqual(20);
+    expect(historyList().children.length).toBeLessThanOrEqual(25);
   });
 });
 

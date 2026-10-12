@@ -20,7 +20,7 @@ import {
 import { GENERAL_DONATION, NAME_REMAP } from "./donation";
 import { PRODUCT_ID } from "./subscription";
 
-const MAX_RECENT_ALERTS = 20;
+const MAX_RECENT_ALERTS = 25;
 const PING_HISTORY_SIZE = 5;
 const PING_INTERVAL_MS = 30_000;
 
