@@ -22,8 +22,8 @@ export function ThankYouPage({ isAuthenticated, csrfToken }: ThankYouProps) {
         </h1>
 
         <p class="confirm-lede">
-          Your gift keeps Noisebridge alive. We depend on people like you to
-          continue serving the public without any outside influences.
+          We depend on people like you to continue serving the public without
+          any outside influences.
         </p>
 
         <div class="confirm-actions">
