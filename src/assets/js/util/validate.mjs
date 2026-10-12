@@ -70,7 +70,9 @@ export function validateMinAmount(input) {
       return;
     }
     if (value < min) {
-      input.setCustomValidity("This value is below the minimum");
+      input.setCustomValidity(
+        `Amount is below the minimum of $${min.toFixed(2)}`,
+      );
       return;
     }
 
