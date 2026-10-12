@@ -77,6 +77,10 @@ Create a `.env` file in the root of the repository with the following variables:
 
 ### Run setup script
 
+The script loads the app config, so every required variable above must be set,
+including `STRIPE_PORTAL_CONFIG`. On a first run, set it to a placeholder such
+as `bpc_placeholder`, then replace it with the `bpc_...` ID the script prints.
+
 ```shell
 bun run stripe-setup
 ```
