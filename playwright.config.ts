@@ -4,9 +4,9 @@ import config from "./src/config";
 export default defineConfig({
   testDir: "./e2e",
   fullyParallel: true,
-  forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
+  forbidOnly: !!process.env["CI"],
+  retries: process.env["CI"] ? 2 : 0,
+  workers: process.env["CI"] ? 1 : "50%",
   reporter: "html",
   use: {
     baseURL: config.baseUrl,
@@ -30,7 +30,7 @@ export default defineConfig({
   webServer: {
     command: "bun run start",
     url: config.baseUrl,
-    reuseExistingServer: !process.env.CI,
+    reuseExistingServer: !process.env["CI"],
     env: {
       ALERTS_PASSWORD: config.alertsPassword,
       ALERTS_USERNAME: config.alertsUsername,
