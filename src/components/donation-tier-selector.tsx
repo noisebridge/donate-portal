@@ -16,10 +16,6 @@ export const TIERS: Tier[] = [
   { id: "rich", name: "Rich Hacker", amount: 200 },
 ];
 
-function tierIndex(position: number): string {
-  return `[${String(position + 1).padStart(2, "0")}]`;
-}
-
 interface DonationTierSelectorProps {
   subscription?: Stripe.Subscription | undefined;
   csrfToken?: string | undefined;
@@ -63,7 +59,7 @@ export function DonationTierSelector({
             Select a monthly donation tier
           </legend>
           <div class="tier-grid">
-            {tiers.map((tier, position) => (
+            {tiers.map((tier) => (
               <label class="tier-chip" for={`tier-${tier.id}`}>
                 <input
                   type="radio"
@@ -73,7 +69,6 @@ export function DonationTierSelector({
                   required
                   checked={tier.checked}
                 />
-                <span class="idx">{tierIndex(position) as "safe"}</span>
                 <span class="tier-name">{tier.name as "safe"}</span>
                 <span class="amt">
                   <span class="dol">$</span>
@@ -92,7 +87,6 @@ export function DonationTierSelector({
                 required
                 checked={hasCustomAmount}
               />
-              <span class="idx">{tierIndex(TIERS.length) as "safe"}</span>
               <span class="tier-name">Custom</span>
               <div class="input-row">
                 <span class="dol">$</span>

@@ -100,7 +100,6 @@ export function IndexPage({
                 required
               />
               <label for="amount-10" class="amount-chip" aria-hidden="true">
-                <span class="idx">[01]</span>
                 <span class="amt">
                   <span class="dol">$</span>10
                 </span>
@@ -114,7 +113,6 @@ export function IndexPage({
                 aria-label="$20"
               />
               <label for="amount-20" class="amount-chip" aria-hidden="true">
-                <span class="idx">[02]</span>
                 <span class="amt">
                   <span class="dol">$</span>20
                 </span>
@@ -129,7 +127,6 @@ export function IndexPage({
                 checked
               />
               <label for="amount-40" class="amount-chip" aria-hidden="true">
-                <span class="idx">[03]</span>
                 <span class="amt">
                   <span class="dol">$</span>40
                 </span>
@@ -143,7 +140,6 @@ export function IndexPage({
                 aria-label="$80"
               />
               <label for="amount-80" class="amount-chip" aria-hidden="true">
-                <span class="idx">[04]</span>
                 <span class="amt">
                   <span class="dol">$</span>80
                 </span>
@@ -157,7 +153,6 @@ export function IndexPage({
                 aria-label="$160"
               />
               <label for="amount-160" class="amount-chip" aria-hidden="true">
-                <span class="idx">[05]</span>
                 <span class="amt">
                   <span class="dol">$</span>160
                 </span>
@@ -171,9 +166,6 @@ export function IndexPage({
                 aria-label="Custom amount"
               />
               <label for="amount-custom" class="amount-chip custom-chip">
-                <span class="idx" aria-hidden="true">
-                  [06]
-                </span>
                 <span class="amt">
                   <span class="dol">$</span>
                   <input

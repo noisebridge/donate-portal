@@ -53,7 +53,6 @@ export function QrEditorPage({ isAuthenticated, csrfToken }: QrEditorProps) {
             <form id="qr-form" action={paths.qrSvg()} method="GET">
               <div class="field">
                 <label class="field-label" for="amount">
-                  <span class="field-idx">[01]</span>
                   Donation amount
                 </label>
                 <div class="input-wrap input-wrap-amount">
@@ -82,7 +81,6 @@ export function QrEditorPage({ isAuthenticated, csrfToken }: QrEditorProps) {
 
               <div class="field">
                 <label class="field-label" for="name">
-                  <span class="field-idx">[02]</span>
                   Product name
                   <span class="field-opt">— optional</span>
                 </label>
@@ -110,7 +108,6 @@ export function QrEditorPage({ isAuthenticated, csrfToken }: QrEditorProps) {
 
               <div class="field">
                 <label class="field-label" for="description">
-                  <span class="field-idx">[03]</span>
                   Description
                   <span class="field-opt">— optional</span>
                 </label>
@@ -155,10 +152,7 @@ export function QrEditorPage({ isAuthenticated, csrfToken }: QrEditorProps) {
               </div>
 
               <div class="qr-url-wrap">
-                <div class="field-label">
-                  <span class="field-idx">{"\u2192"}</span>
-                  Target URL
-                </div>
+                <div class="field-label">Target URL</div>
                 <div class="qr-url-display">
                   <input
                     type="text"

@@ -41,11 +41,6 @@
   gap: 8px;
 }
 
-.field-idx {
-  color: var(--color-text-mute);
-  font-size: 10px;
-}
-
 .field-opt {
   color: var(--color-text-mute);
   text-transform: none;
