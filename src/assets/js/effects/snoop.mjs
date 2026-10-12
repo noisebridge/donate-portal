@@ -16,6 +16,8 @@ const LEAF_SPACING_MIN = 60;
 const LEAF_SPACING_MAX = 100;
 const LEAF_OFFSET_JITTER = 15;
 const LEAF_ANGLE_JITTER = 0.4;
+// Push the top and bottom rows partly off-screen so they crowd the text less
+const LEAF_EDGE_SHIFT = 55;
 const TEXT_FONT_SIZE = 250;
 // Matches the .snoop-img width in assets/css/alerts.css
 const SNOOP_WIDTH_FRACTION = 0.9;
@@ -171,13 +173,14 @@ function getLeafPositions() {
   }
 
   const margin = LEAF_SIZE_MAX / 2;
+  const edgeMargin = margin - LEAF_EDGE_SHIFT;
 
   // Top edge (left to right), normal points up
-  walkEdge(0, margin, 1, 0, 0, -1, w, 0, 0);
+  walkEdge(0, edgeMargin, 1, 0, 0, -1, w, 0, 0);
   // Right edge (top to bottom), normal points right
   walkEdge(w - margin, 0, 0, 1, 1, 0, h, Math.PI / 2, 1);
   // Bottom edge (right to left), normal points down
-  walkEdge(w, h - margin, -1, 0, 0, 1, w, Math.PI, 0);
+  walkEdge(w, h - edgeMargin, -1, 0, 0, 1, w, Math.PI, 0);
   // Left edge (bottom to top), normal points left
   walkEdge(margin, h, 0, -1, -1, 0, h, -Math.PI / 2, 1);
 
