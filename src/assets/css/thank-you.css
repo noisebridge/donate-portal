@@ -43,7 +43,7 @@
   opacity: 0.8;
 }
 
-@media (max-width: 700px) {
+@media (max-width: 900px) {
   .confirm {
     padding: 40px 20px;
   }
