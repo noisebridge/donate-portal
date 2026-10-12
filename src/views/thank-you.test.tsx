@@ -6,9 +6,9 @@ import { ThankYouPage } from "./thank-you";
 // the props are accepted. This is the only coverage ThankYouPage has, so it is
 // deliberately kept even though the component has no branches.
 describe("ThankYouPage", () => {
-  test("renders a complete page without throwing", async () => {
-    const result = await (
-      <ThankYouPage isAuthenticated={false} csrfToken={undefined} />
+  test("renders a complete page without throwing", () => {
+    const result = String(
+      <ThankYouPage isAuthenticated={false} csrfToken={undefined} />,
     );
 
     expect(result).toContain("<!DOCTYPE html>");

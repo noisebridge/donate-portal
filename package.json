@@ -23,7 +23,6 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^2.5.15",
-    "@kitajs/ts-html-plugin": "^4.1.4",
     "@playwright/test": "^1.64.0",
     "@stripe/stripe-js": "^10.0.0",
     "@types/bmp-js": "^0.1.2",
@@ -45,8 +44,6 @@
     "@fastify/rate-limit": "^11.2.1",
     "@fastify/static": "^10.1.6",
     "@fastify/websocket": "^11.3.4",
-    "@kitajs/fastify-html-plugin": "^4.2.1",
-    "@kitajs/html": "^4.2.13",
     "bmp-js": "0.1.0",
     "dotenv": "^18.0.7",
     "fastify": "^5.12.5",

@@ -7,9 +7,9 @@ import { NotFoundPage } from "./not-found";
 // this is the only unit coverage, and is kept even though the component has no
 // branches.
 describe("NotFoundPage", () => {
-  test("renders a complete page without throwing", async () => {
-    const result = await (
-      <NotFoundPage isAuthenticated={false} csrfToken={undefined} />
+  test("renders a complete page without throwing", () => {
+    const result = String(
+      <NotFoundPage isAuthenticated={false} csrfToken={undefined} />,
     );
 
     expect(result).toContain("<!DOCTYPE html>");

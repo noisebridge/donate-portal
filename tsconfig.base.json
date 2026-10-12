@@ -24,8 +24,7 @@
     "allowUnusedLabels": false,
     "moduleResolution": "bundler",
     "jsx": "react-jsx",
-    "jsxImportSource": "@kitajs/html",
-    "plugins": [{ "name": "@kitajs/ts-html-plugin" }],
+    "jsxImportSource": "~/lib/jsx",
     "paths": {
       "~/*": ["./src/*"]
     }

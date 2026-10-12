@@ -1,4 +1,3 @@
-import { escapeHtml } from "@kitajs/html";
 import type Stripe from "stripe";
 import { Button } from "~/components/button";
 import { DonationTierSelector } from "~/components/donation-tier-selector";
@@ -74,7 +73,7 @@ export function ManagePage({
 
         <div class="who-line">
           <span class="who-lbl">Signed in as</span>
-          <span class="who-email">{escapeHtml(email)}</span>
+          <span class="who-email">{email}</span>
         </div>
 
         {!!subscription && (
@@ -88,12 +87,12 @@ export function ManagePage({
             <div class="cell">
               <span class="lbl">Monthly</span>
               <span class="val">
-                <span class="big">{amountFormatted as "safe"}</span>
+                <span class="big">{amountFormatted}</span>
               </span>
             </div>
             <div class="cell">
               <span class="lbl">Next charge</span>
-              <span class="val">{renewalDate as "safe"}</span>
+              <span class="val">{renewalDate}</span>
             </div>
           </div>
         )}

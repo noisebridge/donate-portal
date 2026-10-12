@@ -1,4 +1,3 @@
-import { escapeHtml } from "@kitajs/html";
 import { Layout } from "~/components/layout";
 
 export type ErrorPageProps = {
@@ -26,13 +25,13 @@ export function ErrorPage({
           <div class="error-details">
             <div class="error-message">
               <h2>Message</h2>
-              <pre>{escapeHtml(error.message)}</pre>
+              <pre>{error.message}</pre>
             </div>
 
             {!!error.stack && (
               <div class="error-stack">
                 <h2>Stack trace</h2>
-                <pre>{escapeHtml(error.stack)}</pre>
+                <pre>{error.stack}</pre>
               </div>
             )}
           </div>

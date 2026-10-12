@@ -1,5 +1,3 @@
-import { escapeHtml } from "@kitajs/html";
-
 export interface PageHeadProps {
   title: string;
 }
@@ -7,7 +5,7 @@ export interface PageHeadProps {
 export function PageHead({ title }: PageHeadProps) {
   return (
     <header class="page-head">
-      <h1>{escapeHtml(title)}</h1>
+      <h1>{title}</h1>
     </header>
   );
 }

@@ -1,5 +1,3 @@
-import { escapeHtml } from "@kitajs/html";
-
 export interface SectionHeadProps {
   title: string;
   meta?: string;
@@ -9,8 +7,8 @@ export interface SectionHeadProps {
 export function SectionHead({ title, meta, anchor }: SectionHeadProps) {
   return (
     <div id={anchor} class="section-head">
-      <h2>{escapeHtml(title)}</h2>
-      {meta ? <span class="meta">{escapeHtml(meta)}</span> : null}
+      <h2>{title}</h2>
+      {meta ? <span class="meta">{meta}</span> : null}
     </div>
   );
 }

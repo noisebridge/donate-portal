@@ -1,4 +1,3 @@
-import { escapeHtml } from "@kitajs/html";
 import { Layout } from "~/components/layout";
 import type { FriendlyError } from "~/lib/friendly-error";
 
@@ -25,8 +24,8 @@ export function FriendlyErrorPage({
           <h1 class="error-heading">something_went_wrong</h1>
 
           <div class="error-details">
-            <h2 class="error-title">{escapeHtml(error.title)}</h2>
-            <p class="error-description">{escapeHtml(error.description)}</p>
+            <h2 class="error-title">{error.title}</h2>
+            <p class="error-description">{error.description}</p>
           </div>
         </div>
       </div>

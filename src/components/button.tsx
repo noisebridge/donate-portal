@@ -1,11 +1,11 @@
-import type { PropsWithChildren } from "@kitajs/html";
+import type { Children, PropsWithChildren } from "~/lib/jsx/jsx-runtime";
 
 interface ButtonOwnProps {
   variant?: "primary" | "secondary" | "outline" | "ghost";
   href?: string;
   type?: "button" | "submit";
   arrow?: boolean;
-  icon?: JSX.Element;
+  icon?: Children;
   suffix?: string;
   danger?: boolean;
   disabled?: boolean;
@@ -45,7 +45,7 @@ export function Button({
       )}
       <span class="btn-label">{children}</span>
       {!!arrow && <span class="btn-arrow">{"\u2192"}</span>}
-      {!!suffix && <span class="btn-suffix">{suffix as "safe"}</span>}
+      {!!suffix && <span class="btn-suffix">{suffix}</span>}
     </>
   );
 

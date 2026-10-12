@@ -69,7 +69,7 @@ export function DonationTierSelector({
                   required
                   checked={tier.checked}
                 />
-                <span class="tier-name">{tier.name as "safe"}</span>
+                <span class="tier-name">{tier.name}</span>
                 <span class="amt">
                   <span class="dol">$</span>
                   {tier.amount}

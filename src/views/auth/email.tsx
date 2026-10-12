@@ -1,4 +1,3 @@
-import { escapeHtml } from "@kitajs/html";
 import { Layout } from "~/components/layout";
 import paths from "~/lib/paths";
 
@@ -33,9 +32,8 @@ export function AuthEmailPage({
 
             <h1>Check your email</h1>
             <p>
-              We sent a sign-in link to{" "}
-              <span class="sent-email">{escapeHtml(email)}</span>. Click it to
-              finish — no password needed.
+              We sent a sign-in link to <span class="sent-email">{email}</span>.
+              Click it to finish — no password needed.
             </p>
             <p>The link expires in 5 minutes.</p>
 

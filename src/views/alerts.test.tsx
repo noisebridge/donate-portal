@@ -25,45 +25,44 @@ const makeMember = (): MemberAlertMessage => ({
 });
 
 describe("AlertsPage", () => {
-  test("should render with charges", async () => {
+  test("should render with charges", () => {
     const charges = [makeCharge(5000, "Laser Cutter"), makeCharge(2000)];
-    const result = await (<AlertsPage alerts={charges} />);
+    const result = String(<AlertsPage alerts={charges} />);
 
-    expect(result).toBeTypeOf("string");
     expect(result).toContain("Laser Cutter");
     expect(result).toContain("Latest Donation");
   });
 
-  test("should show NICE badge for amounts containing 69", async () => {
+  test("should show NICE badge for amounts containing 69", () => {
     const charges = [makeCharge(4269)];
-    const result = await (<AlertsPage alerts={charges} />);
+    const result = String(<AlertsPage alerts={charges} />);
 
     expect(result).toContain("nice-badge");
   });
 
-  test("should show NICE badge when the 69 is in the dollars", async () => {
-    const result = await (<AlertsPage alerts={[makeCharge(6900)]} />);
+  test("should show NICE badge when the 69 is in the dollars", () => {
+    const result = String(<AlertsPage alerts={[makeCharge(6900)]} />);
 
     expect(result).toContain("nice-badge");
   });
 
-  test("should render member alerts in history", async () => {
+  test("should render member alerts in history", () => {
     const alerts: AlertMessage[] = [makeCharge(5000), makeMember()];
-    const result = await (<AlertsPage alerts={alerts} />);
+    const result = String(<AlertsPage alerts={alerts} />);
 
     expect(result).toContain("New Member");
     expect(result).toContain("Membership");
   });
 
-  test("should show waiting message with empty alerts", async () => {
-    const result = await (<AlertsPage alerts={[]} />);
+  test("should show waiting message with empty alerts", () => {
+    const result = String(<AlertsPage alerts={[]} />);
 
     expect(result).toContain("Waiting for donations");
   });
 
-  test("should not let a product name break out of the JSON script tag", async () => {
+  test("should not let a product name break out of the JSON script tag", () => {
     const payload = "</script><svg onload=alert(1)>";
-    const result = await (<AlertsPage alerts={[makeCharge(2000, payload)]} />);
+    const result = String(<AlertsPage alerts={[makeCharge(2000, payload)]} />);
 
     // The literal closing tag must not appear inside the bootstrap JSON island,
     // otherwise the browser ends the <script> early and the rest is live HTML.

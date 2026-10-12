@@ -1,4 +1,3 @@
-import { escapeHtml } from "@kitajs/html";
 import { Layout } from "~/components/layout";
 import { StripeCheckoutModal } from "~/components/stripe-checkout-modal";
 import { formatAmount } from "~/lib/money";
@@ -55,7 +54,7 @@ export function QrPage({
                 id="name"
                 name="name"
                 class="product-name-input"
-                value={name ? escapeHtml(name) : ""}
+                value={name ?? ""}
                 placeholder={donationManager.DEFAULT_NAME}
                 maxlength={donationManager.MAX_NAME_LENGTH}
                 autocomplete="off"
@@ -80,7 +79,7 @@ export function QrPage({
                 maxlength={donationManager.MAX_DESCRIPTION_LENGTH}
                 readonly
               >
-                {description ? escapeHtml(description) : ""}
+                {description}
               </textarea>
             </label>
           </div>
@@ -102,7 +101,7 @@ export function QrPage({
             </div>
 
             <span class="form-hint" id="amount-hint">
-              Minimum {formatAmount(donationManager.MINIMUM_AMOUNT) as "safe"}
+              Minimum {formatAmount(donationManager.MINIMUM_AMOUNT)}
             </span>
 
             <div class="slider-wrap">
@@ -121,26 +120,24 @@ export function QrPage({
                   <button type="button" class="tick" data-amt={minDollars}>
                     <span class="pip"></span>
                     <span class="label">
-                      {formatAmount(donationManager.MINIMUM_AMOUNT) as "safe"}
+                      {formatAmount(donationManager.MINIMUM_AMOUNT)}
                     </span>
                   </button>
                 )}
                 <button type="button" class="tick" data-amt={initialDollars}>
                   <span class="pip"></span>
-                  <span class="label">{formatAmount(amount) as "safe"}</span>
+                  <span class="label">{formatAmount(amount)}</span>
                 </button>
                 <button type="button" class="tick" data-amt={maxDollars}>
                   <span class="pip"></span>
-                  <span class="label">{formatAmount(maxAmount) as "safe"}</span>
+                  <span class="label">{formatAmount(maxAmount)}</span>
                 </button>
               </div>
             </div>
           </section>
 
           <button type="submit" class="btn btn-primary">
-            <span id="donate-label">
-              {`Donate · ${formatAmount(amount)}` as "safe"}
-            </span>
+            <span id="donate-label">{`Donate · ${formatAmount(amount)}`}</span>
             <span aria-hidden="true">{"→"}</span>
           </button>
         </form>

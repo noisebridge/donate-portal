@@ -51,7 +51,10 @@ more complex business logic to other modules such as:
 
 ## Views & Templating
 
-- Use **@kitajs/html** for JSX-based page design (not React)
+- Use JSX for page design. It renders to HTML strings through our own runtime
+  in `src/lib/jsx/` (not React), which escapes all strings by default. Raw
+  `<script>`/`<style>` contents go in `dangerouslySetInnerHTML={{ __html }}`
+- Render an element with `String(<Page />)`, or send it with `reply.html(<Page />)`
 - Place all page components in `src/views/`
 - Place components that are not top-level pages in `src/components`
 - All pages are **server-side rendered (SSR)**
