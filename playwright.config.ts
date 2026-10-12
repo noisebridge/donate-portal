@@ -1,5 +1,19 @@
+import { mkdtempSync } from "node:fs";
+import { tmpdir } from "node:os";
+import path from "node:path";
 import { defineConfig, devices } from "@playwright/test";
 import config from "./src/config";
+
+// macOS 27 blocks Playwright's Firefox from the real Firefox's data folder, so
+// it exits with "Could not find profile folder". Each worker process loads
+// this config, so each Firefox gets its own fake home. Remove once Playwright
+// ships Firefox 158: https://github.com/microsoft/playwright/issues/42768
+// ponytail: the homes stay in $TMPDIR, since macOS locks the empty folders
+// Firefox creates in them against deletion.
+const firefoxHome =
+  process.platform === "darwin"
+    ? mkdtempSync(path.join(tmpdir(), "playwright-firefox-home-"))
+    : undefined;
 
 export default defineConfig({
   testDir: "./e2e",
@@ -11,6 +25,11 @@ export default defineConfig({
   use: {
     baseURL: config.baseUrl,
     trace: "on-first-retry",
+    ...(firefoxHome && {
+      launchOptions: {
+        env: { ...process.env, CFFIXED_USER_HOME: firefoxHome },
+      },
+    }),
   },
   projects: [
     {
