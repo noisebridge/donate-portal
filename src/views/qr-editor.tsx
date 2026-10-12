@@ -148,7 +148,9 @@ export function QrEditorPage({ isAuthenticated, csrfToken }: QrEditorProps) {
                 <img id="qr-image" src="" alt="QR Code preview" hidden />
                 <div id="qr-placeholder" class="qr-placeholder">
                   <div class="qr-placeholder-icon">[ ]</div>
-                  <div class="qr-placeholder-msg">Enter an amount</div>
+                  <div id="qr-placeholder-msg" class="qr-placeholder-msg">
+                    Enter an amount
+                  </div>
                   <div class="qr-placeholder-sub">QR updates as you type</div>
                 </div>
               </div>

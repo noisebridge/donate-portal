@@ -89,7 +89,7 @@ function editorPage(options = {}) {
     </form>
     <input type="text" id="qr-url" value="${DONATION_URL}?amount=5" />
     <img id="qr-image" hidden alt="QR code" />
-    <div id="qr-placeholder"></div>
+    <div id="qr-placeholder"><div id="qr-placeholder-msg"></div></div>
     <button type="button" id="download-png">PNG</button>
     <button type="button" id="download-svg">SVG</button>`;
 }
@@ -147,6 +147,9 @@ describe("updating the QR code", () => {
     typeInto("amount", "");
 
     expect(qrImage().hidden).toBe(true);
+    expect(doc.getElementById("qr-placeholder-msg")?.textContent).toBe(
+      "Enter an amount",
+    );
     expect(doc.getElementById("qr-placeholder")?.hidden).toBe(false);
     expect(input("qr-url").value).toBe(DONATION_URL);
   });
@@ -155,6 +158,9 @@ describe("updating the QR code", () => {
     typeInto("amount", "0.5");
 
     expect(qrImage().hidden).toBe(true);
+    expect(doc.getElementById("qr-placeholder-msg")?.textContent).toStartWith(
+      "Minimum is $",
+    );
   });
 
   it("keeps the placeholder while the amount is above the maximum", () => {
@@ -163,6 +169,9 @@ describe("updating the QR code", () => {
     typeInto("amount", "1000000");
 
     expect(qrImage().hidden).toBe(true);
+    expect(doc.getElementById("qr-placeholder-msg")?.textContent).toStartWith(
+      "Maximum is $",
+    );
     expect(doc.getElementById("qr-placeholder")?.hidden).toBe(false);
     expect(input("qr-url").value).toBe(DONATION_URL);
   });

@@ -62,6 +62,14 @@ function updateQrCode(
   // Anything outside the range is rejected by /qr.svg, so keep the placeholder
   // up rather than pointing the preview at a URL that answers 400.
   if (Number.isNaN(amount) || amount < minAmount || amount > maxAmount) {
+    const qrPlaceholderMsg = /** @type {HTMLElement} */ (
+      document.getElementById("qr-placeholder-msg")
+    );
+    qrPlaceholderMsg.textContent = Number.isNaN(amount)
+      ? "Enter an amount"
+      : amount < minAmount
+        ? `Minimum is $${minAmount.toFixed(2)}`
+        : `Maximum is $${maxAmount.toFixed(2)}`;
     qrImage.hidden = true;
     qrPlaceholder.hidden = false;
     qrUrlInput.value = donationUrl;
