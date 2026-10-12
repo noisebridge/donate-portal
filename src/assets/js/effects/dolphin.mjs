@@ -77,24 +77,12 @@ export function initDolphin(canvasEl) {
 }
 
 /**
- * Get the center position of the alert amount element.
- * @returns {{ x: number, y: number }}
- */
-function getAmountCenter() {
-  const el = document.getElementById("alert-amount");
-  if (!el) return { x: window.innerWidth / 2, y: window.innerHeight / 3 };
-  const rect = el.getBoundingClientRect();
-  return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
-}
-
-/**
- * Draw the banner dolphins (left and right of the donation text) on the canvas.
+ * Draw the banner dolphins in the top left and right corners of the canvas.
  * @param {number} progress - 0..1
  */
 function drawBannerDolphins(progress) {
   if (!dolphinLeftImg?.complete || !dolphinRightImg?.complete) return;
 
-  const center = getAmountCenter();
   const easedProgress = easeOut(progress);
 
   const finalWidth = BANNER_DOLPHIN_WIDTH;
@@ -108,11 +96,14 @@ function drawBannerDolphins(progress) {
   const leftHeight = currentWidth * leftAspect;
   const rightHeight = currentWidth * rightAspect;
 
-  const leftX = center.x - BANNER_DOLPHIN_MARGIN - finalWidth / 2;
-  const rightX = center.x + BANNER_DOLPHIN_MARGIN + finalWidth / 2;
+  // Spin around the center of each dolphin's final resting spot
+  const leftX = BANNER_DOLPHIN_MARGIN + finalWidth / 2;
+  const leftY = BANNER_DOLPHIN_MARGIN + (finalWidth * leftAspect) / 2;
+  const rightX = canvas.width - BANNER_DOLPHIN_MARGIN - finalWidth / 2;
+  const rightY = BANNER_DOLPHIN_MARGIN + (finalWidth * rightAspect) / 2;
 
   ctx.save();
-  ctx.translate(leftX, center.y);
+  ctx.translate(leftX, leftY);
   ctx.rotate(-rotation);
   ctx.drawImage(
     dolphinLeftImg,
@@ -124,7 +115,7 @@ function drawBannerDolphins(progress) {
   ctx.restore();
 
   ctx.save();
-  ctx.translate(rightX, center.y);
+  ctx.translate(rightX, rightY);
   ctx.rotate(rotation);
   ctx.drawImage(
     dolphinRightImg,
