@@ -211,7 +211,7 @@ async function updateSubscription(
       proration_behavior: "none",
     });
   } catch (error) {
-    log.error({ error }, "Failed to update subscription");
+    log.error({ err: error }, "Failed to update subscription");
     return { success: false, error: "UpdateError" };
   }
 
@@ -237,7 +237,7 @@ async function cancelLocked(email: string): Promise<CancelResult> {
   try {
     await stripe.subscriptions.cancel(subscription.id);
   } catch (e) {
-    log.error({ error: e }, "Failed to cancel subscription");
+    log.error({ err: e }, "Failed to cancel subscription");
     return { success: false, error: "CancelError" };
   }
 
@@ -279,7 +279,7 @@ export async function createPortalSession(
       return_url: `${config.baseUrl}${paths.manage()}`,
     });
   } catch (e) {
-    log.error({ error: e }, "Failed to create Stripe Portal session");
+    log.error({ err: e }, "Failed to create Stripe Portal session");
     return { success: false, error: "PortalError" };
   }
   if (!session.url) {

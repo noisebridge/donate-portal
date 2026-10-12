@@ -23,7 +23,7 @@ function getRateLimitAllowList(): string[] {
   try {
     parsedAllowList = JSON.parse(allowListEnvVar);
   } catch (e) {
-    logger.error({ exception: e }, "Failed to parse RATE_LIMIT_ALLOW_LIST");
+    logger.error({ err: e }, "Failed to parse RATE_LIMIT_ALLOW_LIST");
     return [];
   }
   if (!Array.isArray(parsedAllowList)) {
