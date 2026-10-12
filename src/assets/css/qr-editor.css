@@ -223,13 +223,6 @@
   text-transform: uppercase;
 }
 
-.qr-placeholder-sub {
-  font-size: 11px;
-  color: var(--color-text-mute);
-  margin-top: 6px;
-  line-height: 1.5;
-}
-
 /* QR URL Display */
 .qr-url-wrap {
   margin-bottom: 20px;

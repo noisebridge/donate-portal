@@ -48,7 +48,7 @@ export function QrEditorPage({ isAuthenticated, csrfToken }: QrEditorProps) {
 
         <div class="editor-grid">
           <section>
-            <SectionHead title="parameters" meta={"Live preview \u2192"} />
+            <SectionHead title="parameters" />
 
             <form id="qr-form" action={paths.qrSvg()} method="GET">
               <div class="field">
@@ -151,7 +151,6 @@ export function QrEditorPage({ isAuthenticated, csrfToken }: QrEditorProps) {
                   <div id="qr-placeholder-msg" class="qr-placeholder-msg">
                     Enter an amount
                   </div>
-                  <div class="qr-placeholder-sub">QR updates as you type</div>
                 </div>
               </div>
 
