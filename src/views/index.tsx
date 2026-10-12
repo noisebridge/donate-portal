@@ -127,6 +127,7 @@ export function IndexPage({
                 name="amount-dollars"
                 value="40"
                 aria-label="$40"
+                checked
               />
               <label for="amount-40" class="amount-chip" aria-hidden="true">
                 <span class="idx">[03]</span>
