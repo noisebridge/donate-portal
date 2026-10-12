@@ -46,7 +46,7 @@ export async function SubscriptionPastDueEmail({
       Sign In
     </mj-button>
     <mj-text align="center" padding-top="20px" color="#888888" font-size="12px">
-      Once signed in, click the "Payment Methods" button.
+      Once signed in, click "Past invoices &amp; payment method".
     </mj-text>
     <mj-divider border-color="#e0e0e0" padding="30px 0 20px 0" />
     <mj-text align="center" color="#888888" font-size="12px">

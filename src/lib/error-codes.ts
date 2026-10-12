@@ -24,7 +24,7 @@ export enum ErrorCode {
   CancelError = "Unable to cancel monthly donation. Please try again.",
   UpdateError = "Unable to update donation amount. Please try again.",
   PortalError = "Unable to create billing portal session",
-  PastDue = "Your subscription is past due! Click the Payment Methods button to fix it.",
+  PastDue = 'Your subscription is past due! Click "Past invoices & payment method" to fix it.',
 }
 export type ErrorCodeKey = keyof typeof ErrorCode;
 
