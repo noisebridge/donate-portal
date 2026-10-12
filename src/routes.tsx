@@ -16,7 +16,6 @@ import {
   isInfoCodeKey,
 } from "~/lib/error-codes";
 import { FriendlyError } from "~/lib/friendly-error";
-import baseLogger from "~/lib/logger";
 import { parseToCents, validateAmountFormData } from "~/lib/money";
 import paths, { type MessageParams } from "~/lib/paths";
 import { CookieName, cookies } from "~/lib/signed-cookies";
@@ -196,7 +195,7 @@ export default async function routes(fastify: FastifyInstance) {
       if (statusCode >= 500) {
         errorReportingService
           .reportBackend(error, request)
-          .catch((err) => baseLogger.error({ err }, "Failed to report error"));
+          .catch((err) => fastify.log.error({ err }, "Failed to report error"));
       }
 
       const props = {
@@ -804,7 +803,7 @@ export default async function routes(fastify: FastifyInstance) {
 
       return reply.send({
         clientSecret: result.clientSecret,
-        emailAddress: sessionData.email ?? null,
+        emailAddress: sessionData.email,
       });
     },
   );
@@ -957,9 +956,10 @@ export default async function routes(fastify: FastifyInstance) {
           { err, eventType: event.type },
           "Webhook processing error",
         );
-        if (err instanceof Error) {
-          await errorReportingService.reportBackend(err, request);
-        }
+        await errorReportingService.reportBackend(
+          err instanceof Error ? err : new Error(`Unknown error: ${err}`),
+          request,
+        );
         // Still return 200 to prevent Stripe retries for processing errors
       }
 
