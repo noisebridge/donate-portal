@@ -41,9 +41,21 @@ interface ChargeHistoryItemProps {
   alert: ChargeAlertMessage;
 }
 
-function ChargeHistoryItem({ alert }: ChargeHistoryItemProps) {
+function AlignedAmount({ alert }: ChargeHistoryItemProps) {
   const [dollars, cents] = amountDisplayText(alert).split(".");
 
+  return (
+    <>
+      <span class="history-amount-dollars">{dollars}.</span>
+      <span class="history-amount-cents">
+        {cents}
+        {isNice(alert.amount) && <NiceBadge />}
+      </span>
+    </>
+  );
+}
+
+function ChargeHistoryItem({ alert }: ChargeHistoryItemProps) {
   return (
     <div
       class="history-item"
@@ -52,11 +64,7 @@ function ChargeHistoryItem({ alert }: ChargeHistoryItemProps) {
     >
       <span class="history-product">{alert.productName}</span>
       <span class="history-amount">
-        <span class="history-amount-dollars">{dollars}.</span>
-        <span class="history-amount-cents">
-          {cents}
-          {isNice(alert.amount) && <NiceBadge />}
-        </span>
+        <AlignedAmount alert={alert} />
       </span>
       <span class="history-date">{formatDate(alert.date)}</span>
     </div>
@@ -155,23 +163,26 @@ export function AlertsPage({ alerts }: AlertsPageProps) {
         <div class="alerts-layout">
           <div class="alerts-spacer"></div>
           <div class="alerts-container">
-            <p class="alert-label">Latest Donation</p>
-            <p
-              id="alert-amount"
-              class="alert-amount"
-              data-amount={latestAmountCents.toString()}
-            >
-              {amountDisplayText(latest)}
-              {latest?.type === "charge_alert" && isNice(latest.amount) && (
-                <NiceBadge />
-              )}
-            </p>
-            <p id="alert-product" class="alert-product">
-              {latest ? latest.productName : "Waiting for donations\u2026"}
-            </p>
-            <p id="alert-date" class="alert-date">
-              {latest ? formatDate(latest.date) : ""}
-            </p>
+            <p class="alert-label">Latest Donations</p>
+            <div class="history-item alert-latest">
+              <span id="alert-product" class="history-product">
+                {latest ? latest.productName : "Waiting for donations\u2026"}
+              </span>
+              <span
+                id="alert-amount"
+                class="history-amount"
+                data-amount={latestAmountCents.toString()}
+              >
+                {latest?.type === "charge_alert" ? (
+                  <AlignedAmount alert={latest} />
+                ) : (
+                  amountDisplayText(latest)
+                )}
+              </span>
+              <span id="alert-date" class="history-date">
+                {latest ? formatDate(latest.date) : ""}
+              </span>
+            </div>
           </div>
           <div class="history-wrapper">
             <div id="history-list" class="history-list">

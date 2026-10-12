@@ -180,11 +180,11 @@ export function splitAmount(amount) {
 }
 
 /**
- * Build an amount element with aligned dollar/cent spans.
+ * Build aligned dollar/cent spans for an amount.
  * @param {Cents} amount
- * @returns {HTMLSpanElement}
+ * @returns {HTMLSpanElement[]}
  */
-function buildAmountAligned(amount) {
+function alignedAmountParts(amount) {
   const { dollars, cents } = splitAmount(amount);
 
   const centsSpan = span("history-amount-cents", cents);
@@ -192,9 +192,18 @@ function buildAmountAligned(amount) {
     centsSpan.append(niceBadge());
   }
 
+  return [span("history-amount-dollars", `$${dollars}.`), centsSpan];
+}
+
+/**
+ * Build an amount element with aligned dollar/cent spans.
+ * @param {Cents} amount
+ * @returns {HTMLSpanElement}
+ */
+function buildAmountAligned(amount) {
   const wrapper = document.createElement("span");
   wrapper.className = "history-amount";
-  wrapper.append(span("history-amount-dollars", `$${dollars}.`), centsSpan);
+  wrapper.append(...alignedAmountParts(amount));
 
   return wrapper;
 }
@@ -341,10 +350,7 @@ function updateHeader(alert) {
     amountEl.textContent = "Membership";
     amountEl.dataset["amount"] = "0";
   } else {
-    amountEl.textContent = formatAmount(alert.amount);
-    if (isNice(alert.amount)) {
-      amountEl.append(niceBadge());
-    }
+    amountEl.replaceChildren(...alignedAmountParts(alert.amount));
     amountEl.dataset["amount"] = alert.amount.cents.toString();
   }
   productEl.textContent = alert.productName;
