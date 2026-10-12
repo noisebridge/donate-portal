@@ -37,7 +37,7 @@ export function DonationTierSelector({
   csrfToken,
 }: DonationTierSelectorProps) {
   const existingAmount =
-    subscription?.items?.data[0]?.price?.unit_amount ?? null;
+    subscriptionManager.subscriptionAmount(subscription)?.cents ?? null;
   const tiers = TIERS.map((tier) => ({
     ...tier,
     checked: tierChecked(tier, existingAmount),

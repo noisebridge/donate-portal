@@ -289,7 +289,7 @@ export async function createPortalSession(
   return { success: true, portalUrl: session.url };
 }
 
-function subscriptionAmount(
+export function subscriptionAmount(
   subscription?: Partial<Stripe.Subscription>,
 ): Cents | undefined {
   const unit_amount = subscription?.items?.data[0]?.price?.unit_amount;

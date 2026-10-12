@@ -12,6 +12,7 @@ import { SectionHead } from "~/components/section-head";
 import { StripeCheckoutModal } from "~/components/stripe-checkout-modal";
 import { formatAmount } from "~/lib/money";
 import paths from "~/lib/paths";
+import * as subscriptionManager from "~/managers/subscription";
 
 export interface ManageProps {
   email: string;
@@ -64,11 +65,10 @@ export function ManagePage({
   csrfToken,
 }: ManageProps) {
   const item = subscriptionItem(subscription);
-  const amountCents = item?.price?.unit_amount ?? null;
+  const amount = subscriptionManager.subscriptionAmount(subscription);
   const renewalDate = formatRenewalDate(item);
-  const amountFormatted =
-    amountCents === null ? null : formatAmount({ cents: amountCents });
-  const tierName = tierNameFromCents(amountCents);
+  const amountFormatted = amount ? formatAmount(amount) : null;
+  const tierName = tierNameFromCents(amount?.cents ?? null);
 
   return (
     <Layout
