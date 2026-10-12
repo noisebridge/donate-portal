@@ -20,7 +20,7 @@ export function AuthEmailPage({
       isAuthenticated={isAuthenticated}
       csrfToken={csrfToken}
     >
-      <main class="stage">
+      <div class="stage">
         <div class="center-col">
           <div class="sent-card offset-frame">
             <img
@@ -50,7 +50,7 @@ export function AuthEmailPage({
             ← Use a different email
           </a>
         </div>
-      </main>
+      </div>
     </Layout>
   );
 }

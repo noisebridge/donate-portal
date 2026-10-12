@@ -22,7 +22,7 @@ export function AuthPage({
       isAuthenticated={isAuthenticated}
       csrfToken={csrfToken}
     >
-      <main class="stage">
+      <div class="stage">
         <div class="center-col">
           <MessageContainer messages={messages} />
 
@@ -105,7 +105,7 @@ export function AuthPage({
             </form>
           </div>
         </div>
-      </main>
+      </div>
     </Layout>
   );
 }
