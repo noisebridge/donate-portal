@@ -1,5 +1,11 @@
 // @ts-check
 
+import {
+  dollarPattern,
+  enforcePattern,
+  validateMinAmount,
+} from "./validate.mjs";
+
 /** @typedef {import("~/types/cents").Cents} Cents */
 
 /**
@@ -9,6 +15,25 @@
  */
 export function formatAmount(amount) {
   return `$${(amount.cents / 100).toFixed(2)}`;
+}
+
+/**
+ * Wire up a "Custom" amount input: restrict it to dollar amounts, enforce its
+ * `data-min`, and keep it in sync with the radio group it belongs to.
+ *
+ * @param {HTMLInputElement} customInputField
+ * @param {HTMLInputElement} customRadioButton
+ * @param {NodeListOf<HTMLInputElement>} radioButtons
+ */
+export function initCustomAmount(
+  customInputField,
+  customRadioButton,
+  radioButtons,
+) {
+  enforcePattern(customInputField, dollarPattern);
+  validateMinAmount(customInputField);
+  activateCustomOnClick(customInputField, customRadioButton);
+  activateCustomOnRadio(radioButtons, customInputField);
 }
 
 /**

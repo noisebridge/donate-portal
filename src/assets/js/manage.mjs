@@ -1,33 +1,8 @@
 // @ts-check
 
 import { initMessages } from "./util/messages.mjs";
-import {
-  activateCustomOnClick,
-  activateCustomOnRadio,
-} from "./util/money-forms.mjs";
+import { initCustomAmount } from "./util/money-forms.mjs";
 import { initCheckoutForm } from "./util/stripe.mjs";
-import {
-  dollarPattern,
-  enforcePattern,
-  validateMinAmount,
-} from "./util/validate.mjs";
-
-function initCustomAmount() {
-  const customTierRadio = /** @type {HTMLInputElement} */ (
-    document.getElementById("tier-custom")
-  );
-  const customAmountInput = /** @type {HTMLInputElement} */ (
-    document.getElementById("custom-amount")
-  );
-  const radioButtons = /** @type {NodeListOf<HTMLInputElement>} */ (
-    document.querySelectorAll(".tier-options input[type=radio]")
-  );
-
-  enforcePattern(customAmountInput, dollarPattern);
-  validateMinAmount(customAmountInput);
-  activateCustomOnClick(customAmountInput, customTierRadio);
-  activateCustomOnRadio(radioButtons, customAmountInput);
-}
 
 function initCancelForm() {
   const cancelForm = /** @type {HTMLFormElement | null} */ (
@@ -77,7 +52,13 @@ function initCancelForm() {
 
 document.addEventListener("DOMContentLoaded", () => {
   initMessages();
-  initCustomAmount();
+  initCustomAmount(
+    /** @type {HTMLInputElement} */ (document.getElementById("custom-amount")),
+    /** @type {HTMLInputElement} */ (document.getElementById("tier-custom")),
+    /** @type {NodeListOf<HTMLInputElement>} */ (
+      document.querySelectorAll(".tier-options input[type=radio]")
+    ),
+  );
   initCancelForm();
 
   const form = /** @type {HTMLFormElement} */ (
