@@ -149,8 +149,8 @@
   content: "";
   width: 10px;
   height: 6px;
-  border-left: 2px solid #fff;
-  border-bottom: 2px solid #fff;
+  border-left: 2px solid var(--color-white);
+  border-bottom: 2px solid var(--color-white);
   transform: translateY(-1px) rotate(-45deg);
 }
 

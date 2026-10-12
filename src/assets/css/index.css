@@ -116,7 +116,7 @@ p.hero-lede {
 
 .recurring-card .badge {
   background: var(--color-primary);
-  color: #fff;
+  color: var(--color-white);
   padding: 3px 8px;
   font-weight: 700;
 }
