@@ -73,7 +73,7 @@ export function HomePage() {
 
 ## Path Definitions
 
-All paths are defined in `src/paths` and are exported as the default export in a
+All paths are defined in `src/lib/paths.ts` and are exported as the default export in a
 object keyed by a name with corresponding values as functions that return the
 path with optional parameters.
 
