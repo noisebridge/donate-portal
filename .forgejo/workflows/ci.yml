@@ -10,10 +10,6 @@
 #   runner container, which bakes in node + buildah + Playwright/Firefox OS
 #   deps), so these jobs serialize; `bunx playwright install firefox` runs
 #   WITHOUT --with-deps by design.
-# - The Render deploy intentionally stays on .github/workflows/deploy.yml
-#   until the donate.noisebridge.net DNS cutover to the cluster completes
-#   (see the infra repo's donate-portal README runbook); then that workflow
-#   loses its deploy job and this build becomes the only deploy path.
 # - CI_BOT_REGISTRY_TOKEN is the org-level Actions secret (package-scoped
 #   ci-bot token — the built-in job token cannot push packages, design D8).
 #   The app test secrets below are Forgejo Actions secrets mirroring the
@@ -63,7 +59,7 @@ jobs:
       - name: Setup Bun
         uses: https://github.com/oven-sh/setup-bun@v2
         with:
-          bun-version: 1.4.2
+          bun-version-file: package.json
 
       - name: Install dependencies
         run: bun install --frozen-lockfile
@@ -75,7 +71,7 @@ jobs:
         run: bunx xss-scan
 
       - name: Run tests
-        run: bun test
+        run: bun run test
 
   lint:
     runs-on: oci-build
@@ -85,7 +81,7 @@ jobs:
       - name: Setup Bun
         uses: https://github.com/oven-sh/setup-bun@v2
         with:
-          bun-version: 1.4.2
+          bun-version-file: package.json
 
       - name: Install dependencies
         run: bun install --frozen-lockfile
@@ -101,7 +97,7 @@ jobs:
       - name: Setup Bun
         uses: https://github.com/oven-sh/setup-bun@v2
         with:
-          bun-version: 1.4.2
+          bun-version-file: package.json
 
       - name: Install dependencies
         run: bun install --frozen-lockfile
