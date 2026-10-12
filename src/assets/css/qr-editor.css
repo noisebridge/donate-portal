@@ -321,15 +321,6 @@
     padding: 20px 22px 60px;
   }
 
-  .page-head {
-    gap: 12px;
-    padding-bottom: 18px;
-  }
-
-  .page-head h1 {
-    font-size: 30px;
-  }
-
   .page-desc {
     font-size: 11.5px;
     margin: 14px 0 30px;
@@ -338,19 +329,6 @@
   .editor-grid {
     grid-template-columns: 1fr;
     gap: 36px;
-  }
-
-  .section-head {
-    padding-bottom: 12px;
-    margin-bottom: 18px;
-  }
-
-  .section-head h2 {
-    font-size: 18px;
-  }
-
-  .section-head .meta {
-    font-size: 10px;
   }
 
   .input-wrap-amount input {
@@ -423,10 +401,6 @@
 @media (max-width: 440px) {
   .container-wide {
     padding: 16px 18px 50px;
-  }
-
-  .page-head h1 {
-    font-size: 26px;
   }
 
   .button-group {
