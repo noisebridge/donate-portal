@@ -10,12 +10,12 @@ import {
 import type Stripe from "stripe";
 import baseLogger from "~/lib/logger";
 import stripe from "~/services/stripe";
-import type {
-  AlertMessage,
-  ChargeAlertMessage,
-  ClientMessage,
-  MemberAlertMessage,
-  PingMessage,
+import {
+  type AlertMessage,
+  type ChargeAlertMessage,
+  clientMessageSchema,
+  type MemberAlertMessage,
+  type PingMessage,
 } from "~/types/alerts";
 import { GENERAL_DONATION, NAME_REMAP } from "./donation";
 import { PRODUCT_ID } from "./subscription";
@@ -62,16 +62,28 @@ export class ChargeAlertManager {
     this.connections.set(socket, { alive: true });
 
     socket.on("message", (data) => {
+      let json: unknown;
       try {
-        const message = JSON.parse(String(data)) as ClientMessage;
-        if (message.type === "pong") {
-          const state = this.connections.get(socket);
-          if (state) {
-            state.alive = true;
-          }
-        }
+        json = JSON.parse(String(data));
       } catch (err) {
         ChargeAlertManager.log.error({ err }, "Failed to parse client message");
+        return;
+      }
+
+      const result = clientMessageSchema.safeParse(json);
+      if (!result.success) {
+        ChargeAlertManager.log.error(
+          { err: result.error },
+          "Invalid client message",
+        );
+        return;
+      }
+
+      if (result.data.type === "pong") {
+        const state = this.connections.get(socket);
+        if (state) {
+          state.alive = true;
+        }
       }
     });
 

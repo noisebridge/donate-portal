@@ -163,7 +163,7 @@ async function csrf(): Promise<{ token: string; cookie: string }> {
 /** POST a urlencoded form with a valid CSRF token. */
 async function postForm(
   url: string,
-  body: Record<string, string>,
+  body: Record<string, string> | [string, string][],
   extraCookies: string[] = [],
 ) {
   const { token, cookie } = await csrf();
@@ -175,7 +175,10 @@ async function postForm(
       "content-type": "application/x-www-form-urlencoded",
       cookie: [cookie, ...extraCookies].join("; "),
     },
-    payload: new URLSearchParams({ ...body, _csrf: token }).toString(),
+    payload: new URLSearchParams([
+      ...(Array.isArray(body) ? body : Object.entries(body)),
+      ["_csrf", token],
+    ]).toString(),
   });
 }
 
@@ -353,6 +356,16 @@ describe("routes", () => {
 
       expect(response.statusCode).toBe(400);
     });
+
+    test("redirects to the index for a repeated amount", async () => {
+      const response = await app.inject({
+        method: "GET",
+        url: "/qr?amount=5&amount=6",
+      });
+
+      expect(response.statusCode).toBe(302);
+      expect(response.headers.location).toBe("/?error=InvalidRequest");
+    });
   });
 
   describe("GET /qr.svg", () => {
@@ -436,6 +449,17 @@ describe("routes", () => {
       expect(json(response)).toEqual({
         redirect: "/?error=InvalidDonationAmount",
       });
+    });
+
+    test("redirects when the name is repeated", async () => {
+      const response = await postForm("/donate", [
+        ["amount-dollars", "10"],
+        ["name", "a"],
+        ["name", "b"],
+      ]);
+
+      expect(json(response)).toEqual({ redirect: "/?error=InvalidRequest" });
+      expect(mocks.paymentIntentsCreate).not.toHaveBeenCalled();
     });
 
     test("redirects when the name is too long", async () => {
@@ -625,6 +649,30 @@ describe("routes", () => {
       const response = await postForm("/cancel", {}, [sessionCookie()]);
 
       expect(response.headers.location).toBe("/manage?error=NoCustomer");
+    });
+  });
+
+  describe("POST /auth/email", () => {
+    test("redirects with InvalidRequest for a repeated email", async () => {
+      const response = await postForm("/auth/email", [
+        ["email", "a@example.com"],
+        ["email", "b@example.com"],
+      ]);
+
+      expect(response.statusCode).toBe(302);
+      expect(response.headers.location).toBe("/auth?error=InvalidRequest");
+    });
+  });
+
+  describe("GET /auth/github/callback", () => {
+    test("redirects with InvalidRequest for a repeated code", async () => {
+      const response = await app.inject({
+        method: "GET",
+        url: "/auth/github/callback?code=a&code=b&state=s",
+      });
+
+      expect(response.statusCode).toBe(302);
+      expect(response.headers.location).toBe("/auth?error=InvalidRequest");
     });
   });
 

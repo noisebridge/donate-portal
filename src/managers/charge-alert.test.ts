@@ -269,6 +269,21 @@ describe("ChargeAlertManager", () => {
       expect(state?.alive).toBe(true);
     });
 
+    test("ignores a client message of an unknown type", async () => {
+      const target = seededManager();
+      const socket = makeSocket();
+      await connect(target, socket);
+      const state = target["connections"].get(
+        socket as unknown as Parameters<ChargeAlertManager["addConnection"]>[0],
+      );
+      // biome-ignore lint/style/noNonNullAssertion: the connection was just added
+      state!.alive = false;
+
+      socket.emit("message", JSON.stringify({ type: "ping" }));
+
+      expect(state?.alive).toBe(false);
+    });
+
     test("survives an unparseable client message", async () => {
       const target = seededManager();
       const socket = makeSocket();

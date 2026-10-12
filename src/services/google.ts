@@ -1,3 +1,4 @@
+import { z } from "zod";
 import config from "~/config";
 import baseLogger from "~/lib/logger";
 import paths from "~/lib/paths";
@@ -9,24 +10,19 @@ const log = baseLogger.child({ module: "google" });
 
 const REDIRECT_URI = `${config.baseUrl}${paths.googleCallback()}`;
 
-interface GoogleTokenResponse {
-  access_token: string;
-  token_type: string;
-  expires_in: number;
-  scope: string;
-  id_token?: string;
-}
+const tokenResponseSchema = z.object({
+  access_token: z.string().min(1),
+});
 
-interface GoogleUserInfo {
-  id: string;
-  email: string;
-  verified_email: boolean;
-  name: string;
-  given_name: string;
-  family_name: string;
-  picture: string;
-  locale?: string;
-}
+/**
+ * The v2 userinfo endpoint omits fields the granted scopes don't cover, so
+ * only `id` is guaranteed.
+ */
+const userInfoSchema = z.object({
+  id: z.string(),
+  email: z.string().optional(),
+  verified_email: z.boolean().optional(),
+});
 
 /**
  * Build the Google OAuth authorization URL
@@ -76,13 +72,13 @@ export async function getAccessToken(code: string) {
     return null;
   }
 
-  const data = (await response.json()) as GoogleTokenResponse;
-  if (!data.access_token) {
-    log.error("No access token in response");
+  const result = tokenResponseSchema.safeParse(await response.json());
+  if (!result.success) {
+    log.error({ err: result.error }, "No access token in response");
     return null;
   }
 
-  return data.access_token;
+  return result.data.access_token;
 }
 
 /**
@@ -106,7 +102,13 @@ export async function getUserInfo(accessToken: string) {
     return null;
   }
 
-  return (await response.json()) as GoogleUserInfo;
+  const result = userInfoSchema.safeParse(await response.json());
+  if (!result.success) {
+    log.error({ err: result.error }, "Invalid user info response");
+    return null;
+  }
+
+  return result.data;
 }
 
 /**

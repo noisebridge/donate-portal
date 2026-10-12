@@ -16,7 +16,11 @@ export function initMessages() {
   );
 
   messages.forEach((message) => {
-    const type = /** @type {Message["type"]} */ (message.dataset["type"]);
+    const type = message.dataset["type"];
+    if (type !== "error" && type !== "info") {
+      console.error("Message has an invalid data-type:", type);
+      return;
+    }
 
     const dismissBtn = message.querySelector(".message-dismiss");
     dismissBtn?.addEventListener("click", () => {

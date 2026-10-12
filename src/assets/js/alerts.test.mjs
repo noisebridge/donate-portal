@@ -325,6 +325,15 @@ describe("the ping handshake", () => {
     await drainQueue();
   });
 
+  it("ignores a malformed message without answering", async () => {
+    await socket().emit("message", { data: "not json" });
+    await socket().emit("message", {
+      data: JSON.stringify({ type: "ping", history: [{ id: 1 }] }),
+    });
+
+    expect(socket().sent).toEqual([]);
+  });
+
   it("arms the ping watchdog, which closes a silent socket", async () => {
     await socket().emit("open", {});
     const watchdog = windowTimeouts[windowTimeouts.length - 1];

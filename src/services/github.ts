@@ -1,3 +1,4 @@
+import { z } from "zod";
 import config from "~/config";
 import baseLogger from "~/lib/logger";
 import paths from "~/lib/paths";
@@ -9,26 +10,26 @@ const log = baseLogger.child({ module: "github" });
 
 const REDIRECT_URI = `${config.baseUrl}${paths.githubCallback()}`;
 
-interface GitHubTokenResponse {
-  access_token: string;
-  token_type: string;
-  scope: string;
-}
+/**
+ * GitHub answers a bad code with a 200 carrying `error` fields instead of a
+ * token, so `access_token` failing to parse is the error path.
+ */
+const tokenResponseSchema = z.object({
+  access_token: z.string().min(1),
+});
 
-interface GitHubUser {
-  id: number;
-  login: string;
-  email: string | null;
-  name: string | null;
-  avatar_url: string;
-}
+const userSchema = z.object({
+  id: z.number().int(),
+  login: z.string(),
+});
 
-interface GitHubEmail {
-  email: string;
-  primary: boolean;
-  verified: boolean;
-  visibility: string | null;
-}
+const emailsSchema = z.array(
+  z.object({
+    email: z.string(),
+    primary: z.boolean(),
+    verified: z.boolean(),
+  }),
+);
 
 /**
  * Build the GitHub OAuth authorization URL
@@ -71,13 +72,13 @@ export async function getAccessToken(code: string) {
     return null;
   }
 
-  const data = (await response.json()) as GitHubTokenResponse;
-  if (!data.access_token) {
-    log.error("No access token in response");
+  const result = tokenResponseSchema.safeParse(await response.json());
+  if (!result.success) {
+    log.error({ err: result.error }, "No access token in response");
     return null;
   }
 
-  return data.access_token;
+  return result.data.access_token;
 }
 
 /**
@@ -98,7 +99,13 @@ export async function getUserProfile(accessToken: string) {
     return null;
   }
 
-  return (await response.json()) as GitHubUser;
+  const result = userSchema.safeParse(await response.json());
+  if (!result.success) {
+    log.error({ err: result.error }, "Invalid user profile response");
+    return null;
+  }
+
+  return result.data;
 }
 
 /**
@@ -119,7 +126,13 @@ export async function getUserEmails(accessToken: string) {
     return null;
   }
 
-  return (await response.json()) as GitHubEmail[];
+  const result = emailsSchema.safeParse(await response.json());
+  if (!result.success) {
+    log.error({ err: result.error }, "Invalid user emails response");
+    return null;
+  }
+
+  return result.data;
 }
 
 /**

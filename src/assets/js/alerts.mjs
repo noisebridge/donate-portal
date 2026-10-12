@@ -361,6 +361,79 @@ function updateHeader(alert) {
   }
 }
 
+/**
+ * @param {unknown} value
+ * @returns {value is Record<string, unknown>}
+ */
+function isRecord(value) {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+/**
+ * @param {unknown} data
+ * @returns {data is AlertMessage}
+ */
+function isAlertMessage(data) {
+  if (
+    !isRecord(data) ||
+    typeof data["id"] !== "string" ||
+    typeof data["date"] !== "string" ||
+    typeof data["productName"] !== "string"
+  ) {
+    return false;
+  }
+
+  if (data["type"] === "member_alert") {
+    return true;
+  }
+
+  const amount = data["amount"];
+  return (
+    data["type"] === "charge_alert" &&
+    isRecord(amount) &&
+    typeof amount["cents"] === "number"
+  );
+}
+
+/**
+ * @param {unknown} data
+ * @returns {data is ServerMessage}
+ */
+function isServerMessage(data) {
+  if (isRecord(data) && data["type"] === "ping") {
+    const history = data["history"];
+    return Array.isArray(history) && history.every(isAlertMessage);
+  }
+
+  return isAlertMessage(data);
+}
+
+/**
+ * Parse JSON from the server, returning null if it is malformed or fails
+ * `guard`.
+ * @template T
+ * @param {string} json
+ * @param {(data: unknown) => data is T} guard
+ * @returns {T | null}
+ */
+function parseJson(json, guard) {
+  /** @type {unknown} */
+  let data;
+  try {
+    data = JSON.parse(json);
+  } catch (err) {
+    console.error("Failed to parse server JSON:", err);
+    return null;
+  }
+
+  if (!guard(data)) {
+    console.error("Server JSON has an unexpected shape:", data);
+    return null;
+  }
+
+  return data;
+}
+
 /** @type {AlertMessage | null} */
 let currentCharge = null;
 
@@ -411,7 +484,11 @@ function connect() {
     resetPingTimeout();
   });
   ws.addEventListener("message", async (event) => {
-    const message = /** @type {ServerMessage} */ (JSON.parse(event.data));
+    const message = parseJson(String(event.data), isServerMessage);
+    if (!message) {
+      return;
+    }
+
     if (message.type === "ping") {
       resetPingTimeout();
       ws.send(
@@ -473,7 +550,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const currentChargeJson =
     document.getElementById("current-charge")?.textContent;
   currentCharge = currentChargeJson
-    ? /** @type {AlertMessage} */ (JSON.parse(currentChargeJson))
+    ? parseJson(currentChargeJson, isAlertMessage)
     : null;
 
   const newIsTop = applyRainbowSheen();

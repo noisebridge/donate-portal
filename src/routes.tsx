@@ -8,10 +8,13 @@ import type {
   RouteShorthandOptions,
 } from "fastify";
 import type Stripe from "stripe";
+import { z } from "zod";
 import config from "~/config";
 import {
   ErrorCode,
+  type ErrorCodeKey,
   formatMessages,
+  type InfoCodeKey,
   isErrorCodeKey,
   isInfoCodeKey,
 } from "~/lib/error-codes";
@@ -45,25 +48,45 @@ import { QrEditorPage } from "~/views/qr-editor";
 import { ThankYouPage } from "~/views/thank-you";
 
 /**
- * Raw `error`/`info` query parameters, as received from the query string
- * before validation.
+ * The `error` and `info` query parameters arrive as arbitrary strings, but
+ * are only meaningful when they name a known message code. Unknown values are
+ * dropped rather than rejected.
  */
-type RawMessageParams = {
-  [K in keyof MessageParams]: string | string[] | undefined;
-};
+const messageParamsSchema = z.object({
+  error: z.custom<ErrorCodeKey>(isErrorCodeKey).optional().catch(undefined),
+  info: z.custom<InfoCodeKey>(isInfoCodeKey).optional().catch(undefined),
+});
+
+function parseMessageParams(query: unknown): MessageParams {
+  return messageParamsSchema.safeParse(query).data ?? {};
+}
 
 /**
- * The `error` and `info` query parameters arrive as arbitrary strings, but
- * are only meaningful when they name a known message code. Validate them
- * before treating them as message keys.
+ * Repeated keys parse to arrays (`?code=a&code=b`), so query strings and form
+ * bodies must be validated before their values are treated as strings.
  */
-function parseMessageParams(query: RawMessageParams): MessageParams {
-  const { error, info } = query;
-  return {
-    error: isErrorCodeKey(error) ? error : undefined,
-    info: isInfoCodeKey(info) ? info : undefined,
-  };
-}
+const oauthCallbackQuerySchema = z.object({
+  code: z.string().optional(),
+  state: z.string().optional(),
+  error: z.string().optional(),
+});
+
+const emailParamsSchema = z.object({ email: z.string().optional() });
+
+const emailCallbackQuerySchema = z.object({ state: z.string().optional() });
+
+const productParamsSchema = z.object({
+  name: z.string().optional(),
+  description: z.string().optional(),
+});
+
+const qrQuerySchema = productParamsSchema.extend({
+  amount: z.string().optional(),
+});
+
+const qrSvgQuerySchema = qrQuerySchema.extend({
+  "use-logo": z.string().optional(),
+});
 
 function conditionalRateLimit(
   max: number,
@@ -233,9 +256,7 @@ export default async function routes(fastify: FastifyInstance) {
       );
   });
 
-  fastify.get<{
-    Querystring: RawMessageParams;
-  }>(paths.index(), async (request, reply) => {
+  fastify.get(paths.index(), async (request, reply) => {
     return reply.html(
       <IndexPage
         isAuthenticated={isAuthenticated(request, reply)}
@@ -245,9 +266,7 @@ export default async function routes(fastify: FastifyInstance) {
     );
   });
 
-  fastify.get<{
-    Querystring: RawMessageParams;
-  }>(paths.signIn(), async (request, reply) => {
+  fastify.get(paths.signIn(), async (request, reply) => {
     const authenticated = isAuthenticated(request, reply);
     if (authenticated) {
       return reply.redirect(paths.manage());
@@ -280,15 +299,19 @@ export default async function routes(fastify: FastifyInstance) {
     return reply.redirect(authUrl);
   });
 
-  fastify.get<{
-    Querystring: { code?: string; state?: string; error?: string };
-  }>(paths.githubCallback(), async (request, reply) => {
-    if (request.query.error) {
-      fastify.log.warn({ error: request.query.error }, "GitHub OAuth error");
+  fastify.get(paths.githubCallback(), async (request, reply) => {
+    const query = oauthCallbackQuerySchema.safeParse(request.query);
+    if (!query.success) {
+      fastify.log.warn("Malformed GitHub callback query");
+      return reply.redirect(paths.signIn({ error: "InvalidRequest" }));
+    }
+
+    if (query.data.error) {
+      fastify.log.warn({ error: query.data.error }, "GitHub OAuth error");
       return reply.redirect(paths.signIn({ error: "GithubError" }));
     }
 
-    const { code, state } = request.query;
+    const { code, state } = query.data;
     if (!code || !state) {
       fastify.log.warn("Missing code or state parameter in callback");
       return reply.redirect(paths.signIn({ error: "InvalidRequest" }));
@@ -349,15 +372,19 @@ export default async function routes(fastify: FastifyInstance) {
     return reply.redirect(authUrl);
   });
 
-  fastify.get<{
-    Querystring: { code?: string; state?: string; error?: string };
-  }>(paths.googleCallback(), async (request, reply) => {
-    if (request.query.error) {
-      fastify.log.warn({ error: request.query.error }, "Google OAuth error");
+  fastify.get(paths.googleCallback(), async (request, reply) => {
+    const query = oauthCallbackQuerySchema.safeParse(request.query);
+    if (!query.success) {
+      fastify.log.warn("Malformed Google callback query");
+      return reply.redirect(paths.signIn({ error: "InvalidRequest" }));
+    }
+
+    if (query.data.error) {
+      fastify.log.warn({ error: query.data.error }, "Google OAuth error");
       return reply.redirect(paths.signIn({ error: "GoogleError" }));
     }
 
-    const { code, state } = request.query;
+    const { code, state } = query.data;
     if (!code || !state) {
       fastify.log.warn("Missing code or state parameter in Google callback");
       return reply.redirect(paths.signIn({ error: "InvalidRequest" }));
@@ -422,15 +449,19 @@ export default async function routes(fastify: FastifyInstance) {
     return reply.redirect(authUrl);
   });
 
-  fastify.get<{
-    Querystring: { code?: string; state?: string; error?: string };
-  }>(paths.keycloakCallback(), async (request, reply) => {
-    if (request.query.error) {
-      fastify.log.warn({ error: request.query.error }, "Keycloak OAuth error");
+  fastify.get(paths.keycloakCallback(), async (request, reply) => {
+    const query = oauthCallbackQuerySchema.safeParse(request.query);
+    if (!query.success) {
+      fastify.log.warn("Malformed Keycloak callback query");
+      return reply.redirect(paths.signIn({ error: "InvalidRequest" }));
+    }
+
+    if (query.data.error) {
+      fastify.log.warn({ error: query.data.error }, "Keycloak OAuth error");
       return reply.redirect(paths.signIn({ error: "KeycloakError" }));
     }
 
-    const { code, state } = request.query;
+    const { code, state } = query.data;
     if (!code || !state) {
       fastify.log.warn("Missing code or state parameter in Keycloak callback");
       return reply.redirect(paths.signIn({ error: "InvalidRequest" }));
@@ -470,9 +501,7 @@ export default async function routes(fastify: FastifyInstance) {
     return reply.redirect(paths.manage());
   });
 
-  fastify.post<{
-    Body: { email?: string };
-  }>(
+  fastify.post(
     paths.emailAuth(),
     { ...authRateLimit, preHandler: fastify.csrfProtection },
     async (request, reply) => {
@@ -480,7 +509,8 @@ export default async function routes(fastify: FastifyInstance) {
         return reply.redirect(paths.manage());
       }
 
-      const email = request.body?.email?.trim();
+      const body = emailParamsSchema.safeParse(request.body);
+      const email = body.data?.email?.trim();
 
       if (!email) {
         fastify.log.warn("Missing email in POST /auth/email");
@@ -506,14 +536,12 @@ export default async function routes(fastify: FastifyInstance) {
     },
   );
 
-  fastify.get<{
-    Querystring: { email?: string };
-  }>(paths.emailAuth(), async (request, reply) => {
+  fastify.get(paths.emailAuth(), async (request, reply) => {
     if (isAuthenticated(request, reply)) {
       return reply.redirect(paths.manage());
     }
 
-    const email = request.query.email;
+    const email = emailParamsSchema.safeParse(request.query).data?.email;
     if (!email || !emailManager.isValid(email)) {
       fastify.log.warn("Missing or invalid email parameter");
       return reply.redirect(paths.signIn({ error: "InvalidRequest" }));
@@ -528,10 +556,8 @@ export default async function routes(fastify: FastifyInstance) {
     );
   });
 
-  fastify.get<{
-    Querystring: { state?: string };
-  }>(paths.emailCallback(), async (request, reply) => {
-    const { state } = request.query;
+  fastify.get(paths.emailCallback(), async (request, reply) => {
+    const state = emailCallbackQuerySchema.safeParse(request.query).data?.state;
 
     if (!state) {
       fastify.log.warn("Missing state parameter in magic link callback");
@@ -578,9 +604,7 @@ export default async function routes(fastify: FastifyInstance) {
     },
   );
 
-  fastify.get<{
-    Querystring: RawMessageParams;
-  }>(paths.manage(), async (request, reply) => {
+  fastify.get(paths.manage(), async (request, reply) => {
     const sessionCookie = cookies[CookieName.UserSession](request, reply);
     const sessionData = sessionCookie.value;
     if (!sessionData) {
@@ -614,16 +638,7 @@ export default async function routes(fastify: FastifyInstance) {
     );
   });
 
-  fastify.post<{
-    // Untrusted form data; validateAmountFormData narrows it below.
-    Body: {
-      "amount-dollars"?: string;
-      "custom-amount"?: string;
-      name?: string;
-      description?: string;
-    };
-    Reply: CheckoutJsonResponse;
-  }>(
+  fastify.post<{ Reply: CheckoutJsonResponse }>(
     paths.donate(),
     { ...donationRateLimit, preHandler: fastify.csrfProtection },
     async (request, reply) => {
@@ -642,12 +657,19 @@ export default async function routes(fastify: FastifyInstance) {
         });
       }
 
-      const { name, description } = body;
-      if (!donationManager.validateParams(name, description)) {
+      const product = productParamsSchema.safeParse(body);
+      if (
+        !product.success ||
+        !donationManager.validateParams(
+          product.data.name,
+          product.data.description,
+        )
+      ) {
         return reply.send({
           redirect: paths.index({ error: "InvalidRequest" }),
         });
       }
+      const { name, description } = product.data;
 
       const result = await donationManager.donate(
         amountCents,
@@ -673,11 +695,13 @@ export default async function routes(fastify: FastifyInstance) {
     },
   );
 
-  fastify.get<{
-    Querystring: { name?: string; description?: string; amount?: string };
-  }>(paths.qr(), async (request, reply) => {
-    const { name, description, amount } = request.query;
+  fastify.get(paths.qr(), async (request, reply) => {
+    const query = qrQuerySchema.safeParse(request.query);
+    if (!query.success) {
+      return reply.redirect(paths.index({ error: "InvalidRequest" }));
+    }
 
+    const { name, description, amount } = query.data;
     const amountCents = parseToCents(amount ?? "");
     if (
       amountCents === null ||
@@ -701,16 +725,13 @@ export default async function routes(fastify: FastifyInstance) {
     );
   });
 
-  fastify.get<{
-    Querystring: {
-      name?: string;
-      description?: string;
-      amount?: string;
-      "use-logo"?: string;
-    };
-  }>(paths.qrSvg(), async (request, reply) => {
-    const { name, description, amount, "use-logo": useLogo } = request.query;
+  fastify.get(paths.qrSvg(), async (request, reply) => {
+    const query = qrSvgQuerySchema.safeParse(request.query);
+    if (!query.success) {
+      return reply.status(400).send("Invalid query");
+    }
 
+    const { name, description, amount, "use-logo": useLogo } = query.data;
     const amountCents = parseToCents(amount ?? "");
     if (
       amountCents === null ||

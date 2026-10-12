@@ -1,3 +1,4 @@
+import { z } from "zod";
 import type { Cents } from "~/types/cents";
 
 export interface ChargeAlertMessage {
@@ -20,13 +21,15 @@ export interface PingMessage {
   history: AlertMessage[];
 }
 
-export interface PongMessage {
-  type: "pong";
-}
+export const pongMessageSchema = z.object({
+  type: z.literal("pong"),
+});
+export type PongMessage = z.infer<typeof pongMessageSchema>;
 
 export type AlertMessage = ChargeAlertMessage | MemberAlertMessage;
 /** Sent by the server to connected clients. */
 export type ServerMessage = AlertMessage | PingMessage;
 /** Sent by clients back to the server. */
+export const clientMessageSchema = pongMessageSchema;
 export type ClientMessage = PongMessage;
 export type WebsocketMessage = ServerMessage | ClientMessage;

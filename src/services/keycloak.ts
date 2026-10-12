@@ -1,3 +1,4 @@
+import { z } from "zod";
 import config from "~/config";
 import baseLogger from "~/lib/logger";
 import paths from "~/lib/paths";
@@ -19,25 +20,19 @@ const AUTHORIZE_URL = `${config.keycloakIssuer}/protocol/openid-connect/auth`;
 const TOKEN_URL = `${config.keycloakIssuer}/protocol/openid-connect/token`;
 const USERINFO_URL = `${config.keycloakIssuer}/protocol/openid-connect/userinfo`;
 
-interface KeycloakTokenResponse {
-  access_token: string;
-  token_type: string;
-  expires_in: number;
-  scope?: string;
-  id_token?: string;
-}
+const tokenResponseSchema = z.object({
+  access_token: z.string().min(1),
+});
 
 /**
  * The subset of Keycloak's userinfo response this app relies on. `sub` is the
  * stable account id; `email_verified` is load-bearing — see completeFlow.
  */
-interface KeycloakUserInfo {
-  sub: string;
-  email?: string;
-  email_verified?: boolean;
-  name?: string;
-  preferred_username?: string;
-}
+const userInfoSchema = z.object({
+  sub: z.string(),
+  email: z.string().optional(),
+  email_verified: z.boolean().optional(),
+});
 
 /**
  * Build the authorization URL for the Keycloak realm.
@@ -92,13 +87,13 @@ export async function getAccessToken(code: string) {
     return null;
   }
 
-  const data = (await response.json()) as KeycloakTokenResponse;
-  if (!data.access_token) {
-    log.error("No access token in response");
+  const result = tokenResponseSchema.safeParse(await response.json());
+  if (!result.success) {
+    log.error({ err: result.error }, "No access token in response");
     return null;
   }
 
-  return data.access_token;
+  return result.data.access_token;
 }
 
 /**
@@ -120,7 +115,13 @@ export async function getUserInfo(accessToken: string) {
     return null;
   }
 
-  return (await response.json()) as KeycloakUserInfo;
+  const result = userInfoSchema.safeParse(await response.json());
+  if (!result.success) {
+    log.error({ err: result.error }, "Invalid user info response");
+    return null;
+  }
+
+  return result.data;
 }
 
 /**

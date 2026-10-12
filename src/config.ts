@@ -1,5 +1,6 @@
 import { isIP } from "node:net";
 import dotenv from "dotenv";
+import { z } from "zod";
 import logger from "~/lib/logger";
 
 dotenv.config();
@@ -26,19 +27,18 @@ function getRateLimitAllowList(): string[] {
     logger.error({ err: e }, "Failed to parse RATE_LIMIT_ALLOW_LIST");
     return [];
   }
-  if (!Array.isArray(parsedAllowList)) {
-    logger.error("RATE_LIMIT_ALLOW_LIST is not an array");
+  const result = z
+    .array(z.string().refine((elem) => isIP(elem) !== 0))
+    .safeParse(parsedAllowList);
+  if (!result.success) {
+    logger.error(
+      { err: result.error },
+      "RATE_LIMIT_ALLOW_LIST is not an array of IPs",
+    );
     return [];
   }
 
-  for (const elem of parsedAllowList) {
-    if (!isIP(elem)) {
-      logger.error({ elem }, "RATE_LIMIT_ALLOW_LIST holds a non-IP element");
-      return [];
-    }
-  }
-
-  return parsedAllowList;
+  return result.data;
 }
 
 const serverProtocol =
