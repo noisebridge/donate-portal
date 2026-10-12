@@ -63,7 +63,6 @@ export function IndexPage({
 
           <aside class="recurring-card">
             <div class="tag-row">
-              <span>{"// supporting_member.sh"}</span>
               <span class="badge">Best impact</span>
             </div>
             <h2>Become a supporting member</h2>
