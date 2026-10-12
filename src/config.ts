@@ -47,6 +47,8 @@ const serverHost = assertEnvVar("SERVER_HOST");
 
 export default {
   disableRateLimit: process.env["DISABLE_RATE_LIMIT"] === "true",
+  // Log emails instead of sending them through Resend (e2e tests).
+  disableEmail: process.env["DISABLE_EMAIL"] === "true",
   // Comma-separated IPs/CIDRs (or @fastify/proxy-addr names) of the proxies in
   // front of us. Deployments set the exact peer range.
   trustedProxies:

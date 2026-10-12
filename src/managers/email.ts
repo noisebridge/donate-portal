@@ -27,6 +27,11 @@ async function send(params: {
   subject: string;
   html: string;
 }): Promise<EmailResult> {
+  if (config.disableEmail) {
+    log.info({ to: params.to, subject: params.subject }, "Email disabled");
+    return { success: true, id: "email_disabled" };
+  }
+
   const { data, error } = await resend.emails.send({
     from: FROM_ADDRESS,
     ...params,

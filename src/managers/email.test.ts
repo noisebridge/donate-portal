@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, test } from "bun:test";
+import config from "~/config";
 import { send as sendEmail } from "~/test-utils/resend.mock";
 import * as emailManager from "./email";
 
@@ -69,6 +70,19 @@ describe("email", () => {
         success: false,
         error: "Email service down",
       });
+    });
+
+    test("skips Resend when email is disabled", async () => {
+      config.disableEmail = true;
+      try {
+        expect(await emailManager.sendMagicLink("user@example.com")).toEqual({
+          success: true,
+          id: "email_disabled",
+        });
+        expect(sendEmail).not.toHaveBeenCalled();
+      } finally {
+        config.disableEmail = false;
+      }
     });
   });
 });

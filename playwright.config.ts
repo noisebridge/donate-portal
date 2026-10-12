@@ -53,6 +53,7 @@ export default defineConfig({
     env: {
       ALERTS_PASSWORD: config.alertsPassword,
       ALERTS_USERNAME: config.alertsUsername,
+      DISABLE_EMAIL: "true",
       DISABLE_RATE_LIMIT: "true",
       SERVER_HOST: config.serverHost,
       STRIPE_PUBLIC: config.stripePublicKey,
