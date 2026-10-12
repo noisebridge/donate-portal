@@ -221,10 +221,6 @@ input[type="radio"]:focus + .amount-chip {
   width: 100%;
 }
 
-.custom-chip input:read-only {
-  cursor: pointer;
-}
-
 .custom-chip input::placeholder {
   color: var(--color-text);
 }

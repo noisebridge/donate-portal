@@ -32,41 +32,35 @@ export function initCustomAmount(
 ) {
   enforcePattern(customInputField, dollarPattern);
   validateMinAmount(customInputField);
-  activateCustomOnClick(customInputField, customRadioButton);
+  activateCustomOnInteract(customInputField, customRadioButton);
   activateCustomOnRadio(radioButtons, customInputField);
 }
 
 /**
- * Sets up event listeners to activate the "Custom" amount radio button when the
- * associated free-form input field is interacted with.
+ * Selects the "Custom" amount radio button when the associated free-form input
+ * field is clicked or typed into. The field is never read-only: iOS won't raise
+ * the keyboard on the first tap of a read-only field, even if JS unlocks it
+ * mid-tap. Focus alone doesn't activate it, so tabbing past the field doesn't
+ * change the selected amount.
  *
  * @param {HTMLInputElement} customInputField
  * @param {HTMLInputElement} customRadioButton
  */
-export function activateCustomOnClick(customInputField, customRadioButton) {
+export function activateCustomOnInteract(customInputField, customRadioButton) {
+  customInputField.required = customRadioButton.checked;
+
   function activate() {
-    // [HACK]: Using the read-only flag as a substitute for disabled
-    if (!customInputField.readOnly) return false;
     customRadioButton.checked = true;
-    customInputField.readOnly = false;
-    return true;
+    customInputField.required = true;
   }
 
-  // Touch devices
-  customInputField.addEventListener("touchend", (e) => {
-    if (activate()) {
-      e.preventDefault();
-      customInputField.focus();
-    }
-  });
-
-  // Non-touch devices
   customInputField.addEventListener("click", activate);
+  customInputField.addEventListener("input", activate);
 }
 
 /**
- * Sets up event listeners to enable/disable the free-form input field depending
- * on which radio button is active.
+ * Sets up event listeners to require the free-form input field only while the
+ * "Custom" radio button is active.
  *
  * @param {NodeListOf<HTMLInputElement>} radioButtons
  * @param {HTMLInputElement} customInputField
@@ -77,10 +71,10 @@ export function activateCustomOnRadio(radioButtons, customInputField) {
     const radio = /** @type {HTMLInputElement} */ (event.target);
 
     if (radio.value === "custom" && radio.checked) {
-      customInputField.readOnly = false;
+      customInputField.required = true;
       customInputField.focus();
     } else {
-      customInputField.readOnly = true;
+      customInputField.required = false;
       customInputField.setCustomValidity("");
     }
   };

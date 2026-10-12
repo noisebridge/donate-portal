@@ -107,8 +107,7 @@ export function DonationTierSelector({
                       ? ((existingAmount ?? 0) / 100).toFixed(2)
                       : undefined
                   }
-                  required
-                  readonly={!hasCustomAmount}
+                  required={hasCustomAmount}
                 />
                 <span id="custom-amount-monthly-hint" class="visually-hidden">
                   Enter a custom dollar amount for your monthly donation

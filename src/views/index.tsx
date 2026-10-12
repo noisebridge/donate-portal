@@ -177,8 +177,6 @@ export function IndexPage({
                     aria-label="Custom donation amount in dollars"
                     aria-describedby="custom-amount-hint"
                     data-min={donationManager.MINIMUM_AMOUNT.cents / 100}
-                    required
-                    readonly
                   />
                 </span>
               </label>

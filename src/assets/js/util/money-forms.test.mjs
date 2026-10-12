@@ -3,7 +3,7 @@
 import { afterEach, beforeEach, describe, expect, it } from "bun:test";
 import { Window } from "happy-dom";
 import {
-  activateCustomOnClick,
+  activateCustomOnInteract,
   activateCustomOnRadio,
   formatAmount,
 } from "./money-forms.mjs";
@@ -38,7 +38,7 @@ describe("formatAmount", () => {
   });
 });
 
-describe("activateCustomOnClick", () => {
+describe("activateCustomOnInteract", () => {
   /** @type {HTMLInputElement} */
   let customInput;
   /** @type {HTMLInputElement} */
@@ -47,54 +47,44 @@ describe("activateCustomOnClick", () => {
   beforeEach(() => {
     customInput = /** @type {HTMLInputElement} */ (doc.createElement("input"));
     customInput.type = "text";
-    customInput.readOnly = true;
 
     customRadio = /** @type {HTMLInputElement} */ (doc.createElement("input"));
     customRadio.type = "radio";
-    customRadio.value = "custom";
-    customRadio.checked = false;
 
     doc.body.appendChild(customInput);
     doc.body.appendChild(customRadio);
-
-    activateCustomOnClick(customInput, customRadio);
   });
 
-  it("click activates the radio and enables the input", () => {
+  it("click selects the radio and requires the input", () => {
+    activateCustomOnInteract(customInput, customRadio);
     customInput.click();
 
     expect(customRadio.checked).toBe(true);
+    expect(customInput.required).toBe(true);
     expect(customInput.readOnly).toBe(false);
   });
 
-  it("touchend activates the radio and enables the input", () => {
-    const event = new happyWindow.TouchEvent("touchend", {
-      bubbles: true,
-      cancelable: true,
-    });
-    fire(event, customInput);
+  it("typing selects the radio and requires the input", () => {
+    activateCustomOnInteract(customInput, customRadio);
+    fire(new happyWindow.Event("input", { bubbles: true }), customInput);
 
     expect(customRadio.checked).toBe(true);
-    expect(customInput.readOnly).toBe(false);
+    expect(customInput.required).toBe(true);
   });
 
-  it("touchend on an already-enabled input is left to the browser", () => {
-    customInput.readOnly = false;
-    const event = new happyWindow.TouchEvent("touchend", {
-      bubbles: true,
-      cancelable: true,
-    });
-    fire(event, customInput);
+  it("focus alone leaves the selection alone", () => {
+    activateCustomOnInteract(customInput, customRadio);
+    customInput.focus();
 
-    expect(event.defaultPrevented).toBe(false);
     expect(customRadio.checked).toBe(false);
+    expect(customInput.required).toBe(false);
   });
 
-  it("click on an already-enabled input does not re-check the radio", () => {
-    customInput.readOnly = false;
-    customInput.click();
+  it("starts out required only if the radio is already selected", () => {
+    customRadio.checked = true;
+    activateCustomOnInteract(customInput, customRadio);
 
-    expect(customRadio.checked).toBe(false);
+    expect(customInput.required).toBe(true);
   });
 });
 
@@ -109,7 +99,6 @@ describe("activateCustomOnRadio", () => {
   beforeEach(() => {
     customInput = /** @type {HTMLInputElement} */ (doc.createElement("input"));
     customInput.type = "text";
-    customInput.readOnly = true;
 
     customRadio = /** @type {HTMLInputElement} */ (doc.createElement("input"));
     customRadio.type = "radio";
@@ -131,19 +120,19 @@ describe("activateCustomOnRadio", () => {
     activateCustomOnRadio(radios, customInput);
   });
 
-  it("enables the input when the custom radio is selected", () => {
+  it("requires the input when the custom radio is selected", () => {
     customRadio.checked = true;
     fire(new happyWindow.Event("change", { bubbles: true }), customRadio);
 
-    expect(customInput.readOnly).toBe(false);
+    expect(customInput.required).toBe(true);
   });
 
-  it("disables the input when a non-custom radio is selected", () => {
-    customInput.readOnly = false;
+  it("stops requiring the input when a non-custom radio is selected", () => {
+    customInput.required = true;
     otherRadio.checked = true;
     fire(new happyWindow.Event("change", { bubbles: true }), otherRadio);
 
-    expect(customInput.readOnly).toBe(true);
+    expect(customInput.required).toBe(false);
   });
 
   it("clears custom validity when a non-custom radio is selected", () => {

@@ -48,7 +48,7 @@ const TIER_FORM = `
       <input type="radio" name="tier" id="tier-custom" value="custom" />
     </div>
     <input type="text" id="custom-amount" name="custom-amount"
-           data-min="5" readonly />
+           data-min="5" />
     <button type="submit">Subscribe</button>
   </form>`;
 
@@ -116,7 +116,7 @@ describe("custom tier amount", () => {
     loadPage(TIER_FORM + CANCEL_FORM);
   });
 
-  it("unlocks the input when the custom tier is picked", () => {
+  it("requires the input when the custom tier is picked", () => {
     const customAmount = /** @type {HTMLInputElement} */ (
       doc.getElementById("custom-amount")
     );
@@ -127,7 +127,7 @@ describe("custom tier amount", () => {
     customRadio.checked = true;
     fire(customRadio, "change");
 
-    expect(customAmount.readOnly).toBe(false);
+    expect(customAmount.required).toBe(true);
   });
 
   it("validates the amount against the tier minimum", () => {
@@ -209,7 +209,7 @@ describe("a page with no subscription to cancel", () => {
     expect(doc.querySelector(".cancel-subscription-form")).toBeNull();
     expect(
       /** @type {HTMLInputElement} */ (doc.getElementById("custom-amount"))
-        .readOnly,
-    ).toBe(true);
+        .required,
+    ).toBe(false);
   });
 });
