@@ -19,6 +19,16 @@
   color: var(--color-primary);
 }
 
+.not-found {
+  display: grid;
+  justify-items: center;
+}
+
+.error-lede {
+  color: var(--color-text-light);
+  margin-bottom: 2rem;
+}
+
 .error-details {
   background-color: var(--color-panel);
   padding: 1.5rem;
