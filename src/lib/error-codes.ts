@@ -18,20 +18,20 @@ export enum ErrorCode {
   SessionError = "Unable to process donation. Please try again.",
   SameAmount = "Select a different donation amount",
   NoCustomer = "No Stripe customer found",
-  NoSubscription = "No active monthly donation found to cancel",
-  NoLineItem = "No line items in your active subscription",
+  NoSubscription = "No active monthly donation found",
+  NoLineItem = "No line items in your monthly donation",
   CreateError = "Unable to create monthly donation. Please try again.",
   CancelError = "Unable to cancel monthly donation. Please try again.",
   UpdateError = "Unable to update donation amount. Please try again.",
   PortalError = "Unable to create billing portal session",
-  PastDue = 'Your subscription is past due! Click "Past invoices & payment method" to fix it.',
+  PastDue = 'Your monthly donation is past due! Click "Past invoices & payment method" to fix it.',
 }
 export type ErrorCodeKey = keyof typeof ErrorCode;
 
 export enum InfoCode {
   SubscriptionCreated = "Your monthly donation has been set up. Thank you!",
   SubscriptionUpdated = "Your donation amount has been updated. The new amount will apply to the next billing cycle.",
-  SubscriptionCancelled = "Your monthly donation has been cancelled. No further charges will be made.",
+  SubscriptionCanceled = "Your monthly donation has been canceled. No further charges will be made.",
 }
 export type InfoCodeKey = keyof typeof InfoCode;
 

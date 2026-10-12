@@ -617,7 +617,7 @@ describe("routes", () => {
       const response = await postForm("/cancel", {}, [sessionCookie()]);
 
       expect(response.headers.location).toBe(
-        "/manage?info=SubscriptionCancelled",
+        "/manage?info=SubscriptionCanceled",
       );
     });
 

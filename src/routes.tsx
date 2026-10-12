@@ -859,7 +859,7 @@ export default async function routes(fastify: FastifyInstance) {
 
       fastify.log.info({ email: sessionData.email }, "Subscription canceled");
 
-      return reply.redirect(paths.manage({ info: "SubscriptionCancelled" }));
+      return reply.redirect(paths.manage({ info: "SubscriptionCanceled" }));
     },
   );
 

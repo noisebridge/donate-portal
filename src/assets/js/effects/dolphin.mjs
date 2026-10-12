@@ -51,7 +51,7 @@ let flyYOffsets = [];
 let typewriterEl = null;
 
 /** @type {boolean} */
-let typewriterCancelled = false;
+let typewriterCanceled = false;
 
 /**
  * Initialize the dolphin system.
@@ -262,12 +262,12 @@ export function showDolphinStatic() {
 /**
  * Show the typewriter text overlay, revealing one character at a time.
  * Returns a promise that resolves after the hold period. Cancelling resolves
- * it early too, so callers re-check `typewriterCancelled` afterwards.
+ * it early too, so callers re-check `typewriterCanceled` afterwards.
  * @returns {Promise<void>}
  */
 function showTypewriterText() {
   return new Promise((resolve) => {
-    typewriterCancelled = false;
+    typewriterCanceled = false;
 
     typewriterEl = document.createElement("div");
     typewriterEl.className = "dolphin-typewriter";
@@ -292,7 +292,7 @@ function showTypewriterText() {
 
     let i = 0;
     const interval = setInterval(() => {
-      if (typewriterCancelled) {
+      if (typewriterCanceled) {
         clearInterval(interval);
         removeTypewriterText();
         resolve();
@@ -338,7 +338,7 @@ export async function showDolphin(showHyperdrive) {
 
   await showTypewriterText();
 
-  if (typewriterCancelled) return;
+  if (typewriterCanceled) return;
 
   flyingActive = true;
   flyStart = performance.now();
@@ -360,7 +360,7 @@ export async function showDolphin(showHyperdrive) {
  * Stop the dolphin effect and clean up.
  */
 export async function stopDolphin() {
-  typewriterCancelled = true;
+  typewriterCanceled = true;
   removeTypewriterText();
 
   bannerVisible = false;
