@@ -80,6 +80,26 @@ export function initMerica(canvasEl) {
 }
 
 /**
+ * Control points of the eagle's cubic bezier flight path for the current
+ * viewport: enter high-left, swoop down to center, exit high-right.
+ */
+function eagleControlPoints() {
+  const w = window.innerWidth;
+  const h = window.innerHeight;
+
+  return {
+    p0x: -400,
+    p0y: h * 0.05,
+    p1x: w * 0.25,
+    p1y: h * 0.85,
+    p2x: w * 0.75,
+    p2y: h * 0.85,
+    p3x: w + 400,
+    p3y: h * 0.05,
+  };
+}
+
+/**
  * Evaluate a cubic bezier curve at parameter t.
  * Returns {x, y} in viewport coordinates.
  *
@@ -90,18 +110,7 @@ export function initMerica(canvasEl) {
  * @returns {{ x: number, y: number }}
  */
 function eagleBezierPath(t) {
-  const w = window.innerWidth;
-  const h = window.innerHeight;
-
-  // Control points: enter high-left, swoop down to center, exit high-right
-  const p0x = -400;
-  const p0y = h * 0.05;
-  const p1x = w * 0.25;
-  const p1y = h * 0.85;
-  const p2x = w * 0.75;
-  const p2y = h * 0.85;
-  const p3x = w + 400;
-  const p3y = h * 0.05;
+  const { p0x, p0y, p1x, p1y, p2x, p2y, p3x, p3y } = eagleControlPoints();
 
   const mt = 1 - t;
   const mt2 = mt * mt;
@@ -123,17 +132,7 @@ function eagleBezierPath(t) {
  * @returns {number} angle in radians
  */
 function eagleBezierAngle(t) {
-  const w = window.innerWidth;
-  const h = window.innerHeight;
-
-  const p0x = -400;
-  const p0y = h * 0.05;
-  const p1x = w * 0.25;
-  const p1y = h * 0.85;
-  const p2x = w * 0.75;
-  const p2y = h * 0.85;
-  const p3x = w + 400;
-  const p3y = h * 0.05;
+  const { p0x, p0y, p1x, p1y, p2x, p2y, p3x, p3y } = eagleControlPoints();
 
   const mt = 1 - t;
 
