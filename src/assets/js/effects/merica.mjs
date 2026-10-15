@@ -1,8 +1,8 @@
 // @ts-check
 
-import { launchConfetti } from "./confetti.mjs";
+import { launchConfetti, stopConfetti } from "./confetti.mjs";
 import { easeIn, easeOut } from "./easing.mjs";
-import { ledClear, ledHyperdrive, ledMerica } from "./led-effects.mjs";
+import { ledHyperdrive, ledMerica } from "./led-effects.mjs";
 
 /** @typedef {import("~/types/cents").Cents} Cents */
 
@@ -255,7 +255,9 @@ export async function stopMerica() {
   phase = "idle";
   hideArnold();
   hideEagle();
-  await ledClear();
+  // The confetti shares #effect-canvas, so it would keep erasing whichever
+  // effect comes next.
+  await stopConfetti();
 }
 
 export const mericaEffect = {
