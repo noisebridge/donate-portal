@@ -31,9 +31,9 @@ export function initCustomAmount(
   radioButtons,
 ) {
   enforcePattern(customInputField, dollarPattern);
-  validateMinAmount(customInputField);
-  activateCustomOnInteract(customInputField, customRadioButton);
-  activateCustomOnRadio(radioButtons, customInputField);
+  const validate = validateMinAmount(customInputField);
+  activateCustomOnInteract(customInputField, customRadioButton, validate);
+  activateCustomOnRadio(radioButtons, customInputField, validate);
 }
 
 /**
@@ -45,13 +45,24 @@ export function initCustomAmount(
  *
  * @param {HTMLInputElement} customInputField
  * @param {HTMLInputElement} customRadioButton
+ * @param {() => void} validate - Re-checks the field's amount.
  */
-export function activateCustomOnInteract(customInputField, customRadioButton) {
+export function activateCustomOnInteract(
+  customInputField,
+  customRadioButton,
+  validate,
+) {
   customInputField.required = customRadioButton.checked;
+  if (customRadioButton.checked) {
+    validate();
+  }
 
   function activate() {
     customRadioButton.checked = true;
     customInputField.required = true;
+    // Picking a preset cleared the field's error, so a stale amount would
+    // otherwise pass.
+    validate();
   }
 
   customInputField.addEventListener("click", activate);
@@ -64,14 +75,20 @@ export function activateCustomOnInteract(customInputField, customRadioButton) {
  *
  * @param {NodeListOf<HTMLInputElement>} radioButtons
  * @param {HTMLInputElement} customInputField
+ * @param {() => void} validate - Re-checks the field's amount.
  */
-export function activateCustomOnRadio(radioButtons, customInputField) {
+export function activateCustomOnRadio(
+  radioButtons,
+  customInputField,
+  validate,
+) {
   /** @type {(event: Event) => void} */
   const eventHandler = (event) => {
     const radio = /** @type {HTMLInputElement} */ (event.target);
 
     if (radio.value === "custom" && radio.checked) {
       customInputField.required = true;
+      validate();
       customInputField.focus();
     } else {
       customInputField.required = false;

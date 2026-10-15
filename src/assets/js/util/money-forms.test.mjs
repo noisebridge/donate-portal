@@ -7,6 +7,7 @@ import {
   activateCustomOnRadio,
   formatAmount,
 } from "./money-forms.mjs";
+import { validateMinAmount } from "./validate.mjs";
 
 /** @typedef {import("~/types/cents").Cents} Cents */
 
@@ -43,20 +44,24 @@ describe("activateCustomOnInteract", () => {
   let customInput;
   /** @type {HTMLInputElement} */
   let customRadio;
+  /** @type {() => void} */
+  let validate;
 
   beforeEach(() => {
     customInput = /** @type {HTMLInputElement} */ (doc.createElement("input"));
     customInput.type = "text";
+    customInput.dataset["min"] = "5";
 
     customRadio = /** @type {HTMLInputElement} */ (doc.createElement("input"));
     customRadio.type = "radio";
 
     doc.body.appendChild(customInput);
     doc.body.appendChild(customRadio);
+    validate = validateMinAmount(customInput);
   });
 
   it("click selects the radio and requires the input", () => {
-    activateCustomOnInteract(customInput, customRadio);
+    activateCustomOnInteract(customInput, customRadio, validate);
     customInput.click();
 
     expect(customRadio.checked).toBe(true);
@@ -65,7 +70,7 @@ describe("activateCustomOnInteract", () => {
   });
 
   it("typing selects the radio and requires the input", () => {
-    activateCustomOnInteract(customInput, customRadio);
+    activateCustomOnInteract(customInput, customRadio, validate);
     fire(new happyWindow.Event("input", { bubbles: true }), customInput);
 
     expect(customRadio.checked).toBe(true);
@@ -73,7 +78,7 @@ describe("activateCustomOnInteract", () => {
   });
 
   it("focus alone leaves the selection alone", () => {
-    activateCustomOnInteract(customInput, customRadio);
+    activateCustomOnInteract(customInput, customRadio, validate);
     customInput.focus();
 
     expect(customRadio.checked).toBe(false);
@@ -82,9 +87,28 @@ describe("activateCustomOnInteract", () => {
 
   it("starts out required only if the radio is already selected", () => {
     customRadio.checked = true;
-    activateCustomOnInteract(customInput, customRadio);
+    activateCustomOnInteract(customInput, customRadio, validate);
 
     expect(customInput.required).toBe(true);
+  });
+
+  it("checks an already-selected amount on start-up", () => {
+    customInput.value = "1";
+    customRadio.checked = true;
+    activateCustomOnInteract(customInput, customRadio, validate);
+
+    expect(customInput.validationMessage).toInclude("below the minimum");
+  });
+
+  it("re-checks a below-minimum amount when clicked back into", () => {
+    activateCustomOnInteract(customInput, customRadio, validate);
+    customInput.value = "1";
+    // As left by picking a preset radio in the meantime.
+    customInput.setCustomValidity("");
+
+    customInput.click();
+
+    expect(customInput.validationMessage).toInclude("below the minimum");
   });
 });
 
@@ -99,6 +123,7 @@ describe("activateCustomOnRadio", () => {
   beforeEach(() => {
     customInput = /** @type {HTMLInputElement} */ (doc.createElement("input"));
     customInput.type = "text";
+    customInput.dataset["min"] = "5";
 
     customRadio = /** @type {HTMLInputElement} */ (doc.createElement("input"));
     customRadio.type = "radio";
@@ -117,7 +142,7 @@ describe("activateCustomOnRadio", () => {
     const radios = /** @type {NodeListOf<HTMLInputElement>} */ (
       doc.querySelectorAll("input[type=radio]")
     );
-    activateCustomOnRadio(radios, customInput);
+    activateCustomOnRadio(radios, customInput, validateMinAmount(customInput));
   });
 
   it("requires the input when the custom radio is selected", () => {
@@ -125,6 +150,14 @@ describe("activateCustomOnRadio", () => {
     fire(new happyWindow.Event("change", { bubbles: true }), customRadio);
 
     expect(customInput.required).toBe(true);
+  });
+
+  it("re-checks a below-minimum amount when the custom radio is selected", () => {
+    customInput.value = "1";
+    customRadio.checked = true;
+    fire(new happyWindow.Event("change", { bubbles: true }), customRadio);
+
+    expect(customInput.validationMessage).toInclude("below the minimum");
   });
 
   it("stops requiring the input when a non-custom radio is selected", () => {
