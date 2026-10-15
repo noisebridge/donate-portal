@@ -111,7 +111,7 @@ export class ChargeAlertManager {
       return;
     }
 
-    await this.broadcastAlert(this.formatMemberAlert(event.data.object));
+    await this.broadcastAlert(this.formatMemberAlert(subscription));
   }
 
   /**
