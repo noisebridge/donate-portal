@@ -1,5 +1,8 @@
 #!/usr/bin/env bun
 
+import { mkdtempSync } from "node:fs";
+import { tmpdir } from "node:os";
+import path from "node:path";
 import { firefox } from "playwright";
 import config from "~/config";
 
@@ -22,7 +25,19 @@ try {
     }
   }
 
-  const browser = await firefox.launch();
+  // Same macOS 27 Firefox workaround as playwright.config.ts.
+  const browser = await firefox.launch(
+    process.platform === "darwin"
+      ? {
+          env: {
+            ...process.env,
+            CFFIXED_USER_HOME: mkdtempSync(
+              path.join(tmpdir(), "playwright-firefox-home-"),
+            ),
+          },
+        }
+      : {},
+  );
   const page = await browser.newPage({
     viewport: { width: 1280, height: 800 },
   });

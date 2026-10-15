@@ -60,7 +60,7 @@ export function QrPage({
                 autocomplete="off"
                 autocapitalize="off"
                 autocorrect="off"
-                spellcheck={false}
+                spellcheck="false"
                 data-1p-ignore
                 data-lpignore="true"
                 data-form-type="other"
