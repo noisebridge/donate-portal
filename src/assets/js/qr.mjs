@@ -75,7 +75,7 @@ function initAmountControls() {
   }
 
   enforcePattern(amountInput, dollarPattern);
-  validateMinAmount(amountInput);
+  const validateAmount = validateMinAmount(amountInput);
 
   const originalHint = hint?.textContent ?? "";
 
@@ -90,6 +90,7 @@ function initAmountControls() {
     const dollars = currentAmount.cents / 100;
     // Update input field
     amountInput.value = dollars.toFixed(2);
+    validateAmount();
     // Update button text
     buttonText.textContent = `Donate · ${formatAmount(currentAmount)}`;
     // Update slider

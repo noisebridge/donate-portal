@@ -151,6 +151,26 @@ describe("amount controls", () => {
     expect(hint()).toBe("Thanks for all the fish! 🐬");
   });
 
+  it("clears a below-minimum error once the slider sets a valid amount", () => {
+    typeAmount("0.5");
+    expect(amountInput().validationMessage).toInclude("below the minimum");
+
+    slider().value = "20";
+    fire(slider(), "input");
+
+    expect(amountInput().value).toBe("20.00");
+    expect(amountInput().validationMessage).toBe("");
+  });
+
+  it("clears an empty-input error once blur restores the last amount", () => {
+    typeAmount("");
+    expect(amountInput().validationMessage).toInclude("enter a number");
+
+    fire(amountInput(), "blur");
+
+    expect(amountInput().validationMessage).toBe("");
+  });
+
   it("clamps the slider to its range for out-of-range amounts", () => {
     typeAmount("1200");
     fire(amountInput(), "blur");

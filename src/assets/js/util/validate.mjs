@@ -54,16 +54,20 @@ export function enforcePattern(input, pattern) {
  * min; a value exactly at the min passes.
  * Reads the `data-min` attribute on `input`.
  *
+ * Setting `value` from code fires no `input` event, so callers that do must
+ * run the returned check themselves.
+ *
  * @param {HTMLInputElement} input
+ * @returns {() => void} Re-checks the current value.
  */
 export function validateMinAmount(input) {
   const min = parseFloat(input.dataset["min"] ?? "0");
   if (Number.isNaN(min)) {
     console.error(`Invalid data-min attribute "${input.dataset["min"]}"`);
-    return;
+    return () => {};
   }
 
-  input.addEventListener("input", () => {
+  const validate = () => {
     const value = parseFloat(input.value);
     if (Number.isNaN(value)) {
       input.setCustomValidity("Please enter a number");
@@ -77,5 +81,8 @@ export function validateMinAmount(input) {
     }
 
     input.setCustomValidity("");
-  });
+  };
+  input.addEventListener("input", validate);
+
+  return validate;
 }
