@@ -7,7 +7,6 @@ import { formatAmount } from "./util/money-forms.mjs";
 /** @typedef {import("~/types/alerts").AlertMessage} AlertMessage */
 /** @typedef {import("~/types/alerts").ChargeAlertMessage} ChargeAlertMessage */
 /** @typedef {import("~/types/alerts").MemberAlertMessage} MemberAlertMessage */
-/** @typedef {import("~/types/alerts").PongMessage} PongMessage */
 /** @typedef {import("~/types/alerts").ServerMessage} ServerMessage */
 /** @typedef {import("~/types/cents").Cents} Cents */
 /** @typedef {import("~/lib/paths").Paths} Paths */
@@ -124,6 +123,10 @@ function sortedQueueInsert(alert) {
  * @param {AlertMessage} alert
  */
 async function enqueueAlert(alert) {
+  if (seenAlert(alert)) {
+    return;
+  }
+
   if (queueDrainInterval) {
     sortedQueueInsert(alert);
     return;
@@ -470,19 +473,14 @@ async function displayAlert(alert) {
 
 function connect() {
   const protocol = location.protocol === "https:" ? "wss:" : "ws:";
-  const url = `${protocol}//${location.host}${WS_PATH}`;
+  const ws = new WebSocket(`${protocol}//${location.host}${WS_PATH}`);
 
-  const ws = new WebSocket(url);
-  /** @type {number | null} */
-  let pingTimeout = null;
-
+  // The server pings regularly, so a silent socket is a dead one.
+  /** @type {number | undefined} */
+  let pingTimeout;
   function resetPingTimeout() {
-    if (pingTimeout) {
-      window.clearTimeout(pingTimeout);
-    }
-    pingTimeout = window.setTimeout(() => {
-      ws.close();
-    }, PING_TIMEOUT_MS);
+    window.clearTimeout(pingTimeout);
+    pingTimeout = window.setTimeout(() => ws.close(), PING_TIMEOUT_MS);
   }
 
   ws.addEventListener("open", () => {
@@ -490,42 +488,23 @@ function connect() {
     resetPingTimeout();
   });
   ws.addEventListener("message", async (event) => {
+    resetPingTimeout();
     const message = parseJson(String(event.data), isServerMessage);
     if (!message) {
       return;
     }
 
-    if (message.type === "ping") {
-      resetPingTimeout();
-      ws.send(
-        JSON.stringify(/** @satisfies {PongMessage} */ ({ type: "pong" })),
-      );
-
-      // Already newest-first, which is the order the queue drains in.
-      for (const alert of message.history) {
-        if (seenAlert(alert)) {
-          continue;
-        }
-
-        await enqueueAlert(alert);
-      }
-      return;
+    // Ping history is already newest-first, which is the order the queue drains in.
+    const alerts = message.type === "ping" ? message.history : [message];
+    for (const alert of alerts) {
+      await enqueueAlert(alert);
     }
-
-    await enqueueAlert(message);
   });
-  ws.addEventListener("error", (event) => {
-    console.error("WebSocket error:", event);
-  });
+  // The browser logs the failure, and close always follows an error.
   ws.addEventListener("close", () => {
-    if (pingTimeout) {
-      window.clearTimeout(pingTimeout);
-    }
-
-    window.setTimeout(() => {
-      reconnectDelay = Math.min(reconnectDelay * 2, MAX_RECONNECT_DELAY);
-      connect();
-    }, reconnectDelay);
+    window.clearTimeout(pingTimeout);
+    window.setTimeout(connect, reconnectDelay);
+    reconnectDelay = Math.min(reconnectDelay * 2, MAX_RECONNECT_DELAY);
   });
 }
 

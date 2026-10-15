@@ -10,12 +10,11 @@ import {
 import type Stripe from "stripe";
 import baseLogger from "~/lib/logger";
 import stripe from "~/services/stripe";
-import {
-  type AlertMessage,
-  type ChargeAlertMessage,
-  clientMessageSchema,
-  type MemberAlertMessage,
-  type PingMessage,
+import type {
+  AlertMessage,
+  ChargeAlertMessage,
+  MemberAlertMessage,
+  PingMessage,
 } from "~/types/alerts";
 import { GENERAL_DONATION, NAME_REMAP } from "./donation";
 import { PRODUCT_ID } from "./subscription";
@@ -47,8 +46,7 @@ export class ChargeAlertManager {
   static readonly log = baseLogger.child({ module: "charge-alert" });
 
   private _recentAlerts: AlertMessage[] | null = null;
-  private connections = new Map<WebSocket, { alive: boolean }>();
-  private pingInterval: NodeJS.Timeout | null = null;
+  private sockets = new Set<WebSocket>();
 
   async getRecentAlerts() {
     if (this._recentAlerts === null) {
@@ -58,87 +56,44 @@ export class ChargeAlertManager {
     return this._recentAlerts;
   }
 
-  async addConnection(socket: WebSocket) {
-    this.connections.set(socket, { alive: true });
+  addConnection(socket: WebSocket) {
+    this.sockets.add(socket);
 
-    socket.on("message", (data) => {
-      let json: unknown;
-      try {
-        json = JSON.parse(String(data));
-      } catch (err) {
-        ChargeAlertManager.log.error({ err }, "Failed to parse client message");
+    // Browsers answer protocol pings on their own. The history message tells
+    // the client the server is still there and fills in alerts it missed.
+    let alive = true;
+    socket.on("pong", () => {
+      alive = true;
+    });
+
+    const heartbeat = setInterval(async () => {
+      if (!alive) {
+        ChargeAlertManager.log.warn("Terminating unresponsive connection");
+        socket.terminate();
         return;
       }
 
-      const result = clientMessageSchema.safeParse(json);
-      if (!result.success) {
-        ChargeAlertManager.log.error(
-          { err: result.error },
-          "Invalid client message",
-        );
-        return;
-      }
-
-      if (result.data.type === "pong") {
-        const state = this.connections.get(socket);
-        if (state) {
-          state.alive = true;
-        }
-      }
-    });
-
-    socket.on("error", (err) => {
-      ChargeAlertManager.log.error({ err }, "Error on socket");
-      this.connections.delete(socket);
-      socket.terminate();
-    });
-
-    socket.on("close", () => {
-      this.connections.delete(socket);
-    });
-
-    if (!this.pingInterval) {
-      this.startPinging();
-    }
-  }
-
-  private async sendPing(socket: WebSocket) {
-    const history = await this.getRecentAlerts();
-
-    try {
+      alive = false;
+      socket.ping();
+      const history = await this.getRecentAlerts();
       const message: PingMessage = {
         type: "ping",
         history: history.slice(0, PING_HISTORY_SIZE),
       };
       socket.send(JSON.stringify(message));
-    } catch (err) {
-      ChargeAlertManager.log.error({ err }, "Failed to send ping");
-      this.connections.delete(socket);
-      socket.terminate();
-    }
-  }
-
-  private startPinging() {
-    this.pingInterval = setInterval(async () => {
-      for (const [socket, state] of this.connections) {
-        if (!state.alive) {
-          ChargeAlertManager.log.warn("Terminating unresponsive connection");
-          this.connections.delete(socket);
-          socket.terminate();
-          continue;
-        }
-
-        state.alive = false;
-        await this.sendPing(socket);
-      }
-
-      if (this.connections.size === 0 && this.pingInterval) {
-        clearInterval(this.pingInterval);
-        this.pingInterval = null;
-      }
     }, PING_INTERVAL_MS);
     // Allows the process to terminate even when the interval is running.
-    this.pingInterval.unref();
+    heartbeat.unref();
+
+    socket.on("error", (err) => {
+      ChargeAlertManager.log.error({ err }, "Error on socket");
+    });
+
+    // ws emits close after error and terminate too.
+    socket.on("close", () => {
+      clearInterval(heartbeat);
+      this.sockets.delete(socket);
+    });
   }
 
   async handlePaymentSuccess(event: Stripe.PaymentIntentSucceededEvent) {
@@ -236,14 +191,8 @@ export class ChargeAlertManager {
     }
 
     const message = JSON.stringify(alert);
-    for (const socket of this.connections.keys()) {
-      try {
-        socket.send(message);
-      } catch (err) {
-        ChargeAlertManager.log.error({ err }, "Failed to broadcast alert");
-        this.connections.delete(socket);
-        socket.terminate();
-      }
+    for (const socket of this.sockets) {
+      socket.send(message);
     }
   }
 

@@ -45,15 +45,13 @@ const ledHyperdrive = jest.fn(async () => {});
 mock.module("./effects/index.mjs", () => ({ default: effects }));
 mock.module("./effects/led-effects.mjs", () => ({ ledHyperdrive }));
 
-/** A `WebSocket` stand-in that records what the module sends and lets tests fire events. */
+/** A `WebSocket` stand-in that lets tests fire events. */
 class FakeSocket {
   /** @param {string} url */
   constructor(url) {
     this.url = url;
     /** @type {Record<string, ((event: any) => unknown)[]>} */
     this.listeners = {};
-    /** @type {string[]} */
-    this.sent = [];
     this.closed = false;
     sockets.push(this);
   }
@@ -65,11 +63,6 @@ class FakeSocket {
   addEventListener(type, handler) {
     this.listeners[type] ??= [];
     this.listeners[type].push(handler);
-  }
-
-  /** @param {string} data */
-  send(data) {
-    this.sent.push(data);
   }
 
   close() {
@@ -265,16 +258,6 @@ describe("start-up", () => {
 });
 
 describe("the ping handshake", () => {
-  beforeEach(() => {
-    socket().sent.length = 0;
-  });
-
-  it("answers a ping with a pong", async () => {
-    await socket().receive({ type: "ping", history: [] });
-
-    expect(socket().sent).toEqual(['{"type":"pong"}']);
-  });
-
   it("ignores history entries already on the page", async () => {
     await socket().receive({
       type: "ping",
@@ -325,13 +308,18 @@ describe("the ping handshake", () => {
     await drainQueue();
   });
 
-  it("ignores a malformed message without answering", async () => {
+  it("ignores a malformed message", async () => {
+    const error = jest.spyOn(console, "error").mockImplementation(() => {});
+    const amount = amountEl().dataset["amount"];
+
     await socket().emit("message", { data: "not json" });
     await socket().emit("message", {
       data: JSON.stringify({ type: "ping", history: [{ id: 1 }] }),
     });
 
-    expect(socket().sent).toEqual([]);
+    expect(amountEl().dataset["amount"]).toBe(amount);
+    expect(error).toHaveBeenCalledTimes(2);
+    error.mockRestore();
   });
 
   it("arms the ping watchdog, which closes a silent socket", async () => {
@@ -533,10 +521,7 @@ describe("the alert queue", () => {
     await socket().receive(charge({ id: "ch_dupe" }));
     await socket().receive(charge({ id: "ch_dupe" }));
 
-    // The first copy is skipped because its twin is still queued behind it.
-    await drainQueue();
-    expect(amountEl().dataset["amount"]).toBe("100");
-
+    // The second copy is dropped on arrival, so the next tick shows the first.
     await drainQueue();
     expect(amountEl().dataset["amount"]).toBe("500");
 
@@ -548,15 +533,6 @@ describe("the alert queue", () => {
 });
 
 describe("connection loss", () => {
-  it("logs socket errors", async () => {
-    const error = jest.spyOn(console, "error").mockImplementation(() => {});
-
-    await socket().emit("error", { type: "error" });
-
-    expect(error).toHaveBeenCalled();
-    error.mockRestore();
-  });
-
   it("reconnects with a backing-off delay", async () => {
     const before = sockets.length;
     // The retry is scheduled through window.setTimeout, so read it from the
