@@ -1,8 +1,22 @@
-import { describe, expect, mock, spyOn, test } from "bun:test";
+import {
+  afterAll,
+  beforeAll,
+  describe,
+  expect,
+  mock,
+  setSystemTime,
+  spyOn,
+  test,
+} from "bun:test";
 import type Stripe from "stripe";
 import { ChargeAlertManager } from "./charge-alert";
 import { GENERAL_DONATION } from "./donation";
 import { PRODUCT_ID } from "./subscription";
+
+const paymentIntentsList = mock();
+mock.module("~/services/stripe", () => ({
+  default: { paymentIntents: { list: paymentIntentsList } },
+}));
 
 describe("ChargeAlertManager", () => {
   const manager = new ChargeAlertManager();
@@ -305,6 +319,99 @@ describe("ChargeAlertManager", () => {
       expect(clearIntervalSpy).toHaveBeenCalledTimes(1);
       clearIntervalSpy.mockRestore();
       expect(target["sockets"].size).toBe(0);
+    });
+  });
+
+  describe("top donations", () => {
+    const inWindow = Date.parse("2026-10-17T12:00:00-07:00") / 1000;
+
+    beforeAll(() => {
+      setSystemTime(new Date(inWindow * 1000));
+    });
+
+    afterAll(() => {
+      setSystemTime();
+    });
+
+    function makeSucceeded(id: string, amount: number, created = inWindow) {
+      return {
+        ...makePaymentIntent({ id }),
+        status: "succeeded",
+        amount,
+        created,
+      } as Stripe.PaymentIntent;
+    }
+
+    function stubList(paymentIntents: Stripe.PaymentIntent[]) {
+      paymentIntentsList.mockReturnValue({
+        autoPagingEach: async (fn: (pi: Stripe.PaymentIntent) => void) => {
+          paymentIntents.forEach(fn);
+        },
+      });
+    }
+
+    test("returns fewer than three when the window has fewer donations", async () => {
+      stubList([makeSucceeded("pi_small", 500), makeSucceeded("pi_big", 9000)]);
+
+      const top = await new ChargeAlertManager().getTopDonations();
+
+      expect(top?.map((d) => d.amount.cents)).toEqual([9000, 500]);
+    });
+
+    test("fills an open place with a new donation from the window", async () => {
+      stubList([makeSucceeded("pi_first", 500)]);
+      const target = new ChargeAlertManager();
+      await target.getTopDonations();
+
+      await target["recordTopDonation"](
+        target["formatChargeAlert"](makeSucceeded("pi_new", 700)),
+      );
+      await target["recordTopDonation"](
+        target["formatChargeAlert"](
+          makeSucceeded("pi_late", 99_900, inWindow + 7 * 86_400),
+        ),
+      );
+
+      const top = await target.getTopDonations();
+      expect(top?.map((d) => d.amount.cents)).toEqual([700, 500]);
+    });
+
+    test("keeps every donation recorded during the first fetch", async () => {
+      let finishFetch: () => void = () => {};
+      paymentIntentsList.mockReturnValue({
+        autoPagingEach: () =>
+          new Promise<void>((resolve) => {
+            finishFetch = () => resolve();
+          }),
+      });
+      const target = new ChargeAlertManager();
+      void target.getTopDonations();
+
+      const recorded = Promise.all(
+        [700, 900].map((cents) =>
+          target["recordTopDonation"](
+            target["formatChargeAlert"](makeSucceeded(`pi_${cents}`, cents)),
+          ),
+        ),
+      );
+      finishFetch();
+      await recorded;
+
+      const top = await target.getTopDonations();
+      expect(top?.map((d) => d.amount.cents)).toEqual([900, 700]);
+    });
+
+    test("hides the podium after the end of Monday", async () => {
+      stubList([makeSucceeded("pi_first", 500)]);
+      const target = new ChargeAlertManager();
+
+      setSystemTime(new Date("2026-10-19T23:59:59-07:00"));
+      expect(await target.getTopDonations()).toHaveLength(1);
+
+      setSystemTime(new Date("2026-10-20T00:00:00-07:00"));
+      expect(await target.getTopDonations()).toBeNull();
+
+      setSystemTime(new Date(inWindow * 1000));
     });
   });
 });

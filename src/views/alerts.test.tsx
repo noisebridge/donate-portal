@@ -27,7 +27,7 @@ const makeMember = (): MemberAlertMessage => ({
 describe("AlertsPage", () => {
   test("should render with charges", () => {
     const charges = [makeCharge(5000, "Laser Cutter"), makeCharge(2000)];
-    const result = String(<AlertsPage alerts={charges} />);
+    const result = String(<AlertsPage alerts={charges} topDonations={[]} />);
 
     expect(result).toContain("Laser Cutter");
     expect(result).toContain("Latest Donation");
@@ -35,34 +35,38 @@ describe("AlertsPage", () => {
 
   test("should show NICE badge for amounts containing 69", () => {
     const charges = [makeCharge(4269)];
-    const result = String(<AlertsPage alerts={charges} />);
+    const result = String(<AlertsPage alerts={charges} topDonations={[]} />);
 
     expect(result).toContain("nice-badge");
   });
 
   test("should show NICE badge when the 69 is in the dollars", () => {
-    const result = String(<AlertsPage alerts={[makeCharge(6900)]} />);
+    const result = String(
+      <AlertsPage alerts={[makeCharge(6900)]} topDonations={[]} />,
+    );
 
     expect(result).toContain("nice-badge");
   });
 
   test("should render member alerts in history", () => {
     const alerts: AlertMessage[] = [makeCharge(5000), makeMember()];
-    const result = String(<AlertsPage alerts={alerts} />);
+    const result = String(<AlertsPage alerts={alerts} topDonations={[]} />);
 
     expect(result).toContain("New Member");
     expect(result).toContain("Membership");
   });
 
   test("should show waiting message with empty alerts", () => {
-    const result = String(<AlertsPage alerts={[]} />);
+    const result = String(<AlertsPage alerts={[]} topDonations={[]} />);
 
     expect(result).toContain("Waiting for donations");
   });
 
   test("should not let a product name break out of the JSON script tag", () => {
     const payload = "</script><svg onload=alert(1)>";
-    const result = String(<AlertsPage alerts={[makeCharge(2000, payload)]} />);
+    const result = String(
+      <AlertsPage alerts={[makeCharge(2000, payload)]} topDonations={[]} />,
+    );
 
     // The literal closing tag must not appear inside the bootstrap JSON island,
     // otherwise the browser ends the <script> early and the rest is live HTML.
@@ -75,5 +79,20 @@ describe("AlertsPage", () => {
     );
     const parsed = JSON.parse(json.slice(0, json.indexOf("</script>")));
     expect(parsed.productName).toBe(payload);
+  });
+
+  test("leaves open places on the podium with fewer than three donations", () => {
+    const result = String(
+      <AlertsPage alerts={[]} topDonations={[makeCharge(999900)]} />,
+    );
+
+    expect(result).toContain("$9999");
+    expect(result.match(/data-alert-id=""/g)).toHaveLength(2);
+  });
+
+  test("omits the podium once it is hidden", () => {
+    const result = String(<AlertsPage alerts={[]} topDonations={null} />);
+
+    expect(result).not.toContain("top-donations");
   });
 });

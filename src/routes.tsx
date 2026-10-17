@@ -895,8 +895,13 @@ export default async function routes(fastify: FastifyInstance) {
         .send("Unauthorized");
     }
 
-    const alerts = await chargeAlertManager.getRecentAlerts();
-    return reply.html(<AlertsPage alerts={alerts} />);
+    const [alerts, topDonations] = await Promise.all([
+      chargeAlertManager.getRecentAlerts(),
+      chargeAlertManager.getTopDonations(),
+    ]);
+    return reply.html(
+      <AlertsPage alerts={alerts} topDonations={topDonations} />,
+    );
   });
 
   fastify.get(

@@ -35,6 +35,8 @@ const container = /** @type {HTMLElement} */ (
 const historyList = /** @type {HTMLElement} */ (
   document.getElementById("history-list")
 );
+// Not rendered once the podium is over.
+let topDonationsEl = document.getElementById("top-donations");
 
 const MAX_RECONNECT_DELAY = 30000;
 const DEFAULT_RECONNECT_DELAY = 1000;
@@ -334,6 +336,62 @@ function addToHistory(alert) {
 }
 
 /**
+ * Move a donation onto the podium if it was made in the podium's window and
+ * beats one of the current places.
+ * @param {ChargeAlertMessage} alert
+ */
+export function updateTopDonations(alert) {
+  if (!topDonationsEl) {
+    return;
+  }
+
+  const time = Date.parse(alert.date);
+  if (
+    time < Date.parse(topDonationsEl.dataset["start"] ?? "") ||
+    time >= Date.parse(topDonationsEl.dataset["end"] ?? "")
+  ) {
+    return;
+  }
+
+  const rows = Array.from(
+    topDonationsEl.querySelectorAll(".top-donation"),
+    (row) => /** @type {HTMLElement} */ (row),
+  );
+  if (rows.some((row) => row.dataset["alertId"] === alert.id)) {
+    return;
+  }
+
+  const ranked = rows
+    .map((row) => ({
+      id: row.dataset["alertId"] ?? "",
+      cents: Number(row.dataset["cents"]),
+    }))
+    .filter((entry) => entry.id !== "")
+    .concat({ id: alert.id, cents: alert.amount.cents })
+    .sort((a, b) => b.cents - a.cents);
+
+  for (const [index, row] of rows.entries()) {
+    const entry = ranked[index];
+    row.dataset["alertId"] = entry?.id ?? "";
+    row.dataset["cents"] = String(entry?.cents ?? 0);
+    /** @type {HTMLElement} */ (
+      row.querySelector(".top-donation-amount")
+    ).textContent = entry
+      ? formatAmount({ cents: entry.cents }).replace(/\.00$/, "")
+      : "\u2014";
+  }
+}
+
+/**
+ * Take the podium down at its `data-hide-at` time, since this page stays open
+ * for days.
+ */
+function hideTopDonations() {
+  topDonationsEl?.remove();
+  topDonationsEl = null;
+}
+
+/**
  * @param {AlertMessage} alert
  */
 function setBodyClass(alert) {
@@ -462,6 +520,9 @@ async function displayAlert(alert) {
 
   setBodyClass(alert);
   updateHeader(alert);
+  if (alert.type === "charge_alert") {
+    updateTopDonations(alert);
+  }
   const newIsTop = applyRainbowSheen();
 
   const effect = effectForAlert(alert);
@@ -549,6 +610,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     } else {
       await effects[activeEffect].ledEffect?.();
     }
+  }
+
+  if (topDonationsEl) {
+    window.setTimeout(
+      hideTopDonations,
+      Date.parse(topDonationsEl.dataset["hideAt"] ?? "") - Date.now(),
+    );
   }
 
   connect();

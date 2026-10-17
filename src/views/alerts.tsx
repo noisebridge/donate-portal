@@ -1,6 +1,11 @@
 import { importMapJson } from "~/lib/import-map";
 import { formatAmount } from "~/lib/money";
 import paths from "~/lib/paths";
+import {
+  TOP_DONATIONS_END,
+  TOP_DONATIONS_HIDE_AT,
+  TOP_DONATIONS_START,
+} from "~/managers/charge-alert";
 import type {
   AlertMessage,
   ChargeAlertMessage,
@@ -109,11 +114,53 @@ function amountDisplayText(alert?: AlertMessage) {
   }
 }
 
-interface AlertsPageProps {
-  alerts: AlertMessage[];
+const PLACES = ["st", "nd", "rd"];
+
+interface TopDonationsProps {
+  donations: ChargeAlertMessage[];
 }
 
-export function AlertsPage({ alerts }: AlertsPageProps) {
+function TopDonations({ donations }: TopDonationsProps) {
+  return (
+    <div
+      id="top-donations"
+      class="top-donations"
+      data-start={TOP_DONATIONS_START.toISOString()}
+      data-end={TOP_DONATIONS_END.toISOString()}
+      data-hide-at={TOP_DONATIONS_HIDE_AT.toISOString()}
+    >
+      <p class="alert-label top-donations-label">NB18 Top Donations</p>
+      {PLACES.map((suffix, index) => {
+        const donation = donations[index];
+        return (
+          <div
+            class={`top-donation place-${index + 1}`}
+            data-alert-id={donation?.id ?? ""}
+            data-cents={String(donation?.amount.cents ?? 0)}
+          >
+            <span class="place">
+              {index + 1}
+              <span class="place-suffix">{suffix}</span>
+            </span>
+            <span class="top-donation-amount">
+              {donation
+                ? formatAmount(donation.amount).replace(/\.00$/, "")
+                : "\u2014"}
+            </span>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+interface AlertsPageProps {
+  alerts: AlertMessage[];
+  /** Null once the podium should be hidden. */
+  topDonations: ChargeAlertMessage[] | null;
+}
+
+export function AlertsPage({ alerts, topDonations }: AlertsPageProps) {
   const [latest, ...history] = alerts;
   const latestAmountCents =
     latest?.type === "charge_alert" ? latest.amount.cents : 0;
@@ -192,17 +239,20 @@ export function AlertsPage({ alerts }: AlertsPageProps) {
             </div>
           </div>
         </div>
-        <div class="qr-corner">
-          <span class="qr-label">Scan to show fireworks!</span>
-          <img
-            src={paths.qrSvg(
-              { cents: 10000 },
-              "Digital Fireworks",
-              "Get a high score!",
-            )}
-            alt="Scan to donate $100"
-            class="qr-code"
-          />
+        <div class="bottom-dock">
+          <div class="qr-corner">
+            <span class="qr-label">Scan to show fireworks!</span>
+            <img
+              src={paths.qrSvg(
+                { cents: 10000 },
+                "Digital Fireworks",
+                "Get a high score!",
+              )}
+              alt="Scan to donate $100"
+              class="qr-code"
+            />
+          </div>
+          {topDonations && <TopDonations donations={topDonations} />}
         </div>
         <canvas id="effect-canvas"></canvas>
         <canvas id="banner-canvas"></canvas>
