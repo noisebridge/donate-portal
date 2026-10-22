@@ -4,11 +4,11 @@ This site is a basic donation portal for the Noisebridge hackerspace.
 
 # Scripts
 
-* `bun run dev` - Start dev server
-* `bun run lint:fix` - Lint and automatically apply fixes
-* `bun run check` - Run TypeScript compiler
-* `bun run test` - Run unit tests
-* `bun run test:e2e` - Run integration tests
+- `bun run dev` - Start dev server
+- `bun run lint:fix` - Lint and automatically apply fixes
+- `bun run check` - Run TypeScript compiler
+- `bun run test` - Run unit tests
+- `bun run test:e2e` - Run integration tests
 
 # Database
 
@@ -32,12 +32,12 @@ can hold.
 
 ### Quick Reference
 
-| Task | Command |
-|------|---------|
-| Run a script | `~/.bun/bin/bun run <script>` |
-| Install packages | `~/.bun/bin/bun install` |
-| Add a package | `~/.bun/bin/bun add <package>` |
-| Dev server | `~/.bun/bin/bun run dev` |
+| Task             | Command                        |
+| ---------------- | ------------------------------ |
+| Run a script     | `~/.bun/bin/bun run <script>`  |
+| Install packages | `~/.bun/bin/bun install`       |
+| Add a package    | `~/.bun/bin/bun add <package>` |
+| Dev server       | `~/.bun/bin/bun run dev`       |
 
 
 ## Server-side processing
@@ -45,9 +45,8 @@ can hold.
 Perform server-side processing for routes `src/routes.tsx`.
 Only perform request and response processing in `src/routes.tsx`. Delegate
 more complex business logic to other modules such as:
-
-* Service modules: `src/services/**/*.ts` - API clients
-* Manager modules: `src/managers/**/*.ts` - Business logic containers
+- Service modules: `src/services/**/*.ts` - API clients
+- Manager modules: `src/managers/**/*.ts` - Business logic containers
 
 ## Views & Templating
 
@@ -62,7 +61,7 @@ more complex business logic to other modules such as:
 
 Example page structure:
 ```tsx
-import { Layout } from '~/components/layout'
+import { Layout } from "~/components/layout";
 
 export function HomePage() {
   return (
@@ -70,7 +69,7 @@ export function HomePage() {
       <h1>Welcome</h1>
       <p>Page content here</p>
     </Layout>
-  )
+  );
 }
 ```
 
@@ -86,7 +85,7 @@ functions, ex:
 ```tsx
 <Button variant="outline" href={paths.stripePortal()}>
   Past Invoices and Payment Methods
-</Button>
+</Button>;
 ```
 
 ## Client-Side JavaScript
@@ -106,7 +105,7 @@ Example client-side file:
  * @returns {void}
  */
 function showAlert(message) {
-  alert(message)
+  alert(message);
 }
 ```
 

@@ -10,6 +10,7 @@ export function expectConsoleError(page: Page, expectedText: string) {
   });
 }
 
+// biome-ignore lint/correctness/usePlaywrightValidDescribeCallback: describe(title, details, callback) is a valid signature
 test.describe("Content Security Policy", { tag: "@serial" }, () => {
   test.describe.configure({ mode: "serial" });
   test("blocks eval()", async ({ page }) => {

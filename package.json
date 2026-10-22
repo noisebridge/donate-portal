@@ -2,9 +2,9 @@
   "name": "donate.noisebridge.net",
   "type": "module",
   "private": true,
-  "packageManager": "bun@1.4.2",
+  "packageManager": "bun@1.4.4",
   "engines": {
-    "bun": "1.4.2"
+    "bun": "1.4.4"
   },
   "scripts": {
     "dev": "watchexec -r -w src/ -- bun src/server.ts",
@@ -22,15 +22,15 @@
     "screenshot": "bun ./scripts/screenshot.ts"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.5.15",
-    "@playwright/test": "^1.64.0",
-    "@stripe/stripe-js": "^10.0.0",
+    "@biomejs/biome": "^2.6.2",
+    "@playwright/test": "^1.64.1",
+    "@stripe/stripe-js": "^10.1.0",
     "@types/bmp-js": "^0.1.2",
-    "@types/bun": "1.4.2",
+    "@types/bun": "1.4.3",
     "@types/mjml": "^5.0.0",
     "@types/ws": "^8.18.2",
-    "happy-dom": "^21.0.1",
-    "playwright": "^1.64.0"
+    "happy-dom": "^21.0.4",
+    "playwright": "^1.64.1"
   },
   "peerDependencies": {
     "typescript": "^7.0.2"
@@ -40,19 +40,19 @@
     "@fastify/csrf-protection": "^8.0.2",
     "@fastify/error": "^4.2.1",
     "@fastify/formbody": "^9.0.1",
-    "@fastify/helmet": "^13.1.2",
+    "@fastify/helmet": "^13.2.0",
     "@fastify/rate-limit": "^11.2.1",
-    "@fastify/static": "^10.1.6",
+    "@fastify/static": "^10.1.7",
     "@fastify/websocket": "^11.3.4",
     "bmp-js": "0.1.0",
-    "dotenv": "^18.0.7",
-    "fastify": "^5.12.5",
+    "dotenv": "^18.0.8",
+    "fastify": "^5.12.7",
     "fastify-plugin": "^6.0.1",
     "mjml": "^5.4.1",
     "obscenity": "^0.4.6",
     "pino": "^10.4.0",
-    "resend": "^6.32.1",
+    "resend": "^6.34.1",
     "stripe": "^23.0.0",
-    "zod": "^4.6.6"
+    "zod": "^4.6.7"
   }
 }

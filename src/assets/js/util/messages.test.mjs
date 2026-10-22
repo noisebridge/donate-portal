@@ -45,7 +45,7 @@ function buildDOM(messages) {
 
     const messageText = doc.createElement("span");
     messageText.className = "message-text";
-    messageText.innerText = text;
+    messageText.textContent = text;
 
     const btn = doc.createElement("button");
     btn.className = "message-dismiss";
