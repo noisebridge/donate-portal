@@ -249,106 +249,15 @@ body.hacker .history-amount {
   animation: rainbow-sheen 3s linear infinite;
 }
 
-/* Pinned to the bottom with the QR code stacked above the podium, and above
-   every effect */
-.bottom-dock {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 60;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-}
-
-/* Top donations podium, Mario Kart placement style. Opaque, with a faded top
-   edge, so the history list slides behind it. Styled the same under
-   body.hacker. */
-.top-donations {
-  align-self: stretch;
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  justify-items: center;
-  padding: 4rem 2rem 1.5rem;
-  background: linear-gradient(transparent, #0a0a0a 3.5rem);
-  font-family: var(--font-eurostile);
-  font-weight: 700;
-  font-style: italic;
-}
-
-.top-donations-label {
-  grid-column: 1 / -1;
-  font-size: 2.75rem;
-  font-family: var(--font-sans);
-  font-weight: 400;
-  font-style: normal;
-}
-
-.top-donation {
-  display: flex;
-  align-items: baseline;
-  gap: 0.75rem;
-  font-size: 4rem;
-  line-height: 1.1;
-}
-
-/* Places not yet claimed by a donation */
-.top-donation[data-alert-id=""] {
-  opacity: 0.35;
-}
-
-.top-donation .place {
-  --place-fill: linear-gradient(#fff6a0, #ffd400 45%, #ff9a00);
-  font-size: 1.6em;
-  /* Room for the slanted glyphs to overhang, or the gradient clips them */
-  padding-inline: 0.2em;
-  margin-inline: -0.2em;
-  transform: skewX(-8deg);
-  background: var(--place-fill);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  /* Stacked shadows outline the gradient text without painting over it */
-  filter: drop-shadow(0.03em 0 0 #000) drop-shadow(-0.03em 0 0 #000)
-    drop-shadow(0 0.03em 0 #000) drop-shadow(0 -0.03em 0 #000)
-    drop-shadow(0.05em 0.07em 0 #000);
-}
-
-.top-donation .place-suffix {
-  margin-left: 0.08em;
-  font-size: 0.55em;
-  vertical-align: 0.7em;
-}
-
-.top-donation.place-2 .place {
-  --place-fill: linear-gradient(#ffffff, #c9d3dc 45%, #7d8a96);
-}
-
-.top-donation.place-3 .place {
-  --place-fill: linear-gradient(#ffd2a6, #d9822b 45%, #8a4a12);
-}
-
-.top-donation-amount {
-  -webkit-text-stroke: 0.04em #000;
-  paint-order: stroke fill;
-  filter: drop-shadow(0.05em 0.06em 0 #000);
-}
-
 /* QR code */
 
-/* Above the podium's faded edge, which it overlaps */
 .qr-corner {
-  position: relative;
-  z-index: 1;
+  position: fixed;
   display: flex;
   flex-direction: column;
-  margin: 0 1.5rem -2rem;
-}
-
-/* Back in its corner once the podium is gone */
-.qr-corner:last-child {
-  margin-bottom: 1.5rem;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 20;
 }
 
 .qr-label {

@@ -134,11 +134,6 @@ beforeAll(async () => {
       <span id="alert-date">1/1/2026</span>
     </div>
     <div id="history-list"></div>
-    <div id="top-donations" data-start="2026-10-16T07:00:00.000Z" data-end="2026-10-19T07:00:00.000Z" data-hide-at="2026-10-20T07:00:00.000Z">
-      <div class="top-donation" data-alert-id="ch_top" data-cents="5000"><span class="top-donation-amount">$50</span></div>
-      <div class="top-donation" data-alert-id="" data-cents="0"><span class="top-donation-amount">\u2014</span></div>
-      <div class="top-donation" data-alert-id="" data-cents="0"><span class="top-donation-amount">\u2014</span></div>
-    </div>
     <script id="current-charge" type="application/json">${JSON.stringify(CURRENT_CHARGE)}</script>`;
 
   /** @type {any} */ (globalThis).window = happyWindow;
@@ -218,34 +213,6 @@ describe("splitAmount", () => {
       cents: "34",
     });
     expect(splitAmount({ cents: 5 })).toEqual({ dollars: "0", cents: "05" });
-  });
-});
-
-describe("updateTopDonations", () => {
-  it("ranks donations from the window and ignores the rest", async () => {
-    const { updateTopDonations } = await import("./alerts.mjs");
-    const amounts = () =>
-      Array.from(doc.querySelectorAll(".top-donation-amount"), (el) =>
-        el.textContent?.trim(),
-      );
-    const inWindow = "2026-10-17T20:00:00.000Z";
-
-    updateTopDonations(
-      /** @type {any} */ (charge({ id: "a", cents: 9999, date: inWindow })),
-    );
-    updateTopDonations(
-      /** @type {any} */ (charge({ id: "b", cents: 1250, date: inWindow })),
-    );
-    updateTopDonations(
-      /** @type {any} */ (
-        charge({ id: "c", cents: 1000000, date: "2026-10-19T08:00:00.000Z" })
-      ),
-    );
-    updateTopDonations(
-      /** @type {any} */ (charge({ id: "a", cents: 9999, date: inWindow })),
-    );
-
-    expect(amounts()).toEqual(["$99.99", "$50", "$12.50"]);
   });
 });
 
@@ -654,26 +621,3 @@ async function deliver(alert) {
   await drainQueue();
   await drainQueue();
 }
-
-describe("the podium", () => {
-  it("is taken down when its hide timer fires", async () => {
-    const { updateTopDonations } = await import("./alerts.mjs");
-    const timer = windowTimeouts.find(
-      (timeout) => timeout.fn.name === "hideTopDonations",
-    );
-    // Scheduled at boot, so allow for the time since.
-    expect(timer?.ms).toBeCloseTo(
-      Date.parse("2026-10-20T07:00:00.000Z") - Date.now(),
-      -4,
-    );
-
-    await timer?.fn();
-
-    expect(doc.getElementById("top-donations")).toBeNull();
-    expect(() =>
-      updateTopDonations(
-        /** @type {any} */ (charge({ date: "2026-10-17T20:00:00.000Z" })),
-      ),
-    ).not.toThrow();
-  });
-});

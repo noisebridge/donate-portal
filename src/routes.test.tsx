@@ -724,17 +724,12 @@ describe("routes", () => {
       const credentials = Buffer.from(
         `${config.alertsUsername}:${config.alertsPassword}`,
       ).toString("base64");
-      const getTopDonations = spyOn(
-        chargeAlertManager,
-        "getTopDonations",
-      ).mockResolvedValue([]);
 
       const response = await app.inject({
         method: "GET",
         url: "/alerts",
         headers: { authorization: `Basic ${credentials}` },
       });
-      getTopDonations.mockRestore();
 
       expect(response.statusCode).toBe(200);
       expect(response.body).toContain("<!DOCTYPE html>");

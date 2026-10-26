@@ -22,12 +22,6 @@ import { PRODUCT_ID } from "./subscription";
 const MAX_RECENT_ALERTS = 25;
 const PING_HISTORY_SIZE = 5;
 const PING_INTERVAL_MS = 30_000;
-const TOP_DONATIONS_SIZE = 3;
-/** Oct 16th through the 18th, Pacific time. */
-export const TOP_DONATIONS_START = new Date("2026-10-16T00:00:00-07:00");
-export const TOP_DONATIONS_END = new Date("2026-10-19T00:00:00-07:00");
-/** Shown until the end of Monday the 19th, Pacific time. */
-export const TOP_DONATIONS_HIDE_AT = new Date("2026-10-20T00:00:00-07:00");
 
 function buildObscenityFilter() {
   const obscenityDataset = new DataSet<{ originalWord: string }>()
@@ -52,7 +46,6 @@ export class ChargeAlertManager {
   static readonly log = baseLogger.child({ module: "charge-alert" });
 
   private _recentAlerts: AlertMessage[] | null = null;
-  private _topDonations: Promise<ChargeAlertMessage[]> | null = null;
   private sockets = new Set<WebSocket>();
 
   async getRecentAlerts() {
@@ -61,23 +54,6 @@ export class ChargeAlertManager {
     }
 
     return this._recentAlerts;
-  }
-
-  /**
-   * The largest donations made between `TOP_DONATIONS_START` and
-   * `TOP_DONATIONS_END`, largest first, or null once they should be hidden.
-   */
-  async getTopDonations(): Promise<ChargeAlertMessage[] | null> {
-    if (Date.now() >= TOP_DONATIONS_HIDE_AT.getTime()) {
-      return null;
-    }
-
-    this._topDonations ??= this.fetchTopDonations().catch((err) => {
-      this._topDonations = null;
-      throw err;
-    });
-
-    return this._topDonations;
   }
 
   addConnection(socket: WebSocket) {
@@ -126,10 +102,7 @@ export class ChargeAlertManager {
       return;
     }
 
-    const alert = this.formatChargeAlert(paymentIntent);
-    // Broadcast first so a failed podium fetch can't hold up the alert.
-    await this.broadcastAlert(alert);
-    await this.recordTopDonation(alert);
+    await this.broadcastAlert(this.formatChargeAlert(paymentIntent));
   }
 
   async handleNewSubscription(event: Stripe.CustomerSubscriptionCreatedEvent) {
@@ -166,56 +139,6 @@ export class ChargeAlertManager {
     return [...charges, ...memberships]
       .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
       .slice(0, MAX_RECENT_ALERTS);
-  }
-
-  private async fetchTopDonations(): Promise<ChargeAlertMessage[]> {
-    const donations: ChargeAlertMessage[] = [];
-    // ponytail: walks every payment in the window, fine for a few days of
-    // donations.
-    await stripe.paymentIntents
-      .list({
-        created: {
-          gte: TOP_DONATIONS_START.getTime() / 1000,
-          lt: TOP_DONATIONS_END.getTime() / 1000,
-        },
-        limit: 100,
-      })
-      .autoPagingEach((paymentIntent) => {
-        if (
-          paymentIntent.status === "succeeded" &&
-          this.isDonation(paymentIntent)
-        ) {
-          donations.push(this.formatChargeAlert(paymentIntent));
-        }
-      });
-
-    return this.rankTopDonations(donations);
-  }
-
-  private async recordTopDonation(alert: ChargeAlertMessage) {
-    const date = new Date(alert.date);
-    // A fresh fetch would already include this payment.
-    if (
-      date < TOP_DONATIONS_START ||
-      date >= TOP_DONATIONS_END ||
-      this._topDonations === null
-    ) {
-      return;
-    }
-
-    // Chained, so concurrent webhooks during the first fetch each land.
-    this._topDonations = this._topDonations.then((top) =>
-      top.some((donation) => donation.id === alert.id)
-        ? top
-        : this.rankTopDonations([...top, alert]),
-    );
-    await this._topDonations;
-  }
-
-  private rankTopDonations(donations: ChargeAlertMessage[]) {
-    return donations
-      .sort((a, b) => b.amount.cents - a.amount.cents)
-      .slice(0, TOP_DONATIONS_SIZE);
   }
 
   /**
