@@ -39,12 +39,12 @@ can hold.
 | Add a package    | `~/.bun/bin/bun add <package>` |
 | Dev server       | `~/.bun/bin/bun run dev`       |
 
-
 ## Server-side processing
 
 Perform server-side processing for routes `src/routes.tsx`.
 Only perform request and response processing in `src/routes.tsx`. Delegate
 more complex business logic to other modules such as:
+
 - Service modules: `src/services/**/*.ts` - API clients
 - Manager modules: `src/managers/**/*.ts` - Business logic containers
 
@@ -60,6 +60,7 @@ more complex business logic to other modules such as:
 - Wrap page contents with the `Layout` higher-order component for the default layout
 
 Example page structure:
+
 ```tsx
 import { Layout } from "~/components/layout";
 
@@ -97,6 +98,7 @@ functions, ex:
 - Do not use TypeScript for client-side code; use typed JavaScript instead
 
 Example client-side file:
+
 ```javascript
 // @ts-check
 
