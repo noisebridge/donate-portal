@@ -1,7 +1,17 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["config:recommended", "customManagers:biomeVersions"],
+  "extends": [
+    "config:recommended",
+    "customManagers:biomeVersions",
+    "security:minimumReleaseAgeNpm"
+  ],
   "packageRules": [
+    {
+      "description": "Non-major updates merge once CI is green, checked by Renovate itself on its next run. Native automerge is off so nothing depends on the required-checks list staying current. Majors and 0.x stay in review.",
+      "matchUpdateTypes": ["minor", "patch", "pin", "pinDigest", "digest"],
+      "matchCurrentVersion": "!/^[\\^~]?0\\./",
+      "automerge": true
+    },
     {
       "groupName": "bun",
       "matchPackageNames": ["bun", "oven/bun", "@types/bun"]
@@ -17,6 +27,21 @@
     {
       "groupName": "mjml",
       "matchPackageNames": ["mjml", "@types/mjml"]
+    }
+  ],
+  "platformAutomerge": false,
+  "customManagers": [
+    {
+      "description": "Renovate skips engines.bun and packageManager, but CI reads the Bun version from them (bun-version-file). Match them as the 'oven/bun' dep so they move in one PR with the Dockerfile.",
+      "customType": "regex",
+      "managerFilePatterns": ["/^package\\.json$/"],
+      "matchStrings": [
+        "\"bun\": \"(?<currentValue>\\d+\\.\\d+\\.\\d+)\"",
+        "\"packageManager\": \"bun@(?<currentValue>\\d+\\.\\d+\\.\\d+)\""
+      ],
+      "depNameTemplate": "oven/bun",
+      "datasourceTemplate": "docker",
+      "versioningTemplate": "docker"
     }
   ]
 }
