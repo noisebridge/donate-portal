@@ -61,6 +61,9 @@ export default {
   serverHost,
   serverPort: parseInt(process.env["PORT"] || "3000", 10),
   baseUrl: `${serverProtocol}://${serverHost}`,
+  // Browsers only accept a `__Host-` cookie from this exact host, over HTTPS.
+  // Without it, any other noisebridge.net site could overwrite our cookies.
+  cookiePrefix: serverProtocol === "https" ? "__Host-" : "",
   stripePublicKey: assertEnvVar("STRIPE_PUBLIC"),
   stripeSecretKey: assertEnvVar("STRIPE_SECRET"),
   stripePortalConfig: assertEnvVar("STRIPE_PORTAL_CONFIG"),

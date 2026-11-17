@@ -38,6 +38,7 @@ fastify.register(fastifyCookie, {
 
 fastify.register(fastifyCsrf, {
   sessionPlugin: "@fastify/cookie",
+  cookieKey: `${config.cookiePrefix}_csrf`,
   cookieOpts: {
     secure: config.serverProtocol === "https",
     httpOnly: true,

@@ -1,6 +1,7 @@
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
 import fastifyCookie from "@fastify/cookie";
 import Fastify, { type FastifyInstance } from "fastify";
+import config from "~/config";
 import { CookieName, cookies, type SessionData } from "./signed-cookies";
 
 type InjectResponse = Awaited<ReturnType<FastifyInstance["inject"]>>;
@@ -188,6 +189,34 @@ describe("SignedCookie", () => {
         cookie.startsWith(CookieName.UserSession),
       );
       expect(sessionCookie).toBeDefined();
+    });
+
+    test("uses the configured prefix for writes and reads", async () => {
+      const data: SessionData = {
+        email: "test@example.com",
+        provider: "magic_link",
+        issued: Date.now(),
+      };
+      config.cookiePrefix = "__Host-";
+      try {
+        const setResponse = await app.inject({
+          method: "POST",
+          url: "/set-cookie",
+          payload: data,
+        });
+        const unprefixed = await app.inject({
+          method: "GET",
+          url: "/parse-cookie",
+          headers: { cookie: cookieHeader(signJson(data)) },
+        });
+
+        expect(newCookieValues(setResponse)[0]).toStartWith(
+          `__Host-${CookieName.UserSession}=`,
+        );
+        expect(unprefixed.json().valid).toBe(false);
+      } finally {
+        config.cookiePrefix = "";
+      }
     });
 
     test("round-trips a cookie through set then get", async () => {

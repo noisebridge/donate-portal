@@ -36,7 +36,7 @@ class SignedCookie<T extends { issued: number }> {
 
   private readonly request: FastifyRequest;
   private readonly reply: FastifyReply;
-  private readonly name: CookieName;
+  private readonly name: string;
   private readonly maxAge: number;
   private readonly schema: z.ZodType<T>;
 
@@ -49,7 +49,7 @@ class SignedCookie<T extends { issued: number }> {
   ) {
     this.request = request;
     this.reply = reply;
-    this.name = name;
+    this.name = `${config.cookiePrefix}${name}`;
     this.maxAge = maxAge;
     this.schema = schema;
   }
