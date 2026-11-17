@@ -46,7 +46,7 @@ async function send(params: {
 
 export async function sendMagicLink(email: string): Promise<EmailResult> {
   const magicLinkUrl = magicLinkManager.generateUrl(email);
-  const emailHtml = await MagicLinkEmail({ magicLinkUrl });
+  const emailHtml = MagicLinkEmail({ magicLinkUrl }).toString();
 
   return await send({
     to: email,
@@ -59,7 +59,7 @@ export async function sendSubscriptionCanceled(
   email: string,
   amount?: Cents,
 ): Promise<EmailResult> {
-  const emailHtml = await SubscriptionCanceledEmail({ amount });
+  const emailHtml = SubscriptionCanceledEmail({ amount }).toString();
 
   return await send({
     to: email,
@@ -72,7 +72,7 @@ export async function sendSubscriptionWelcome(
   email: string,
   amount: Cents,
 ): Promise<EmailResult> {
-  const emailHtml = await SubscriptionWelcomeEmail({ amount });
+  const emailHtml = SubscriptionWelcomeEmail({ amount }).toString();
 
   return await send({
     to: email,
@@ -85,7 +85,7 @@ export async function sendSubscriptionPastDue(
   email: string,
   amount?: Cents,
 ): Promise<EmailResult> {
-  const emailHtml = await SubscriptionPastDueEmail({ amount });
+  const emailHtml = SubscriptionPastDueEmail({ amount }).toString();
 
   return await send({
     to: email,
@@ -99,7 +99,10 @@ export async function sendSubscriptionUpdated(
   oldAmount: Cents,
   newAmount: Cents,
 ): Promise<EmailResult> {
-  const emailHtml = await SubscriptionUpdatedEmail({ oldAmount, newAmount });
+  const emailHtml = SubscriptionUpdatedEmail({
+    oldAmount,
+    newAmount,
+  }).toString();
 
   return await send({
     to: email,

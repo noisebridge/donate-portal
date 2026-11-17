@@ -41,6 +41,16 @@
           }
         }
       }
+    },
+    {
+      "includes": ["src/emails/components/layout.tsx"],
+      "linter": {
+        "rules": {
+          "a11y": {
+            "useSemanticElements": "off"
+          }
+        }
+      }
     }
   ],
   "assist": {

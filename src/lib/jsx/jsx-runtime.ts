@@ -1,7 +1,7 @@
 /**
  * JSX runtime that renders straight to HTML strings. Every string it did not
  * produce itself is escaped; the only way to emit raw markup is the
- * `dangerouslySetInnerHTML` prop.
+ * `dangerouslySetInnerHTML` prop or the `rawHtml` helper.
  */
 
 /** Rendered markup. Only this module can create it, so it can be trusted. */
@@ -79,4 +79,13 @@ export { jsx as jsxs };
 
 export function Fragment({ children }: Props): Children {
   return children;
+}
+
+/**
+ * Emit pre-rendered markup verbatim, for fragments that cannot be expressed as
+ * elements, like the MSO conditional comments in email HTML. Callers are
+ * responsible for the content: never pass untrusted input here.
+ */
+export function rawHtml(html: string): Html {
+  return new Html(html);
 }

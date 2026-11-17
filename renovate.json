@@ -19,10 +19,6 @@
     {
       "groupName": "stripe",
       "matchPackageNames": ["stripe", "@stripe/**"]
-    },
-    {
-      "groupName": "mjml",
-      "matchPackageNames": ["mjml", "@types/mjml"]
     }
   ],
   "customManagers": [

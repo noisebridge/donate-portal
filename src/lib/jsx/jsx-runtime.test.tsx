@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import type { Children, PropsWithChildren } from "./jsx-runtime";
+import { rawHtml } from "./jsx-runtime";
 
 const payload = `<script>alert("x" & 'y')</script>`;
 const escaped =
@@ -161,5 +162,28 @@ describe("jsx-runtime", () => {
         </>,
       ),
     ).toBe(`${escaped}<br>`);
+  });
+
+  test("inserts rawHtml verbatim next to escaped children", () => {
+    const comment = "<!--[if mso]><b>fallback</b><![endif]-->";
+    expect(
+      String(
+        <div>
+          {rawHtml(comment)}
+          {payload}
+        </div>,
+      ),
+    ).toBe(`<div>${comment}${escaped}</div>`);
+  });
+
+  test("composes rawHtml fragments in fragments and arrays", () => {
+    expect(
+      String(
+        <>
+          {rawHtml("<!--a-->")}
+          {[rawHtml("<!--b-->"), <br />]}
+        </>,
+      ),
+    ).toBe("<!--a--><!--b--><br>");
   });
 });

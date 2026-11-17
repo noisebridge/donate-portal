@@ -213,6 +213,9 @@ declare namespace JSX {
   interface HtmlHtmlTag extends HtmlTag {
     manifest?: undefined | string;
     xmlns?: string | string;
+    /** MSO namespaces for the VML and Office fallbacks in email HTML. */
+    "xmlns:v"?: undefined | string;
+    "xmlns:o"?: undefined | string;
   }
 
   interface HtmlIFrameTag extends HtmlTag {
@@ -494,6 +497,8 @@ declare namespace JSX {
 
   interface HtmlTableDataCellTag extends HtmlTag {
     align?: undefined | "left" | "center" | "right";
+    /** @deprecated */
+    bgcolor?: undefined | string;
     colspan?: undefined | string | number;
     rowspan?: undefined | string | number;
     headers?: undefined | string;
@@ -876,6 +881,13 @@ declare namespace JSX {
     video: HtmlVideoTag;
     view: HtmlSvgTag;
     wbr: HtmlTag;
+    xml: HtmlTag;
+
+    // Outlook's OfficeDocumentSettings block, only read inside an MSO
+    // conditional comment.
+    "o:AllowPNG": HtmlTag;
+    "o:OfficeDocumentSettings": HtmlTag;
+    "o:PixelsPerInch": HtmlTag;
   }
 }
 
