@@ -11,6 +11,7 @@ export enum ErrorCode {
   NoEmail = "Could not find an email address for you",
   EmailInvalid = "Invalid email address",
   EmailSendFailed = "Failed to send email. Please try again.",
+  EmailRateLimited = "Too many sign-in emails requested. Please try again later.",
   InvalidMagicLink = "Invalid magic link",
   MagicLinkExpired = "Magic link has expired. Please request a new one.",
   InvalidDonationAmount = "Please select a valid donation amount",

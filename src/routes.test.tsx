@@ -1,16 +1,19 @@
 import {
   afterAll,
+  afterEach,
   beforeEach,
   describe,
   expect,
   type Mock,
   mock,
+  setSystemTime,
   spyOn,
   test,
 } from "bun:test";
 import fastifyCookie, { sign } from "@fastify/cookie";
 import fastifyCsrf from "@fastify/csrf-protection";
 import fastifyFormbody from "@fastify/formbody";
+import fastifyRateLimit from "@fastify/rate-limit";
 import fastifyWebsocket from "@fastify/websocket";
 import Fastify, { type FastifyInstance } from "fastify";
 import type { Response as InjectResponse } from "light-my-request";
@@ -94,6 +97,7 @@ function resetMocks() {
 }
 
 const chargeAlertManager = (await import("~/managers/charge-alert")).default;
+const emailManager = await import("~/managers/email");
 const subscriptionManager = await import("~/managers/subscription");
 
 const { default: routes, maxRawBodyBytes } = await import("./routes");
@@ -104,8 +108,12 @@ const { default: routes, maxRawBodyBytes } = await import("./routes");
  * limiting, the production cookie/CSRF options and the 1024-byte form body
  * limit are all left out.
  */
-async function buildApp(): Promise<FastifyInstance> {
+async function buildApp({ rateLimit = false } = {}): Promise<FastifyInstance> {
   const app = Fastify({ logger: false, bodyLimit: maxRawBodyBytes });
+
+  if (rateLimit) {
+    await app.register(fastifyRateLimit, { max: 256, timeWindow: "1 minute" });
+  }
 
   await app.register(fastifyCookie, { secret: config.cookieSecret });
   await app.register(fastifyCsrf, { sessionPlugin: "@fastify/cookie" });
@@ -661,6 +669,101 @@ describe("routes", () => {
 
       expect(response.statusCode).toBe(302);
       expect(response.headers.location).toBe("/auth?error=InvalidRequest");
+    });
+  });
+
+  describe("POST /auth/email with rate limiting", () => {
+    let limited: FastifyInstance;
+    let requests = 0;
+    const sendMagicLink = spyOn(emailManager, "sendMagicLink");
+
+    // A fresh app per test, so each starts with empty limiters.
+    beforeEach(async () => {
+      limited = await buildApp({ rateLimit: true });
+      sendMagicLink.mockReset();
+      sendMagicLink.mockResolvedValue({ success: true, id: "email_1" });
+    });
+
+    afterEach(async () => {
+      setSystemTime();
+      await limited.close();
+    });
+
+    afterAll(() => {
+      sendMagicLink.mockRestore();
+    });
+
+    /** Each request comes from a new IP, so only the email limits apply. */
+    async function requestLink(email: string) {
+      const { token, cookie } = await csrf();
+      const response = await limited.inject({
+        method: "POST",
+        url: "/auth/email",
+        remoteAddress: `10.0.${Math.floor(requests / 250)}.${requests++ % 250}`,
+        headers: {
+          "content-type": "application/x-www-form-urlencoded",
+          cookie,
+        },
+        payload: new URLSearchParams({ email, _csrf: token }).toString(),
+      });
+
+      return response.headers.location;
+    }
+
+    const LIMITED = "/auth?error=EmailRateLimited";
+
+    /** Send the 30 links an hour the global cap allows. */
+    async function exhaustGlobalCap() {
+      for (let index = 0; index < 30; index++) {
+        expect(await requestLink(`user${index}@example.com`)).toStartWith(
+          "/auth/email?",
+        );
+      }
+    }
+
+    test("stops mailing one address after three links", async () => {
+      for (const email of ["a@example.com", "A@example.com", "a@example.com"]) {
+        expect(await requestLink(email)).toStartWith("/auth/email?");
+      }
+
+      expect(await requestLink("a@example.com")).toBe(LIMITED);
+      expect(sendMagicLink).toHaveBeenCalledTimes(3);
+    });
+
+    test("stops all magic link mail at the global cap", async () => {
+      await exhaustGlobalCap();
+
+      expect(await requestLink("one-more@example.com")).toBe(LIMITED);
+      expect(sendMagicLink).toHaveBeenCalledTimes(30);
+    });
+
+    test("does not count requests the global cap refused", async () => {
+      const start = Date.now();
+      setSystemTime(new Date(start));
+      await exhaustGlobalCap();
+
+      setSystemTime(new Date(start + 50 * 60 * 1000));
+      for (let index = 0; index < 3; index++) {
+        expect(await requestLink("victim@example.com")).toBe(LIMITED);
+      }
+
+      // The global hour is over; the address's 15 minutes would not be.
+      setSystemTime(new Date(start + 61 * 60 * 1000));
+      expect(await requestLink("victim@example.com")).toStartWith(
+        "/auth/email?",
+      );
+    });
+
+    test("does not count sends that failed", async () => {
+      sendMagicLink.mockResolvedValue({ success: false, error: "down" });
+      for (let index = 0; index < 3; index++) {
+        expect(await requestLink("a@example.com")).toBe(
+          "/auth?error=EmailSendFailed",
+        );
+      }
+
+      sendMagicLink.mockResolvedValue({ success: true, id: "email_1" });
+      expect(await requestLink("a@example.com")).toStartWith("/auth/email?");
     });
   });
 

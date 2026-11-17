@@ -501,6 +501,28 @@ export default async function routes(fastify: FastifyInstance) {
     return reply.redirect(paths.manage());
   });
 
+  function magicLinkRecipient(request: FastifyRequest) {
+    return emailParamsSchema.safeParse(request.body).data?.email?.trim();
+  }
+
+  // The per-IP limit alone lets one client keep mailing a single address, and
+  // many clients drain the Resend quota. Absent when rate limiting is disabled.
+  const magicLinkLimits = fastify.hasDecorator("createRateLimit")
+    ? [
+        fastify.createRateLimit({
+          max: 3,
+          timeWindow: "15 minutes",
+          keyGenerator: (request) =>
+            magicLinkRecipient(request)?.toLowerCase() ?? "",
+        }),
+        fastify.createRateLimit({
+          max: 30,
+          timeWindow: "1 hour",
+          keyGenerator: () => "",
+        }),
+      ]
+    : [];
+
   fastify.post(
     paths.emailAuth(),
     { ...authRateLimit, preHandler: fastify.csrfProtection },
@@ -509,8 +531,7 @@ export default async function routes(fastify: FastifyInstance) {
         return reply.redirect(paths.manage());
       }
 
-      const body = emailParamsSchema.safeParse(request.body);
-      const email = body.data?.email?.trim();
+      const email = magicLinkRecipient(request);
 
       if (!email) {
         fastify.log.warn("Missing email in POST /auth/email");
@@ -522,6 +543,17 @@ export default async function routes(fastify: FastifyInstance) {
         return reply.redirect(paths.signIn({ error: "EmailInvalid" }));
       }
 
+      // Only peek here, and count below once a mail is sent. A request that
+      // is refused or fails must not use up anyone's allowance. Requests in
+      // flight at the same moment can overshoot a limit by their number.
+      for (const limit of magicLinkLimits) {
+        const result = await limit(request, { increment: false });
+        if (!result.isAllowed && result.remaining === 0) {
+          fastify.log.warn({ email }, "Magic link email limit reached");
+          return reply.redirect(paths.signIn({ error: "EmailRateLimited" }));
+        }
+      }
+
       const response = await emailManager.sendMagicLink(email);
       if (!response.success) {
         fastify.log.error(
@@ -531,6 +563,9 @@ export default async function routes(fastify: FastifyInstance) {
         return reply.redirect(paths.signIn({ error: "EmailSendFailed" }));
       }
       fastify.log.info({ email, id: response.id }, "Magic link email sent");
+      for (const limit of magicLinkLimits) {
+        await limit(request);
+      }
 
       return reply.redirect(paths.emailAuth(email));
     },
