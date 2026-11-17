@@ -736,6 +736,25 @@ describe("routes", () => {
     });
   });
 
+  describe("GET /alerts/ws", () => {
+    test("refuses the upgrade without basic auth", async () => {
+      await expect(app.injectWS("/alerts/ws")).rejects.toThrow("401");
+    });
+
+    test("upgrades with valid credentials", async () => {
+      const credentials = Buffer.from(
+        `${config.alertsUsername}:${config.alertsPassword}`,
+      ).toString("base64");
+
+      const socket = await app.injectWS("/alerts/ws", {
+        headers: { authorization: `Basic ${credentials}` },
+      });
+
+      expect(socket.readyState).toBe(socket.OPEN);
+      socket.terminate();
+    });
+  });
+
   describe("POST /webhook", () => {
     // Spied per-test and restored, rather than mock.module'd: these modules are
     // shared with POST /subscribe and with the manager suites, and mock.module

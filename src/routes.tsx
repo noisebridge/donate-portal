@@ -887,27 +887,28 @@ export default async function routes(fastify: FastifyInstance) {
     },
   );
 
-  fastify.get(paths.alerts(), alertsRateLimit, async (request, reply) => {
-    if (!verifyBasicAuth(request)) {
-      return reply
-        .status(401)
-        .header("WWW-Authenticate", 'Basic realm="Alerts"')
-        .send("Unauthorized");
-    }
+  // A hook, so the websocket route rejects before the upgrade completes.
+  const alertsAuth: RouteShorthandOptions = {
+    ...alertsRateLimit,
+    preValidation: async (request, reply) => {
+      if (!verifyBasicAuth(request)) {
+        return reply
+          .status(401)
+          .header("WWW-Authenticate", 'Basic realm="Alerts"')
+          .send("Unauthorized");
+      }
+    },
+  };
 
+  fastify.get(paths.alerts(), alertsAuth, async (_request, reply) => {
     const alerts = await chargeAlertManager.getRecentAlerts();
     return reply.html(<AlertsPage alerts={alerts} />);
   });
 
   fastify.get(
     paths.alertsWs(),
-    { ...alertsRateLimit, websocket: true },
-    async (socket, request) => {
-      if (!verifyBasicAuth(request)) {
-        socket.close(1008, "Unauthorized");
-        return;
-      }
-
+    { ...alertsAuth, websocket: true },
+    async (socket) => {
       chargeAlertManager.addConnection(socket);
     },
   );

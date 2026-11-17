@@ -77,7 +77,9 @@ if (!config.disableRateLimit) {
 
 fastify.register(assets);
 
-fastify.register(fastifyWebsocket);
+// The server never reads client messages, and ws would otherwise buffer up to
+// 100 MiB per connection, on any GET route.
+fastify.register(fastifyWebsocket, { options: { maxPayload: 1024 } });
 
 fastify.register(html);
 
