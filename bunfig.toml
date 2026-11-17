@@ -1,3 +1,8 @@
 [test]
 root = "./src"
 preload = ["./src/test-utils/test-setup.ts"]
+
+[install]
+# Three days, matching Renovate's gate for direct dependencies. Renovate does
+# not apply it to the transitive versions Bun picks when it rewrites bun.lock.
+minimumReleaseAge = 259200

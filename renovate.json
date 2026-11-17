@@ -19,6 +19,20 @@
     {
       "groupName": "stripe",
       "matchPackageNames": ["stripe", "@stripe/**"]
+    },
+    {
+      "description": "Majors need a human. A merge to main is deployed without one.",
+      "matchUpdateTypes": ["major"],
+      "automerge": false
+    },
+    {
+      "description": "The npm release-age gate does not cover the base image or the CI actions, so these need a human too.",
+      "matchDatasources": ["docker"],
+      "automerge": false
+    },
+    {
+      "matchManagers": ["github-actions"],
+      "automerge": false
     }
   ],
   "customManagers": [
