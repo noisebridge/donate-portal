@@ -55,6 +55,14 @@ describe("ChargeAlertManager", () => {
       expect(manager["getProductName"](paymentIntent)).toBe("Pizza Fund");
     });
 
+    test("passes Object.prototype keys through as plain names", () => {
+      for (const name of ["constructor", "__proto__", "toString"]) {
+        const paymentIntent = makePaymentIntent({ metadata: { name } });
+
+        expect(manager["getProductName"](paymentIntent)).toBe(name);
+      }
+    });
+
     test("returns GENERAL_DONATION when name and description are missing", () => {
       const paymentIntent = makePaymentIntent();
 
@@ -264,6 +272,17 @@ describe("ChargeAlertManager", () => {
       const message = JSON.parse(String(socket.send.mock.calls[0]?.[0]));
       expect(message.type).toBe("ping");
       expect(message.history).toHaveLength(5);
+    });
+
+    test("survives a heartbeat whose history fetch fails", async () => {
+      const target = new ChargeAlertManager();
+      spyOn(target, "getRecentAlerts").mockRejectedValue(new Error("stripe"));
+      const socket = makeSocket();
+      const tick = connect(target, socket);
+
+      await tick();
+
+      expect(socket.send).not.toHaveBeenCalled();
     });
 
     test("keeps a socket that answers with a pong", async () => {

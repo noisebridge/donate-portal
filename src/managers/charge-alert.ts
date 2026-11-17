@@ -74,13 +74,18 @@ export class ChargeAlertManager {
       }
 
       alive = false;
-      socket.ping();
-      const history = await this.getRecentAlerts();
-      const message: PingMessage = {
-        type: "ping",
-        history: history.slice(0, PING_HISTORY_SIZE),
-      };
-      socket.send(JSON.stringify(message));
+      // A rejection in a timer callback is unhandled, which exits the process.
+      try {
+        socket.ping();
+        const history = await this.getRecentAlerts();
+        const message: PingMessage = {
+          type: "ping",
+          history: history.slice(0, PING_HISTORY_SIZE),
+        };
+        socket.send(JSON.stringify(message));
+      } catch (err) {
+        ChargeAlertManager.log.error({ err }, "Heartbeat failed");
+      }
     }, PING_INTERVAL_MS);
     // Allows the process to terminate even when the interval is running.
     heartbeat.unref();
@@ -212,7 +217,7 @@ export class ChargeAlertManager {
       return GENERAL_DONATION;
     }
 
-    const remapped = NAME_REMAP[name] ?? name;
+    const remapped = NAME_REMAP.get(name) ?? name;
     return obscenityFilter(remapped);
   }
 }

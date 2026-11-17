@@ -13,10 +13,12 @@ export const DEFAULT_DESCRIPTION = "Support our hackerspace community";
 export const MAX_DESCRIPTION_LENGTH = 80;
 
 export const GENERAL_DONATION = "General Donation";
-export const NAME_REMAP: Record<string, string> = {
-  [DEFAULT_NAME]: GENERAL_DONATION,
-  "Support Us": GENERAL_DONATION,
-};
+// A Map, not an object: donors choose the name, and "constructor" must not
+// resolve to Object.prototype.constructor.
+export const NAME_REMAP = new Map([
+  [DEFAULT_NAME, GENERAL_DONATION],
+  ["Support Us", GENERAL_DONATION],
+]);
 
 export function validateParams(name?: string, description?: string): boolean {
   if (name && name.length > MAX_NAME_LENGTH) {
@@ -35,7 +37,7 @@ export function isGeneral(name?: string) {
     return true;
   }
 
-  return NAME_REMAP[name] === GENERAL_DONATION;
+  return NAME_REMAP.get(name) === GENERAL_DONATION;
 }
 
 /**
